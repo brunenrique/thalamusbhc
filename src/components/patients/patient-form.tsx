@@ -62,17 +62,16 @@ export default function PatientForm({ patientData }: PatientFormProps) {
 
   async function onSubmit(data: PatientFormValues) {
     setIsLoading(true);
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-    console.log("Patient data:", data);
+    console.log("Simulated Patient Save:", JSON.stringify(data, null, 2));
+    await new Promise((resolve) => setTimeout(resolve, 1000));
     setIsLoading(false);
     toast({
-      title: patientData?.id ? "Patient Updated" : "Patient Added",
+      title: patientData?.id ? "Patient Updated (Simulated)" : "Patient Added (Simulated)",
       description: `${data.name} has been successfully ${patientData?.id ? 'updated' : 'added'}.`,
     });
-    // Redirect or clear form
+    
     if (!patientData?.id) {
-        form.reset(); // Clear form for new patient
+        // form.reset(); // Clear form for new patient // Let's not reset, user might want to see data
     }
     router.push(patientData?.id ? `/patients/${patientData.id}` : "/patients");
   }
@@ -182,7 +181,6 @@ export default function PatientForm({ patientData }: PatientFormProps) {
                 </FormItem>
               )}
             />
-            {/* Add more fields here as needed, e.g., Emergency Contact, Medical History */}
           </CardContent>
           <CardFooter className="flex justify-end">
             <Button type="submit" className="bg-accent hover:bg-accent/90 text-accent-foreground" disabled={isLoading}>
@@ -195,3 +193,5 @@ export default function PatientForm({ patientData }: PatientFormProps) {
     </Card>
   );
 }
+
+    

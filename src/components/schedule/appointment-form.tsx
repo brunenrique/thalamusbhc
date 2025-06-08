@@ -3,7 +3,7 @@
 
 import * as React from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import * as z from "zod";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -39,21 +39,50 @@ const mockPsychologists = [
   { id: "psy2", name: "Dr. Jones" },
 ];
 const appointmentTypes = ["Initial Consultation", "Follow-up", "Therapy Session", "Assessment Review", "Group Session"];
+const daysOfWeek = [
+  { id: "MO", label: "Mon" },
+  { id: "TU", label: "Tue" },
+  { id: "WE", label: "Wed" },
+  { id: "TH", label: "Thu" },
+  { id: "FR", label: "Fri" },
+  { id: "SA", label: "Sat" },
+  { id: "SU", label: "Sun" },
+];
 
 const appointmentFormSchema = z.object({
-  patientId: z.string().min(1, {message: "Please select a patient."}),
+  patientId: z.string().optional(), // Optional if isBlockTime is true
   psychologistId: z.string().min(1, {message: "Please select a psychologist."}),
   appointmentDate: z.date({ required_error: "Please select a date." }),
   startTime: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, { message: "Invalid time format (HH:mm)." }),
   endTime: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, { message: "Invalid time format (HH:mm)." }),
-  appointmentType: z.string().min(1, {message: "Please select an appointment type."}),
+  appointmentType: z.string().optional(), // Optional if isBlockTime is true
   notes: z.string().optional(),
   isRecurring: z.boolean().default(false),
-  // recurrenceRule: z.string().optional(), // For more complex recurrence
-  isBlockTime: z.boolean().default(false), // For blocking time slots
+  recurrenceFrequency: z.enum(["none", "daily", "weekly", "monthly"]).optional(),
+  recurrenceInterval: z.coerce.number().min(1).optional(),
+  recurrenceEndDate: z.date().optional(),
+  recurrenceDaysOfWeek: z.array(z.string()).optional(),
+  isBlockTime: z.boolean().default(false),
   blockReason: z.string().optional(),
-}).refine(data => {
-    if (data.isBlockTime) return true; // No need to validate end time if it's a block
+})
+.refine(data => {
+    if (data.isBlockTime) return true;
+    if (!data.patientId) return false;
+    return true;
+}, {
+    message: "Patient is required unless blocking time.",
+    path: ["patientId"],
+})
+.refine(data => {
+    if (data.isBlockTime) return true;
+    if (!data.appointmentType) return false;
+    return true;
+}, {
+    message: "Appointment type is required unless blocking time.",
+    path: ["appointmentType"],
+})
+.refine(data => {
+    if (data.isBlockTime) return true;
     const [startHour, startMinute] = data.startTime.split(':').map(Number);
     const [endHour, endMinute] = data.endTime.split(':').map(Number);
     if (endHour < startHour || (endHour === startHour && endMinute <= startMinute)) {
@@ -63,27 +92,41 @@ const appointmentFormSchema = z.object({
 }, {
     message: "End time must be after start time.",
     path: ["endTime"],
-}).refine(data => {
+})
+.refine(data => {
     if (data.isBlockTime && !data.blockReason) return false;
     return true;
 }, {
     message: "Reason is required if blocking time.",
     path: ["blockReason"],
+})
+.refine(data => {
+    if (data.isRecurring && data.recurrenceFrequency && data.recurrenceFrequency !== "none") {
+        if (!data.recurrenceInterval || data.recurrenceInterval < 1) {
+            return false; // Interval required and must be positive
+        }
+        if (data.recurrenceFrequency === "weekly" && (!data.recurrenceDaysOfWeek || data.recurrenceDaysOfWeek.length === 0)) {
+            return false; // Days of week required for weekly recurrence
+        }
+    }
+    return true;
+}, {
+    message: "Recurrence details are incomplete or invalid.",
+    path: ["recurrenceInterval"], // General path, could be more specific
 });
 
 
 type AppointmentFormValues = z.infer<typeof appointmentFormSchema>;
 
 interface AppointmentFormProps {
-  appointmentData?: Partial<AppointmentFormValues & { id?: string }>; // For editing
+  appointmentData?: Partial<AppointmentFormValues & { id?: string }>;
 }
 
 export default function AppointmentForm({ appointmentData }: AppointmentFormProps) {
   const router = useRouter();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = React.useState(false);
-  const [isBlockTime, setIsBlockTime] = React.useState(appointmentData?.isBlockTime || false);
-
+  
   const form = useForm<AppointmentFormValues>({
     resolver: zodResolver(appointmentFormSchema),
     defaultValues: {
@@ -95,40 +138,49 @@ export default function AppointmentForm({ appointmentData }: AppointmentFormProp
       appointmentType: appointmentData?.appointmentType || "",
       notes: appointmentData?.notes || "",
       isRecurring: appointmentData?.isRecurring || false,
+      recurrenceFrequency: appointmentData?.recurrenceFrequency || "none",
+      recurrenceInterval: appointmentData?.recurrenceInterval || 1,
+      recurrenceEndDate: appointmentData?.recurrenceEndDate ? new Date(appointmentData.recurrenceEndDate) : undefined,
+      recurrenceDaysOfWeek: appointmentData?.recurrenceDaysOfWeek || [],
       isBlockTime: appointmentData?.isBlockTime || false,
       blockReason: appointmentData?.blockReason || "",
     },
   });
   
-  React.useEffect(() => {
-    const subscription = form.watch((value, { name, type }) => {
-      if (name === 'isBlockTime') {
-        setIsBlockTime(!!value.isBlockTime);
-        if (value.isBlockTime) {
-          form.setValue('patientId', ''); // Clear patient if blocking time
-          form.setValue('appointmentType', ''); // Clear type if blocking time
-        }
-      }
-    });
-    return () => subscription.unsubscribe();
-  }, [form]);
+  const isBlockTime = form.watch("isBlockTime");
+  const isRecurring = form.watch("isRecurring");
+  const recurrenceFrequency = form.watch("recurrenceFrequency");
 
+  React.useEffect(() => {
+    if (isBlockTime) {
+      form.setValue('patientId', undefined); 
+      form.setValue('appointmentType', undefined);
+      form.setValue('isRecurring', false);
+    }
+  }, [isBlockTime, form]);
 
   async function onSubmit(data: AppointmentFormValues) {
     setIsLoading(true);
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1500));
     
     const finalData = {...data};
     if(data.isBlockTime) {
       finalData.appointmentType = "Blocked Slot";
-      finalData.patientId = "N/A"; // Or a specific system ID for blocked slots
+      finalData.patientId = "N/A"; 
+    }
+    if (!data.isRecurring) {
+        finalData.recurrenceFrequency = "none";
+        finalData.recurrenceInterval = undefined;
+        finalData.recurrenceEndDate = undefined;
+        finalData.recurrenceDaysOfWeek = [];
     }
 
-    console.log("Appointment data:", finalData);
+
+    console.log("Simulated Appointment Save:", JSON.stringify(finalData, null, 2));
+    await new Promise((resolve) => setTimeout(resolve, 1000));
     setIsLoading(false);
+
     toast({
-      title: appointmentData?.id ? "Appointment Updated" : (data.isBlockTime ? "Time Blocked" : "Appointment Scheduled"),
+      title: appointmentData?.id ? "Appointment Updated (Simulated)" : (data.isBlockTime ? "Time Blocked (Simulated)" : "Appointment Scheduled (Simulated)"),
       description: `The ${data.isBlockTime ? 'time slot' : 'appointment'} for ${data.isBlockTime ? data.blockReason : mockPatients.find(p=>p.id === data.patientId)?.name} on ${format(data.appointmentDate, "PPP")} has been successfully ${appointmentData?.id ? 'updated' : 'created'}.`,
     });
     router.push("/schedule");
@@ -280,7 +332,7 @@ export default function AppointmentForm({ appointmentData }: AppointmentFormProp
                             mode="single"
                             selected={field.value}
                             onSelect={field.onChange}
-                            disabled={(date) => date < new Date(new Date().setHours(0,0,0,0)) } // Disable past dates
+                            disabled={(date) => date < new Date(new Date().setHours(0,0,0,0)) }
                             initialFocus
                             />
                         </PopoverContent>
@@ -351,14 +403,120 @@ export default function AppointmentForm({ appointmentData }: AppointmentFormProp
                             <FormLabel htmlFor="isRecurring" className="font-medium cursor-pointer">
                             This is a recurring appointment
                             </FormLabel>
-                            <FormDescription>
-                            (Detailed recurrence settings will be available soon)
-                            </FormDescription>
                         </div>
                         </FormItem>
                     )}
                 />
             )}
+            
+            {isRecurring && !isBlockTime && (
+                <Card className="p-4 space-y-4 bg-muted/30">
+                    <CardTitle className="text-md font-semibold flex items-center"><Repeat className="mr-2 h-4 w-4"/> Recurrence Rules</CardTitle>
+                    <div className="grid md:grid-cols-2 gap-6">
+                        <FormField
+                            control={form.control}
+                            name="recurrenceFrequency"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Frequency *</FormLabel>
+                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                        <FormControl><SelectTrigger><SelectValue placeholder="Select frequency" /></SelectTrigger></FormControl>
+                                        <SelectContent>
+                                            <SelectItem value="none">None</SelectItem>
+                                            <SelectItem value="daily">Daily</SelectItem>
+                                            <SelectItem value="weekly">Weekly</SelectItem>
+                                            <SelectItem value="monthly">Monthly</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="recurrenceInterval"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Repeat every *</FormLabel>
+                                    <FormControl><Input type="number" min="1" {...field} /></FormControl>
+                                    <FormDescription>e.g., 1 for every day/week/month, 2 for every other.</FormDescription>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                    </div>
+                    {recurrenceFrequency === 'weekly' && (
+                        <FormField
+                            control={form.control}
+                            name="recurrenceDaysOfWeek"
+                            render={() => (
+                                <FormItem>
+                                    <FormLabel>Repeat on days *</FormLabel>
+                                    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-7 gap-2">
+                                    {daysOfWeek.map((day) => (
+                                        <FormField
+                                            key={day.id}
+                                            control={form.control}
+                                            name="recurrenceDaysOfWeek"
+                                            render={({ field }) => {
+                                                return (
+                                                <FormItem key={day.id} className="flex flex-row items-start space-x-2 space-y-0">
+                                                    <FormControl>
+                                                    <Checkbox
+                                                        checked={field.value?.includes(day.id)}
+                                                        onCheckedChange={(checked) => {
+                                                        return checked
+                                                            ? field.onChange([...(field.value || []), day.id])
+                                                            : field.onChange(
+                                                                (field.value || []).filter(
+                                                                (value) => value !== day.id
+                                                                )
+                                                            )
+                                                        }}
+                                                    />
+                                                    </FormControl>
+                                                    <FormLabel className="text-sm font-normal">{day.label}</FormLabel>
+                                                </FormItem>
+                                                )
+                                            }}
+                                        />
+                                    ))}
+                                    </div>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                    )}
+                    <FormField
+                        control={form.control}
+                        name="recurrenceEndDate"
+                        render={({ field }) => (
+                        <FormItem className="flex flex-col">
+                            <FormLabel>Ends on (Optional)</FormLabel>
+                            <Popover>
+                            <PopoverTrigger asChild>
+                                <FormControl>
+                                <Button
+                                    variant={"outline"}
+                                    className={cn("w-full pl-3 text-left font-normal",!field.value && "text-muted-foreground")}>
+                                    {field.value ? format(field.value, "PPP") : <span>Never</span>}
+                                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                </Button>
+                                </FormControl>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0" align="start">
+                                <Calendar mode="single" selected={field.value} onSelect={field.onChange} 
+                                disabled={(date) => date < (form.getValues("appointmentDate") || new Date())}
+                                initialFocus />
+                            </PopoverContent>
+                            </Popover>
+                            <FormMessage />
+                        </FormItem>
+                        )}
+                    />
+                </Card>
+            )}
+
 
           </CardContent>
           <CardFooter className="flex justify-end">
@@ -372,3 +530,5 @@ export default function AppointmentForm({ appointmentData }: AppointmentFormProp
     </Card>
   );
 }
+
+    

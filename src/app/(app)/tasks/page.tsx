@@ -21,15 +21,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { Label } from '@/components/ui/label';
-import { format } from 'date-fns';
+import { format, isEqual, startOfDay } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
 const mockTasksData = [
-  { id: "task1", title: "Acompanhar Alice W.", dueDate: "2024-07-25", assignedTo: "Dr. Silva", status: "Pendente", priority: "Alta", patientId: "1" },
-  { id: "task2", title: "Preparar relatório de avaliação para Bob B.", dueDate: "2024-07-22", assignedTo: "Secretaria", status: "Em Progresso", priority: "Média", patientId: "2" },
-  { id: "task3", title: "Revisar entrada de novo paciente - Charlie B.", dueDate: "2024-07-20", assignedTo: "Dra. Jones", status: "Concluída", priority: "Alta", patientId: "3" },
-  { id: "task4", title: "Enviar lembrete para Diana P. para avaliação", dueDate: "2024-07-28", assignedTo: "Secretaria", status: "Pendente", priority: "Baixa", patientId: "4" },
-  { id: "task5", title: "Atualizar documento de políticas da clínica", dueDate: "2024-08-01", assignedTo: "Admin", status: "Pendente", priority: "Média" },
+  { id: "task1", title: "Acompanhar Alice W.", dueDate: "2024-07-25", assignedTo: "Dr. Silva", status: "Pendente" as const, priority: "Alta" as const, patientId: "1" },
+  { id: "task2", title: "Preparar relatório de avaliação para Bob B.", dueDate: "2024-07-22", assignedTo: "Secretaria", status: "Em Progresso" as const, priority: "Média" as const, patientId: "2" },
+  { id: "task3", title: "Revisar entrada de novo paciente - Charlie B.", dueDate: "2024-07-20", assignedTo: "Dra. Jones", status: "Concluída" as const, priority: "Alta" as const, patientId: "3" },
+  { id: "task4", title: "Enviar lembrete para Diana P. para avaliação", dueDate: "2024-07-28", assignedTo: "Secretaria", status: "Pendente" as const, priority: "Baixa" as const, patientId: "4" },
+  { id: "task5", title: "Atualizar documento de políticas da clínica", dueDate: "2024-08-01", assignedTo: "Admin", status: "Pendente" as const, priority: "Média" as const },
 ];
 
 type TaskStatus = "Pendente" | "Em Progresso" | "Concluída";
@@ -61,6 +61,16 @@ export default function TasksPage() {
     setFilters(prev => ({ ...prev, [filterName]: value }));
   };
 
+  const resetFilters = () => {
+    setFilters({
+        status: "All",
+        priority: "All",
+        assignedTo: "All",
+        dueDate: undefined,
+    });
+    setSearchTerm("");
+  }
+
   const uniqueAssignees = useMemo(() => {
     const assignees = new Set(mockTasksData.map(task => task.assignedTo));
     return ["Todos", ...Array.from(assignees)];
@@ -69,11 +79,12 @@ export default function TasksPage() {
   const filteredTasks = useMemo(() => {
     return mockTasksData.filter(task => {
       const matchesSearch = task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                            (task.patientId && `paciente:${task.patientId}`.includes(searchTerm.toLowerCase())) ||
                             task.assignedTo.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesStatus = filters.status === "All" || task.status === filters.status;
       const matchesPriority = filters.priority === "All" || task.priority === filters.priority;
       const matchesAssignee = filters.assignedTo === "Todos" || task.assignedTo === filters.assignedTo;
-      const matchesDueDate = !filters.dueDate || format(new Date(task.dueDate), 'yyyy-MM-dd') === format(filters.dueDate, 'yyyy-MM-dd');
+      const matchesDueDate = !filters.dueDate || isEqual(startOfDay(new Date(task.dueDate)), startOfDay(filters.dueDate));
       
       return matchesSearch && matchesStatus && matchesPriority && matchesAssignee && matchesDueDate;
     });
@@ -104,7 +115,7 @@ export default function TasksPage() {
             <div className="relative flex-1">
               <Search className="absolute left-2.5 top-3 h-4 w-4 text-muted-foreground" />
               <Input 
-                placeholder="Buscar tarefas por título ou responsável..." 
+                placeholder="Buscar tarefas por título, responsável ou 'paciente:id'..." 
                 className="pl-8" 
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -164,11 +175,12 @@ export default function TasksPage() {
                   </div>
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
+                {/* O botão de aplicar filtros é opcional, pois os filtros já são aplicados onChange */}
+                {/* <DropdownMenuItem>
                     <Button className="w-full" size="sm" onClick={() => console.log("Aplicando filtros de tarefas:", filters)}>Aplicar Filtros</Button>
-                </DropdownMenuItem>
+                </DropdownMenuItem> */}
                  <DropdownMenuItem>
-                    <Button className="w-full" size="sm" variant="ghost" onClick={() => setFilters({status: "All", priority: "All", assignedTo: "All", dueDate: undefined})}>Limpar Filtros</Button>
+                    <Button className="w-full" size="sm" variant="ghost" onClick={resetFilters}>Limpar Filtros</Button>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -193,7 +205,13 @@ export default function TasksPage() {
                   ))}
                 </div>
               ) : (
-                <p className="text-muted-foreground text-center py-6">Nenhuma tarefa pendente corresponde aos seus filtros.</p>
+                <div className="text-center py-10">
+                    <Search className="mx-auto h-12 w-12 text-muted-foreground opacity-50" />
+                    <p className="mt-2 text-muted-foreground">Nenhuma tarefa pendente corresponde aos seus filtros.</p>
+                    { (filters.status !== "All" || filters.priority !== "All" || filters.assignedTo !== "All" || filters.dueDate || searchTerm) &&
+                        <Button variant="link" onClick={resetFilters} className="mt-2">Limpar filtros</Button>
+                    }
+                </div>
               )}
             </TabsContent>
             <TabsContent value="completed" className="mt-4">
@@ -204,7 +222,13 @@ export default function TasksPage() {
                   ))}
                 </div>
               ) : (
-                <p className="text-muted-foreground text-center py-6">Nenhuma tarefa concluída corresponde aos seus filtros.</p>
+                <div className="text-center py-10">
+                    <Search className="mx-auto h-12 w-12 text-muted-foreground opacity-50" />
+                    <p className="mt-2 text-muted-foreground">Nenhuma tarefa concluída corresponde aos seus filtros.</p>
+                     { (filters.status !== "All" || filters.priority !== "All" || filters.assignedTo !== "All" || filters.dueDate || searchTerm) &&
+                        <Button variant="link" onClick={resetFilters} className="mt-2">Limpar filtros</Button>
+                    }
+                </div>
               )}
             </TabsContent>
           </Tabs>
@@ -213,3 +237,4 @@ export default function TasksPage() {
     </div>
   );
 }
+

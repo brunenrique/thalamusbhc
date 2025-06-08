@@ -74,6 +74,16 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
       description: `${patient.name} foi marcado(a) como arquivado(a).`,
     });
   };
+  
+  const handleDeletePatient = () => {
+    console.log(`Excluindo paciente ${patient.id}... (Simulado)`);
+    toast({
+      title: "Paciente Excluído (Simulado)",
+      description: `${patient.name} foi excluído(a) permanentemente.`,
+      variant: "destructive",
+    });
+    // TODO: router.push("/patients"); ou similar após exclusão real
+  };
 
   const formattedDob = patient.dob ? format(new Date(patient.dob), "P", { locale: ptBR }) : "N/A";
   const formattedNextAppointment = patient.nextAppointment 
@@ -111,8 +121,8 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
                 </Button>
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
-                    <Button variant="destructive" className="bg-destructive/90 hover:bg-destructive">
-                      <Archive className="mr-2 h-4 w-4" /> Arquivar Paciente
+                    <Button variant="outline" className="border-yellow-500 text-yellow-700 hover:bg-yellow-50 hover:text-yellow-700">
+                      <Archive className="mr-2 h-4 w-4" /> Arquivar
                     </Button>
                   </AlertDialogTrigger>
                   <AlertDialogContent>
@@ -125,8 +135,30 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                       <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                      <AlertDialogAction onClick={handleArchivePatient} className="bg-destructive hover:bg-destructive/90">
+                      <AlertDialogAction onClick={handleArchivePatient} className="bg-yellow-500 hover:bg-yellow-600 text-white">
                         Arquivar
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="destructive" className="bg-destructive/90 hover:bg-destructive">
+                      <Trash2 className="mr-2 h-4 w-4" /> Excluir
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Excluir Paciente Permanentemente?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Esta ação não pode ser desfeita. Todos os dados associados a {patient.name} (prontuários, agendamentos, avaliações) serão permanentemente removidos. 
+                        Tem certeza que deseja excluir este paciente?
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                      <AlertDialogAction onClick={handleDeletePatient} className="bg-destructive hover:bg-destructive/90">
+                        Excluir Permanentemente
                       </AlertDialogAction>
                     </AlertDialogFooter>
                   </AlertDialogContent>
@@ -253,4 +285,6 @@ function InfoItem({ icon, label, value, className }: InfoItemProps) {
     </div>
   );
 }
+    
+
     

@@ -1,10 +1,24 @@
+
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { ChevronRight, Edit3, Mail, CalendarDays } from "lucide-react";
+import { ChevronRight, Edit3, Mail, CalendarDays, Trash2 } from "lucide-react";
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { useToast } from "@/hooks/use-toast";
+import React from "react";
 
 interface Patient {
   id: string;
@@ -21,6 +35,8 @@ interface PatientListItemProps {
 }
 
 export default function PatientListItem({ patient }: PatientListItemProps) {
+  const { toast } = useToast();
+
   const getInitials = (name: string) => {
     const names = name.split(' ');
     if (names.length === 1) return names[0][0]?.toUpperCase() || '';
@@ -30,6 +46,16 @@ export default function PatientListItem({ patient }: PatientListItemProps) {
   const formattedNextAppointment = patient.nextAppointment 
     ? format(new Date(patient.nextAppointment), "P", { locale: ptBR }) 
     : null;
+
+  const handleDeletePatient = () => {
+    console.log(`Excluindo paciente ${patient.id} da lista... (Simulado)`);
+    toast({
+      title: "Paciente Excluído (Simulado)",
+      description: `${patient.name} foi excluído(a) permanentemente.`,
+      variant: "destructive",
+    });
+    // Lógica para remover da lista (ou re-fetch) após exclusão real
+  };
 
   return (
     <Card className="hover:shadow-md transition-shadow duration-200">
@@ -56,14 +82,37 @@ export default function PatientListItem({ patient }: PatientListItemProps) {
               )}
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" asChild>
+          <div className="flex items-center gap-1 sm:gap-2">
+            <Button variant="outline" size="sm" asChild className="h-8 px-2 sm:px-3">
               <Link href={`/patients/${patient.id}/edit`}>
-                <Edit3 className="h-4 w-4 " />
-                <span className="sr-only sm:not-sr-only sm:ml-2">Editar</span>
+                <Edit3 className="h-3.5 w-3.5 sm:mr-1" />
+                <span className="sr-only sm:not-sr-only">Editar</span>
               </Link>
             </Button>
-            <Button variant="ghost" size="icon" asChild>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10">
+                  <Trash2 className="h-4 w-4" />
+                  <span className="sr-only">Excluir</span>
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Excluir Paciente Permanentemente?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Esta ação não pode ser desfeita. Todos os dados associados a {patient.name} serão permanentemente removidos. 
+                    Tem certeza que deseja excluir este paciente?
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleDeletePatient} className="bg-destructive hover:bg-destructive/90">
+                    Excluir Permanentemente
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+            <Button variant="ghost" size="icon" asChild className="h-8 w-8">
               <Link href={`/patients/${patient.id}`}>
                 <ChevronRight className="h-5 w-5" />
                  <span className="sr-only">Ver</span>
@@ -75,3 +124,6 @@ export default function PatientListItem({ patient }: PatientListItemProps) {
     </Card>
   );
 }
+
+
+    

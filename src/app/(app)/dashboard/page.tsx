@@ -1,7 +1,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Activity, Users, CalendarCheck, BarChart3, ArrowUpRight, DollarSign, Clock, ClipboardList } from "lucide-react";
+import { Activity, Users, CalendarCheck, BarChart3, ArrowUpRight, DollarSign, Clock, ClipboardList, LineChart, UsersRound, CalendarClock } from "lucide-react";
 import Link from "next/link";
 import { OccupancyChart } from '@/components/dashboard/occupancy-chart';
 import { PerformanceChart } from '@/components/dashboard/performance-chart';
@@ -33,10 +33,10 @@ export default function DashboardPage() {
 
       {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <StatsCard title="Total Patients" value="125" icon={<Users className="text-primary" />} trend="+5 this month" />
-        <StatsCard title="Appointments Today" value="8" icon={<CalendarCheck className="text-primary" />} trend="2 pending" />
+        <StatsCard title="Active Patients" value="78" icon={<UsersRound className="text-primary" />} trend="+2 this week" />
+        <StatsCard title="Appointments Today" value="8" icon={<CalendarClock className="text-primary" />} trend="2 pending" />
+        <StatsCard title="Sessions This Month" value="45" icon={<LineChart className="text-primary" />} trend="+10% vs last month" />
         <StatsCard title="Open Tasks" value="12" icon={<Activity className="text-primary" />} trend="3 overdue" />
-        <StatsCard title="Occupancy Rate" value="78%" icon={<BarChart3 className="text-primary" />} trend="+2% vs last week" />
       </div>
 
       {/* Charts Section */}

@@ -1,13 +1,28 @@
+
+"use client";
+import React, { useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Mail, Phone, CalendarDays, Edit, FileText, Brain, CheckCircle, Clock, Archive, MessageSquare } from "lucide-react";
+import { Mail, Phone, CalendarDays, Edit, FileText, Brain, CheckCircle, Clock, Archive, MessageSquare, Trash2, Users as UsersIconLucide, Home as HomeIconLucide } from "lucide-react"; // Renamed to avoid conflict
 import Link from "next/link";
 import PatientTimeline from "@/components/patients/patient-timeline";
 import SessionNoteCard from "@/components/patients/session-note-card";
-import ResourceCard from "@/components/resources/resource-card"; // Assuming this component exists
-import AssessmentCard from "@/components/assessments/assessment-card"; // Assuming this component exists
+import ResourceCard from "@/components/resources/resource-card";
+import AssessmentCard from "@/components/assessments/assessment-card";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { useToast } from "@/hooks/use-toast";
 
 // Mock data - replace with actual data fetching
 const mockPatient = {
@@ -30,23 +45,33 @@ const mockSessionNotes = [
 ];
 
 const mockAssessments = [
-  { id: "asm1", name: "Beck Depression Inventory", dateSent: "2024-07-01", status: "Completed", score: "15/63" },
-  { id: "asm2", name: "GAD-7 Anxiety Scale", dateSent: "2024-07-10", status: "Pending" },
+  { id: "asm1", name: "Beck Depression Inventory", dateSent: "2024-07-01", status: "Completed" as const, score: "15/63" },
+  { id: "asm2", name: "GAD-7 Anxiety Scale", dateSent: "2024-07-10", status: "Pending" as const },
 ];
 
 const mockResources = [
- { id: "res1", name: "Mindfulness Guide.pdf", type: "pdf", size: "1.2MB", sharedDate: "2024-07-02", dataAiHint: "document mindfulness" },
- { id: "res2", name: "Sleep Hygiene Tips.pdf", type: "pdf", size: "800KB", sharedDate: "2024-06-20", dataAiHint: "document sleep" },
+ { id: "res1", name: "Mindfulness Guide.pdf", type: "pdf" as const, size: "1.2MB", sharedDate: "2024-07-02", dataAiHint: "document mindfulness" },
+ { id: "res2", name: "Sleep Hygiene Tips.pdf", type: "pdf" as const, size: "800KB", sharedDate: "2024-06-20", dataAiHint: "document sleep" },
 ];
 
 
 export default function PatientDetailPage({ params }: { params: { id: string } }) {
   const patient = mockPatient; // Fetch patient by params.id
+  const { toast } = useToast();
 
   const getInitials = (name: string) => {
     const names = name.split(' ');
     if (names.length === 1) return names[0][0]?.toUpperCase() || '';
     return (names[0][0] + (names[names.length - 1][0] || '')).toUpperCase();
+  };
+
+  const handleArchivePatient = () => {
+    console.log(`Archiving patient ${patient.id}... (Simulated)`);
+    toast({
+      title: "Patient Archived (Simulated)",
+      description: `${patient.name} has been marked as archived.`,
+    });
+    // In a real app, you would redirect or update UI state
   };
 
   return (
@@ -68,11 +93,35 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
                 <span className="flex items-center"><CalendarDays className="mr-1.5 h-4 w-4" /> DOB: {patient.dob}</span>
               </div>
             </div>
-            <Button variant="outline" asChild>
-              <Link href={`/patients/${patient.id}/edit`}>
-                <Edit className="mr-2 h-4 w-4" /> Edit Profile
-              </Link>
-            </Button>
+            <div className="flex flex-col sm:flex-row gap-2 self-start sm:self-center">
+                <Button variant="outline" asChild>
+                  <Link href={`/patients/${patient.id}/edit`}>
+                    <Edit className="mr-2 h-4 w-4" /> Edit Profile
+                  </Link>
+                </Button>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="destructive" className="bg-destructive/90 hover:bg-destructive">
+                      <Archive className="mr-2 h-4 w-4" /> Archive Patient
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Archive Patient?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Archiving this patient will remove them from active lists but preserve their data. 
+                        This action can usually be undone. Are you sure you want to archive {patient.name}?
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction onClick={handleArchivePatient} className="bg-destructive hover:bg-destructive/90">
+                        Archive
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+            </div>
           </div>
         </CardHeader>
       </Card>
@@ -107,7 +156,9 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
                 <CardTitle className="font-headline">Session Notes</CardTitle>
                 <CardDescription>Chronological record of therapy sessions.</CardDescription>
               </div>
-              <Button variant="outline"><FileText className="mr-2 h-4 w-4" /> New Note</Button>
+              <Button variant="outline" className="bg-accent hover:bg-accent/90 text-accent-foreground">
+                <FileText className="mr-2 h-4 w-4" /> New Note
+              </Button>
             </CardHeader>
             <CardContent className="space-y-4">
               {mockSessionNotes.map(note => (
@@ -125,7 +176,9 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
                 <CardTitle className="font-headline">Assessments</CardTitle>
                 <CardDescription>Track and manage patient assessments.</CardDescription>
               </div>
-               <Button variant="outline"><CheckCircle className="mr-2 h-4 w-4" /> Assign Assessment</Button>
+               <Button variant="outline" className="bg-accent hover:bg-accent/90 text-accent-foreground">
+                <CheckCircle className="mr-2 h-4 w-4" /> Assign Assessment
+               </Button>
             </CardHeader>
             <CardContent className="space-y-4">
               {mockAssessments.map(assessment => (
@@ -155,7 +208,9 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
                 <CardTitle className="font-headline">Shared Resources</CardTitle>
                 <CardDescription>Documents and guides shared with the patient.</CardDescription>
               </div>
-               <Button variant="outline"><Archive className="mr-2 h-4 w-4" /> Share Resource</Button>
+               <Button variant="outline" className="bg-accent hover:bg-accent/90 text-accent-foreground">
+                <Archive className="mr-2 h-4 w-4" /> Share Resource
+               </Button>
             </CardHeader>
             <CardContent className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {mockResources.map(resource => (
@@ -190,7 +245,7 @@ function InfoItem({ icon, label, value, className }: InfoItemProps) {
 }
 
 // Dummy icons if not in lucide, or to avoid direct lucide import in page level
-function UsersIcon(props: React.SVGProps<SVGSVGElement>) {
+function UsersIcon(props: React.SVGProps<SVGSVGElement>) { // Kept as local component as per existing file
   return (
     <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
@@ -201,7 +256,7 @@ function UsersIcon(props: React.SVGProps<SVGSVGElement>) {
   )
 }
 
-function HomeIcon(props: React.SVGProps<SVGSVGElement>) {
+function HomeIcon(props: React.SVGProps<SVGSVGElement>) { // Kept as local component
   return (
     <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
@@ -209,3 +264,4 @@ function HomeIcon(props: React.SVGProps<SVGSVGElement>) {
     </svg>
   )
 }
+    

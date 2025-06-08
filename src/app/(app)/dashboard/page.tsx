@@ -9,42 +9,42 @@ import { RecentActivityItem } from "@/components/dashboard/recent-activity-item"
 
 export default function DashboardPage() {
   const upcomingAppointments = [
-    { id: '1', patientName: 'Alice Wonderland', time: '10:00 AM', psychologist: 'Dr. Smith' },
-    { id: '2', patientName: 'Bob The Builder', time: '11:30 AM', psychologist: 'Dr. Jones' },
-    { id: '3', patientName: 'Charlie Brown', time: '02:00 PM', psychologist: 'Dr. Smith' },
+    { id: '1', patientName: 'Alice Wonderland', time: '10:00', psychologist: 'Dr. Smith' },
+    { id: '2', patientName: 'Bob O Construtor', time: '11:30', psychologist: 'Dr. Jones' },
+    { id: '3', patientName: 'Charlie Brown', time: '14:00', psychologist: 'Dr. Smith' },
   ];
 
   const recentActivities = [
-    { id: 'act1', description: 'New patient "Eva Green" added.', time: '2 hours ago', icon: <Users className="w-4 h-4" /> },
-    { id: 'act2', description: 'Session notes for "Alice W." finalized.', time: '5 hours ago', icon: <ClipboardList className="w-4 h-4" /> },
-    { id: 'act3', description: 'Appointment with "Bob B." rescheduled.', time: '1 day ago', icon: <CalendarCheck className="w-4 h-4" /> },
+    { id: 'act1', description: 'Nova paciente "Eva Green" adicionada.', time: 'Há 2 horas', icon: <Users className="w-4 h-4" /> },
+    { id: 'act2', description: 'Notas da sessão de "Alice W." finalizadas.', time: 'Há 5 horas', icon: <ClipboardList className="w-4 h-4" /> },
+    { id: 'act3', description: 'Agendamento com "Bob O." remarcado.', time: 'Há 1 dia', icon: <CalendarCheck className="w-4 h-4" /> },
   ];
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <h1 className="text-3xl font-headline font-bold">Dashboard</h1>
+        <h1 className="text-3xl font-headline font-bold">Painel</h1>
         <Button asChild className="bg-accent hover:bg-accent/90 text-accent-foreground">
           <Link href="/schedule/new">
-            <CalendarCheck className="mr-2 h-4 w-4" /> New Appointment
+            <CalendarCheck className="mr-2 h-4 w-4" /> Novo Agendamento
           </Link>
         </Button>
       </div>
 
       {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <StatsCard title="Active Patients" value="78" icon={<UsersRound className="text-primary" />} trend="+2 this week" />
-        <StatsCard title="Appointments Today" value="8" icon={<CalendarClock className="text-primary" />} trend="2 pending" />
-        <StatsCard title="Sessions This Month" value="45" icon={<LineChart className="text-primary" />} trend="+10% vs last month" />
-        <StatsCard title="Open Tasks" value="12" icon={<Activity className="text-primary" />} trend="3 overdue" />
+        <StatsCard title="Pacientes Ativos" value="78" icon={<UsersRound className="text-primary" />} trend="+2 esta semana" />
+        <StatsCard title="Consultas Hoje" value="8" icon={<CalendarClock className="text-primary" />} trend="2 pendentes" />
+        <StatsCard title="Sessões Este Mês" value="45" icon={<LineChart className="text-primary" />} trend="+10% vs mês passado" />
+        <StatsCard title="Tarefas Abertas" value="12" icon={<Activity className="text-primary" />} trend="3 atrasadas" />
       </div>
 
       {/* Charts Section */}
       <div className="grid gap-6 md:grid-cols-2">
         <Card className="shadow-sm">
           <CardHeader>
-            <CardTitle className="font-headline">Schedule Occupancy</CardTitle>
-            <CardDescription>Weekly occupancy trends</CardDescription>
+            <CardTitle className="font-headline">Ocupação da Agenda</CardTitle>
+            <CardDescription>Tendências de ocupação semanal</CardDescription>
           </CardHeader>
           <CardContent>
             <OccupancyChart />
@@ -52,8 +52,8 @@ export default function DashboardPage() {
         </Card>
         <Card className="shadow-sm">
           <CardHeader>
-            <CardTitle className="font-headline">Psychologist Performance</CardTitle>
-            <CardDescription>Sessions completed per psychologist</CardDescription>
+            <CardTitle className="font-headline">Desempenho dos Psicólogos</CardTitle>
+            <CardDescription>Sessões concluídas por psicólogo</CardDescription>
           </CardHeader>
           <CardContent>
             <PerformanceChart />
@@ -65,7 +65,7 @@ export default function DashboardPage() {
       <div className="grid gap-6 md:grid-cols-2">
         <Card className="shadow-sm">
           <CardHeader>
-            <CardTitle className="font-headline">Upcoming Appointments</CardTitle>
+            <CardTitle className="font-headline">Próximos Agendamentos</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             {upcomingAppointments.length > 0 ? (
@@ -78,19 +78,19 @@ export default function DashboardPage() {
                   <div className="text-right">
                     <p className="font-medium">{appt.time}</p>
                     <Button variant="link" size="sm" className="p-0 h-auto text-accent" asChild>
-                        <Link href={`/patients/${appt.id}`}>View Details</Link>
+                        <Link href={`/patients/${appt.id}`}>Ver Detalhes</Link>
                     </Button>
                   </div>
                 </div>
               ))
             ) : (
-              <p className="text-muted-foreground">No upcoming appointments.</p>
+              <p className="text-muted-foreground">Nenhum próximo agendamento.</p>
             )}
           </CardContent>
         </Card>
         <Card className="shadow-sm">
           <CardHeader>
-            <CardTitle className="font-headline">Recent Activity</CardTitle>
+            <CardTitle className="font-headline">Atividade Recente</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             {recentActivities.length > 0 ? (
@@ -98,7 +98,7 @@ export default function DashboardPage() {
                 <RecentActivityItem key={activity.id} description={activity.description} time={activity.time} icon={activity.icon} />
               ))
             ) : (
-              <p className="text-muted-foreground">No recent activity.</p>
+              <p className="text-muted-foreground">Nenhuma atividade recente.</p>
             )}
           </CardContent>
         </Card>

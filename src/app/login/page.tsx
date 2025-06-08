@@ -12,20 +12,20 @@ export default function LoginPage() {
             <h1 className="text-4xl font-headline font-bold text-primary">PsiGuard</h1>
           </Link>
           <h2 className="text-2xl font-headline font-semibold tracking-tight text-foreground">
-            Welcome Back
+            Bem-vindo(a) de Volta
           </h2>
           <p className="text-sm text-muted-foreground">
-            Enter your credentials to access your account.
+            Digite suas credenciais para acessar sua conta.
           </p>
         </div>
         <LoginForm />
         <p className="px-8 text-center text-sm text-muted-foreground">
-          Don&apos;t have an account?{" "}
+          Não tem uma conta?{" "}
           <Link
             href="/signup"
             className="underline underline-offset-4 hover:text-primary"
           >
-            Sign Up
+            Cadastre-se
           </Link>
         </p>
          <p className="px-8 text-center text-sm text-muted-foreground">
@@ -33,7 +33,7 @@ export default function LoginPage() {
             href="/forgot-password"
             className="underline underline-offset-4 hover:text-primary"
           >
-            Forgot Password?
+            Esqueceu a senha?
           </Link>
         </p>
       </div>

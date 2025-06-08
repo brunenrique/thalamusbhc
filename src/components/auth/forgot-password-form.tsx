@@ -19,7 +19,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 
 const forgotPasswordSchema = z.object({
-  email: z.string().email({ message: "Please enter a valid email address." }),
+  email: z.string().email({ message: "Por favor, insira um endereço de e-mail válido." }),
 });
 
 type ForgotPasswordFormValues = z.infer<typeof forgotPasswordSchema>;
@@ -37,13 +37,13 @@ export default function ForgotPasswordForm() {
 
   async function onSubmit(data: ForgotPasswordFormValues) {
     setIsLoading(true);
-    // Simulate API call
+    // Simula chamada de API
     await new Promise((resolve) => setTimeout(resolve, 1000));
-    console.log("Forgot password for email:", data.email);
+    console.log("Esqueceu a senha para o e-mail:", data.email);
     setIsLoading(false);
     toast({
-      title: "Password Reset Email Sent",
-      description: "If an account exists for this email, a reset link has been sent.",
+      title: "E-mail de Redefinição de Senha Enviado",
+      description: "Se uma conta existir para este e-mail, um link de redefinição foi enviado.",
     });
     form.reset();
   }
@@ -60,14 +60,14 @@ export default function ForgotPasswordForm() {
                 <FormItem>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input placeholder="name@example.com" {...field} />
+                    <Input placeholder="nome@exemplo.com" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
             <Button type="submit" className="w-full bg-accent hover:bg-accent/90 text-accent-foreground" disabled={isLoading}>
-              {isLoading ? "Sending..." : "Send Reset Link"}
+              {isLoading ? "Enviando..." : "Enviar Link de Redefinição"}
             </Button>
           </form>
         </Form>

@@ -4,21 +4,23 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { FileText, FileImage, FileArchive, Download, Share2, Trash2, Users, Edit } from "lucide-react";
 import Link from "next/link";
+import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 
 interface Resource {
   id: string;
   name: string;
   type: "pdf" | "docx" | "image" | "other";
   size: string;
-  uploadDate?: string; // For global list
-  sharedDate?: string; // For patient-specific list
-  sharedWith?: number; // For global list: number of patients shared with
+  uploadDate?: string; 
+  sharedDate?: string; 
+  sharedWith?: number; 
   dataAiHint?: string;
 }
 
 interface ResourceCardProps {
   resource: Resource;
-  isGlobalList?: boolean; // Differentiates between global resource list and patient-specific list
+  isGlobalList?: boolean; 
 }
 
 export default function ResourceCard({ resource, isGlobalList = false }: ResourceCardProps) {
@@ -31,6 +33,9 @@ export default function ResourceCard({ resource, isGlobalList = false }: Resourc
     }
   };
 
+  const dateToDisplay = isGlobalList ? resource.uploadDate : resource.sharedDate;
+  const dateLabel = isGlobalList ? "Carregado" : "Compartilhado";
+
   return (
     <Card className="shadow-sm hover:shadow-md transition-shadow flex flex-col h-full">
       <CardHeader>
@@ -40,35 +45,34 @@ export default function ResourceCard({ resource, isGlobalList = false }: Resourc
         </div>
          {resource.type === "image" && (
             <div className="mt-2 aspect-video relative rounded-md overflow-hidden bg-muted">
-                 <Image src={`https://placehold.co/300x200.png`} alt={resource.name} layout="fill" objectFit="cover" data-ai-hint={resource.dataAiHint || "abstract image"}/>
+                 <Image src={`https://placehold.co/300x200.png`} alt={resource.name} layout="fill" objectFit="cover" data-ai-hint={resource.dataAiHint || "imagem abstrata"}/>
             </div>
         )}
       </CardHeader>
       <CardContent className="flex-grow text-xs text-muted-foreground space-y-1">
-        <p>Type: <Badge variant="outline" className="uppercase">{resource.type}</Badge></p>
-        <p>Size: {resource.size}</p>
-        {isGlobalList && resource.uploadDate && <p>Uploaded: {new Date(resource.uploadDate).toLocaleDateString()}</p>}
-        {!isGlobalList && resource.sharedDate && <p>Shared: {new Date(resource.sharedDate).toLocaleDateString()}</p>}
+        <p>Tipo: <Badge variant="outline" className="uppercase">{resource.type}</Badge></p>
+        <p>Tamanho: {resource.size}</p>
+        {dateToDisplay && <p>{dateLabel}: {format(new Date(dateToDisplay), "P", { locale: ptBR })}</p>}
         {isGlobalList && resource.sharedWith !== undefined && (
-          <p className="flex items-center"><Users className="mr-1 h-3 w-3" /> Shared with {resource.sharedWith} patient(s)</p>
+          <p className="flex items-center"><Users className="mr-1 h-3 w-3" /> Compartilhado com {resource.sharedWith} paciente(s)</p>
         )}
       </CardContent>
       <CardFooter className="border-t pt-3">
         <div className="flex w-full justify-end gap-1.5">
-          <Button variant="ghost" size="icon" className="h-7 w-7" aria-label="Download">
+          <Button variant="ghost" size="icon" className="h-7 w-7" aria-label="Baixar">
             <Download className="h-4 w-4" />
           </Button>
           {isGlobalList && (
             <>
-              <Button variant="ghost" size="icon" className="h-7 w-7" aria-label="Share">
+              <Button variant="ghost" size="icon" className="h-7 w-7" aria-label="Compartilhar">
                 <Share2 className="h-4 w-4" />
               </Button>
-              <Button variant="ghost" size="icon" className="h-7 w-7" aria-label="Edit">
+              <Button variant="ghost" size="icon" className="h-7 w-7" aria-label="Editar">
                 <Edit className="h-4 w-4" />
               </Button>
             </>
           )}
-          <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:text-destructive" aria-label="Delete">
+          <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:text-destructive" aria-label="Excluir">
             <Trash2 className="h-4 w-4" />
           </Button>
         </div>

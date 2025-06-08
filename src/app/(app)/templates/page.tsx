@@ -1,15 +1,17 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { FileText, PlusCircle, Search, Filter, Edit, Trash2, Copy, Brain } from "lucide-react";
 import Link from "next/link";
 import TemplateEditor from "@/components/templates/template-editor";
+import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 
 const mockTemplates = [
-  { id: "tpl1", name: "Initial Consultation Note", description: "Standard template for first sessions.", lastModified: "2024-07-10", category: "General" },
-  { id: "tpl2", name: "CBT Session Follow-up", description: "Template for Cognitive Behavioral Therapy sessions.", lastModified: "2024-06-25", category: "CBT" },
-  { id: "tpl3", name: "Child Assessment Summary", description: "For summarizing child psychology assessments.", lastModified: "2024-07-15", category: "Pediatric" },
-  { id: "tpl4", name: "Progress Note - Short Form", description: "Quick progress note for brief check-ins.", lastModified: "2024-07-01", category: "General" },
+  { id: "tpl1", name: "Nota de Consulta Inicial", description: "Modelo padrão para primeiras sessões.", lastModified: "2024-07-10", category: "Geral" },
+  { id: "tpl2", name: "Acompanhamento Sessão TCC", description: "Modelo para sessões de Terapia Cognitivo-Comportamental.", lastModified: "2024-06-25", category: "TCC" },
+  { id: "tpl3", name: "Resumo Avaliação Infantil", description: "Para resumir avaliações de psicologia infantil.", lastModified: "2024-07-15", category: "Pediátrico" },
+  { id: "tpl4", name: "Nota de Progresso - Curta", description: "Nota de progresso rápida para check-ins breves.", lastModified: "2024-07-01", category: "Geral" },
 ];
 
 
@@ -19,26 +21,26 @@ export default function TemplatesPage() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div className="flex items-center gap-2">
           <FileText className="h-7 w-7 text-primary" />
-          <h1 className="text-3xl font-headline font-bold">Intelligent Templates</h1>
+          <h1 className="text-3xl font-headline font-bold">Modelos Inteligentes</h1>
         </div>
         <Button asChild className="bg-accent hover:bg-accent/90 text-accent-foreground">
           <Link href="/templates/new">
-            <PlusCircle className="mr-2 h-4 w-4" /> Create New Template
+            <PlusCircle className="mr-2 h-4 w-4" /> Criar Novo Modelo
           </Link>
         </Button>
       </div>
 
       <Card className="shadow-sm">
         <CardHeader>
-          <CardTitle className="font-headline">Manage Session Note Templates</CardTitle>
-          <CardDescription>Create, edit, and manage AI-assisted session note templates.</CardDescription>
+          <CardTitle className="font-headline">Gerenciar Modelos de Anotação de Sessão</CardTitle>
+          <CardDescription>Crie, edite e gerencie modelos de anotação de sessão assistidos por IA.</CardDescription>
           <div className="flex flex-col sm:flex-row gap-2 pt-4">
             <div className="relative flex-1">
               <Search className="absolute left-2.5 top-3 h-4 w-4 text-muted-foreground" />
-              <Input placeholder="Search templates..." className="pl-8" />
+              <Input placeholder="Buscar modelos..." className="pl-8" />
             </div>
             <Button variant="outline">
-              <Filter className="mr-2 h-4 w-4" /> Filters
+              <Filter className="mr-2 h-4 w-4" /> Filtros
             </Button>
           </div>
         </CardHeader>
@@ -50,18 +52,18 @@ export default function TemplatesPage() {
                   <CardHeader>
                     <div className="flex justify-between items-start">
                         <CardTitle className="font-headline text-lg">{template.name}</CardTitle>
-                        <Brain className="h-5 w-5 text-accent" title="AI-Assisted"/>
+                        <Brain className="h-5 w-5 text-accent" title="Assistido por IA"/>
                     </div>
                     <CardDescription className="text-xs line-clamp-2">{template.description}</CardDescription>
                   </CardHeader>
                   <CardContent className="flex-grow">
-                    <p className="text-xs text-muted-foreground">Category: {template.category}</p>
-                    <p className="text-xs text-muted-foreground">Last Modified: {new Date(template.lastModified).toLocaleDateString()}</p>
+                    <p className="text-xs text-muted-foreground">Categoria: {template.category}</p>
+                    <p className="text-xs text-muted-foreground">Última Modificação: {format(new Date(template.lastModified), "P", { locale: ptBR })}</p>
                   </CardContent>
                   <CardFooter className="border-t pt-3 flex justify-end gap-1.5">
-                    <Button variant="ghost" size="icon" className="h-7 w-7" aria-label="Use Template"><Copy className="h-4 w-4" /></Button>
-                    <Button variant="ghost" size="icon" className="h-7 w-7" aria-label="Edit Template"><Edit className="h-4 w-4" /></Button>
-                    <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:text-destructive" aria-label="Delete Template"><Trash2 className="h-4 w-4" /></Button>
+                    <Button variant="ghost" size="icon" className="h-7 w-7" aria-label="Usar Modelo"><Copy className="h-4 w-4" /></Button>
+                    <Button variant="ghost" size="icon" className="h-7 w-7" aria-label="Editar Modelo"><Edit className="h-4 w-4" /></Button>
+                    <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:text-destructive" aria-label="Excluir Modelo"><Trash2 className="h-4 w-4" /></Button>
                   </CardFooter>
                 </Card>
               ))}
@@ -69,15 +71,13 @@ export default function TemplatesPage() {
           ) : (
              <div className="text-center py-10">
               <FileText className="mx-auto h-12 w-12 text-muted-foreground" />
-              <h3 className="mt-2 text-sm font-medium text-foreground">No templates found</h3>
-              <p className="mt-1 text-sm text-muted-foreground">Get started by creating a new session note template.</p>
+              <h3 className="mt-2 text-sm font-medium text-foreground">Nenhum modelo encontrado</h3>
+              <p className="mt-1 text-sm text-muted-foreground">Comece criando um novo modelo de anotação de sessão.</p>
             </div>
           )}
         </CardContent>
       </Card>
 
-      {/* Example of a Template Editor section if creating/editing on the same page */}
-      {/* For a real app, this would likely be on a /templates/new or /templates/[id]/edit page */}
       {/* <TemplateEditor /> */}
 
     </div>

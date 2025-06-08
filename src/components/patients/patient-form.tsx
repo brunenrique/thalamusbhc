@@ -24,24 +24,21 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { CalendarIcon, Save } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
+import { ptBR } from 'date-fns/locale';
 import { useToast } from "@/hooks/use-toast";
 
 const patientFormSchema = z.object({
-  name: z.string().min(2, { message: "Full name must be at least 2 characters." }),
-  email: z.string().email({ message: "Please enter a valid email address." }),
+  name: z.string().min(2, { message: "O nome completo deve ter pelo menos 2 caracteres." }),
+  email: z.string().email({ message: "Por favor, insira um endereço de e-mail válido." }),
   phone: z.string().optional(),
   dob: z.date().optional(),
   address: z.string().optional(),
-  // emergencyContactName: z.string().optional(),
-  // emergencyContactPhone: z.string().optional(),
-  // medicalHistorySummary: z.string().optional(),
-  // currentMedications: z.string().optional(),
 });
 
 type PatientFormValues = z.infer<typeof patientFormSchema>;
 
 interface PatientFormProps {
-  patientData?: Partial<PatientFormValues & { id?: string }>; // For editing
+  patientData?: Partial<PatientFormValues & { id?: string }>; 
 }
 
 export default function PatientForm({ patientData }: PatientFormProps) {
@@ -62,17 +59,14 @@ export default function PatientForm({ patientData }: PatientFormProps) {
 
   async function onSubmit(data: PatientFormValues) {
     setIsLoading(true);
-    console.log("Simulated Patient Save:", JSON.stringify(data, null, 2));
+    console.log("Salvamento de Paciente Simulado:", JSON.stringify(data, null, 2));
     await new Promise((resolve) => setTimeout(resolve, 1000));
     setIsLoading(false);
     toast({
-      title: patientData?.id ? "Patient Updated (Simulated)" : "Patient Added (Simulated)",
-      description: `${data.name} has been successfully ${patientData?.id ? 'updated' : 'added'}.`,
+      title: patientData?.id ? "Paciente Atualizado (Simulado)" : "Paciente Adicionado (Simulado)",
+      description: `${data.name} foi ${patientData?.id ? 'atualizado(a)' : 'adicionado(a)'} com sucesso.`,
     });
     
-    if (!patientData?.id) {
-        // form.reset(); // Clear form for new patient // Let's not reset, user might want to see data
-    }
     router.push(patientData?.id ? `/patients/${patientData.id}` : "/patients");
   }
 
@@ -81,7 +75,7 @@ export default function PatientForm({ patientData }: PatientFormProps) {
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <CardHeader>
-            <CardTitle className="font-headline">{patientData?.id ? "Edit Patient Details" : "New Patient Information"}</CardTitle>
+            <CardTitle className="font-headline">{patientData?.id ? "Editar Detalhes do Paciente" : "Informações do Novo Paciente"}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="grid md:grid-cols-2 gap-6">
@@ -90,9 +84,9 @@ export default function PatientForm({ patientData }: PatientFormProps) {
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Full Name *</FormLabel>
+                    <FormLabel>Nome Completo *</FormLabel>
                     <FormControl>
-                      <Input placeholder="e.g., John Doe" {...field} />
+                      <Input placeholder="Ex: João da Silva" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -103,9 +97,9 @@ export default function PatientForm({ patientData }: PatientFormProps) {
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email Address *</FormLabel>
+                    <FormLabel>Endereço de Email *</FormLabel>
                     <FormControl>
-                      <Input type="email" placeholder="name@example.com" {...field} />
+                      <Input type="email" placeholder="nome@exemplo.com" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -118,9 +112,9 @@ export default function PatientForm({ patientData }: PatientFormProps) {
                 name="phone"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Phone Number</FormLabel>
+                    <FormLabel>Telefone</FormLabel>
                     <FormControl>
-                      <Input placeholder="(123) 456-7890" {...field} />
+                      <Input placeholder="(XX) XXXXX-XXXX" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -131,7 +125,7 @@ export default function PatientForm({ patientData }: PatientFormProps) {
                 name="dob"
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
-                    <FormLabel>Date of Birth</FormLabel>
+                    <FormLabel>Data de Nascimento</FormLabel>
                     <Popover>
                       <PopoverTrigger asChild>
                         <FormControl>
@@ -143,9 +137,9 @@ export default function PatientForm({ patientData }: PatientFormProps) {
                             )}
                           >
                             {field.value ? (
-                              format(field.value, "PPP")
+                              format(field.value, "P", { locale: ptBR })
                             ) : (
-                              <span>Pick a date</span>
+                              <span>Escolha uma data</span>
                             )}
                             <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                           </Button>
@@ -160,6 +154,7 @@ export default function PatientForm({ patientData }: PatientFormProps) {
                             date > new Date() || date < new Date("1900-01-01")
                           }
                           initialFocus
+                          locale={ptBR}
                         />
                       </PopoverContent>
                     </Popover>
@@ -173,9 +168,9 @@ export default function PatientForm({ patientData }: PatientFormProps) {
               name="address"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Address</FormLabel>
+                  <FormLabel>Endereço</FormLabel>
                   <FormControl>
-                    <Textarea placeholder="123 Main St, Anytown, USA" {...field} rows={3} />
+                    <Textarea placeholder="Rua Exemplo, 123, Bairro, Cidade - UF" {...field} rows={3} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -185,7 +180,7 @@ export default function PatientForm({ patientData }: PatientFormProps) {
           <CardFooter className="flex justify-end">
             <Button type="submit" className="bg-accent hover:bg-accent/90 text-accent-foreground" disabled={isLoading}>
               <Save className="mr-2 h-4 w-4" />
-              {isLoading ? (patientData?.id ? "Saving Changes..." : "Adding Patient...") : (patientData?.id ? "Save Changes" : "Add Patient")}
+              {isLoading ? (patientData?.id ? "Salvando Alterações..." : "Adicionando Paciente...") : (patientData?.id ? "Salvar Alterações" : "Adicionar Paciente")}
             </Button>
           </CardFooter>
         </form>
@@ -193,5 +188,3 @@ export default function PatientForm({ patientData }: PatientFormProps) {
     </Card>
   );
 }
-
-    

@@ -16,25 +16,26 @@ import {
   LucideIcon,
   LogOut,
   HelpCircle,
-  ShieldQuestion, // For User Approvals
-  Wrench, // For Tools parent
-  BookOpen, // Psychopharmacology
-  BrainCog, // Knowledge Base
-  HeartPulse, // Self-Care
-  ArchiveIcon as DataBackupIcon, // Data Backup (alias to avoid conflict)
-  GitFork, // Session Formulation Tree
-  History as HistoryIcon, // Audit Trail (alias to avoid conflict)
-  BarChartBig, // For Analytics parent
+  ShieldQuestion, 
+  Wrench, 
+  BookOpen, 
+  BrainCog, 
+  HeartPulse, 
+  ArchiveIcon as DataBackupIcon, 
+  GitFork, 
+  History as HistoryIcon, 
+  BarChartBig, 
 } from "lucide-react";
 import {
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
   SidebarMenuSub,
-  SidebarMenuSubItem,
+  // SidebarMenuSubItem, // Not used directly, sub-items are NavItems
   SidebarMenuSubButton,
   SidebarGroup,
-  SidebarGroupLabel
+  SidebarGroupLabel,
+  SidebarGroupContent // Added this import
 } from "@/components/ui/sidebar";
 import { useSidebar } from "@/components/ui/sidebar"; 
 
@@ -43,55 +44,48 @@ interface NavItem {
   label: string;
   icon: LucideIcon;
   subItems?: NavItem[];
-  adminOnly?: boolean; // Simple flag, real role handling would be more complex
-  group?: string; // To group items under a label like "Management" or "Tools"
+  adminOnly?: boolean; 
+  group?: string; 
 }
 
 const navStructure: NavItem[] = [
-  // Main Section
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, group: "Overview" },
-  { href: "/schedule", label: "Schedule", icon: CalendarDays, group: "Overview" },
-  { href: "/notifications", label: "Notifications", icon: Bell, group: "Overview" },
+  { href: "/dashboard", label: "Painel", icon: LayoutDashboard, group: "Visão Geral" },
+  { href: "/schedule", label: "Agenda", icon: CalendarDays, group: "Visão Geral" },
+  { href: "/notifications", label: "Notificações", icon: Bell, group: "Visão Geral" },
   
-  // Patient Management
-  { href: "/patients", label: "Patients", icon: Users, group: "Patient Care" },
-  { href: "/waiting-list", label: "Waiting List", icon: ListChecks, group: "Patient Care" },
-  { href: "/assessments", label: "Assessments", icon: ClipboardList, group: "Patient Care" },
-  { href: "/templates", label: "Templates", icon: FileText, group: "Patient Care" },
+  { href: "/patients", label: "Pacientes", icon: Users, group: "Gestão de Pacientes" },
+  { href: "/waiting-list", label: "Lista de Espera", icon: ListChecks, group: "Gestão de Pacientes" },
+  { href: "/assessments", label: "Avaliações", icon: ClipboardList, group: "Gestão de Pacientes" },
+  { href: "/templates", label: "Modelos", icon: FileText, group: "Gestão de Pacientes" },
   
-  // Clinic Operations
-  { href: "/tasks", label: "Tasks", icon: CheckSquare, group: "Clinic Operations" },
-  { href: "/resources", label: "Resources", icon: FolderArchive, group: "Clinic Operations" },
+  { href: "/tasks", label: "Tarefas", icon: CheckSquare, group: "Operações da Clínica" },
+  { href: "/resources", label: "Recursos", icon: FolderArchive, group: "Operações da Clínica" },
   { 
-    href: "/analytics", label: "Analytics", icon: BarChartBig, group: "Clinic Operations",
+    href: "/analytics", label: "Análises", icon: BarChartBig, group: "Operações da Clínica",
     subItems: [
-      { href: "/analytics/clinic-occupancy", label: "Clinic Occupancy", icon: BarChartBig },
-      // Add more analytics sub-items here if needed
+      { href: "/analytics/clinic-occupancy", label: "Ocupação da Clínica", icon: BarChartBig },
     ]
   },
 
-  // Tools
   { 
-    href: "/tools", label: "Clinical Tools", icon: Wrench, group: "Utilities",
+    href: "/tools", label: "Ferramentas Clínicas", icon: Wrench, group: "Utilidades",
     subItems: [
-      { href: "/tools/psychopharmacology", label: "Psychopharmacology", icon: BookOpen },
-      { href: "/tools/knowledge-base", label: "Knowledge Base", icon: BrainCog },
-      { href: "/tools/self-care", label: "Self-Care", icon: HeartPulse },
-      { href: "/tools/session-formulation-tree", label: "Formulation Tree", icon: GitFork },
+      { href: "/tools/psychopharmacology", label: "Psicofarmacologia", icon: BookOpen },
+      { href: "/tools/knowledge-base", label: "Base de Conhecimento", icon: BrainCog },
+      { href: "/tools/self-care", label: "Autocuidado", icon: HeartPulse },
+      { href: "/tools/session-formulation-tree", label: "Árvore de Formulação", icon: GitFork },
     ]
   },
   
-  // Administration (Admin Only)
-  { href: "/user-approvals", label: "User Approvals", icon: ShieldQuestion, adminOnly: true, group: "Administration" },
+  { href: "/user-approvals", label: "Aprovação de Usuários", icon: ShieldQuestion, adminOnly: true, group: "Administração" },
   { 
-    href: "/admin/tools", label: "Admin Tools", icon: Settings, adminOnly: true, group: "Administration",
+    href: "/admin/tools", label: "Ferramentas Admin", icon: Settings, adminOnly: true, group: "Administração",
     subItems: [
-        { href: "/tools/backup", label: "Data Backup", icon: DataBackupIcon },
-        { href: "/tools/audit-trail", label: "Audit Trail", icon: HistoryIcon },
+        { href: "/tools/backup", label: "Backup de Dados", icon: DataBackupIcon },
+        { href: "/tools/audit-trail", label: "Trilha de Auditoria", icon: HistoryIcon },
     ]
   },
-  { href: "/settings", label: "Settings", icon: Settings, group: "Configuration" },
-  // { href: "/help", label: "Help & Support", icon: HelpCircle, group: "Configuration" },
+  { href: "/settings", label: "Configurações", icon: Settings, group: "Configuração" },
 ];
 
 
@@ -111,7 +105,6 @@ export default function SidebarNav({ currentPath, userRole = "admin" }: SidebarN
     const ButtonComponent = isSubItem ? SidebarMenuSubButton : SidebarMenuButton;
     const IconComponent = item.icon;
     
-    // Exact match for dashboard, startsWith for others to keep parent active
     const isActive = item.href === "/dashboard" 
       ? currentPath === item.href
       : currentPath.startsWith(item.href) && (item.href !== "/" || currentPath === "/");
@@ -124,11 +117,7 @@ export default function SidebarNav({ currentPath, userRole = "admin" }: SidebarN
                 isActive={isActive}
                 tooltip={state === "collapsed" ? item.label : undefined}
                 className={isSubItem ? "text-xs" : ""}
-                // For parent items with subItems, click might toggle sub-menu or navigate.
-                // If it should only toggle, remove Link wrapper or adjust behavior.
-                // For now, assume parent also navigates.
-                asChild={!isSubItem} // Top level buttons can be links
-                // onClick={isSubItem ? undefined : (e) => { if (item.href === "#") e.preventDefault(); /* Handle toggle here */}}
+                asChild={!isSubItem} 
             >
              {isSubItem ? (
                 <Link href={item.href} passHref legacyBehavior>
@@ -141,9 +130,9 @@ export default function SidebarNav({ currentPath, userRole = "admin" }: SidebarN
                 </Link>
              )}
             </ButtonComponent>
-            {state === "expanded" && ( // Only show sub-menu if sidebar is expanded
+            {state === "expanded" && ( 
                 <SidebarMenuSub>
-                    {item.subItems.map((subItem, subIndex) => renderNavItem(subItem, subIndex, true))}
+                    {item.subItems.filter(sub => !sub.adminOnly || userRole === "admin").map((subItem, subIndex) => renderNavItem(subItem, subIndex, true))}
                 </SidebarMenuSub>
             )}
         </SidebarMenuItem>
@@ -167,7 +156,7 @@ export default function SidebarNav({ currentPath, userRole = "admin" }: SidebarN
   };
   
   const groupedNavItems = navStructure.reduce((acc, item) => {
-    const groupName = item.group || "General";
+    const groupName = item.group || "Geral";
     if (!acc[groupName]) {
       acc[groupName] = [];
     }
@@ -187,7 +176,6 @@ export default function SidebarNav({ currentPath, userRole = "admin" }: SidebarN
                     <SidebarGroupLabel className="mb-0.5 mt-1.5">{groupName}</SidebarGroupLabel>
                 )}
                 {state === "collapsed" && items.length > 0 && <div className="h-2"/>} 
-                {/* Small spacer for collapsed view with groups */}
                 
                 <SidebarGroupContent className="space-y-0.5">
                  {items.map((item, index) => renderNavItem(item, index))}
@@ -199,18 +187,18 @@ export default function SidebarNav({ currentPath, userRole = "admin" }: SidebarN
       <SidebarMenu className="mt-auto p-2 border-t border-sidebar-border">
          <SidebarMenuItem>
             <SidebarMenuButton
-                tooltip={state === "collapsed" ? "Logout" : undefined}
+                tooltip={state === "collapsed" ? "Sair" : undefined}
                 onClick={() => console.log("Logout action")} 
             >
                 <LogOut />
-                <span className="group-data-[collapsible=icon]:hidden">Logout</span>
+                <span className="group-data-[collapsible=icon]:hidden">Sair</span>
             </SidebarMenuButton>
         </SidebarMenuItem>
         <SidebarMenuItem>
             <Link href="/help" passHref legacyBehavior>
-                <SidebarMenuButton tooltip={state === "collapsed" ? "Help & Support" : undefined} isActive={currentPath.startsWith("/help")}>
+                <SidebarMenuButton tooltip={state === "collapsed" ? "Ajuda e Suporte" : undefined} isActive={currentPath.startsWith("/help")}>
                     <HelpCircle />
-                    <span className="group-data-[collapsible=icon]:hidden">Help & Support</span>
+                    <span className="group-data-[collapsible=icon]:hidden">Ajuda e Suporte</span>
                 </SidebarMenuButton>
             </Link>
         </SidebarMenuItem>

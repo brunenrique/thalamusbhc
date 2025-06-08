@@ -8,23 +8,23 @@ export default function SettingsPage() {
     <div className="space-y-6">
       <div className="flex items-center gap-2">
         <SettingsIcon className="h-7 w-7 text-primary" />
-        <h1 className="text-3xl font-headline font-bold">System Settings</h1>
+        <h1 className="text-3xl font-headline font-bold">Configurações do Sistema</h1>
       </div>
 
       <Tabs defaultValue="general" className="w-full">
         <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-5">
-          <TabsTrigger value="general"><Briefcase className="mr-2 h-4 w-4" /> General</TabsTrigger>
-          <TabsTrigger value="account"><UserCog className="mr-2 h-4 w-4" /> Account</TabsTrigger>
-          <TabsTrigger value="appearance"><Palette className="mr-2 h-4 w-4" /> Appearance</TabsTrigger>
-          <TabsTrigger value="notifications"><BellDot className="mr-2 h-4 w-4" /> Notifications</TabsTrigger>
-          <TabsTrigger value="schedule"><Clock className="mr-2 h-4 w-4" /> Schedule</TabsTrigger>
+          <TabsTrigger value="general"><Briefcase className="mr-2 h-4 w-4" /> Geral</TabsTrigger>
+          <TabsTrigger value="account"><UserCog className="mr-2 h-4 w-4" /> Conta</TabsTrigger>
+          <TabsTrigger value="appearance"><Palette className="mr-2 h-4 w-4" /> Aparência</TabsTrigger>
+          <TabsTrigger value="notifications"><BellDot className="mr-2 h-4 w-4" /> Notificações</TabsTrigger>
+          <TabsTrigger value="schedule"><Clock className="mr-2 h-4 w-4" /> Agenda</TabsTrigger>
         </TabsList>
 
         <TabsContent value="general" className="mt-6">
           <Card className="shadow-sm">
             <CardHeader>
-              <CardTitle className="font-headline">General Settings</CardTitle>
-              <CardDescription>Configure general clinic and system parameters.</CardDescription>
+              <CardTitle className="font-headline">Configurações Gerais</CardTitle>
+              <CardDescription>Configure parâmetros gerais da clínica e do sistema.</CardDescription>
             </CardHeader>
             <CardContent>
               <SettingsForm section="general" />
@@ -35,8 +35,8 @@ export default function SettingsPage() {
         <TabsContent value="account" className="mt-6">
           <Card className="shadow-sm">
             <CardHeader>
-              <CardTitle className="font-headline">Account Settings</CardTitle>
-              <CardDescription>Manage your personal account details and preferences.</CardDescription>
+              <CardTitle className="font-headline">Configurações da Conta</CardTitle>
+              <CardDescription>Gerencie os detalhes e preferências da sua conta pessoal.</CardDescription>
             </CardHeader>
             <CardContent>
               <SettingsForm section="account" />
@@ -47,8 +47,8 @@ export default function SettingsPage() {
         <TabsContent value="appearance" className="mt-6">
           <Card className="shadow-sm">
             <CardHeader>
-              <CardTitle className="font-headline">Appearance</CardTitle>
-              <CardDescription>Customize the look and feel of the application.</CardDescription>
+              <CardTitle className="font-headline">Aparência</CardTitle>
+              <CardDescription>Personalize a aparência da aplicação.</CardDescription>
             </CardHeader>
             <CardContent>
               <SettingsForm section="appearance" />
@@ -59,8 +59,8 @@ export default function SettingsPage() {
         <TabsContent value="notifications" className="mt-6">
           <Card className="shadow-sm">
             <CardHeader>
-              <CardTitle className="font-headline">Notification Preferences</CardTitle>
-              <CardDescription>Manage how you receive notifications.</CardDescription>
+              <CardTitle className="font-headline">Preferências de Notificação</CardTitle>
+              <CardDescription>Gerencie como você recebe notificações.</CardDescription>
             </CardHeader>
             <CardContent>
               <SettingsForm section="notifications" />
@@ -71,8 +71,8 @@ export default function SettingsPage() {
         <TabsContent value="schedule" className="mt-6">
           <Card className="shadow-sm">
             <CardHeader>
-              <CardTitle className="font-headline">Scheduling Settings</CardTitle>
-              <CardDescription>Adjust work hours, session duration, and calendar integrations.</CardDescription>
+              <CardTitle className="font-headline">Configurações da Agenda</CardTitle>
+              <CardDescription>Ajuste horários de trabalho, duração de sessões e integrações de calendário.</CardDescription>
             </CardHeader>
             <CardContent>
               <SettingsForm section="schedule" />

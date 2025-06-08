@@ -18,11 +18,10 @@ export default function SettingsForm({ section }: SettingsFormProps) {
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    // Process form data based on section
-    console.log(`Saving settings for ${section}...`, new FormData(event.currentTarget));
+    console.log(`Salvando configurações para ${section}...`, new FormData(event.currentTarget));
     toast({
-      title: "Settings Saved",
-      description: `${section.charAt(0).toUpperCase() + section.slice(1)} settings have been updated.`,
+      title: "Configurações Salvas",
+      description: `As configurações de ${section.charAt(0).toUpperCase() + section.slice(1)} foram atualizadas.`,
     });
   };
 
@@ -31,16 +30,16 @@ export default function SettingsForm({ section }: SettingsFormProps) {
       {section === "general" && (
         <>
           <div className="space-y-2">
-            <Label htmlFor="clinicName">Clinic Name</Label>
-            <Input id="clinicName" defaultValue="My Psychology Clinic" />
+            <Label htmlFor="clinicName">Nome da Clínica</Label>
+            <Input id="clinicName" defaultValue="Minha Clínica de Psicologia" />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="clinicAddress">Clinic Address</Label>
-            <Input id="clinicAddress" defaultValue="123 Wellness St, Mindful City" />
+            <Label htmlFor="clinicAddress">Endereço da Clínica</Label>
+            <Input id="clinicAddress" defaultValue="Rua do Bem-Estar, 123, Cidade Plena" />
           </div>
           <div className="flex items-center space-x-2">
             <Switch id="enableOnlineBooking" />
-            <Label htmlFor="enableOnlineBooking">Enable Online Booking</Label>
+            <Label htmlFor="enableOnlineBooking">Habilitar Agendamento Online</Label>
           </div>
         </>
       )}
@@ -48,42 +47,42 @@ export default function SettingsForm({ section }: SettingsFormProps) {
       {section === "account" && (
         <>
           <div className="space-y-2">
-            <Label htmlFor="fullName">Full Name</Label>
-            <Input id="fullName" defaultValue="Dr. John Doe" />
+            <Label htmlFor="fullName">Nome Completo</Label>
+            <Input id="fullName" defaultValue="Dr(a). João Silva" />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="email">Email Address</Label>
-            <Input id="email" type="email" defaultValue="john.doe@example.com" />
+            <Label htmlFor="email">Endereço de Email</Label>
+            <Input id="email" type="email" defaultValue="joao.silva@example.com" />
           </div>
-          <Button variant="outline" type="button">Change Password</Button>
+          <Button variant="outline" type="button">Alterar Senha</Button>
         </>
       )}
       
       {section === "appearance" && (
         <>
           <div className="space-y-2">
-            <Label htmlFor="theme">Theme</Label>
+            <Label htmlFor="theme">Tema</Label>
             <Select defaultValue="system">
               <SelectTrigger id="theme">
-                <SelectValue placeholder="Select theme" />
+                <SelectValue placeholder="Selecione o tema" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="light">Light</SelectItem>
-                <SelectItem value="dark">Dark</SelectItem>
-                <SelectItem value="system">System Default</SelectItem>
+                <SelectItem value="light">Claro</SelectItem>
+                <SelectItem value="dark">Escuro</SelectItem>
+                <SelectItem value="system">Padrão do Sistema</SelectItem>
               </SelectContent>
             </Select>
           </div>
            <div className="space-y-2">
-            <Label htmlFor="fontSize">Font Size</Label>
+            <Label htmlFor="fontSize">Tamanho da Fonte</Label>
             <Select defaultValue="medium">
               <SelectTrigger id="fontSize">
-                <SelectValue placeholder="Select font size" />
+                <SelectValue placeholder="Selecione o tamanho da fonte" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="small">Small</SelectItem>
-                <SelectItem value="medium">Medium</SelectItem>
-                <SelectItem value="large">Large</SelectItem>
+                <SelectItem value="small">Pequeno</SelectItem>
+                <SelectItem value="medium">Médio</SelectItem>
+                <SelectItem value="large">Grande</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -92,27 +91,27 @@ export default function SettingsForm({ section }: SettingsFormProps) {
 
       {section === "notifications" && (
         <>
-          <p className="font-medium">Email Notifications</p>
+          <p className="font-medium">Notificações por Email</p>
           <div className="flex items-center space-x-2">
             <Checkbox id="appointmentReminders" defaultChecked/>
-            <Label htmlFor="appointmentReminders">Appointment Reminders</Label>
+            <Label htmlFor="appointmentReminders">Lembretes de Agendamento</Label>
           </div>
           <div className="flex items-center space-x-2">
             <Checkbox id="taskUpdates" defaultChecked/>
-            <Label htmlFor="taskUpdates">Task Updates & Reminders</Label>
+            <Label htmlFor="taskUpdates">Atualizações e Lembretes de Tarefas</Label>
           </div>
           <div className="flex items-center space-x-2">
             <Checkbox id="assessmentNotifications" defaultChecked/>
-            <Label htmlFor="assessmentNotifications">Assessment Notifications (Sent/Completed)</Label>
+            <Label htmlFor="assessmentNotifications">Notificações de Avaliação (Enviada/Concluída)</Label>
           </div>
-          <p className="font-medium pt-4">In-App Notifications</p>
+          <p className="font-medium pt-4">Notificações no Aplicativo</p>
            <div className="flex items-center space-x-2">
             <Switch id="inAppTaskAlerts" defaultChecked />
-            <Label htmlFor="inAppTaskAlerts">Task Alerts</Label>
+            <Label htmlFor="inAppTaskAlerts">Alertas de Tarefa</Label>
           </div>
            <div className="flex items-center space-x-2">
             <Switch id="inAppSystemMessages" defaultChecked />
-            <Label htmlFor="inAppSystemMessages">System Messages & Updates</Label>
+            <Label htmlFor="inAppSystemMessages">Mensagens e Atualizações do Sistema</Label>
           </div>
         </>
       )}
@@ -121,28 +120,28 @@ export default function SettingsForm({ section }: SettingsFormProps) {
         <>
           <div className="grid sm:grid-cols-2 gap-4">
             <div className="space-y-2">
-                <Label htmlFor="workStartTime">Default Work Start Time</Label>
+                <Label htmlFor="workStartTime">Horário Padrão de Início do Trabalho</Label>
                 <Input id="workStartTime" type="time" defaultValue="09:00" />
             </div>
             <div className="space-y-2">
-                <Label htmlFor="workEndTime">Default Work End Time</Label>
+                <Label htmlFor="workEndTime">Horário Padrão de Término do Trabalho</Label>
                 <Input id="workEndTime" type="time" defaultValue="17:00" />
             </div>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="sessionDuration">Default Session Duration (minutes)</Label>
+            <Label htmlFor="sessionDuration">Duração Padrão da Sessão (minutos)</Label>
             <Input id="sessionDuration" type="number" defaultValue="50" />
           </div>
           <div className="flex items-center space-x-2">
             <Switch id="externalCalendarSync" />
-            <Label htmlFor="externalCalendarSync">Enable External Calendar Integration (e.g., Google Calendar)</Label>
+            <Label htmlFor="externalCalendarSync">Habilitar Integração com Calendário Externo (ex: Google Agenda)</Label>
           </div>
         </>
       )}
 
       <div className="flex justify-end">
         <Button type="submit" className="bg-accent hover:bg-accent/90 text-accent-foreground">
-            <Save className="mr-2 h-4 w-4" /> Save Changes
+            <Save className="mr-2 h-4 w-4" /> Salvar Alterações
         </Button>
       </div>
     </form>

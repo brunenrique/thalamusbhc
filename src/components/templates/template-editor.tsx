@@ -12,7 +12,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '../ui/skeleton';
 
 interface TemplateEditorProps {
-  templateId?: string; // For editing existing template
+  templateId?: string; 
   initialName?: string;
   initialContent?: string;
   initialPatientName?: string;
@@ -39,8 +39,8 @@ export default function TemplateEditor({
   const handleGenerateTemplate = async () => {
     if (!patientName || !sessionSummary) {
       toast({
-        title: "Missing Information",
-        description: "Please provide Patient Name and Session Summary to generate a template.",
+        title: "Informação Faltando",
+        description: "Por favor, forneça Nome do Paciente e Resumo da Sessão para gerar um modelo.",
         variant: "destructive",
       });
       return;
@@ -54,14 +54,14 @@ export default function TemplateEditor({
       });
       setTemplateContent(result.template);
       toast({
-        title: "Template Generated",
-        description: "AI has generated a template draft.",
+        title: "Modelo Gerado",
+        description: "A IA gerou um rascunho de modelo.",
       });
     } catch (error) {
-      console.error("Error generating template:", error);
+      console.error("Erro ao gerar modelo:", error);
       toast({
-        title: "Generation Failed",
-        description: "Could not generate template. Please try again.",
+        title: "Falha na Geração",
+        description: "Não foi possível gerar o modelo. Por favor, tente novamente.",
         variant: "destructive",
       });
     } finally {
@@ -71,12 +71,12 @@ export default function TemplateEditor({
 
   const handleSaveTemplate = async () => {
     setIsSaving(true);
-    // Simulate API call
+    // Simula chamada de API
     await new Promise(resolve => setTimeout(resolve, 1000));
-    console.log("Saving template:", { templateId, templateName, templateContent });
+    console.log("Salvando modelo:", { templateId, templateName, templateContent });
     toast({
-      title: "Template Saved",
-      description: `Template "${templateName}" has been saved successfully.`,
+      title: "Modelo Salvo",
+      description: `O modelo "${templateName}" foi salvo com sucesso.`,
     });
     setIsSaving(false);
   };
@@ -86,47 +86,47 @@ export default function TemplateEditor({
       <CardHeader>
         <CardTitle className="font-headline text-xl flex items-center">
           <Brain className="mr-2 h-6 w-6 text-accent" />
-          {templateId ? "Edit Template" : "Create New Template"}
+          {templateId ? "Editar Modelo" : "Criar Novo Modelo"}
         </CardTitle>
         <CardDescription>
-          Use the AI assistant to help draft your session note template or write your own.
+          Use o assistente de IA para ajudar a rascunhar seu modelo de anotação de sessão ou escreva o seu próprio.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="space-y-2">
-          <Label htmlFor="templateName">Template Name</Label>
+          <Label htmlFor="templateName">Nome do Modelo</Label>
           <Input
             id="templateName"
             value={templateName}
             onChange={(e) => setTemplateName(e.target.value)}
-            placeholder="e.g., Initial Consultation Notes"
+            placeholder="Ex: Notas de Consulta Inicial"
           />
         </div>
 
         <Card className="bg-muted/30 p-4 space-y-3">
-            <p className="text-sm font-medium text-foreground">AI Template Generation Assistant</p>
+            <p className="text-sm font-medium text-foreground">Assistente de Geração de Modelo com IA</p>
             <div className="grid sm:grid-cols-2 gap-4">
                  <div className="space-y-1">
-                    <Label htmlFor="patientName">Patient Name (for AI assist)</Label>
-                    <Input id="patientName" value={patientName} onChange={(e) => setPatientName(e.target.value)} placeholder="Jane Doe" />
+                    <Label htmlFor="patientName">Nome do Paciente (para assistência IA)</Label>
+                    <Input id="patientName" value={patientName} onChange={(e) => setPatientName(e.target.value)} placeholder="Maria Silva" />
                 </div>
                 <div className="space-y-1">
-                    <Label htmlFor="sessionSummary">Session Summary (for AI assist)</Label>
-                    <Input id="sessionSummary" value={sessionSummary} onChange={(e) => setSessionSummary(e.target.value)} placeholder="Brief session overview..." />
+                    <Label htmlFor="sessionSummary">Resumo da Sessão (para assistência IA)</Label>
+                    <Input id="sessionSummary" value={sessionSummary} onChange={(e) => setSessionSummary(e.target.value)} placeholder="Breve resumo da sessão..." />
                 </div>
             </div>
             <div className="space-y-1">
-                <Label htmlFor="therapistInstructions">Specific Instructions (optional)</Label>
-                <Textarea id="therapistInstructions" value={therapistInstructions} onChange={(e) => setTherapistInstructions(e.target.value)} placeholder="e.g., Focus on mood, include a section for treatment plan..." rows={2}/>
+                <Label htmlFor="therapistInstructions">Instruções Específicas (opcional)</Label>
+                <Textarea id="therapistInstructions" value={therapistInstructions} onChange={(e) => setTherapistInstructions(e.target.value)} placeholder="Ex: Focar no humor, incluir seção para plano de tratamento..." rows={2}/>
             </div>
             <Button onClick={handleGenerateTemplate} disabled={isGenerating || !patientName || !sessionSummary} variant="outline">
               {isGenerating ? <Sparkles className="mr-2 h-4 w-4 animate-pulse" /> : <Sparkles className="mr-2 h-4 w-4" />}
-              {isGenerating ? "Generating..." : "Generate with AI"}
+              {isGenerating ? "Gerando..." : "Gerar com IA"}
             </Button>
         </Card>
         
         <div className="space-y-2">
-          <Label htmlFor="templateContent">Template Content</Label>
+          <Label htmlFor="templateContent">Conteúdo do Modelo</Label>
           {isGenerating ? (
             <Skeleton className="h-48 w-full" />
           ): (
@@ -134,7 +134,7 @@ export default function TemplateEditor({
               id="templateContent"
               value={templateContent}
               onChange={(e) => setTemplateContent(e.target.value)}
-              placeholder="Type your template content here... \n\nExample Sections:\n- Patient Presentation:\n- Key Discussion Points:\n- Interventions Used:\n- Patient Response:\n- Risk Assessment:\n- Plan for Next Session:"
+              placeholder="Digite o conteúdo do seu modelo aqui... \n\nExemplo de Seções:\n- Apresentação do Paciente:\n- Pontos Chave da Discussão:\n- Intervenções Utilizadas:\n- Resposta do Paciente:\n- Avaliação de Risco:\n- Plano para Próxima Sessão:"
               rows={15}
               className="min-h-[300px] font-mono text-sm"
             />
@@ -144,7 +144,7 @@ export default function TemplateEditor({
       <CardFooter>
         <Button onClick={handleSaveTemplate} disabled={isSaving || !templateName || !templateContent} className="ml-auto bg-accent hover:bg-accent/90 text-accent-foreground">
           {isSaving ? <Save className="mr-2 h-4 w-4 animate-pulse" /> : <Save className="mr-2 h-4 w-4" />}
-          {isSaving ? "Saving..." : "Save Template"}
+          {isSaving ? "Salvando..." : "Salvar Modelo"}
         </Button>
       </CardFooter>
     </Card>

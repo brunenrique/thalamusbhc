@@ -12,20 +12,20 @@ export default function ForgotPasswordPage() {
             <h1 className="text-4xl font-headline font-bold text-primary">PsiGuard</h1>
           </Link>
           <h2 className="text-2xl font-headline font-semibold tracking-tight text-foreground">
-            Forgot Your Password?
+            Esqueceu sua Senha?
           </h2>
           <p className="text-sm text-muted-foreground">
-            Enter your email address and we&apos;ll send you a link to reset your password.
+            Digite seu endereço de e-mail e enviaremos um link para redefinir sua senha.
           </p>
         </div>
         <ForgotPasswordForm />
         <p className="px-8 text-center text-sm text-muted-foreground">
-          Remember your password?{" "}
+          Lembrou sua senha?{" "}
           <Link
             href="/login"
             className="underline underline-offset-4 hover:text-primary"
           >
-            Sign In
+            Entrar
           </Link>
         </p>
       </div>

@@ -4,6 +4,7 @@ import { Bell, Check, X, ExternalLink, AlertTriangle, Info, CheckCircle } from "
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { formatDistanceToNow } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 
 
 interface Notification {
@@ -20,7 +21,7 @@ interface NotificationItemProps {
 }
 
 export default function NotificationItem({ notification }: NotificationItemProps) {
-  const timeAgo = formatDistanceToNow(new Date(notification.date), { addSuffix: true });
+  const timeAgo = formatDistanceToNow(new Date(notification.date), { addSuffix: true, locale: ptBR });
 
   const getIcon = () => {
     switch (notification.type) {
@@ -57,18 +58,18 @@ export default function NotificationItem({ notification }: NotificationItemProps
             {notification.link && (
               <Button variant="ghost" size="sm" asChild className="h-7 px-2 text-accent">
                 <Link href={notification.link}>
-                  <ExternalLink className="mr-1 h-3.5 w-3.5" /> View
+                  <ExternalLink className="mr-1 h-3.5 w-3.5" /> Ver
                 </Link>
               </Button>
             )}
             {!notification.read && (
               <Button variant="outline" size="sm" className="h-7 px-2">
-                <Check className="mr-1 h-3.5 w-3.5" /> Mark as Read
+                <Check className="mr-1 h-3.5 w-3.5" /> Marcar como lida
               </Button>
             )}
              {notification.read && (
               <Button variant="ghost" size="sm" className="h-7 px-2 text-muted-foreground hover:text-foreground">
-                <X className="mr-1 h-3.5 w-3.5" /> Dismiss
+                <X className="mr-1 h-3.5 w-3.5" /> Dispensar
               </Button>
             )}
           </div>

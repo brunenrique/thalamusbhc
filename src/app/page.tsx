@@ -14,10 +14,10 @@ export default function LandingPage() {
           </div>
           <nav>
             <Button variant="ghost" asChild>
-              <Link href="/login">Login</Link>
+              <Link href="/login">Entrar</Link>
             </Button>
             <Button asChild className="ml-2">
-              <Link href="/signup">Sign Up</Link>
+              <Link href="/signup">Cadastre-se</Link>
             </Button>
           </nav>
         </div>
@@ -25,41 +25,41 @@ export default function LandingPage() {
 
       <main className="flex-grow container mx-auto flex flex-col items-center justify-center text-center px-4 py-12 md:py-24">
         <h2 className="text-5xl md:text-6xl font-headline font-bold mb-6 text-foreground">
-          Empowering Mental Wellness Professionals
+          Capacitando Profissionais de Saúde Mental
         </h2>
         <p className="text-xl text-muted-foreground max-w-2xl mb-10">
-          PsiGuard offers a secure, intuitive, and AI-enhanced platform for managing your psychological practice, so you can focus on what matters most: your patients.
+          PsiGuard oferece uma plataforma segura, intuitiva e aprimorada por IA para gerenciar seu consultório de psicologia, para que você possa focar no que mais importa: seus pacientes.
         </p>
         <Button size="lg" asChild className="bg-accent hover:bg-accent/90 text-accent-foreground">
-          <Link href="/dashboard">Get Started</Link>
+          <Link href="/dashboard">Comece Agora</Link>
         </Button>
       </main>
 
       <section className="py-16 bg-card">
         <div className="container mx-auto px-4">
-          <h3 className="text-3xl font-headline font-bold text-center mb-12 text-foreground">Key Features</h3>
+          <h3 className="text-3xl font-headline font-bold text-center mb-12 text-foreground">Principais Funcionalidades</h3>
           <div className="grid md:grid-cols-3 gap-8">
             <FeatureCard
               icon={<ShieldCheck className="w-10 h-10 text-accent" />}
-              title="Secure & Compliant"
-              description="Role-based access and client-side AES encryption for patient records ensure data privacy and security."
+              title="Seguro e Confiável"
+              description="Controle de acesso baseado em função e criptografia AES do lado do cliente para prontuários garantem a privacidade e segurança dos dados."
             />
             <FeatureCard
               icon={<Brain className="w-10 h-10 text-accent" />}
-              title="AI-Powered Insights"
-              description="Leverage AI for session note analysis, template generation, and identifying patient progress trends."
+              title="Insights com IA"
+              description="Use IA para análise de notas de sessão, geração de modelos e identificação de tendências de progresso do paciente."
             />
             <FeatureCard
               icon={<Users className="w-10 h-10 text-accent" />}
-              title="Streamlined Workflow"
-              description="Integrated appointment scheduling, task management, and automated notifications to optimize your practice."
+              title="Fluxo de Trabalho Otimizado"
+              description="Agendamento integrado, gerenciamento de tarefas e notificações automatizadas para otimizar seu consultório."
             />
           </div>
         </div>
       </section>
 
       <footer className="py-8 text-center text-muted-foreground">
-        <p>&copy; {new Date().getFullYear()} PsiGuard. All rights reserved.</p>
+        <p>&copy; {new Date().getFullYear()} PsiGuard. Todos os direitos reservados.</p>
       </footer>
     </div>
   );

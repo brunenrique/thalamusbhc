@@ -26,36 +26,36 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { CalendarIcon, Clock, Save, User, Users, Repeat } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format, set } from "date-fns";
+import { ptBR } from 'date-fns/locale';
 import { useToast } from "@/hooks/use-toast";
 
-// Mock data - replace with actual data fetching
 const mockPatients = [
   { id: "1", name: "Alice Wonderland" },
-  { id: "2", name: "Bob The Builder" },
+  { id: "2", name: "Bob O Construtor" },
   { id: "3", name: "Charlie Brown" },
 ];
 const mockPsychologists = [
-  { id: "psy1", name: "Dr. Smith" },
-  { id: "psy2", name: "Dr. Jones" },
+  { id: "psy1", name: "Dr. Silva" },
+  { id: "psy2", name: "Dra. Jones" },
 ];
-const appointmentTypes = ["Initial Consultation", "Follow-up", "Therapy Session", "Assessment Review", "Group Session"];
+const appointmentTypes = ["Consulta Inicial", "Acompanhamento", "Sessão de Terapia", "Revisão de Avaliação", "Sessão em Grupo"];
 const daysOfWeek = [
-  { id: "MO", label: "Mon" },
-  { id: "TU", label: "Tue" },
-  { id: "WE", label: "Wed" },
-  { id: "TH", label: "Thu" },
-  { id: "FR", label: "Fri" },
-  { id: "SA", label: "Sat" },
-  { id: "SU", label: "Sun" },
+  { id: "SU", label: "Dom" }, // Sunday first for consistency with date-fns default
+  { id: "MO", label: "Seg" },
+  { id: "TU", label: "Ter" },
+  { id: "WE", label: "Qua" },
+  { id: "TH", label: "Qui" },
+  { id: "FR", label: "Sex" },
+  { id: "SA", label: "Sáb" },
 ];
 
 const appointmentFormSchema = z.object({
-  patientId: z.string().optional(), // Optional if isBlockTime is true
-  psychologistId: z.string().min(1, {message: "Please select a psychologist."}),
-  appointmentDate: z.date({ required_error: "Please select a date." }),
-  startTime: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, { message: "Invalid time format (HH:mm)." }),
-  endTime: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, { message: "Invalid time format (HH:mm)." }),
-  appointmentType: z.string().optional(), // Optional if isBlockTime is true
+  patientId: z.string().optional(), 
+  psychologistId: z.string().min(1, {message: "Por favor, selecione um(a) psicólogo(a)."}),
+  appointmentDate: z.date({ required_error: "Por favor, selecione uma data." }),
+  startTime: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, { message: "Formato de hora inválido (HH:mm)." }),
+  endTime: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, { message: "Formato de hora inválido (HH:mm)." }),
+  appointmentType: z.string().optional(), 
   notes: z.string().optional(),
   isRecurring: z.boolean().default(false),
   recurrenceFrequency: z.enum(["none", "daily", "weekly", "monthly"]).optional(),
@@ -70,7 +70,7 @@ const appointmentFormSchema = z.object({
     if (!data.patientId) return false;
     return true;
 }, {
-    message: "Patient is required unless blocking time.",
+    message: "Paciente é obrigatório a menos que seja um bloqueio de horário.",
     path: ["patientId"],
 })
 .refine(data => {
@@ -78,11 +78,12 @@ const appointmentFormSchema = z.object({
     if (!data.appointmentType) return false;
     return true;
 }, {
-    message: "Appointment type is required unless blocking time.",
+    message: "Tipo de agendamento é obrigatório a menos que seja um bloqueio de horário.",
     path: ["appointmentType"],
 })
 .refine(data => {
-    if (data.isBlockTime) return true;
+    if (data.isBlockTime) return true; // No need to check time for blocked slots specifically here, can be an all-day block.
+    if (!data.startTime || !data.endTime) return true; // If times are not set, don't validate this.
     const [startHour, startMinute] = data.startTime.split(':').map(Number);
     const [endHour, endMinute] = data.endTime.split(':').map(Number);
     if (endHour < startHour || (endHour === startHour && endMinute <= startMinute)) {
@@ -90,29 +91,29 @@ const appointmentFormSchema = z.object({
     }
     return true;
 }, {
-    message: "End time must be after start time.",
+    message: "A hora final deve ser após a hora inicial.",
     path: ["endTime"],
 })
 .refine(data => {
     if (data.isBlockTime && !data.blockReason) return false;
     return true;
 }, {
-    message: "Reason is required if blocking time.",
+    message: "O motivo é obrigatório para bloqueio de horário.",
     path: ["blockReason"],
 })
 .refine(data => {
     if (data.isRecurring && data.recurrenceFrequency && data.recurrenceFrequency !== "none") {
         if (!data.recurrenceInterval || data.recurrenceInterval < 1) {
-            return false; // Interval required and must be positive
+            return false; 
         }
         if (data.recurrenceFrequency === "weekly" && (!data.recurrenceDaysOfWeek || data.recurrenceDaysOfWeek.length === 0)) {
-            return false; // Days of week required for weekly recurrence
+            return false; 
         }
     }
     return true;
 }, {
-    message: "Recurrence details are incomplete or invalid.",
-    path: ["recurrenceInterval"], // General path, could be more specific
+    message: "Detalhes da recorrência estão incompletos ou inválidos.",
+    path: ["recurrenceInterval"], 
 });
 
 
@@ -156,6 +157,8 @@ export default function AppointmentForm({ appointmentData }: AppointmentFormProp
       form.setValue('patientId', undefined); 
       form.setValue('appointmentType', undefined);
       form.setValue('isRecurring', false);
+    } else {
+        form.setValue('blockReason', undefined);
     }
   }, [isBlockTime, form]);
 
@@ -164,24 +167,23 @@ export default function AppointmentForm({ appointmentData }: AppointmentFormProp
     
     const finalData = {...data};
     if(data.isBlockTime) {
-      finalData.appointmentType = "Blocked Slot";
+      finalData.appointmentType = "Horário Bloqueado";
       finalData.patientId = "N/A"; 
     }
-    if (!data.isRecurring) {
+    if (!data.isRecurring || data.isBlockTime) { // Also ensure recurrence is off for block time
         finalData.recurrenceFrequency = "none";
         finalData.recurrenceInterval = undefined;
         finalData.recurrenceEndDate = undefined;
         finalData.recurrenceDaysOfWeek = [];
     }
 
-
-    console.log("Simulated Appointment Save:", JSON.stringify(finalData, null, 2));
+    console.log("Salvamento de Agendamento Simulado:", JSON.stringify(finalData, null, 2));
     await new Promise((resolve) => setTimeout(resolve, 1000));
     setIsLoading(false);
 
     toast({
-      title: appointmentData?.id ? "Appointment Updated (Simulated)" : (data.isBlockTime ? "Time Blocked (Simulated)" : "Appointment Scheduled (Simulated)"),
-      description: `The ${data.isBlockTime ? 'time slot' : 'appointment'} for ${data.isBlockTime ? data.blockReason : mockPatients.find(p=>p.id === data.patientId)?.name} on ${format(data.appointmentDate, "PPP")} has been successfully ${appointmentData?.id ? 'updated' : 'created'}.`,
+      title: appointmentData?.id ? "Agendamento Atualizado (Simulado)" : (data.isBlockTime ? "Horário Bloqueado (Simulado)" : "Agendamento Criado (Simulado)"),
+      description: `O ${data.isBlockTime ? 'horário' : 'agendamento'} para ${data.isBlockTime ? data.blockReason : mockPatients.find(p=>p.id === data.patientId)?.name} em ${format(data.appointmentDate, "P", {locale: ptBR})} foi ${appointmentData?.id ? 'atualizado' : 'criado'} com sucesso.`,
     });
     router.push("/schedule");
   }
@@ -192,10 +194,10 @@ export default function AppointmentForm({ appointmentData }: AppointmentFormProp
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <CardHeader>
             <CardTitle className="font-headline">
-              {appointmentData?.id ? "Edit Appointment" : (isBlockTime ? "Block Time Slot" : "Schedule New Appointment")}
+              {appointmentData?.id ? "Editar Agendamento" : (isBlockTime ? "Bloquear Horário" : "Novo Agendamento")}
             </CardTitle>
             <CardDescription>
-                {isBlockTime ? "Mark a time slot as unavailable in the schedule." : "Fill in the details to schedule a new appointment."}
+                {isBlockTime ? "Marque um horário como indisponível na agenda." : "Preencha os detalhes para agendar uma nova consulta."}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -213,7 +215,7 @@ export default function AppointmentForm({ appointmentData }: AppointmentFormProp
                     </FormControl>
                     <div className="space-y-1 leading-none">
                         <FormLabel htmlFor="isBlockTime" className="font-medium cursor-pointer">
-                        Block this time slot (e.g., for unavailability, meeting)
+                        Bloquear este horário (ex: para indisponibilidade, reunião)
                         </FormLabel>
                     </div>
                     </FormItem>
@@ -227,11 +229,11 @@ export default function AppointmentForm({ appointmentData }: AppointmentFormProp
                     name="patientId"
                     render={({ field }) => (
                     <FormItem>
-                        <FormLabel>Patient *</FormLabel>
+                        <FormLabel>Paciente *</FormLabel>
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
                             <SelectTrigger>
-                            <SelectValue placeholder="Select a patient" />
+                            <SelectValue placeholder="Selecione um paciente" />
                             </SelectTrigger>
                         </FormControl>
                         <SelectContent>
@@ -247,11 +249,11 @@ export default function AppointmentForm({ appointmentData }: AppointmentFormProp
                     name="appointmentType"
                     render={({ field }) => (
                     <FormItem>
-                        <FormLabel>Appointment Type *</FormLabel>
+                        <FormLabel>Tipo de Agendamento *</FormLabel>
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
                             <SelectTrigger>
-                            <SelectValue placeholder="Select type" />
+                            <SelectValue placeholder="Selecione o tipo" />
                             </SelectTrigger>
                         </FormControl>
                         <SelectContent>
@@ -271,9 +273,9 @@ export default function AppointmentForm({ appointmentData }: AppointmentFormProp
                     name="blockReason"
                     render={({ field }) => (
                     <FormItem>
-                        <FormLabel>Reason for Blocking *</FormLabel>
+                        <FormLabel>Motivo do Bloqueio *</FormLabel>
                         <FormControl>
-                        <Input placeholder="e.g., Team Meeting, Personal Time" {...field} />
+                        <Input placeholder="Ex: Reunião de Equipe, Tempo Pessoal" {...field} />
                         </FormControl>
                         <FormMessage />
                     </FormItem>
@@ -287,11 +289,11 @@ export default function AppointmentForm({ appointmentData }: AppointmentFormProp
                     name="psychologistId"
                     render={({ field }) => (
                     <FormItem>
-                        <FormLabel>Psychologist *</FormLabel>
+                        <FormLabel>Psicólogo(a) *</FormLabel>
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
                             <SelectTrigger>
-                            <SelectValue placeholder="Select a psychologist" />
+                            <SelectValue placeholder="Selecione um(a) psicólogo(a)" />
                             </SelectTrigger>
                         </FormControl>
                         <SelectContent>
@@ -307,7 +309,7 @@ export default function AppointmentForm({ appointmentData }: AppointmentFormProp
                     name="appointmentDate"
                     render={({ field }) => (
                     <FormItem className="flex flex-col">
-                        <FormLabel>Date *</FormLabel>
+                        <FormLabel>Data *</FormLabel>
                         <Popover>
                         <PopoverTrigger asChild>
                             <FormControl>
@@ -319,9 +321,9 @@ export default function AppointmentForm({ appointmentData }: AppointmentFormProp
                                 )}
                             >
                                 {field.value ? (
-                                format(field.value, "PPP")
+                                format(field.value, "P", { locale: ptBR })
                                 ) : (
-                                <span>Pick a date</span>
+                                <span>Escolha uma data</span>
                                 )}
                                 <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                             </Button>
@@ -334,6 +336,7 @@ export default function AppointmentForm({ appointmentData }: AppointmentFormProp
                             onSelect={field.onChange}
                             disabled={(date) => date < new Date(new Date().setHours(0,0,0,0)) }
                             initialFocus
+                            locale={ptBR}
                             />
                         </PopoverContent>
                         </Popover>
@@ -349,7 +352,7 @@ export default function AppointmentForm({ appointmentData }: AppointmentFormProp
                     name="startTime"
                     render={({ field }) => (
                     <FormItem>
-                        <FormLabel>Start Time *</FormLabel>
+                        <FormLabel>Hora de Início *</FormLabel>
                         <FormControl>
                         <Input type="time" {...field} />
                         </FormControl>
@@ -362,7 +365,7 @@ export default function AppointmentForm({ appointmentData }: AppointmentFormProp
                     name="endTime"
                     render={({ field }) => (
                     <FormItem>
-                        <FormLabel>End Time *</FormLabel>
+                        <FormLabel>Hora de Término *</FormLabel>
                         <FormControl>
                         <Input type="time" {...field} />
                         </FormControl>
@@ -377,9 +380,9 @@ export default function AppointmentForm({ appointmentData }: AppointmentFormProp
               name="notes"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Notes (Optional)</FormLabel>
+                  <FormLabel>Observações (Opcional)</FormLabel>
                   <FormControl>
-                    <Textarea placeholder="Any relevant notes for this appointment..." {...field} rows={3} />
+                    <Textarea placeholder="Qualquer observação relevante para este agendamento..." {...field} rows={3} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -401,7 +404,7 @@ export default function AppointmentForm({ appointmentData }: AppointmentFormProp
                         </FormControl>
                         <div className="space-y-1 leading-none">
                             <FormLabel htmlFor="isRecurring" className="font-medium cursor-pointer">
-                            This is a recurring appointment
+                            Este é um agendamento recorrente
                             </FormLabel>
                         </div>
                         </FormItem>
@@ -411,21 +414,21 @@ export default function AppointmentForm({ appointmentData }: AppointmentFormProp
             
             {isRecurring && !isBlockTime && (
                 <Card className="p-4 space-y-4 bg-muted/30">
-                    <CardTitle className="text-md font-semibold flex items-center"><Repeat className="mr-2 h-4 w-4"/> Recurrence Rules</CardTitle>
+                    <CardTitle className="text-md font-semibold flex items-center"><Repeat className="mr-2 h-4 w-4"/> Regras de Recorrência</CardTitle>
                     <div className="grid md:grid-cols-2 gap-6">
                         <FormField
                             control={form.control}
                             name="recurrenceFrequency"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Frequency *</FormLabel>
+                                    <FormLabel>Frequência *</FormLabel>
                                     <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                        <FormControl><SelectTrigger><SelectValue placeholder="Select frequency" /></SelectTrigger></FormControl>
+                                        <FormControl><SelectTrigger><SelectValue placeholder="Selecione a frequência" /></SelectTrigger></FormControl>
                                         <SelectContent>
-                                            <SelectItem value="none">None</SelectItem>
-                                            <SelectItem value="daily">Daily</SelectItem>
-                                            <SelectItem value="weekly">Weekly</SelectItem>
-                                            <SelectItem value="monthly">Monthly</SelectItem>
+                                            <SelectItem value="none">Nenhuma</SelectItem>
+                                            <SelectItem value="daily">Diariamente</SelectItem>
+                                            <SelectItem value="weekly">Semanalmente</SelectItem>
+                                            <SelectItem value="monthly">Mensalmente</SelectItem>
                                         </SelectContent>
                                     </Select>
                                     <FormMessage />
@@ -437,9 +440,9 @@ export default function AppointmentForm({ appointmentData }: AppointmentFormProp
                             name="recurrenceInterval"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Repeat every *</FormLabel>
+                                    <FormLabel>Repetir a cada *</FormLabel>
                                     <FormControl><Input type="number" min="1" {...field} /></FormControl>
-                                    <FormDescription>e.g., 1 for every day/week/month, 2 for every other.</FormDescription>
+                                    <FormDescription>Ex: 1 para todo dia/semana/mês, 2 para alternado.</FormDescription>
                                     <FormMessage />
                                 </FormItem>
                             )}
@@ -451,8 +454,8 @@ export default function AppointmentForm({ appointmentData }: AppointmentFormProp
                             name="recurrenceDaysOfWeek"
                             render={() => (
                                 <FormItem>
-                                    <FormLabel>Repeat on days *</FormLabel>
-                                    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-7 gap-2">
+                                    <FormLabel>Repetir nos dias *</FormLabel>
+                                    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-7 gap-2 pt-2">
                                     {daysOfWeek.map((day) => (
                                         <FormField
                                             key={day.id}
@@ -460,7 +463,7 @@ export default function AppointmentForm({ appointmentData }: AppointmentFormProp
                                             name="recurrenceDaysOfWeek"
                                             render={({ field }) => {
                                                 return (
-                                                <FormItem key={day.id} className="flex flex-row items-start space-x-2 space-y-0">
+                                                <FormItem key={day.id} className="flex flex-row items-center space-x-2 space-y-0">
                                                     <FormControl>
                                                     <Checkbox
                                                         checked={field.value?.includes(day.id)}
@@ -492,14 +495,14 @@ export default function AppointmentForm({ appointmentData }: AppointmentFormProp
                         name="recurrenceEndDate"
                         render={({ field }) => (
                         <FormItem className="flex flex-col">
-                            <FormLabel>Ends on (Optional)</FormLabel>
+                            <FormLabel>Termina em (Opcional)</FormLabel>
                             <Popover>
                             <PopoverTrigger asChild>
                                 <FormControl>
                                 <Button
                                     variant={"outline"}
                                     className={cn("w-full pl-3 text-left font-normal",!field.value && "text-muted-foreground")}>
-                                    {field.value ? format(field.value, "PPP") : <span>Never</span>}
+                                    {field.value ? format(field.value, "P", { locale: ptBR }) : <span>Nunca</span>}
                                     <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                                 </Button>
                                 </FormControl>
@@ -507,7 +510,9 @@ export default function AppointmentForm({ appointmentData }: AppointmentFormProp
                             <PopoverContent className="w-auto p-0" align="start">
                                 <Calendar mode="single" selected={field.value} onSelect={field.onChange} 
                                 disabled={(date) => date < (form.getValues("appointmentDate") || new Date())}
-                                initialFocus />
+                                initialFocus 
+                                locale={ptBR}
+                                />
                             </PopoverContent>
                             </Popover>
                             <FormMessage />
@@ -516,13 +521,11 @@ export default function AppointmentForm({ appointmentData }: AppointmentFormProp
                     />
                 </Card>
             )}
-
-
           </CardContent>
           <CardFooter className="flex justify-end">
             <Button type="submit" className="bg-accent hover:bg-accent/90 text-accent-foreground" disabled={isLoading}>
               <Save className="mr-2 h-4 w-4" />
-              {isLoading ? (appointmentData?.id ? "Saving..." : (isBlockTime ? "Blocking..." : "Scheduling...")) : (appointmentData?.id ? "Save Changes" : (isBlockTime ? "Block Time Slot" : "Schedule Appointment"))}
+              {isLoading ? (appointmentData?.id ? "Salvando..." : (isBlockTime ? "Bloqueando..." : "Agendando...")) : (appointmentData?.id ? "Salvar Alterações" : (isBlockTime ? "Bloquear Horário" : "Criar Agendamento"))}
             </Button>
           </CardFooter>
         </form>
@@ -530,5 +533,3 @@ export default function AppointmentForm({ appointmentData }: AppointmentFormProp
     </Card>
   );
 }
-
-    

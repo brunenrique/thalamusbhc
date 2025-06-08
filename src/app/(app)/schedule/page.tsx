@@ -20,19 +20,25 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Calendar as CalendarComponent } from "@/components/ui/calendar"; // Renamed to avoid conflict
+import { Calendar as CalendarComponent } from "@/components/ui/calendar"; 
 import { Label } from '@/components/ui/label';
 import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 
-
-// Mock data for filters
 const mockPsychologists = [
-  { id: "psy1", name: "Dr. Smith" },
-  { id: "psy2", name: "Dr. Jones" },
-  { id: "all", name: "All Psychologists" },
+  { id: "psy1", name: "Dr. Silva" },
+  { id: "psy2", name: "Dra. Jones" },
+  { id: "all", name: "Todos os Psicólogos" },
 ];
 
-const appointmentStatuses = ["All", "Scheduled", "Confirmed", "Cancelled", "Completed", "Blocked"];
+const appointmentStatuses = [
+    {value: "All", label: "Todos"},
+    {value: "Scheduled", label: "Agendado"},
+    {value: "Confirmed", label: "Confirmado"},
+    {value: "Cancelled", label: "Cancelado"},
+    {value: "Completed", label: "Concluído"},
+    {value: "Blocked", label: "Bloqueado"}
+];
 
 
 export default function SchedulePage() {
@@ -48,11 +54,10 @@ export default function SchedulePage() {
 
   const handleFilterChange = (filterName: keyof typeof filters, value: any) => {
     setFilters(prev => ({ ...prev, [filterName]: value }));
-    // Here you would typically refetch data or apply client-side filtering
-    console.log("Filters updated:", { ...filters, [filterName]: value });
+    console.log("Filtros atualizados:", { ...filters, [filterName]: value });
   };
   
-  const currentMonthYear = currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+  const currentMonthYear = format(currentDate, 'MMMM yyyy', { locale: ptBR });
 
   const navigateDate = (direction: 'prev' | 'next') => {
     const newDate = new Date(currentDate);
@@ -60,22 +65,22 @@ export default function SchedulePage() {
         newDate.setMonth(currentDate.getMonth() + (direction === 'prev' ? -1 : 1));
     } else if (currentView === "Week") {
         newDate.setDate(currentDate.getDate() + (direction === 'prev' ? -7 : 7));
-    } else { // Day view
+    } else { 
         newDate.setDate(currentDate.getDate() + (direction === 'prev' ? -1 : 1));
     }
     setCurrentDate(newDate);
   };
 
   const displayDateRange = () => {
-    if (currentView === "Month") return currentMonthYear;
+    if (currentView === "Month") return currentMonthYear.charAt(0).toUpperCase() + currentMonthYear.slice(1);
     if (currentView === "Week") {
         const startOfWeek = new Date(currentDate);
-        startOfWeek.setDate(currentDate.getDate() - currentDate.getDay()); // Assuming week starts on Sunday
+        startOfWeek.setDate(currentDate.getDate() - getDay(currentDate) + (getDay(currentDate) === 0 ? -6 : 1) ); // Ajustado para semana começando na Segunda
         const endOfWeek = new Date(startOfWeek);
         endOfWeek.setDate(startOfWeek.getDate() + 6);
-        return `${format(startOfWeek, "MMM d")} - ${format(endOfWeek, "MMM d, yyyy")}`;
+        return `${format(startOfWeek, "d MMM", {locale: ptBR})} - ${format(endOfWeek, "d MMM, yyyy", {locale: ptBR})}`;
     }
-    return format(currentDate, "EEEE, MMM d, yyyy");
+    return format(currentDate, "EEEE, d 'de' MMMM 'de' yyyy", { locale: ptBR });
   }
 
 
@@ -84,11 +89,11 @@ export default function SchedulePage() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div className="flex items-center gap-2">
           <CalendarDays className="h-7 w-7 text-primary" />
-          <h1 className="text-3xl font-headline font-bold">Appointments Schedule</h1>
+          <h1 className="text-3xl font-headline font-bold">Agenda de Consultas</h1>
         </div>
         <Button asChild className="bg-accent hover:bg-accent/90 text-accent-foreground">
           <Link href="/schedule/new">
-            <PlusCircle className="mr-2 h-4 w-4" /> New Appointment
+            <PlusCircle className="mr-2 h-4 w-4" /> Novo Agendamento
           </Link>
         </Button>
       </div>
@@ -96,33 +101,33 @@ export default function SchedulePage() {
       <div className="flex items-center justify-between p-4 border rounded-lg shadow-sm bg-card">
         <div className="flex items-center gap-2">
           <Button variant="outline" size="icon" onClick={() => navigateDate('prev')}><ChevronLeft className="h-4 w-4" /></Button>
-          <h2 className="text-lg sm:text-xl font-semibold text-foreground min-w-[150px] sm:min-w-[200px] text-center">{displayDateRange()}</h2>
+          <h2 className="text-lg sm:text-xl font-semibold text-foreground min-w-[150px] sm:min-w-[240px] text-center capitalize">{displayDateRange()}</h2>
           <Button variant="outline" size="icon" onClick={() => navigateDate('next')}><ChevronRight className="h-4 w-4" /></Button>
         </div>
         <div className="flex items-center gap-1 sm:gap-2">
-          <Button variant="outline" size="sm" onClick={() => setCurrentDate(new Date())}>Today</Button>
-          <Button variant={currentView === "Day" ? "secondary" : "ghost"} size="sm" onClick={() => setCurrentView("Day")}>Day</Button>
-          <Button variant={currentView === "Week" ? "secondary" : "ghost"} size="sm" onClick={() => setCurrentView("Week")}>Week</Button>
-          <Button variant={currentView === "Month" ? "secondary" : "ghost"} size="sm" onClick={() => setCurrentView("Month")}>Month</Button>
+          <Button variant="outline" size="sm" onClick={() => setCurrentDate(new Date())}>Hoje</Button>
+          <Button variant={currentView === "Day" ? "secondary" : "ghost"} size="sm" onClick={() => setCurrentView("Day")}>Dia</Button>
+          <Button variant={currentView === "Week" ? "secondary" : "ghost"} size="sm" onClick={() => setCurrentView("Week")}>Semana</Button>
+          <Button variant={currentView === "Month" ? "secondary" : "ghost"} size="sm" onClick={() => setCurrentView("Month")}>Mês</Button>
           
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="icon" aria-label="Filter appointments">
+              <Button variant="outline" size="icon" aria-label="Filtrar agendamentos">
                 <ListFilter className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-64 p-2" align="end">
-              <DropdownMenuLabel>Filter By</DropdownMenuLabel>
+              <DropdownMenuLabel>Filtrar Por</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuGroup>
                 <div className="space-y-2 px-2 py-1.5">
-                  <Label htmlFor="filterPsychologist">Psychologist</Label>
+                  <Label htmlFor="filterPsychologist">Psicólogo(a)</Label>
                   <Select
                     value={filters.psychologistId}
                     onValueChange={(value) => handleFilterChange("psychologistId", value)}
                   >
                     <SelectTrigger id="filterPsychologist">
-                      <SelectValue placeholder="Select psychologist" />
+                      <SelectValue placeholder="Selecione psicólogo(a)" />
                     </SelectTrigger>
                     <SelectContent>
                       {mockPsychologists.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
@@ -136,35 +141,34 @@ export default function SchedulePage() {
                     onValueChange={(value) => handleFilterChange("status", value)}
                   >
                     <SelectTrigger id="filterStatus">
-                      <SelectValue placeholder="Select status" />
+                      <SelectValue placeholder="Selecione status" />
                     </SelectTrigger>
                     <SelectContent>
-                      {appointmentStatuses.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+                      {appointmentStatuses.map(s => <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>)}
                     </SelectContent>
                   </Select>
                 </div>
-                {/* Date Range Popover - Simplified for now */}
                 <div className="space-y-2 px-2 py-1.5">
-                    <Label>Date Range</Label>
+                    <Label>Intervalo de Datas</Label>
                     <div className="flex gap-2">
                         <Popover>
                             <PopoverTrigger asChild>
                                 <Button variant="outline" className="w-full justify-start text-left font-normal">
-                                    {filters.dateFrom ? format(filters.dateFrom, "PPP") : <span>From Date</span>}
+                                    {filters.dateFrom ? format(filters.dateFrom, "P", {locale: ptBR}) : <span>De</span>}
                                 </Button>
                             </PopoverTrigger>
                             <PopoverContent className="w-auto p-0">
-                                <CalendarComponent mode="single" selected={filters.dateFrom} onSelect={(date) => handleFilterChange("dateFrom", date)} initialFocus />
+                                <CalendarComponent locale={ptBR} mode="single" selected={filters.dateFrom} onSelect={(date) => handleFilterChange("dateFrom", date)} initialFocus />
                             </PopoverContent>
                         </Popover>
                          <Popover>
                             <PopoverTrigger asChild>
                                 <Button variant="outline" className="w-full justify-start text-left font-normal">
-                                    {filters.dateTo ? format(filters.dateTo, "PPP") : <span>To Date</span>}
+                                    {filters.dateTo ? format(filters.dateTo, "P", {locale: ptBR}) : <span>Até</span>}
                                 </Button>
                             </PopoverTrigger>
                             <PopoverContent className="w-auto p-0">
-                                <CalendarComponent mode="single" selected={filters.dateTo} onSelect={(date) => handleFilterChange("dateTo", date)} initialFocus />
+                                <CalendarComponent locale={ptBR} mode="single" selected={filters.dateTo} onSelect={(date) => handleFilterChange("dateTo", date)} initialFocus />
                             </PopoverContent>
                         </Popover>
                     </div>
@@ -173,7 +177,7 @@ export default function SchedulePage() {
               </DropdownMenuGroup>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem>
-                    <Button className="w-full" size="sm" onClick={() => console.log("Applying filters:", filters)}>Apply Filters</Button>
+                    <Button className="w-full" size="sm" onClick={() => console.log("Aplicando filtros:", filters)}>Aplicar Filtros</Button>
                 </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -186,5 +190,3 @@ export default function SchedulePage() {
     </div>
   );
 }
-
-    

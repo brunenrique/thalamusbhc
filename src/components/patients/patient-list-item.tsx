@@ -3,6 +3,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ChevronRight, Edit3, Mail, CalendarDays } from "lucide-react";
+import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 
 interface Patient {
   id: string;
@@ -25,6 +27,10 @@ export default function PatientListItem({ patient }: PatientListItemProps) {
     return (names[0][0] + (names[names.length - 1][0] || '')).toUpperCase();
   };
 
+  const formattedNextAppointment = patient.nextAppointment 
+    ? format(new Date(patient.nextAppointment), "P", { locale: ptBR }) 
+    : null;
+
   return (
     <Card className="hover:shadow-md transition-shadow duration-200">
       <CardContent className="p-4">
@@ -43,9 +49,9 @@ export default function PatientListItem({ patient }: PatientListItemProps) {
               <p className="text-sm text-muted-foreground truncate flex items-center gap-1">
                 <Mail className="h-3 w-3" /> {patient.email}
               </p>
-              {patient.nextAppointment && (
+              {formattedNextAppointment && (
                 <p className="text-sm text-muted-foreground flex items-center gap-1">
-                  <CalendarDays className="h-3 w-3" /> Next: {patient.nextAppointment}
+                  <CalendarDays className="h-3 w-3" /> Próx.: {formattedNextAppointment}
                 </p>
               )}
             </div>
@@ -54,13 +60,13 @@ export default function PatientListItem({ patient }: PatientListItemProps) {
             <Button variant="outline" size="sm" asChild>
               <Link href={`/patients/${patient.id}/edit`}>
                 <Edit3 className="h-4 w-4 " />
-                <span className="sr-only sm:not-sr-only sm:ml-2">Edit</span>
+                <span className="sr-only sm:not-sr-only sm:ml-2">Editar</span>
               </Link>
             </Button>
             <Button variant="ghost" size="icon" asChild>
               <Link href={`/patients/${patient.id}`}>
                 <ChevronRight className="h-5 w-5" />
-                 <span className="sr-only">View</span>
+                 <span className="sr-only">Ver</span>
               </Link>
             </Button>
           </div>

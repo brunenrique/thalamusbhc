@@ -5,7 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Mail, Phone, CalendarDays, Edit, FileText, Brain, CheckCircle, Clock, Archive, MessageSquare, Trash2, Users as UsersIconLucide, Home as HomeIconLucide } from "lucide-react"; // Renamed to avoid conflict
+import { Mail, Phone, CalendarDays, Edit, FileText, Brain, CheckCircle, Clock, Archive, MessageSquare, Trash2, Users as UsersIconLucide, Home as HomeIconLucide } from "lucide-react"; 
 import Link from "next/link";
 import PatientTimeline from "@/components/patients/patient-timeline";
 import SessionNoteCard from "@/components/patients/session-note-card";
@@ -23,8 +23,10 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
+import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 
-// Mock data - replace with actual data fetching
+
 const mockPatient = {
   id: "1",
   name: "Alice Wonderland",
@@ -33,30 +35,30 @@ const mockPatient = {
   dob: "1990-05-15",
   avatarUrl: "https://placehold.co/150x150/D0BFFF/4F3A76?text=AW",
   dataAiHint: "female avatar",
-  nextAppointment: "2024-07-22 at 10:00 AM",
+  nextAppointment: "2024-07-22T10:00:00Z",
   lastSession: "2024-07-15",
   assignedPsychologist: "Dr. Smith",
-  address: "123 Main St, Anytown, USA",
+  address: "Rua Principal, 123, Cidade Alegre, BR",
 };
 
 const mockSessionNotes = [
-  { id: "sn1", date: "2024-07-15", summary: "Discussed coping mechanisms for anxiety...", keywords: ["anxiety", "coping"], themes: ["stress management"] },
-  { id: "sn2", date: "2024-07-08", summary: "Explored family dynamics and communication patterns.", keywords: ["family", "communication"], themes: ["interpersonal relationships"] },
+  { id: "sn1", date: "2024-07-15", summary: "Discutimos mecanismos de enfrentamento para ansiedade...", keywords: ["ansiedade", "enfrentamento"], themes: ["gerenciamento de estresse"] },
+  { id: "sn2", date: "2024-07-08", summary: "Exploramos dinâmicas familiares e padrões de comunicação.", keywords: ["família", "comunicação"], themes: ["relacionamentos interpessoais"] },
 ];
 
 const mockAssessments = [
-  { id: "asm1", name: "Beck Depression Inventory", dateSent: "2024-07-01", status: "Completed" as const, score: "15/63" },
-  { id: "asm2", name: "GAD-7 Anxiety Scale", dateSent: "2024-07-10", status: "Pending" as const },
+  { id: "asm1", name: "Inventário de Depressão de Beck", dateSent: "2024-07-01", status: "Completed" as const, score: "15/63" },
+  { id: "asm2", name: "Escala de Ansiedade GAD-7", dateSent: "2024-07-10", status: "Pending" as const },
 ];
 
 const mockResources = [
- { id: "res1", name: "Mindfulness Guide.pdf", type: "pdf" as const, size: "1.2MB", sharedDate: "2024-07-02", dataAiHint: "document mindfulness" },
- { id: "res2", name: "Sleep Hygiene Tips.pdf", type: "pdf" as const, size: "800KB", sharedDate: "2024-06-20", dataAiHint: "document sleep" },
+ { id: "res1", name: "Guia de Mindfulness.pdf", type: "pdf" as const, size: "1.2MB", sharedDate: "2024-07-02", dataAiHint: "documento mindfulness" },
+ { id: "res2", name: "Dicas de Higiene do Sono.pdf", type: "pdf" as const, size: "800KB", sharedDate: "2024-06-20", dataAiHint: "documento sono" },
 ];
 
 
 export default function PatientDetailPage({ params }: { params: { id: string } }) {
-  const patient = mockPatient; // Fetch patient by params.id
+  const patient = mockPatient; 
   const { toast } = useToast();
 
   const getInitials = (name: string) => {
@@ -66,13 +68,21 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
   };
 
   const handleArchivePatient = () => {
-    console.log(`Archiving patient ${patient.id}... (Simulated)`);
+    console.log(`Arquivando paciente ${patient.id}... (Simulado)`);
     toast({
-      title: "Patient Archived (Simulated)",
-      description: `${patient.name} has been marked as archived.`,
+      title: "Paciente Arquivado (Simulado)",
+      description: `${patient.name} foi marcado(a) como arquivado(a).`,
     });
-    // In a real app, you would redirect or update UI state
   };
+
+  const formattedDob = patient.dob ? format(new Date(patient.dob), "P", { locale: ptBR }) : "N/A";
+  const formattedNextAppointment = patient.nextAppointment 
+    ? format(new Date(patient.nextAppointment), "P 'às' HH:mm", { locale: ptBR }) 
+    : "Não agendado";
+  const formattedLastSession = patient.lastSession 
+    ? format(new Date(patient.lastSession), "P", { locale: ptBR }) 
+    : "N/A";
+
 
   return (
     <div className="space-y-6">
@@ -90,33 +100,33 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
               <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground mt-1">
                 <span className="flex items-center"><Mail className="mr-1.5 h-4 w-4" /> {patient.email}</span>
                 <span className="flex items-center"><Phone className="mr-1.5 h-4 w-4" /> {patient.phone}</span>
-                <span className="flex items-center"><CalendarDays className="mr-1.5 h-4 w-4" /> DOB: {patient.dob}</span>
+                <span className="flex items-center"><CalendarDays className="mr-1.5 h-4 w-4" /> Nasc: {formattedDob}</span>
               </div>
             </div>
             <div className="flex flex-col sm:flex-row gap-2 self-start sm:self-center">
                 <Button variant="outline" asChild>
                   <Link href={`/patients/${patient.id}/edit`}>
-                    <Edit className="mr-2 h-4 w-4" /> Edit Profile
+                    <Edit className="mr-2 h-4 w-4" /> Editar Perfil
                   </Link>
                 </Button>
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
                     <Button variant="destructive" className="bg-destructive/90 hover:bg-destructive">
-                      <Archive className="mr-2 h-4 w-4" /> Archive Patient
+                      <Archive className="mr-2 h-4 w-4" /> Arquivar Paciente
                     </Button>
                   </AlertDialogTrigger>
                   <AlertDialogContent>
                     <AlertDialogHeader>
-                      <AlertDialogTitle>Archive Patient?</AlertDialogTitle>
+                      <AlertDialogTitle>Arquivar Paciente?</AlertDialogTitle>
                       <AlertDialogDescription>
-                        Archiving this patient will remove them from active lists but preserve their data. 
-                        This action can usually be undone. Are you sure you want to archive {patient.name}?
+                        Arquivar este paciente o removerá das listas ativas, mas preservará seus dados. 
+                        Esta ação geralmente pode ser desfeita. Tem certeza que deseja arquivar {patient.name}?
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogCancel>Cancelar</AlertDialogCancel>
                       <AlertDialogAction onClick={handleArchivePatient} className="bg-destructive hover:bg-destructive/90">
-                        Archive
+                        Arquivar
                       </AlertDialogAction>
                     </AlertDialogFooter>
                   </AlertDialogContent>
@@ -128,23 +138,23 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
 
       <Tabs defaultValue="overview" className="w-full">
         <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-5">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="session_notes">Session Notes</TabsTrigger>
-          <TabsTrigger value="assessments">Assessments</TabsTrigger>
-          <TabsTrigger value="timeline">Timeline</TabsTrigger>
-          <TabsTrigger value="resources">Resources</TabsTrigger>
+          <TabsTrigger value="overview">Visão Geral</TabsTrigger>
+          <TabsTrigger value="session_notes">Anotações</TabsTrigger>
+          <TabsTrigger value="assessments">Avaliações</TabsTrigger>
+          <TabsTrigger value="timeline">Linha do Tempo</TabsTrigger>
+          <TabsTrigger value="resources">Recursos</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="mt-6">
           <Card>
             <CardHeader>
-              <CardTitle className="font-headline">Patient Overview</CardTitle>
+              <CardTitle className="font-headline">Visão Geral do Paciente</CardTitle>
             </CardHeader>
             <CardContent className="grid md:grid-cols-2 gap-4">
-              <InfoItem icon={<CalendarDays className="text-accent" />} label="Next Appointment" value={patient.nextAppointment || "Not scheduled"} />
-              <InfoItem icon={<Clock className="text-accent" />} label="Last Session" value={patient.lastSession} />
-              <InfoItem icon={<UsersIcon className="text-accent" />} label="Assigned Psychologist" value={patient.assignedPsychologist} />
-              <InfoItem icon={<HomeIcon className="text-accent" />} label="Address" value={patient.address} className="md:col-span-2"/>
+              <InfoItem icon={<CalendarDays className="text-accent" />} label="Próximo Agendamento" value={formattedNextAppointment} />
+              <InfoItem icon={<Clock className="text-accent" />} label="Última Sessão" value={formattedLastSession} />
+              <InfoItem icon={<UsersIconLucide className="text-accent h-5 w-5" />} label="Psicólogo(a) Responsável" value={patient.assignedPsychologist} />
+              <InfoItem icon={<HomeIconLucide className="text-accent h-5 w-5" />} label="Endereço" value={patient.address} className="md:col-span-2"/>
             </CardContent>
           </Card>
         </TabsContent>
@@ -153,18 +163,18 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
           <Card>
             <CardHeader className="flex flex-row justify-between items-center">
               <div>
-                <CardTitle className="font-headline">Session Notes</CardTitle>
-                <CardDescription>Chronological record of therapy sessions.</CardDescription>
+                <CardTitle className="font-headline">Anotações de Sessão</CardTitle>
+                <CardDescription>Registro cronológico das sessões de terapia.</CardDescription>
               </div>
               <Button variant="outline" className="bg-accent hover:bg-accent/90 text-accent-foreground">
-                <FileText className="mr-2 h-4 w-4" /> New Note
+                <FileText className="mr-2 h-4 w-4" /> Nova Anotação
               </Button>
             </CardHeader>
             <CardContent className="space-y-4">
               {mockSessionNotes.map(note => (
                 <SessionNoteCard key={note.id} note={note} />
               ))}
-              {mockSessionNotes.length === 0 && <p className="text-muted-foreground">No session notes recorded yet.</p>}
+              {mockSessionNotes.length === 0 && <p className="text-muted-foreground">Nenhuma anotação de sessão registrada ainda.</p>}
             </CardContent>
           </Card>
         </TabsContent>
@@ -173,18 +183,18 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
           <Card>
             <CardHeader className="flex flex-row justify-between items-center">
               <div>
-                <CardTitle className="font-headline">Assessments</CardTitle>
-                <CardDescription>Track and manage patient assessments.</CardDescription>
+                <CardTitle className="font-headline">Avaliações</CardTitle>
+                <CardDescription>Acompanhe e gerencie as avaliações do paciente.</CardDescription>
               </div>
                <Button variant="outline" className="bg-accent hover:bg-accent/90 text-accent-foreground">
-                <CheckCircle className="mr-2 h-4 w-4" /> Assign Assessment
+                <CheckCircle className="mr-2 h-4 w-4" /> Atribuir Avaliação
                </Button>
             </CardHeader>
             <CardContent className="space-y-4">
               {mockAssessments.map(assessment => (
                 <AssessmentCard key={assessment.id} assessment={assessment} />
               ))}
-              {mockAssessments.length === 0 && <p className="text-muted-foreground">No assessments assigned or completed.</p>}
+              {mockAssessments.length === 0 && <p className="text-muted-foreground">Nenhuma avaliação atribuída ou concluída.</p>}
             </CardContent>
           </Card>
         </TabsContent>
@@ -192,8 +202,8 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
         <TabsContent value="timeline" className="mt-6">
           <Card>
             <CardHeader>
-              <CardTitle className="font-headline">Patient Timeline</CardTitle>
-              <CardDescription>Key events and interactions related to the patient.</CardDescription>
+              <CardTitle className="font-headline">Linha do Tempo do Paciente</CardTitle>
+              <CardDescription>Eventos chave e interações relacionadas ao paciente.</CardDescription>
             </CardHeader>
             <CardContent>
               <PatientTimeline patientId={params.id} />
@@ -205,18 +215,18 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
           <Card>
             <CardHeader className="flex flex-row justify-between items-center">
              <div>
-                <CardTitle className="font-headline">Shared Resources</CardTitle>
-                <CardDescription>Documents and guides shared with the patient.</CardDescription>
+                <CardTitle className="font-headline">Recursos Compartilhados</CardTitle>
+                <CardDescription>Documentos e guias compartilhados com o paciente.</CardDescription>
               </div>
                <Button variant="outline" className="bg-accent hover:bg-accent/90 text-accent-foreground">
-                <Archive className="mr-2 h-4 w-4" /> Share Resource
+                <Archive className="mr-2 h-4 w-4" /> Compartilhar Recurso
                </Button>
             </CardHeader>
             <CardContent className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {mockResources.map(resource => (
                 <ResourceCard key={resource.id} resource={resource} />
               ))}
-              {mockResources.length === 0 && <p className="text-muted-foreground md:col-span-full">No resources shared yet.</p>}
+              {mockResources.length === 0 && <p className="text-muted-foreground md:col-span-full">Nenhum recurso compartilhado ainda.</p>}
             </CardContent>
           </Card>
         </TabsContent>
@@ -242,26 +252,5 @@ function InfoItem({ icon, label, value, className }: InfoItemProps) {
       </div>
     </div>
   );
-}
-
-// Dummy icons if not in lucide, or to avoid direct lucide import in page level
-function UsersIcon(props: React.SVGProps<SVGSVGElement>) { // Kept as local component as per existing file
-  return (
-    <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-      <circle cx="9" cy="7" r="4" />
-      <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
-      <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-    </svg>
-  )
-}
-
-function HomeIcon(props: React.SVGProps<SVGSVGElement>) { // Kept as local component
-  return (
-    <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-      <polyline points="9 22 9 12 15 12 15 22" />
-    </svg>
-  )
 }
     

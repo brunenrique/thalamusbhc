@@ -7,7 +7,7 @@ export default function NewAppointmentPage() {
     <div className="space-y-6">
       <div className="flex items-center gap-2">
         <CalendarPlus className="h-7 w-7 text-primary" />
-        <h1 className="text-3xl font-headline font-bold">New Appointment</h1>
+        <h1 className="text-3xl font-headline font-bold">Novo Agendamento</h1>
       </div>
       <AppointmentForm />
     </div>

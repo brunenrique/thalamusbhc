@@ -6,13 +6,22 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { ListChecks, UserPlus, Search, Filter, MoreHorizontal, CalendarPlus, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
+import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 
 const mockWaitingList = [
-  { id: "wl1", name: "Edward Scissorhands", requestedPsychologist: "Any", dateAdded: "2024-06-01", priority: "High", notes: "Prefers morning appointments." },
-  { id: "wl2", name: "Fiona Gallagher", requestedPsychologist: "Dr. Smith", dateAdded: "2024-06-15", priority: "Medium", notes: "Needs evening slots." },
-  { id: "wl3", name: "George Jetson", requestedPsychologist: "Dr. Jones", dateAdded: "2024-07-01", priority: "Low", notes: "Flexible with timing." },
-  { id: "wl4", name: "Harry Potter", requestedPsychologist: "Any", dateAdded: "2024-07-10", priority: "High", notes: "Urgent referral." },
+  { id: "wl1", name: "Edward Mãos de Tesoura", requestedPsychologist: "Qualquer", dateAdded: "2024-06-01", priority: "Alta", notes: "Prefere agendamentos pela manhã." },
+  { id: "wl2", name: "Fiona Gallagher", requestedPsychologist: "Dr. Silva", dateAdded: "2024-06-15", priority: "Média", notes: "Precisa de horários à noite." },
+  { id: "wl3", name: "George Jetson", requestedPsychologist: "Dra. Jones", dateAdded: "2024-07-01", priority: "Baixa", notes: "Flexível com horários." },
+  { id: "wl4", name: "Harry Potter", requestedPsychologist: "Qualquer", dateAdded: "2024-07-10", priority: "Alta", notes: "Encaminhamento urgente." },
 ];
+
+const priorityLabels: Record<string, string> = {
+    High: "Alta",
+    Medium: "Média",
+    Low: "Baixa",
+};
+
 
 export default function WaitingListPage() {
   return (
@@ -20,26 +29,26 @@ export default function WaitingListPage() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div className="flex items-center gap-2">
           <ListChecks className="h-7 w-7 text-primary" />
-          <h1 className="text-3xl font-headline font-bold">Waiting List</h1>
+          <h1 className="text-3xl font-headline font-bold">Lista de Espera</h1>
         </div>
         <Button asChild className="bg-accent hover:bg-accent/90 text-accent-foreground">
           <Link href="/waiting-list/add">
-            <UserPlus className="mr-2 h-4 w-4" /> Add to Waiting List
+            <UserPlus className="mr-2 h-4 w-4" /> Adicionar à Lista de Espera
           </Link>
         </Button>
       </div>
 
       <Card className="shadow-sm">
         <CardHeader>
-          <CardTitle className="font-headline">Manage Patient Waiting List</CardTitle>
-          <CardDescription>View and allocate patients from the waiting list.</CardDescription>
+          <CardTitle className="font-headline">Gerenciar Lista de Espera de Pacientes</CardTitle>
+          <CardDescription>Visualize e aloque pacientes da lista de espera.</CardDescription>
           <div className="flex flex-col sm:flex-row gap-2 pt-4">
             <div className="relative flex-1">
               <Search className="absolute left-2.5 top-3 h-4 w-4 text-muted-foreground" />
-              <Input placeholder="Search waiting list..." className="pl-8" />
+              <Input placeholder="Buscar na lista de espera..." className="pl-8" />
             </div>
             <Button variant="outline">
-              <Filter className="mr-2 h-4 w-4" /> Filters
+              <Filter className="mr-2 h-4 w-4" /> Filtros
             </Button>
           </div>
         </CardHeader>
@@ -48,12 +57,12 @@ export default function WaitingListPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Requested Psychologist</TableHead>
-                  <TableHead>Date Added</TableHead>
-                  <TableHead>Priority</TableHead>
-                  <TableHead>Notes</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                  <TableHead>Nome</TableHead>
+                  <TableHead>Psicólogo(a) Solicitado(a)</TableHead>
+                  <TableHead>Data de Adição</TableHead>
+                  <TableHead>Prioridade</TableHead>
+                  <TableHead>Observações</TableHead>
+                  <TableHead className="text-right">Ações</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -61,10 +70,10 @@ export default function WaitingListPage() {
                   <TableRow key={item.id}>
                     <TableCell className="font-medium">{item.name}</TableCell>
                     <TableCell>{item.requestedPsychologist}</TableCell>
-                    <TableCell>{item.dateAdded}</TableCell>
+                    <TableCell>{format(new Date(item.dateAdded), "P", { locale: ptBR })}</TableCell>
                     <TableCell>
-                      <Badge variant={item.priority === "High" ? "destructive" : item.priority === "Medium" ? "secondary" : "outline"}>
-                        {item.priority}
+                      <Badge variant={item.priority === "Alta" ? "destructive" : item.priority === "Média" ? "secondary" : "outline"}>
+                        {priorityLabels[item.priority] || item.priority}
                       </Badge>
                     </TableCell>
                     <TableCell className="max-w-xs truncate">{item.notes}</TableCell>
@@ -78,15 +87,15 @@ export default function WaitingListPage() {
                         <DropdownMenuContent align="end">
                           <DropdownMenuItem>
                             <CalendarPlus className="mr-2 h-4 w-4" />
-                            Allocate Slot
+                            Alocar Horário
                           </DropdownMenuItem>
                           <DropdownMenuItem>
                             <UserPlus className="mr-2 h-4 w-4" />
-                            View Details
+                            Ver Detalhes
                           </DropdownMenuItem>
                           <DropdownMenuItem className="text-destructive">
                             <Trash2 className="mr-2 h-4 w-4" />
-                            Remove
+                            Remover
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -98,8 +107,8 @@ export default function WaitingListPage() {
           ) : (
              <div className="text-center py-10">
               <ListChecks className="mx-auto h-12 w-12 text-muted-foreground" />
-              <h3 className="mt-2 text-sm font-medium text-foreground">Waiting list is empty</h3>
-              <p className="mt-1 text-sm text-muted-foreground">No patients are currently on the waiting list.</p>
+              <h3 className="mt-2 text-sm font-medium text-foreground">Lista de espera vazia</h3>
+              <p className="mt-1 text-sm text-muted-foreground">Nenhum paciente está atualmente na lista de espera.</p>
             </div>
           )}
         </CardContent>

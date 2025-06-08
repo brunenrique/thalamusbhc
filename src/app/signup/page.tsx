@@ -12,20 +12,20 @@ export default function SignUpPage() {
             <h1 className="text-4xl font-headline font-bold text-primary">PsiGuard</h1>
           </Link>
           <h2 className="text-2xl font-headline font-semibold tracking-tight text-foreground">
-            Create an Account
+            Crie uma Conta
           </h2>
           <p className="text-sm text-muted-foreground">
-            Join PsiGuard to streamline your practice.
+            Junte-se ao PsiGuard para otimizar seu consultório.
           </p>
         </div>
         <SignUpForm />
         <p className="px-8 text-center text-sm text-muted-foreground">
-          Already have an account?{" "}
+          Já tem uma conta?{" "}
           <Link
             href="/login"
             className="underline underline-offset-4 hover:text-primary"
           >
-            Sign In
+            Entrar
           </Link>
         </p>
       </div>

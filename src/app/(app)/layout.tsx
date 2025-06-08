@@ -2,8 +2,8 @@ import AppLayout from "@/components/layout/app-layout";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "PsiGuard Dashboard",
-  description: "Manage your psychology practice with PsiGuard.",
+  title: "Painel PsiGuard",
+  description: "Gerencie seu consultório de psicologia com PsiGuard.",
 };
 
 export default function AuthenticatedAppLayout({

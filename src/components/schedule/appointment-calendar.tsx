@@ -3,25 +3,26 @@
 
 import React, { useState, useMemo } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
-import { Calendar } from "@/components/ui/calendar"; // Shadcn calendar for date picking
+// import { Calendar } from "@/components/ui/calendar"; // Shadcn calendar for date picking, not used for display here
 import { Badge } from "@/components/ui/badge";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { Clock, User, PlusCircle, Edit, Trash2, CheckCircle, AlertTriangle, XCircle } from 'lucide-react';
 import { format, startOfWeek, endOfWeek, eachDayOfInterval, addDays, subDays, getDay, isSameMonth, isSameDay } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 import Link from 'next/link';
 
 // Mock data for appointments - expanded with psychologist and status
 const mockAppointmentsData = {
   "2024-08-15": [
-    { id: "appt1", time: "10:00 AM", patient: "Alice Wonderland", type: "Consultation", psychologistId: "psy1", status: "Scheduled" },
-    { id: "appt2", time: "02:00 PM", patient: "Bob The Builder", type: "Follow-up", psychologistId: "psy2", status: "Completed" },
+    { id: "appt1", time: "10:00", patient: "Alice Wonderland", type: "Consulta", psychologistId: "psy1", status: "Scheduled" },
+    { id: "appt2", time: "14:00", patient: "Bob O Construtor", type: "Acompanhamento", psychologistId: "psy2", status: "Completed" },
   ],
   "2024-08-16": [
-    { id: "appt3", time: "09:00 AM", patient: "Self Care", type: "Blocked Slot", psychologistId: "psy1", status: "Blocked", blockReason: "Personal Time" },
+    { id: "appt3", time: "09:00", patient: "Autocuidado", type: "Blocked Slot", psychologistId: "psy1", status: "Blocked", blockReason: "Tempo Pessoal" },
   ],
   "2024-08-20": [
-    { id: "appt4", time: "11:00 AM", patient: "Charlie Brown", type: "Therapy Session", psychologistId: "psy1", status: "Cancelled" },
+    { id: "appt4", time: "11:00", patient: "Charlie Brown", type: "Sessão de Terapia", psychologistId: "psy1", status: "Cancelled" },
   ],
 };
 
@@ -63,12 +64,23 @@ const getStatusBadgeVariant = (status: AppointmentStatus): "default" | "secondar
     switch (status) {
         case "Completed": return "default";
         case "Scheduled": return "secondary";
-        case "Confirmed": return "secondary";
+        case "Confirmed": return "secondary"; // Could be a different color like yellow/orange
         case "Cancelled": return "destructive";
         case "Blocked": return "outline";
         default: return "outline";
     }
 };
+
+const getStatusLabel = (status: AppointmentStatus): string => {
+    const labels: Record<AppointmentStatus, string> = {
+        Scheduled: "Agendado",
+        Completed: "Concluído",
+        Cancelled: "Cancelado",
+        Blocked: "Bloqueado",
+        Confirmed: "Confirmado",
+    };
+    return labels[status] || status;
+}
 
 
 export default function AppointmentCalendar({ view, currentDate, filters }: AppointmentCalendarProps) {
@@ -80,8 +92,7 @@ export default function AppointmentCalendar({ view, currentDate, filters }: Appo
         appointments[dateKey] = (mockAppointmentsData as AppointmentsByDate)[dateKey].filter(appt => {
             const matchesPsychologist = filters.psychologistId === "all" || appt.psychologistId === filters.psychologistId;
             const matchesStatus = filters.status === "All" || appt.status === filters.status;
-            // Date range filtering would be more complex for recurring, but for single instances:
-            const apptDate = new Date(dateKey + "T00:00:00"); // Ensure date comparison is correct
+            const apptDate = new Date(dateKey + "T00:00:00");
             const matchesDateFrom = !filters.dateFrom || apptDate >= filters.dateFrom;
             const matchesDateTo = !filters.dateTo || apptDate <= filters.dateTo;
             return matchesPsychologist && matchesStatus && matchesDateFrom && matchesDateTo;
@@ -127,14 +138,14 @@ export default function AppointmentCalendar({ view, currentDate, filters }: Appo
                    </Badge>
                 </PopoverTrigger>
                 <PopoverContent className="w-64 p-3 shadow-lg rounded-lg">
-                    <h4 className="font-semibold text-sm">{appt.type === "Blocked Slot" ? `Blocked: ${appt.blockReason}` : appt.patient}</h4>
+                    <h4 className="font-semibold text-sm">{appt.type === "Blocked Slot" ? `Bloqueado: ${appt.blockReason}` : appt.patient}</h4>
                     <p className="text-xs text-muted-foreground">{appt.type}</p>
                     <p className="text-xs text-muted-foreground flex items-center"><Clock className="w-3 h-3 mr-1 inline-block"/>{appt.time}</p>
-                    <p className="text-xs text-muted-foreground flex items-center">{getStatusIcon(appt.status)} Status: {appt.status}</p>
-                    {appt.psychologistId && <p className="text-xs text-muted-foreground">With: {appt.psychologistId === "psy1" ? "Dr. Smith" : "Dr. Jones"}</p> }
+                    <p className="text-xs text-muted-foreground flex items-center">{getStatusIcon(appt.status)} Status: {getStatusLabel(appt.status)}</p>
+                    {appt.psychologistId && <p className="text-xs text-muted-foreground">Com: {appt.psychologistId === "psy1" ? "Dr. Smith" : "Dr. Jones"}</p> }
                     <div className="mt-3 flex gap-2">
-                        <Button size="xs" variant="outline" asChild><Link href={`/schedule/edit/${appt.id}`}><Edit className="mr-1 h-3 w-3"/> Edit</Link></Button>
-                        <Button size="xs" variant="destructive" className="bg-destructive/90 hover:bg-destructive text-destructive-foreground"><Trash2 className="mr-1 h-3 w-3"/> Delete</Button>
+                        <Button size="xs" variant="outline" asChild><Link href={`/schedule/edit/${appt.id}`}><Edit className="mr-1 h-3 w-3"/> Editar</Link></Button>
+                        <Button size="xs" variant="destructive" className="bg-destructive/90 hover:bg-destructive text-destructive-foreground"><Trash2 className="mr-1 h-3 w-3"/> Excluir</Button>
                     </div>
                 </PopoverContent>
               </Popover>
@@ -142,7 +153,7 @@ export default function AppointmentCalendar({ view, currentDate, filters }: Appo
           </div>
            <Button variant="ghost" size="icon" className="mt-auto ml-auto h-6 w-6 self-end opacity-30 hover:opacity-100">
               <PlusCircle className="h-4 w-4" />
-              <span className="sr-only">Add appointment</span>
+              <span className="sr-only">Adicionar agendamento</span>
             </Button>
         </CardContent>
       </Card>
@@ -150,14 +161,16 @@ export default function AppointmentCalendar({ view, currentDate, filters }: Appo
   };
 
   const renderMonthView = () => {
-    const monthStart = startOfWeek(new Date(currentDate.getFullYear(), currentDate.getMonth(), 1));
-    const monthEnd = endOfWeek(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0));
+    const monthStart = startOfWeek(new Date(currentDate.getFullYear(), currentDate.getMonth(), 1), { locale: ptBR });
+    const monthEnd = endOfWeek(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0), { locale: ptBR });
     const days = eachDayOfInterval({ start: monthStart, end: monthEnd });
+    const dayNames = Array.from({ length: 7 }, (_, i) => format(addDays(monthStart, i), "EEEEEE", { locale: ptBR }));
+
 
     return (
         <div className="grid grid-cols-7 gap-px bg-border border-l border-t flex-grow">
-            {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(dayName => (
-              <div key={dayName} className="py-2 text-center text-xs font-medium text-muted-foreground bg-card border-r border-b">{dayName}</div>
+            {dayNames.map(dayName => (
+              <div key={dayName} className="py-2 text-center text-xs font-medium text-muted-foreground bg-card border-r border-b capitalize">{dayName}</div>
             ))}
             {days.map((day, index) => renderDayCell(day, isSameMonth(day, currentDate), index))}
         </div>
@@ -165,13 +178,13 @@ export default function AppointmentCalendar({ view, currentDate, filters }: Appo
   };
 
   const renderWeekView = () => {
-    const weekStart = startOfWeek(currentDate, { weekStartsOn: 1 }); // Assuming week starts on Monday
+    const weekStart = startOfWeek(currentDate, { weekStartsOn: 1, locale: ptBR }); 
     const days = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
     return (
          <div className="grid grid-cols-7 gap-px bg-border border-l border-t flex-grow">
             {days.map(day => (
-                <div key={day.toString()} className="py-2 text-center text-xs font-medium text-muted-foreground bg-card border-r border-b">
-                    {format(day, "EEE d")}
+                <div key={day.toString()} className="py-2 text-center text-xs font-medium text-muted-foreground bg-card border-r border-b capitalize">
+                    {format(day, "EEE d", { locale: ptBR })}
                 </div>
             ))}
             {days.map((day, index) => renderDayCell(day, true, `week-${index}`))}
@@ -182,8 +195,8 @@ export default function AppointmentCalendar({ view, currentDate, filters }: Appo
   const renderDayView = () => {
      return (
          <div className="flex flex-col gap-px bg-border border-l border-t flex-grow">
-            <div className="py-2 text-center text-xs font-medium text-muted-foreground bg-card border-r border-b">
-                {format(currentDate, "EEEE, MMM d")}
+            <div className="py-2 text-center text-xs font-medium text-muted-foreground bg-card border-r border-b capitalize">
+                {format(currentDate, "EEEE, d 'de' MMMM", { locale: ptBR })}
             </div>
             {renderDayCell(currentDate, true, "day-view")}
         </div>
@@ -199,5 +212,3 @@ export default function AppointmentCalendar({ view, currentDate, filters }: Appo
     </div>
   );
 }
-
-    

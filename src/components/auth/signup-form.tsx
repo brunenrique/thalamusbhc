@@ -26,13 +26,13 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 
 const signUpSchema = z.object({
-  fullName: z.string().min(2, { message: "Full name must be at least 2 characters." }),
-  email: z.string().email({ message: "Please enter a valid email address." }),
-  password: z.string().min(8, { message: "Password must be at least 8 characters." }),
+  fullName: z.string().min(2, { message: "O nome completo deve ter pelo menos 2 caracteres." }),
+  email: z.string().email({ message: "Por favor, insira um endereço de e-mail válido." }),
+  password: z.string().min(8, { message: "A senha deve ter pelo menos 8 caracteres." }),
   confirmPassword: z.string(),
-  role: z.enum(["psychologist", "secretary", "admin"], { required_error: "Please select a role." }),
+  role: z.enum(["psychologist", "secretary", "admin"], { required_error: "Por favor, selecione uma função." }),
 }).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords don't match",
+  message: "As senhas não coincidem",
   path: ["confirmPassword"],
 });
 
@@ -54,12 +54,12 @@ export default function SignUpForm() {
 
   async function onSubmit(data: SignUpFormValues) {
     setIsLoading(true);
-    // Simulate API call
+    // Simula chamada de API
     await new Promise((resolve) => setTimeout(resolve, 1000));
-    console.log("Sign up data:", data);
+    console.log("Dados de cadastro:", data);
     setIsLoading(false);
-    // On successful signup:
-    router.push("/dashboard");
+    // Em caso de cadastro bem-sucedido:
+    router.push("/dashboard"); 
   }
 
   return (
@@ -72,9 +72,9 @@ export default function SignUpForm() {
               name="fullName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Full Name</FormLabel>
+                  <FormLabel>Nome Completo</FormLabel>
                   <FormControl>
-                    <Input placeholder="John Doe" {...field} />
+                    <Input placeholder="Nome Sobrenome" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -87,7 +87,7 @@ export default function SignUpForm() {
                 <FormItem>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input placeholder="name@example.com" {...field} />
+                    <Input placeholder="nome@exemplo.com" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -98,7 +98,7 @@ export default function SignUpForm() {
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Password</FormLabel>
+                  <FormLabel>Senha</FormLabel>
                   <FormControl>
                     <Input type="password" placeholder="••••••••" {...field} />
                   </FormControl>
@@ -111,7 +111,7 @@ export default function SignUpForm() {
               name="confirmPassword"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Confirm Password</FormLabel>
+                  <FormLabel>Confirmar Senha</FormLabel>
                   <FormControl>
                     <Input type="password" placeholder="••••••••" {...field} />
                   </FormControl>
@@ -124,17 +124,17 @@ export default function SignUpForm() {
               name="role"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Role</FormLabel>
+                  <FormLabel>Função</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select your role" />
+                        <SelectValue placeholder="Selecione sua função" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="psychologist">Psychologist</SelectItem>
-                      <SelectItem value="secretary">Secretary</SelectItem>
-                      <SelectItem value="admin">Admin</SelectItem>
+                      <SelectItem value="psychologist">Psicólogo(a)</SelectItem>
+                      <SelectItem value="secretary">Secretário(a)</SelectItem>
+                      <SelectItem value="admin">Administrador(a)</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -142,7 +142,7 @@ export default function SignUpForm() {
               )}
             />
             <Button type="submit" className="w-full bg-accent hover:bg-accent/90 text-accent-foreground" disabled={isLoading}>
-              {isLoading ? "Creating Account..." : "Create Account"}
+              {isLoading ? "Criando Conta..." : "Criar Conta"}
             </Button>
           </form>
         </Form>

@@ -1,14 +1,16 @@
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { BrainCog, Search, FileText, BookOpenText } from "lucide-react";
 import Link from "next/link";
+import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 
 const mockArticles = [
-  { id: "kb1", title: "Understanding CBT Techniques", category: "Therapeutic Approaches", lastUpdated: "2024-07-15", summary: "An overview of core Cognitive Behavioral Therapy techniques..." },
-  { id: "kb2", title: "Managing Transference in Therapy", category: "Clinical Skills", lastUpdated: "2024-06-20", summary: "Strategies for identifying and managing transference..." },
-  { id: "kb3", title: "Ethical Considerations in Telehealth", category: "Ethics & Legal", lastUpdated: "2024-05-01", summary: "Key ethical guidelines for providing remote therapy services..." },
+  { id: "kb1", title: "Entendendo Técnicas de TCC", category: "Abordagens Terapêuticas", lastUpdated: "2024-07-15", summary: "Uma visão geral das principais técnicas da Terapia Cognitivo-Comportamental..." },
+  { id: "kb2", title: "Gerenciando Transferência na Terapia", category: "Habilidades Clínicas", lastUpdated: "2024-06-20", summary: "Estratégias para identificar e gerenciar a transferência..." },
+  { id: "kb3", title: "Considerações Éticas em Teleatendimento", category: "Ética e Legal", lastUpdated: "2024-05-01", summary: "Principais diretrizes éticas para fornecer serviços de terapia remota..." },
 ];
 
 export default function KnowledgeBasePage() {
@@ -16,10 +18,10 @@ export default function KnowledgeBasePage() {
     <div className="space-y-6">
       <div className="flex items-center gap-2">
         <BrainCog className="h-7 w-7 text-primary" />
-        <h1 className="text-3xl font-headline font-bold">Knowledge Base</h1>
+        <h1 className="text-3xl font-headline font-bold">Base de Conhecimento</h1>
       </div>
       <CardDescription>
-        Access a curated library of articles, clinical guidelines, and frequently asked questions.
+        Acesse uma biblioteca curada de artigos, diretrizes clínicas e perguntas frequentes.
       </CardDescription>
 
       <Card className="shadow-sm">
@@ -27,9 +29,9 @@ export default function KnowledgeBasePage() {
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="relative flex-1">
                 <Search className="absolute left-2.5 top-3 h-4 w-4 text-muted-foreground" />
-                <Input placeholder="Search articles..." className="pl-8" />
+                <Input placeholder="Buscar artigos..." className="pl-8" />
             </div>
-            <Button variant="outline">Filter by Category</Button>
+            <Button variant="outline">Filtrar por Categoria</Button>
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -42,7 +44,7 @@ export default function KnowledgeBasePage() {
                         </Link>
                     </CardTitle>
                     <CardDescription className="text-xs">
-                        Category: {article.category} | Last Updated: {article.lastUpdated}
+                        Categoria: {article.category} | Última Atualização: {format(new Date(article.lastUpdated), "P", {locale: ptBR})}
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -50,7 +52,7 @@ export default function KnowledgeBasePage() {
                 </CardContent>
                 <CardFooter>
                     <Button variant="link" asChild className="p-0 h-auto text-accent">
-                        <Link href={`/tools/knowledge-base/${article.id}`}>Read More <ChevronRightIcon className="ml-1 h-4 w-4" /></Link>
+                        <Link href={`/tools/knowledge-base/${article.id}`}>Leia Mais <ChevronRightIcon className="ml-1 h-4 w-4" /></Link>
                     </Button>
                 </CardFooter>
             </Card>
@@ -58,7 +60,7 @@ export default function KnowledgeBasePage() {
           {mockArticles.length === 0 && (
              <div className="text-center py-10 text-muted-foreground">
                 <BookOpenText className="mx-auto h-12 w-12" />
-                <p className="mt-2">No articles found. Start by adding content to the knowledge base.</p>
+                <p className="mt-2">Nenhum artigo encontrado. Comece adicionando conteúdo à base de conhecimento.</p>
              </div>
            )}
         </CardContent>

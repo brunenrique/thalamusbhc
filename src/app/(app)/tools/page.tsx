@@ -1,51 +1,51 @@
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Wrench, BookOpen, BrainCog, HeartPulse, Archive, GitFork, History, ChevronRight } from "lucide-react";
 import Link from "next/link";
 
 const tools = [
   {
-    title: "Psychopharmacology Guide",
-    description: "Quickly search and find details about medications.",
+    title: "Guia de Psicofarmacologia",
+    description: "Pesquise rapidamente e encontre detalhes sobre medicamentos.",
     icon: <BookOpen className="h-6 w-6 text-accent" />,
     href: "/tools/psychopharmacology",
-    dataAiHint: "book medicine",
+    dataAiHint: "livro medicina",
   },
   {
-    title: "Knowledge Base",
-    description: "Access articles, FAQs, and clinical guidelines.",
+    title: "Base de Conhecimento",
+    description: "Acesse artigos, FAQs e diretrizes clínicas.",
     icon: <BrainCog className="h-6 w-6 text-accent" />,
     href: "/tools/knowledge-base",
-    dataAiHint: "brain lightbulb",
+    dataAiHint: "cérebro lâmpada",
   },
   {
-    title: "Self-Care Resources",
-    description: "Tools for stress management and well-being.",
+    title: "Recursos de Autocuidado",
+    description: "Ferramentas para gerenciamento de estresse e bem-estar.",
     icon: <HeartPulse className="h-6 w-6 text-accent" />,
     href: "/tools/self-care",
-    dataAiHint: "heart care",
+    dataAiHint: "coração cuidado",
   },
   {
-    title: "Data Backup",
-    description: "Manage and schedule secure data backups.",
+    title: "Backup de Dados",
+    description: "Gerencie e agende backups de dados seguros.",
     icon: <Archive className="h-6 w-6 text-accent" />,
     href: "/tools/backup",
-    dataAiHint: "database archive",
+    dataAiHint: "banco de dados arquivo",
   },
   {
-    title: "Session Formulation Tree",
-    description: "Visualize and build case formulations.",
+    title: "Árvore de Formulação de Sessão",
+    description: "Visualize e construa formulações de caso.",
     icon: <GitFork className="h-6 w-6 text-accent" />,
     href: "/tools/session-formulation-tree",
-    dataAiHint: "mind map tree",
+    dataAiHint: "mapa mental árvore",
   },
   {
-    title: "Audit Trail",
-    description: "Track system activities and data changes.",
+    title: "Trilha de Auditoria",
+    description: "Rastreie atividades do sistema e alterações de dados.",
     icon: <History className="h-6 w-6 text-accent" />,
     href: "/tools/audit-trail",
-    dataAiHint: "history log",
+    dataAiHint: "histórico log",
   },
 ];
 
@@ -54,10 +54,10 @@ export default function ToolsPage() {
     <div className="space-y-6">
       <div className="flex items-center gap-2">
         <Wrench className="h-7 w-7 text-primary" />
-        <h1 className="text-3xl font-headline font-bold">Clinical Tools</h1>
+        <h1 className="text-3xl font-headline font-bold">Ferramentas Clínicas</h1>
       </div>
       <CardDescription>
-        A collection of resources and utilities to support your clinical practice and administrative tasks.
+        Uma coleção de recursos e utilitários para apoiar sua prática clínica e tarefas administrativas.
       </CardDescription>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -75,7 +75,7 @@ export default function ToolsPage() {
             <CardFooter className="border-t pt-4">
               <Button asChild variant="outline" className="w-full">
                 <Link href={tool.href}>
-                  Open Tool <ChevronRight className="ml-2 h-4 w-4" />
+                  Abrir Ferramenta <ChevronRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
             </CardFooter>

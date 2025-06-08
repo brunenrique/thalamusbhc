@@ -3,7 +3,6 @@
 
 import React, { useState, useMemo } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
-// import { Calendar } from "@/components/ui/calendar"; // Shadcn calendar for date picking, not used for display here
 import { Badge } from "@/components/ui/badge";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
@@ -12,6 +11,19 @@ import { format, startOfWeek, endOfWeek, eachDayOfInterval, addDays, subDays, ge
 import { ptBR } from 'date-fns/locale';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { useToast } from "@/hooks/use-toast";
+
 
 // Mock data for appointments - expanded with psychologist and status
 // Exportando para ser usado na página de edição
@@ -93,6 +105,7 @@ const getStatusLabel = (status: AppointmentStatus): string => {
 
 export default function AppointmentCalendar({ view, currentDate, filters }: AppointmentCalendarProps) {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(currentDate);
+  const { toast } = useToast();
 
   const filteredAppointments = useMemo(() => {
     const appointmentsResult: AppointmentsByDate = {};
@@ -118,6 +131,15 @@ export default function AppointmentCalendar({ view, currentDate, filters }: Appo
   const getAppointmentsForDay = (dayDate: Date): Appointment[] => {
     const dateStr = format(dayDate, "yyyy-MM-dd");
     return filteredAppointments[dateStr] || [];
+  };
+
+  const handleDeleteAppointment = (appointmentId: string, appointmentPatient: string, appointmentDate: string) => {
+    console.log(`Excluindo agendamento ${appointmentId} - ${appointmentPatient} em ${appointmentDate} (Simulado)`);
+    // Aqui você faria a lógica para remover o agendamento do seu estado/backend
+    toast({
+      title: "Agendamento Excluído (Simulado)",
+      description: `O agendamento de ${appointmentPatient} foi excluído.`,
+    });
   };
 
   const renderDayCell = (dayDate: Date, isCurrentMonth: boolean, cellKey: string | number) => {
@@ -158,15 +180,35 @@ export default function AppointmentCalendar({ view, currentDate, filters }: Appo
                     {appt.psychologistId && <p className="text-xs text-muted-foreground">Com: {appt.psychologistId === "psy1" ? "Dr. Silva" : "Dra. Jones"}</p> }
                     <div className="mt-3 flex gap-2">
                         <Button size="xs" variant="outline" asChild><Link href={`/schedule/edit/${appt.id}`}><Edit className="mr-1 h-3 w-3"/> Editar</Link></Button>
-                        <Button size="xs" variant="destructive" className="bg-destructive/90 hover:bg-destructive text-destructive-foreground"><Trash2 className="mr-1 h-3 w-3"/> Excluir</Button>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button size="xs" variant="destructive" className="bg-destructive/90 hover:bg-destructive text-destructive-foreground"><Trash2 className="mr-1 h-3 w-3"/> Excluir</Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Confirmar Exclusão</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Tem certeza que deseja excluir o agendamento de {appt.patient} às {appt.time} em {format(dayDate, "P", { locale: ptBR })}? Esta ação não pode ser desfeita.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                              <AlertDialogAction onClick={() => handleDeleteAppointment(appt.id, appt.patient, format(dayDate, "P", { locale: ptBR }))} className="bg-destructive hover:bg-destructive/90">
+                                Excluir
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
                     </div>
                 </PopoverContent>
               </Popover>
             ))}
           </div>
            <Button variant="ghost" size="icon" className="mt-auto ml-auto h-6 w-6 self-end opacity-30 hover:opacity-100">
-              <PlusCircle className="h-4 w-4" />
-              <span className="sr-only">Adicionar agendamento</span>
+              <Link href="/schedule/new">
+                <PlusCircle className="h-4 w-4" />
+                <span className="sr-only">Adicionar agendamento</span>
+              </Link>
             </Button>
         </CardContent>
       </Card>
@@ -232,3 +274,4 @@ export default function AppointmentCalendar({ view, currentDate, filters }: Appo
   );
 }
 
+    

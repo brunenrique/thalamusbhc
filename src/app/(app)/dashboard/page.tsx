@@ -1,7 +1,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Activity, Users, CalendarCheck, BarChart3, ArrowUpRight, DollarSign, Clock, ClipboardList, LineChart, UsersRound, CalendarClock } from "lucide-react";
+import { Activity, Users, CalendarCheck, BarChart3, ArrowUpRight, DollarSign, Clock, ClipboardList, LineChart, UsersRound, CalendarClock, UserX, FileX2, Repeat } from "lucide-react";
 import Link from "next/link";
 import { OccupancyChart } from '@/components/dashboard/occupancy-chart';
 import { PerformanceChart } from '@/components/dashboard/performance-chart';
@@ -9,9 +9,9 @@ import { RecentActivityItem } from "@/components/dashboard/recent-activity-item"
 
 export default function DashboardPage() {
   const upcomingAppointments = [
-    { id: '1', patientName: 'Alice Wonderland', time: '10:00', psychologist: 'Dr. Smith' },
-    { id: '2', patientName: 'Bob O Construtor', time: '11:30', psychologist: 'Dr. Jones' },
-    { id: '3', patientName: 'Charlie Brown', time: '14:00', psychologist: 'Dr. Smith' },
+    { id: '1', patientName: 'Alice Wonderland', time: '10:00', psychologist: 'Dr. Silva' },
+    { id: '2', patientName: 'Bob O Construtor', time: '11:30', psychologist: 'Dra. Jones' },
+    { id: '3', patientName: 'Charlie Brown', time: '14:00', psychologist: 'Dr. Silva' },
   ];
 
   const recentActivities = [
@@ -37,6 +37,9 @@ export default function DashboardPage() {
         <StatsCard title="Consultas Hoje" value="8" icon={<CalendarClock className="text-primary" />} trend="2 pendentes" />
         <StatsCard title="Sessões Este Mês" value="45" icon={<LineChart className="text-primary" />} trend="+10% vs mês passado" />
         <StatsCard title="Tarefas Abertas" value="12" icon={<Activity className="text-primary" />} trend="3 atrasadas" />
+        <StatsCard title="Ausências no Mês" value="3" icon={<UserX className="text-primary" />} trend="-1 vs mês passado" />
+        <StatsCard title="Cancelamentos no Mês" value="5" icon={<FileX2 className="text-primary" />} trend="+2 vs mês passado" />
+        <StatsCard title="Remarcações no Mês" value="7" icon={<Repeat className="text-primary" />} trend="Estável" />
       </div>
 
       {/* Charts Section */}

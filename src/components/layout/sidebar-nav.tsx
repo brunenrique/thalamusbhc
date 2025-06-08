@@ -31,11 +31,10 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
   SidebarMenuSub,
-  // SidebarMenuSubItem, // Not used directly, sub-items are NavItems
   SidebarMenuSubButton,
   SidebarGroup,
   SidebarGroupLabel,
-  SidebarGroupContent // Added this import
+  SidebarGroupContent
 } from "@/components/ui/sidebar";
 import { useSidebar } from "@/components/ui/sidebar"; 
 
@@ -113,23 +112,19 @@ export default function SidebarNav({ currentPath, userRole = "admin" }: SidebarN
     if (item.subItems && item.subItems.length > 0) {
        return (
         <SidebarMenuItem key={`${item.label}-${index}-group`}>
-            <ButtonComponent
-                isActive={isActive}
-                tooltip={state === "collapsed" ? item.label : undefined}
-                className={isSubItem ? "text-xs" : ""}
-                asChild={!isSubItem} 
-            >
-             {isSubItem ? (
-                <Link href={item.href} passHref legacyBehavior>
-                    <span><IconComponent className={isSubItem ? "h-3.5 w-3.5" : "h-4 w-4"} />{item.label}</span>
-                </Link>
-             ) : (
-                <Link href={item.href} passHref legacyBehavior>
-                    <a><IconComponent className={isSubItem ? "h-3.5 w-3.5" : "h-4 w-4"} />
-                    <span className={"group-data-[collapsible=icon]:hidden"}>{item.label}</span></a>
-                </Link>
-             )}
-            </ButtonComponent>
+            <Link href={item.href} passHref>
+              <ButtonComponent
+                  isActive={isActive}
+                  tooltip={state === "collapsed" ? item.label : undefined}
+                  className={isSubItem ? "text-xs" : ""}
+                  asChild={!isSubItem} 
+              >
+              <>
+                <IconComponent className={isSubItem ? "h-3.5 w-3.5" : "h-4 w-4"} />
+                <span className={isSubItem ? "" : "group-data-[collapsible=icon]:hidden"}>{item.label}</span>
+              </>
+              </ButtonComponent>
+            </Link>
             {state === "expanded" && ( 
                 <SidebarMenuSub>
                     {item.subItems.filter(sub => !sub.adminOnly || userRole === "admin").map((subItem, subIndex) => renderNavItem(subItem, subIndex, true))}
@@ -141,7 +136,7 @@ export default function SidebarNav({ currentPath, userRole = "admin" }: SidebarN
 
     return (
       <SidebarMenuItem key={`${item.label}-${index}`}>
-        <Link href={item.href} passHref legacyBehavior>
+        <Link href={item.href} passHref>
           <ButtonComponent
             isActive={isActive}
             tooltip={state === "collapsed" ? item.label : undefined}
@@ -195,7 +190,7 @@ export default function SidebarNav({ currentPath, userRole = "admin" }: SidebarN
             </SidebarMenuButton>
         </SidebarMenuItem>
         <SidebarMenuItem>
-            <Link href="/help" passHref legacyBehavior>
+            <Link href="/help" passHref>
                 <SidebarMenuButton tooltip={state === "collapsed" ? "Ajuda e Suporte" : undefined} isActive={currentPath.startsWith("/help")}>
                     <HelpCircle />
                     <span className="group-data-[collapsible=icon]:hidden">Ajuda e Suporte</span>

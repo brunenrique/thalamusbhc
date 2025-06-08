@@ -7,13 +7,15 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
-import { Clock, User, PlusCircle, Edit, Trash2, CheckCircle, AlertTriangle, XCircle } from 'lucide-react';
+import { Clock, User, PlusCircle, Edit, Trash2, CheckCircle, AlertTriangle, XCircle, CalendarCog } from 'lucide-react';
 import { format, startOfWeek, endOfWeek, eachDayOfInterval, addDays, subDays, getDay, isSameMonth, isSameDay } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import Link from 'next/link';
+import { cn } from '@/lib/utils';
 
 // Mock data for appointments - expanded with psychologist and status
-const mockAppointmentsData = {
+// Exportando para ser usado na página de edição
+export const mockAppointments: AppointmentsByDate = {
   "2024-08-15": [
     { id: "appt1", time: "10:00", patient: "Alice Wonderland", type: "Consulta", psychologistId: "psy1", status: "Scheduled" },
     { id: "appt2", time: "14:00", patient: "Bob O Construtor", type: "Acompanhamento", psychologistId: "psy2", status: "Completed" },
@@ -24,10 +26,16 @@ const mockAppointmentsData = {
   "2024-08-20": [
     { id: "appt4", time: "11:00", patient: "Charlie Brown", type: "Sessão de Terapia", psychologistId: "psy1", status: "Cancelled" },
   ],
+   // Adicionando um agendamento para a data atual para facilitar o teste do popover
+  [format(new Date(), "yyyy-MM-dd")]: [
+    { id: "apptToday1", time: "15:00", patient: "Paciente Teste Hoje", type: "Consulta Teste", psychologistId: "psy1", status: "Scheduled"},
+    ...(mockAppointments[format(new Date(), "yyyy-MM-dd")] || []) // Mantém outros agendamentos se existirem
+  ]
 };
 
+
 type AppointmentStatus = "Scheduled" | "Completed" | "Cancelled" | "Blocked" | "Confirmed";
-type Appointment = { 
+export type Appointment = { 
   id: string;
   time: string; 
   patient: string; 
@@ -87,18 +95,23 @@ export default function AppointmentCalendar({ view, currentDate, filters }: Appo
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(currentDate);
 
   const filteredAppointments = useMemo(() => {
-    const appointments: AppointmentsByDate = {};
-    for (const dateKey in mockAppointmentsData) {
-        appointments[dateKey] = (mockAppointmentsData as AppointmentsByDate)[dateKey].filter(appt => {
+    const appointmentsResult: AppointmentsByDate = {};
+    for (const dateKey in mockAppointments) { // Usar o mockAppointments diretamente
+        appointmentsResult[dateKey] = (mockAppointments as AppointmentsByDate)[dateKey].filter(appt => {
             const matchesPsychologist = filters.psychologistId === "all" || appt.psychologistId === filters.psychologistId;
             const matchesStatus = filters.status === "All" || appt.status === filters.status;
-            const apptDate = new Date(dateKey + "T00:00:00");
-            const matchesDateFrom = !filters.dateFrom || apptDate >= filters.dateFrom;
-            const matchesDateTo = !filters.dateTo || apptDate <= filters.dateTo;
+            
+            // Adicionando um offset de fuso horário para evitar problemas com datas
+            const apptDateUTC = new Date(dateKey);
+            const apptDate = new Date(apptDateUTC.getUTCFullYear(), apptDateUTC.getUTCMonth(), apptDateUTC.getUTCDate());
+
+            const matchesDateFrom = !filters.dateFrom || apptDate >= new Date(new Date(filters.dateFrom).setUTCHours(0,0,0,0));
+            const matchesDateTo = !filters.dateTo || apptDate <= new Date(new Date(filters.dateTo).setUTCHours(23,59,59,999));
+            
             return matchesPsychologist && matchesStatus && matchesDateFrom && matchesDateTo;
         });
     }
-    return appointments;
+    return appointmentsResult;
   }, [filters]);
 
 
@@ -142,7 +155,7 @@ export default function AppointmentCalendar({ view, currentDate, filters }: Appo
                     <p className="text-xs text-muted-foreground">{appt.type}</p>
                     <p className="text-xs text-muted-foreground flex items-center"><Clock className="w-3 h-3 mr-1 inline-block"/>{appt.time}</p>
                     <p className="text-xs text-muted-foreground flex items-center">{getStatusIcon(appt.status)} Status: {getStatusLabel(appt.status)}</p>
-                    {appt.psychologistId && <p className="text-xs text-muted-foreground">Com: {appt.psychologistId === "psy1" ? "Dr. Smith" : "Dr. Jones"}</p> }
+                    {appt.psychologistId && <p className="text-xs text-muted-foreground">Com: {appt.psychologistId === "psy1" ? "Dr. Silva" : "Dra. Jones"}</p> }
                     <div className="mt-3 flex gap-2">
                         <Button size="xs" variant="outline" asChild><Link href={`/schedule/edit/${appt.id}`}><Edit className="mr-1 h-3 w-3"/> Editar</Link></Button>
                         <Button size="xs" variant="destructive" className="bg-destructive/90 hover:bg-destructive text-destructive-foreground"><Trash2 className="mr-1 h-3 w-3"/> Excluir</Button>
@@ -161,8 +174,14 @@ export default function AppointmentCalendar({ view, currentDate, filters }: Appo
   };
 
   const renderMonthView = () => {
-    const monthStart = startOfWeek(new Date(currentDate.getFullYear(), currentDate.getMonth(), 1), { locale: ptBR });
-    const monthEnd = endOfWeek(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0), { locale: ptBR });
+    // Ajuste para startOfWeek para respeitar o locale ptBR (semana começa na Segunda)
+    const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+    const monthStart = startOfWeek(firstDayOfMonth, { locale: ptBR, weekStartsOn: 1 });
+    
+    // Ajuste para endOfWeek para respeitar o locale ptBR
+    const lastDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+    const monthEnd = endOfWeek(lastDayOfMonth, { locale: ptBR, weekStartsOn: 1 });
+
     const days = eachDayOfInterval({ start: monthStart, end: monthEnd });
     const dayNames = Array.from({ length: 7 }, (_, i) => format(addDays(monthStart, i), "EEEEEE", { locale: ptBR }));
 
@@ -212,3 +231,4 @@ export default function AppointmentCalendar({ view, currentDate, filters }: Appo
     </div>
   );
 }
+

@@ -1,3 +1,4 @@
+
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -6,19 +7,10 @@ import { CalendarClock, UserCog, Edit, Trash2, AlertTriangle, CheckCircle2, Link
 import Link from "next/link";
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-
-interface Task {
-  id: string;
-  title: string;
-  dueDate: string;
-  assignedTo: string;
-  status: "Pendente" | "Em Progresso" | "Concluída";
-  priority: "Alta" | "Média" | "Baixa";
-  patientId?: string; 
-}
+import type { Task } from "@/app/(app)/tasks/page"; // Importando o tipo Task
 
 interface TaskItemProps {
-  task: Task;
+  task: Task; // Usando o tipo Task importado
 }
 
 export default function TaskItem({ task }: TaskItemProps) {
@@ -61,8 +53,10 @@ export default function TaskItem({ task }: TaskItemProps) {
           <div className="flex flex-col items-end gap-2">
             <Badge variant={getPriorityBadgeVariant()}>{task.priority}</Badge>
             <div className="flex gap-1">
-                <Button variant="ghost" size="icon" className="h-7 w-7" aria-label="Editar tarefa">
+                <Button variant="ghost" size="icon" className="h-7 w-7" aria-label="Editar tarefa" asChild>
+                  <Link href={`/tasks/edit/${task.id}`}>
                     <Edit className="h-4 w-4" />
+                  </Link>
                 </Button>
                 <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:text-destructive" aria-label="Excluir tarefa">
                     <Trash2 className="h-4 w-4" />

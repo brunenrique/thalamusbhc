@@ -24,16 +24,26 @@ import { Label } from '@/components/ui/label';
 import { format, isEqual, startOfDay } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
-const mockTasksData = [
-  { id: "task1", title: "Acompanhar Alice W.", dueDate: "2024-07-25", assignedTo: "Dr. Silva", status: "Pendente" as const, priority: "Alta" as const, patientId: "1" },
-  { id: "task2", title: "Preparar relatório de avaliação para Bob B.", dueDate: "2024-07-22", assignedTo: "Secretaria", status: "Em Progresso" as const, priority: "Média" as const, patientId: "2" },
-  { id: "task3", title: "Revisar entrada de novo paciente - Charlie B.", dueDate: "2024-07-20", assignedTo: "Dra. Jones", status: "Concluída" as const, priority: "Alta" as const, patientId: "3" },
-  { id: "task4", title: "Enviar lembrete para Diana P. para avaliação", dueDate: "2024-07-28", assignedTo: "Secretaria", status: "Pendente" as const, priority: "Baixa" as const, patientId: "4" },
-  { id: "task5", title: "Atualizar documento de políticas da clínica", dueDate: "2024-08-01", assignedTo: "Admin", status: "Pendente" as const, priority: "Média" as const },
+export const mockTasksData = [
+  { id: "task1", title: "Acompanhar Alice W.", description: "Ligar para Alice para verificar seu progresso e agendar próxima consulta.", dueDate: "2024-07-25", assignedTo: "Dr. Silva", status: "Pendente" as const, priority: "Alta" as const, patientId: "1" },
+  { id: "task2", title: "Preparar relatório de avaliação para Bob B.", description: "Compilar os resultados da avaliação GAD-7 e BDI para Bob.", dueDate: "2024-07-22", assignedTo: "Secretaria", status: "Em Progresso" as const, priority: "Média" as const, patientId: "2" },
+  { id: "task3", title: "Revisar entrada de novo paciente - Charlie B.", description: "Verificar todos os documentos e informações de Charlie.", dueDate: "2024-07-20", assignedTo: "Dra. Jones", status: "Concluída" as const, priority: "Alta" as const, patientId: "3" },
+  { id: "task4", title: "Enviar lembrete para Diana P. para avaliação", description: "Diana precisa completar a PCL-5 até o final da semana.", dueDate: "2024-07-28", assignedTo: "Secretaria", status: "Pendente" as const, priority: "Baixa" as const, patientId: "4" },
+  { id: "task5", title: "Atualizar documento de políticas da clínica", description: "Incorporar novas diretrizes de teleatendimento.", dueDate: "2024-08-01", assignedTo: "Admin", status: "Pendente" as const, priority: "Média" as const },
 ];
 
-type TaskStatus = "Pendente" | "Em Progresso" | "Concluída";
-type TaskPriority = "Alta" | "Média" | "Baixa";
+export type TaskStatus = "Pendente" | "Em Progresso" | "Concluída";
+export type TaskPriority = "Alta" | "Média" | "Baixa";
+export interface Task {
+  id: string;
+  title: string;
+  description?: string;
+  dueDate: string;
+  assignedTo: string;
+  status: TaskStatus;
+  priority: TaskPriority;
+  patientId?: string;
+}
 
 const taskStatusOptions = [
     {value: "All", label: "Todos os Status"},
@@ -53,7 +63,7 @@ export default function TasksPage() {
   const [filters, setFilters] = useState({
     status: "All",
     priority: "All",
-    assignedTo: "All",
+    assignedTo: "Todos",
     dueDate: undefined as Date | undefined,
   });
 
@@ -65,7 +75,7 @@ export default function TasksPage() {
     setFilters({
         status: "All",
         priority: "All",
-        assignedTo: "All",
+        assignedTo: "Todos",
         dueDate: undefined,
     });
     setSearchTerm("");
@@ -175,10 +185,6 @@ export default function TasksPage() {
                   </div>
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
-                {/* O botão de aplicar filtros é opcional, pois os filtros já são aplicados onChange */}
-                {/* <DropdownMenuItem>
-                    <Button className="w-full" size="sm" onClick={() => console.log("Aplicando filtros de tarefas:", filters)}>Aplicar Filtros</Button>
-                </DropdownMenuItem> */}
                  <DropdownMenuItem>
                     <Button className="w-full" size="sm" variant="ghost" onClick={resetFilters}>Limpar Filtros</Button>
                 </DropdownMenuItem>
@@ -208,7 +214,7 @@ export default function TasksPage() {
                 <div className="text-center py-10">
                     <Search className="mx-auto h-12 w-12 text-muted-foreground opacity-50" />
                     <p className="mt-2 text-muted-foreground">Nenhuma tarefa pendente corresponde aos seus filtros.</p>
-                    { (filters.status !== "All" || filters.priority !== "All" || filters.assignedTo !== "All" || filters.dueDate || searchTerm) &&
+                    { (filters.status !== "All" || filters.priority !== "All" || filters.assignedTo !== "Todos" || filters.dueDate || searchTerm) &&
                         <Button variant="link" onClick={resetFilters} className="mt-2">Limpar filtros</Button>
                     }
                 </div>
@@ -225,7 +231,7 @@ export default function TasksPage() {
                 <div className="text-center py-10">
                     <Search className="mx-auto h-12 w-12 text-muted-foreground opacity-50" />
                     <p className="mt-2 text-muted-foreground">Nenhuma tarefa concluída corresponde aos seus filtros.</p>
-                     { (filters.status !== "All" || filters.priority !== "All" || filters.assignedTo !== "All" || filters.dueDate || searchTerm) &&
+                     { (filters.status !== "All" || filters.priority !== "All" || filters.assignedTo !== "Todos" || filters.dueDate || searchTerm) &&
                         <Button variant="link" onClick={resetFilters} className="mt-2">Limpar filtros</Button>
                     }
                 </div>
@@ -237,4 +243,3 @@ export default function TasksPage() {
     </div>
   );
 }
-

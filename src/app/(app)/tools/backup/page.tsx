@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Archive, DownloadCloud, History, Settings2 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
-import { Label } from "@/components/ui/label"; // Using ShadCN Label now
+import { Label } from '@/components/ui/label';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 

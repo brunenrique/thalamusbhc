@@ -2,15 +2,15 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { BrainCog, Search, FileText, BookOpenText } from "lucide-react";
+import { BrainCog, Search, FileText, BookOpenText, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
 const mockArticles = [
-  { id: "kb1", title: "Entendendo Técnicas de TCC", category: "Abordagens Terapêuticas", lastUpdated: "2024-07-15", summary: "Uma visão geral das principais técnicas da Terapia Cognitivo-Comportamental..." },
-  { id: "kb2", title: "Gerenciando Transferência na Terapia", category: "Habilidades Clínicas", lastUpdated: "2024-06-20", summary: "Estratégias para identificar e gerenciar a transferência..." },
-  { id: "kb3", title: "Considerações Éticas em Teleatendimento", category: "Ética e Legal", lastUpdated: "2024-05-01", summary: "Principais diretrizes éticas para fornecer serviços de terapia remota..." },
+  { id: "kb1", title: "Entendendo Técnicas de TCC", category: "Abordagens Terapêuticas", lastUpdated: "2024-07-15", summary: "Uma visão geral das principais técnicas da Terapia Cognitivo-Comportamental, incluindo reestruturação cognitiva, exposição gradual e ativação comportamental." },
+  { id: "kb2", title: "Gerenciando Transferência na Terapia", category: "Habilidades Clínicas", lastUpdated: "2024-06-20", summary: "Estratégias para identificar, compreender e gerenciar eticamente os fenômenos de transferência e contratransferência na relação terapêutica." },
+  { id: "kb3", title: "Considerações Éticas em Teleatendimento", category: "Ética e Legal", lastUpdated: "2024-05-01", summary: "Principais diretrizes éticas para fornecer serviços de terapia remota, abordando confidencialidade, consentimento informado e segurança de dados." },
 ];
 
 export default function KnowledgeBasePage() {
@@ -52,7 +52,7 @@ export default function KnowledgeBasePage() {
                 </CardContent>
                 <CardFooter>
                     <Button variant="link" asChild className="p-0 h-auto text-accent">
-                        <Link href={`/tools/knowledge-base/${article.id}`}>Leia Mais <ChevronRightIcon className="ml-1 h-4 w-4" /></Link>
+                        <Link href={`/tools/knowledge-base/${article.id}`}>Leia Mais <ChevronRight className="ml-1 h-4 w-4" /></Link>
                     </Button>
                 </CardFooter>
             </Card>
@@ -67,23 +67,4 @@ export default function KnowledgeBasePage() {
       </Card>
     </div>
   );
-}
-
-function ChevronRightIcon(props: React.SVGProps<SVGSVGElement>) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="m9 18 6-6-6-6" />
-    </svg>
-  )
 }

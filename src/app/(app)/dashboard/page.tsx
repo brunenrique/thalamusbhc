@@ -1,6 +1,7 @@
+
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Activity, Users, CalendarCheck, BarChart3, ArrowUpRight, DollarSign, Clock } from "lucide-react";
+import { Activity, Users, CalendarCheck, BarChart3, ArrowUpRight, DollarSign, Clock, ClipboardList } from "lucide-react";
 import Link from "next/link";
 import { OccupancyChart } from '@/components/dashboard/occupancy-chart';
 import { PerformanceChart } from '@/components/dashboard/performance-chart';
@@ -15,7 +16,7 @@ export default function DashboardPage() {
 
   const recentActivities = [
     { id: 'act1', description: 'New patient "Eva Green" added.', time: '2 hours ago', icon: <Users className="w-4 h-4" /> },
-    { id: 'act2', description: 'Session notes for "Alice W." finalized.', time: '5 hours ago', icon: <ClipboardListIcon className="w-4 h-4" /> },
+    { id: 'act2', description: 'Session notes for "Alice W." finalized.', time: '5 hours ago', icon: <ClipboardList className="w-4 h-4" /> },
     { id: 'act3', description: 'Appointment with "Bob B." rescheduled.', time: '1 day ago', icon: <CalendarCheck className="w-4 h-4" /> },
   ];
 
@@ -129,16 +130,3 @@ function StatsCard({ title, value, icon, trend }: StatsCardProps) {
     </Card>
   );
 }
-
-// Dummy ClipboardListIcon as it's not standard in lucide-react
-const ClipboardListIcon = (props: React.SVGProps<SVGSVGElement>) => (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-    <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
-    <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
-    <path d="M12 11h4"></path>
-    <path d="M12 16h4"></path>
-    <path d="M8 11h.01"></path>
-    <path d="M8 16h.01"></path>
-  </svg>
-);
-

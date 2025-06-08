@@ -1,13 +1,14 @@
+
 "use client";
 
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Brain, FileText, Tag, Lightbulb, BarChart3, Edit, Trash2 } from "lucide-react";
+import { Brain, FileText, Tag, Lightbulb, BarChart3, Edit, Trash2, AlertTriangleIcon, CheckCircle, ShieldAlert } from "lucide-react";
 import { generateSessionInsights, type GenerateSessionInsightsOutput } from '@/ai/flows/generate-session-insights';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Skeleton } from '@/components/ui/skeleton';
+import { Skeleton } from '../ui/skeleton';
 
 interface SessionNote {
   id: string;
@@ -30,6 +31,7 @@ export default function SessionNoteCard({ note }: SessionNoteCardProps) {
     setIsLoadingInsights(true);
     setError(null);
     try {
+      // Potentially pass more context like patientHistorySummary if available
       const result = await generateSessionInsights({ sessionNotes: note.summary });
       setInsights(result);
     } catch (e) {
@@ -74,6 +76,8 @@ export default function SessionNoteCard({ note }: SessionNoteCardProps) {
             <Skeleton className="h-4 w-1/3" />
             <Skeleton className="h-4 w-1/2" />
             <Skeleton className="h-4 w-2/3" />
+            <Skeleton className="h-4 w-1/4" />
+            <Skeleton className="h-4 w-2/5" />
           </div>
         )}
 
@@ -87,6 +91,16 @@ export default function SessionNoteCard({ note }: SessionNoteCardProps) {
         {insights && (
           <div className="mt-6 space-y-4 p-4 bg-muted/30 rounded-lg">
             <h4 className="text-md font-semibold text-accent flex items-center"><Lightbulb className="mr-2 h-5 w-5" /> AI Insights</h4>
+            
+            {insights.potentialRiskAlerts && insights.potentialRiskAlerts.length > 0 && (
+              <div>
+                <h5 className="text-sm font-medium flex items-center text-destructive"><ShieldAlert className="mr-2 h-4 w-4" /> Potential Risk Alerts:</h5>
+                <div className="flex flex-wrap gap-1 mt-1">
+                  {insights.potentialRiskAlerts.map((alert, idx) => <Badge key={idx} variant="destructive">{alert}</Badge>)}
+                </div>
+              </div>
+            )}
+
             <div>
               <h5 className="text-sm font-medium flex items-center"><Tag className="mr-2 h-4 w-4 text-muted-foreground" /> Keywords:</h5>
               <div className="flex flex-wrap gap-1 mt-1">
@@ -103,6 +117,20 @@ export default function SessionNoteCard({ note }: SessionNoteCardProps) {
               <h5 className="text-sm font-medium flex items-center"><BarChart3 className="mr-2 h-4 w-4 text-muted-foreground" /> Symptom Evolution:</h5>
               <p className="text-xs text-muted-foreground mt-1">{insights.symptomEvolution}</p>
             </div>
+            {insights.therapeuticMilestones && insights.therapeuticMilestones.length > 0 && (
+                <div>
+                    <h5 className="text-sm font-medium flex items-center"><CheckCircle className="mr-2 h-4 w-4 text-green-600" /> Therapeutic Milestones:</h5>
+                    <div className="flex flex-wrap gap-1 mt-1">
+                        {insights.therapeuticMilestones.map((milestone, idx) => <Badge key={idx} variant="default" className="bg-green-100 text-green-700 border-green-300">{milestone}</Badge>)}
+                    </div>
+                </div>
+            )}
+            {insights.inventoryComparisonInsights && (
+                <div>
+                    <h5 className="text-sm font-medium flex items-center"><BarChart3 className="mr-2 h-4 w-4 text-muted-foreground" /> Inventory Comparison Insights:</h5>
+                    <p className="text-xs text-muted-foreground mt-1">{insights.inventoryComparisonInsights}</p>
+                </div>
+            )}
              <div>
               <h5 className="text-sm font-medium flex items-center"><Lightbulb className="mr-2 h-4 w-4 text-muted-foreground" /> Suggestive Insights:</h5>
               <p className="text-xs text-muted-foreground mt-1">{insights.suggestiveInsights}</p>
@@ -113,3 +141,4 @@ export default function SessionNoteCard({ note }: SessionNoteCardProps) {
     </Card>
   );
 }
+

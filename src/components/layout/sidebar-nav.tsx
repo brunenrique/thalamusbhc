@@ -75,10 +75,10 @@ const navStructure: NavItem[] = [
     ]
   },
   
-  { href: "/user-approvals", label: "Aprovação de Usuários", icon: ShieldQuestion, adminOnly: true, group: "Administração" },
   { 
     href: "/admin/tools", label: "Ferramentas Admin", icon: Settings, adminOnly: true, group: "Administração",
     subItems: [
+        { href: "/user-approvals", label: "Aprovação de Usuários", icon: ShieldQuestion, adminOnly: true },
         { href: "/tools/backup", label: "Backup de Dados", icon: DataBackupIcon },
         { href: "/tools/audit-trail", label: "Trilha de Auditoria", icon: HistoryIcon },
     ]

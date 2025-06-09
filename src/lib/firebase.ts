@@ -1,4 +1,9 @@
-import { initializeApp, getApps, getApp } from 'firebase/app';
+import { initializeApp, getApps, getApp, type FirebaseApp } from 'firebase/app';
+import { getAuth, connectAuthEmulator, type Auth } from 'firebase/auth';
+import { getFirestore, connectFirestoreEmulator, type Firestore } from 'firebase/firestore';
+import { getStorage, connectStorageEmulator, type FirebaseStorage } from 'firebase/storage';
+// Para Functions, se for usar diretamente no cliente no futuro:
+// import { getFunctions, connectFunctionsEmulator, type Functions } from 'firebase/functions';
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -9,5 +14,41 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-export const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+const app: FirebaseApp = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 
+const auth: Auth = getAuth(app);
+const db: Firestore = getFirestore(app);
+const storage: FirebaseStorage = getStorage(app);
+// const functions: Functions = getFunctions(app); // Descomente se for usar Functions no cliente
+
+if (process.env.NODE_ENV === 'development') {
+  console.info('Development mode: Attempting to connect to Firebase Emulators...');
+  try {
+    // É importante que as variáveis de ambiente (NEXT_PUBLIC_FIREBASE_*) estejam definidas
+    // mesmo ao usar emuladores, pois o SDK do Firebase as usa para a inicialização do `app`.
+    // A conexão aos emuladores ocorre após a inicialização.
+
+    // Auth Emulator
+    // Documentação especifica o uso de 'http://localhost:9099'.
+    // Para outros emuladores como Firestore e Storage, é 'localhost' e a porta.
+    connectAuthEmulator(auth, 'http://127.0.0.1:9099', { disableWarnings: true });
+    console.info('Auth Emulator connected to http://127.0.0.1:9099');
+
+    // Firestore Emulator
+    connectFirestoreEmulator(db, '127.0.0.1', 8080);
+    console.info('Firestore Emulator connected to 127.0.0.1:8080');
+
+    // Storage Emulator
+    connectStorageEmulator(storage, '127.0.0.1', 9199);
+    console.info('Storage Emulator connected to 127.0.0.1:9199');
+
+    // Functions Emulator (se necessário)
+    // connectFunctionsEmulator(functions, 'localhost', 5001);
+    // console.info('Functions Emulator connected to localhost:5001');
+    
+  } catch (error) {
+    console.error('Error connecting to Firebase Emulators:', error);
+  }
+}
+
+export { app, auth, db, storage }; // Adicionar 'functions' aqui se for usá-las globalmente

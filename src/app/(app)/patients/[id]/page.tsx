@@ -5,7 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Mail, Phone, CalendarDays, Edit, FileText, Brain, CheckCircle, Clock, Archive, MessageSquare, Trash2, Users as UsersIconLucide, Home as HomeIconLucide, Share2, UploadCloud } from "lucide-react"; 
+import { Mail, Phone, CalendarDays, Edit, FileText, Brain, CheckCircle, Clock, Archive, MessageSquare, Trash2, Users as UsersIconLucide, Home as HomeIconLucide, Share2, UploadCloud, Calendar as CalendarIconShad } from "lucide-react"; 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import PatientTimeline from "@/components/patients/patient-timeline";
@@ -39,6 +39,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { Calendar } from "@/components/ui/calendar"; // Ensure this is the shadcn calendar
 
 // Mock data for global clinic resources (could be imported or fetched)
 const mockGlobalClinicResources = [
@@ -59,13 +60,13 @@ const mockPatient = {
   dataAiHint: "female avatar",
   nextAppointment: "2024-07-22T10:00:00Z",
   lastSession: "2024-07-15",
-  assignedPsychologist: "Dr. Smith",
+  assignedPsychologist: "Dr. Silva",
   address: "Rua Principal, 123, Cidade Alegre, BR",
 };
 
 const initialSessionNotes = [
-  { id: "sn1", date: "2024-07-15", summary: "Discutimos mecanismos de enfrentamento para ansiedade...", keywords: ["ansiedade", "enfrentamento"], themes: ["gerenciamento de estresse"] },
-  { id: "sn2", date: "2024-07-08", summary: "Exploramos dinâmicas familiares e padrões de comunicação.", keywords: ["família", "comunicação"], themes: ["relacionamentos interpessoais"] },
+  { id: "sn1", date: "2024-07-15", summary: "Discutimos mecanismos de enfrentamento para ansiedade. Paciente relata melhora na qualidade do sono após aplicar técnicas de relaxamento. Apresentou-se engajada e participativa. Próxima sessão focará em exposição gradual a situações ansiogênicas leves.", keywords: ["ansiedade", "enfrentamento", "sono"], themes: ["gerenciamento de estresse", "técnicas de relaxamento"] },
+  { id: "sn2", date: "2024-07-08", summary: "Exploramos dinâmicas familiares e padrões de comunicação. Identificamos alguns gatilhos em interações com a mãe. Paciente expressou dificuldade em estabelecer limites. Trabalhamos role-playing de comunicação assertiva.", keywords: ["família", "comunicação", "limites"], themes: ["relacionamentos interpessoais", "comunicação assertiva"] },
 ];
 
 const initialAssessments = [
@@ -88,7 +89,7 @@ const mockAssessmentTemplates = [
 
 
 export default function PatientDetailPage({ params }: { params: { id: string } }) {
-  const patient = mockPatient;
+  const patient = mockPatient; // In real app, fetch patient by params.id
   const router = useRouter();
   const { toast } = useToast();
 
@@ -143,14 +144,13 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
       dateSent: format(assessmentSendDate, "yyyy-MM-dd"),
       status: "Sent" as const,
     };
-    setAssessments(prev => [...prev, newAssessment]);
+    setAssessments(prev => [newAssessment, ...prev].sort((a, b) => new Date(b.dateSent).getTime() - new Date(a.dateSent).getTime()));
     toast({
       title: "Avaliação Atribuída",
       description: `"${template.name}" atribuída a ${patient.name}. Link de preenchimento simulado enviado.`,
     });
     setSelectedAssessmentTemplate("");
     setAssessmentSendDate(new Date());
-    // Close dialog: Find a way to close Dialog from here or manage open state
   };
 
   const handleShareResource = () => {
@@ -164,19 +164,18 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
       return;
     }
     const newSharedResource = {
-      ...resourceToShare, // Spread all properties from the global resource
-      id: `pat_res_${Date.now()}`, // New unique ID for the patient's instance
+      ...resourceToShare,
+      id: `pat_res_${Date.now()}`, 
       sharedDate: format(new Date(), "yyyy-MM-dd"),
-      // notesForPatient: resourceShareNotes, // If you want to store notes
+      // notesForPatient: resourceShareNotes, // Could add this to ResourceCard if needed
     };
-    setPatientResources(prev => [...prev, newSharedResource]);
+    setPatientResources(prev => [newSharedResource, ...prev].sort((a,b) => new Date(b.sharedDate!).getTime() - new Date(a.sharedDate!).getTime()));
     toast({
       title: "Recurso Compartilhado",
       description: `Recurso "${resourceToShare.name}" compartilhado com ${patient.name}.`,
     });
     setSelectedGlobalResource("");
     setResourceShareNotes("");
-     // Close dialog: Find a way to close Dialog from here or manage open state
   };
 
 
@@ -299,7 +298,7 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
             </CardHeader>
             <CardContent className="space-y-4">
               {sessionNotes.map(note => (
-                <SessionNoteCard key={note.id} note={note} />
+                <SessionNoteCard key={note.id} note={note} patientName={patient.name} therapistName={patient.assignedPsychologist} />
               ))}
               {sessionNotes.length === 0 && <p className="text-muted-foreground">Nenhuma anotação de sessão registrada ainda.</p>}
             </CardContent>
@@ -328,7 +327,7 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
                     </DialogHeader>
                     <div className="grid gap-4 py-4">
                         <div className="grid grid-cols-4 items-center gap-4">
-                            <Label htmlFor="assessment-template" className="text-right">
+                            <Label htmlFor="assessment-template" className="text-right col-span-1">
                                 Modelo
                             </Label>
                             <Select value={selectedAssessmentTemplate} onValueChange={setSelectedAssessmentTemplate}>
@@ -343,17 +342,31 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
                             </Select>
                         </div>
                         <div className="grid grid-cols-4 items-center gap-4">
-                            <Label htmlFor="assessment-date" className="text-right">
+                            <Label htmlFor="assessment-date" className="text-right col-span-1">
                                 Data Envio
                             </Label>
-                            <Calendar
-                                mode="single"
-                                selected={assessmentSendDate}
-                                onSelect={setAssessmentSendDate}
-                                initialFocus
-                                locale={ptBR}
-                                className="col-span-3 p-0 [&_button]:h-6 [&_button]:w-6 [&_button]:text-xs"
-                            />
+                             <div className="col-span-3">
+                                <Popover>
+                                    <PopoverTrigger asChild>
+                                    <Button
+                                        variant={"outline"}
+                                        className="w-full justify-start text-left font-normal"
+                                    >
+                                        <CalendarIconShad className="mr-2 h-4 w-4" />
+                                        {assessmentSendDate ? format(assessmentSendDate, "P", {locale: ptBR}) : <span>Escolha uma data</span>}
+                                    </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-auto p-0">
+                                    <Calendar
+                                        mode="single"
+                                        selected={assessmentSendDate}
+                                        onSelect={setAssessmentSendDate}
+                                        initialFocus
+                                        locale={ptBR}
+                                    />
+                                    </PopoverContent>
+                                </Popover>
+                            </div>
                         </div>
                     </div>
                     <DialogFooter>
@@ -368,11 +381,11 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
             </Dialog>
 
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="grid gap-4 md:grid-cols-2">
               {assessments.map(assessment => (
                 <AssessmentCard key={assessment.id} assessment={assessment} />
               ))}
-              {assessments.length === 0 && <p className="text-muted-foreground">Nenhuma avaliação atribuída ou concluída.</p>}
+              {assessments.length === 0 && <p className="text-muted-foreground md:col-span-full">Nenhuma avaliação atribuída ou concluída.</p>}
             </CardContent>
           </Card>
         </TabsContent>
@@ -476,8 +489,3 @@ function InfoItem({ icon, label, value, className }: InfoItemProps) {
     </div>
   );
 }
-    
-
-    
-
-    

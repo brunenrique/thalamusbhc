@@ -4,13 +4,33 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Brain, FileText, Tag, Lightbulb, BarChart3, Edit, Trash2, AlertTriangleIcon, CheckCircle, ShieldAlert } from "lucide-react";
+import { Brain, FileText, Tag, Lightbulb, BarChart3, Edit, Trash2, AlertTriangleIcon, CheckCircle, ShieldAlert, FilePlus2 } from "lucide-react";
 import { generateSessionInsights, type GenerateSessionInsightsOutput } from '@/ai/flows/generate-session-insights';
+import { generateReportDraft, type GenerateReportDraftInput, type GenerateReportDraftOutput } from '@/ai/flows/generate-report-draft-flow';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Skeleton } from '../ui/skeleton';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogClose,
+} from "@/components/ui/dialog";
+import { Textarea } from '../ui/textarea';
+import { useToast } from '@/hooks/use-toast';
 
 interface SessionNote {
   id: string;
@@ -22,26 +42,82 @@ interface SessionNote {
 
 interface SessionNoteCardProps {
   note: SessionNote;
+  patientName: string;
+  therapistName?: string; 
 }
 
-export default function SessionNoteCard({ note }: SessionNoteCardProps) {
+export default function SessionNoteCard({ note, patientName, therapistName = "Psicólogo(a) Responsável" }: SessionNoteCardProps) {
+  const { toast } = useToast();
   const [insights, setInsights] = useState<GenerateSessionInsightsOutput | null>(null);
   const [isLoadingInsights, setIsLoadingInsights] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [errorInsights, setErrorInsights] = useState<string | null>(null);
+
+  const [reportDraft, setReportDraft] = useState<string | null>(null);
+  const [currentReportType, setCurrentReportType] = useState<string>("");
+  const [isGeneratingReport, setIsGeneratingReport] = useState(false);
+  const [errorReport, setErrorReport] = useState<string | null>(null);
+  const [isReportDialogValid, setIsReportDialogValid] = useState(false);
+
 
   const handleGenerateInsights = async () => {
     setIsLoadingInsights(true);
-    setError(null);
+    setErrorInsights(null);
     try {
       const result = await generateSessionInsights({ sessionNotes: note.summary });
       setInsights(result);
     } catch (e) {
       console.error("Falha ao gerar insights:", e);
-      setError("Falha ao gerar insights. Por favor, tente novamente.");
+      setErrorInsights("Falha ao gerar insights. Por favor, tente novamente.");
     } finally {
       setIsLoadingInsights(false);
     }
   };
+
+  const handleGenerateReport = async (reportType: GenerateReportDraftInput["reportType"]) => {
+    setIsGeneratingReport(true);
+    setErrorReport(null);
+    setReportDraft(null);
+    setCurrentReportType(getReportTypeName(reportType));
+    setIsReportDialogValid(true); // Open dialog immediately
+
+    try {
+      const result = await generateReportDraft({
+        sessionNotes: note.summary,
+        patientName: patientName,
+        reportType: reportType,
+        therapistName: therapistName,
+      });
+      setReportDraft(result.draftContent);
+    } catch (e) {
+      console.error("Falha ao gerar rascunho de relatório:", e);
+      setErrorReport(`Falha ao gerar rascunho de ${getReportTypeName(reportType)}. Por favor, tente novamente.`);
+      // Don't close dialog on error, user can try again or close manually
+    } finally {
+      setIsGeneratingReport(false);
+    }
+  };
+
+  const getReportTypeName = (type: GenerateReportDraftInput["reportType"]): string => {
+    if (type === "progress_report") return "Relatório de Progresso";
+    if (type === "referral_letter") return "Carta de Encaminhamento";
+    if (type === "session_summary") return "Resumo da Sessão";
+    return "Documento";
+  };
+
+  const handleCopyReportDraft = () => {
+    if (reportDraft) {
+      navigator.clipboard.writeText(reportDraft);
+      toast({ title: "Rascunho Copiado", description: "O conteúdo do rascunho foi copiado para a área de transferência." });
+    }
+  };
+  
+  const closeReportDialog = () => {
+    setIsReportDialogValid(false); // This will trigger Dialog's onOpenChange
+    setReportDraft(null);
+    setErrorReport(null);
+    setIsGeneratingReport(false);
+  };
+
 
   return (
     <Card className="shadow-sm">
@@ -53,7 +129,21 @@ export default function SessionNoteCard({ note }: SessionNoteCardProps) {
             </CardTitle>
             <CardDescription>{format(new Date(note.date), "PPP", { locale: ptBR })}</CardDescription>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-1">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" aria-label="Gerar documento">
+                  <FilePlus2 className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>Gerar Rascunho de Documento</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => handleGenerateReport("progress_report")}>Relatório de Progresso</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleGenerateReport("referral_letter")}>Carta de Encaminhamento</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleGenerateReport("session_summary")}>Resumo da Sessão</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
             <Button variant="ghost" size="icon" aria-label="Editar anotação">
               <Edit className="h-4 w-4" />
             </Button>
@@ -77,15 +167,13 @@ export default function SessionNoteCard({ note }: SessionNoteCardProps) {
             <Skeleton className="h-4 w-1/3" />
             <Skeleton className="h-4 w-1/2" />
             <Skeleton className="h-4 w-2/3" />
-            <Skeleton className="h-4 w-1/4" />
-            <Skeleton className="h-4 w-2/5" />
           </div>
         )}
 
-        {error && (
+        {errorInsights && (
           <Alert variant="destructive" className="mt-4">
-            <AlertTitle>Erro</AlertTitle>
-            <AlertDescription>{error}</AlertDescription>
+            <AlertTitle>Erro nos Insights</AlertTitle>
+            <AlertDescription>{errorInsights}</AlertDescription>
           </Alert>
         )}
 
@@ -139,6 +227,49 @@ export default function SessionNoteCard({ note }: SessionNoteCardProps) {
           </div>
         )}
       </CardContent>
+
+      <Dialog open={isReportDialogValid} onOpenChange={(open) => { if(!open) closeReportDialog(); else setIsReportDialogValid(true); }}>
+        <DialogContent className="sm:max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Rascunho: {currentReportType}</DialogTitle>
+            <DialogDescription>
+              Revise o rascunho gerado pela IA. Você pode copiar e colar em seu editor de preferência.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4 space-y-2">
+            {isGeneratingReport && (
+              <div className="space-y-2">
+                <Skeleton className="h-6 w-1/4" />
+                <Skeleton className="h-32 w-full" />
+                <Skeleton className="h-4 w-3/4" />
+                <Skeleton className="h-4 w-full" />
+              </div>
+            )}
+            {errorReport && !isGeneratingReport && (
+              <Alert variant="destructive">
+                <AlertTitle>Erro ao Gerar Rascunho</AlertTitle>
+                <AlertDescription>{errorReport}</AlertDescription>
+              </Alert>
+            )}
+            {!isGeneratingReport && reportDraft && (
+              <Textarea
+                value={reportDraft}
+                readOnly // Or allow editing: onChange={setReportDraft}
+                rows={15}
+                className="min-h-[300px] bg-muted/50"
+              />
+            )}
+          </div>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button type="button" variant="outline" onClick={closeReportDialog}>
+              Fechar
+            </Button>
+            <Button type="button" onClick={handleCopyReportDraft} disabled={isGeneratingReport || !reportDraft}>
+              Copiar Rascunho
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 }

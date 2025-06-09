@@ -8,7 +8,7 @@ import { PanelLeft } from "lucide-react"
 
 import { useIsMobile } from "@/hooks/use-mobile"
 import { cn } from "@/shared/utils"
-import { Button as ShadCnButton } from "@/components/ui/button" // Renamed to avoid conflict with our Button
+import { Button as ShadCnButton } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
 import { Sheet, SheetContent } from "@/components/ui/sheet"
@@ -65,8 +65,8 @@ const SidebarProvider = React.forwardRef<
       className,
       style,
       children,
-      asChild, // Destructure asChild
-      ...props // Remaining props
+      asChild, // Destructured for use with Comp
+      ...props // `props` here will NOT contain `asChild` because it was destructured above.
     },
     ref
   ) => {
@@ -124,7 +124,6 @@ const SidebarProvider = React.forwardRef<
     )
 
     const Comp = asChild ? Slot : "div";
-    const { ...restProps } = props; // All props except asChild which is already destructured
 
     return (
       <SidebarContext.Provider value={contextValue}>
@@ -142,7 +141,7 @@ const SidebarProvider = React.forwardRef<
               className
             )}
             ref={ref}
-            {...restProps}
+            {...props} 
           >
             {children}
           </Comp>
@@ -154,11 +153,12 @@ const SidebarProvider = React.forwardRef<
 SidebarProvider.displayName = "SidebarProvider"
 
 const Sidebar = React.forwardRef<
-  HTMLDivElement,
-  React.ComponentProps<"div"> & {
+  HTMLElement, // Changed to HTMLElement
+  React.ComponentProps<"div"> & { // Base props from div
     side?: "left" | "right"
     variant?: "sidebar" | "floating" | "inset"
     collapsible?: "offcanvas" | "icon" | "none"
+    asChild?: boolean; // Added asChild
   }
 >(
   (
@@ -168,28 +168,31 @@ const Sidebar = React.forwardRef<
       collapsible = "offcanvas",
       className,
       children,
-      ...props
+      asChild, // Destructured asChild
+      ...props // Other props
     },
     ref
   ) => {
     const { isMobile, state, openMobile, setOpenMobile } = useSidebar()
+    const Comp = asChild ? Slot : "div"; // Determine component based on asChild
 
     if (collapsible === "none") {
       return (
-        <div
+        <Comp // Use Comp
           className={cn(
             "flex h-full w-[--sidebar-width] flex-col bg-sidebar text-sidebar-foreground",
             className
           )}
           ref={ref}
-          {...props}
+          {...props} // Spread remaining props (asChild is not in props)
         >
           {children}
-        </div>
+        </Comp>
       )
     }
 
     if (isMobile) {
+      // SheetContent already handles asChild correctly if needed, but Sidebar itself isn't passing it to Sheet.
       return (
         <Sheet open={openMobile} onOpenChange={setOpenMobile} {...props}>
           <SheetContent
@@ -208,17 +211,22 @@ const Sidebar = React.forwardRef<
         </Sheet>
       )
     }
-
+    
+    // For desktop, the outer element should be Comp
     return (
-      <div
+      <Comp // Use Comp for the main wrapper div
         ref={ref}
-        className="group peer hidden md:block text-sidebar-foreground"
+        className={cn(
+          "group peer hidden md:block text-sidebar-foreground",
+          className // Allow additional classes for Comp
+        )}
         data-state={state}
         data-collapsible={state === "collapsed" ? collapsible : ""}
         data-variant={variant}
         data-side={side}
+        {...props} // Spread remaining props to Comp
       >
-        <div
+        <div // This div is for positioning and transition, not the main semantic element
           className={cn(
             "duration-200 relative h-svh w-[--sidebar-width] bg-transparent transition-[width] ease-linear",
             "group-data-[collapsible=icon]:w-[--sidebar-width-icon]",
@@ -229,7 +237,7 @@ const Sidebar = React.forwardRef<
               : "group-data-[collapsible=icon]:w-[--sidebar-width-icon]"
           )}
         />
-        <div
+        <div // This div is for fixed positioning and styling
           className={cn(
             "duration-200 fixed inset-y-0 z-10 hidden h-svh w-[--sidebar-width] transition-[left,right,width] ease-linear md:flex",
             side === "left"
@@ -237,19 +245,17 @@ const Sidebar = React.forwardRef<
               : "right-0 group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)]",
             variant === "floating" || variant === "inset"
               ? "p-2 group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)_+_theme(spacing.4)_+2px)]"
-              : "group-data-[collapsible=icon]:w-[--sidebar-width-icon] group-data-[side=left]:border-r group-data-[side=right]:border-l",
-            className
+              : "group-data-[collapsible=icon]:w-[--sidebar-width-icon] group-data-[side=left]:border-r group-data-[side=right]:border-l"
           )}
-          {...props}
         >
-          <div
+          <div // This is the actual visual sidebar container
             data-sidebar="sidebar"
             className="flex h-full w-full flex-col bg-sidebar group-data-[variant=floating]:rounded-lg group-data-[variant=floating]:border group-data-[variant=floating]:border-sidebar-border group-data-[variant=floating]:shadow"
           >
             {children}
           </div>
         </div>
-      </div>
+      </Comp>
     )
   }
 )
@@ -311,19 +317,22 @@ const SidebarRail = React.forwardRef<
 SidebarRail.displayName = "SidebarRail"
 
 const SidebarInset = React.forwardRef<
-  HTMLDivElement,
-  React.ComponentProps<"main">
->(({ className, ...props }, ref) => {
+  HTMLElement, // Changed to HTMLElement
+  React.ComponentProps<"main"> & { asChild?: boolean } // Added asChild
+>(({ className, children, asChild, ...props }, ref) => { // Destructured asChild and children
+  const Comp = asChild ? Slot : "main"; // Determine component
   return (
-    <main
+    <Comp // Use Comp
       ref={ref}
       className={cn(
         "relative flex min-h-svh flex-1 flex-col bg-background",
         "peer-data-[variant=inset]:min-h-[calc(100svh-theme(spacing.4))] md:peer-data-[variant=inset]:m-2 md:peer-data-[state=collapsed]:peer-data-[variant=inset]:ml-2 md:peer-data-[variant=inset]:ml-0 md:peer-data-[variant=inset]:rounded-xl md:peer-data-[variant=inset]:shadow",
         className
       )}
-      {...props}
-    />
+      {...props} // Spread remaining props
+    >
+      {children}
+    </Comp>
   )
 })
 SidebarInset.displayName = "SidebarInset"
@@ -348,14 +357,15 @@ SidebarInput.displayName = "SidebarInput"
 
 const SidebarHeader = React.forwardRef<
   HTMLDivElement,
-  React.ComponentProps<"div">
->(({ className, ...props }, ref) => {
+  React.ComponentProps<"div"> & { asChild?: boolean } // Added asChild
+>(({ className, asChild, ...props }, ref) => { // Destructured asChild
+  const Comp = asChild ? Slot : "div";
   return (
-    <div
+    <Comp // Use Comp
       ref={ref}
       data-sidebar="header"
       className={cn("flex flex-col gap-2 p-2", className)}
-      {...props}
+      {...props} // Spread remaining props
     />
   )
 })
@@ -363,14 +373,15 @@ SidebarHeader.displayName = "SidebarHeader"
 
 const SidebarFooter = React.forwardRef<
   HTMLDivElement,
-  React.ComponentProps<"div">
->(({ className, ...props }, ref) => {
+  React.ComponentProps<"div"> & { asChild?: boolean } // Added asChild
+>(({ className, asChild, ...props }, ref) => { // Destructured asChild
+  const Comp = asChild ? Slot : "div";
   return (
-    <div
+    <Comp // Use Comp
       ref={ref}
       data-sidebar="footer"
       className={cn("flex flex-col gap-2 p-2", className)}
-      {...props}
+      {...props} // Spread remaining props
     />
   )
 })
@@ -393,17 +404,18 @@ SidebarSeparator.displayName = "SidebarSeparator"
 
 const SidebarContent = React.forwardRef<
   HTMLDivElement,
-  React.ComponentProps<"div">
->(({ className, ...props }, ref) => {
+  React.ComponentProps<"div"> & { asChild?: boolean } // Added asChild
+>(({ className, asChild, ...props }, ref) => { // Destructured asChild
+  const Comp = asChild ? Slot : "div";
   return (
-    <div
+    <Comp // Use Comp
       ref={ref}
       data-sidebar="content"
       className={cn(
         "flex min-h-0 flex-1 flex-col gap-2 overflow-auto group-data-[collapsible=icon]:overflow-hidden",
         className
       )}
-      {...props}
+      {...props} // Spread remaining props
     />
   )
 })
@@ -411,14 +423,15 @@ SidebarContent.displayName = "SidebarContent"
 
 const SidebarGroup = React.forwardRef<
   HTMLDivElement,
-  React.ComponentProps<"div">
->(({ className, ...props }, ref) => {
+  React.ComponentProps<"div"> & { asChild?: boolean } // Added asChild
+>(({ className, asChild, ...props }, ref) => { // Destructured asChild
+  const Comp = asChild ? Slot : "div";
   return (
-    <div
+    <Comp // Use Comp
       ref={ref}
       data-sidebar="group"
       className={cn("relative flex w-full min-w-0 flex-col p-2", className)}
-      {...props}
+      {...props} // Spread remaining props
     />
   )
 })
@@ -470,41 +483,50 @@ SidebarGroupAction.displayName = "SidebarGroupAction"
 
 const SidebarGroupContent = React.forwardRef<
   HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => (
-  <div
-    ref={ref}
-    data-sidebar="group-content"
-    className={cn("w-full text-sm", className)}
-    {...props}
-  />
-))
+  React.HTMLAttributes<HTMLDivElement> & { asChild?: boolean } // Added asChild
+>(({ className, asChild, ...props }, ref) => { // Destructured asChild
+  const Comp = asChild ? Slot : "div";
+  return (
+    <Comp // Use Comp
+      ref={ref}
+      data-sidebar="group-content"
+      className={cn("w-full text-sm", className)}
+      {...props} // Spread remaining props
+    />
+  )
+})
 SidebarGroupContent.displayName = "SidebarGroupContent"
 
 const SidebarMenu = React.forwardRef<
   HTMLUListElement,
-  React.HTMLAttributes<HTMLUListElement>
->(({ className, ...props }, ref) => (
-  <ul
-    ref={ref}
-    data-sidebar="menu"
-    className={cn("flex w-full min-w-0 flex-col gap-1", className)}
-    {...props}
-  />
-))
+  React.HTMLAttributes<HTMLUListElement> & { asChild?: boolean } // Added asChild
+>(({ className, asChild, ...props }, ref) => { // Destructured asChild
+  const Comp = asChild ? Slot : "ul";
+  return (
+    <Comp // Use Comp
+      ref={ref}
+      data-sidebar="menu"
+      className={cn("flex w-full min-w-0 flex-col gap-1", className)}
+      {...props} // Spread remaining props
+    />
+  )
+})
 SidebarMenu.displayName = "SidebarMenu"
 
 const SidebarMenuItem = React.forwardRef<
   HTMLLIElement,
-  React.HTMLAttributes<HTMLLIElement>
->(({ className, ...props }, ref) => (
-  <li
-    ref={ref}
-    data-sidebar="menu-item"
-    className={cn("group/menu-item relative", className)}
-    {...props}
-  />
-))
+  React.HTMLAttributes<HTMLLIElement> & { asChild?: boolean } // Added asChild
+>(({ className, asChild, ...props }, ref) => { // Destructured asChild
+  const Comp = asChild ? Slot : "li";
+  return (
+    <Comp // Use Comp
+      ref={ref}
+      data-sidebar="menu-item"
+      className={cn("group/menu-item relative", className)}
+      {...props} // Spread remaining props
+    />
+  )
+})
 SidebarMenuItem.displayName = "SidebarMenuItem"
 
 const sidebarMenuButtonVariants = cva(
@@ -538,7 +560,7 @@ interface SidebarMenuButtonProps extends React.ButtonHTMLAttributes<HTMLButtonEl
 const SidebarMenuButton = React.forwardRef<HTMLButtonElement, SidebarMenuButtonProps>(
   (rawProps, ref) => {
     const {
-      asChild: isAsChildProperty = false,
+      asChild: isAsChildProperty = false, // This is the asChild for the button itself
       variant = "default",
       size = "default",
       isActive = false,
@@ -549,8 +571,15 @@ const SidebarMenuButton = React.forwardRef<HTMLButtonElement, SidebarMenuButtonP
     } = rawProps;
 
     const { isMobile, state } = useSidebar();
+    // If this component receives an `asChild` prop from its *parent* (e.g. <Link asChild><SidebarMenuButton /></Link>),
+    // that `asChild` would be in `otherProps`. We need to ensure it's handled.
+    // However, `SidebarMenuButton` *itself* can also be used with `asChild` for its own composition.
+    // The `isAsChildProperty` handles `SidebarMenuButton`'s own `asChild`.
+    // If an `asChild` is coming from `otherProps`, `Comp` should be `Slot`.
     const Comp = isAsChildProperty ? Slot : "button";
-    const { asChild: _propAsChild, ...finalProps } = otherProps as any;
+    
+    // Explicitly remove `asChild` from `otherProps` if it exists to prevent it from being spread to the DOM element
+    const { asChild: _asChildFromSpread, ...finalProps } = otherProps as any;
 
 
     const buttonElement = (
@@ -561,7 +590,7 @@ const SidebarMenuButton = React.forwardRef<HTMLButtonElement, SidebarMenuButtonP
         data-size={size}
         data-active={isActive}
         aria-current={isActive ? "page" : undefined}
-        {...finalProps}
+        {...finalProps} // Spread finalProps (which should not include asChild for the DOM element)
       >
         {children}
       </Comp>
@@ -623,41 +652,46 @@ SidebarMenuAction.displayName = "SidebarMenuAction"
 
 const SidebarMenuBadge = React.forwardRef<
   HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => (
-  <div
-    ref={ref}
-    data-sidebar="menu-badge"
-    className={cn(
-      "absolute right-1 flex h-5 min-w-5 items-center justify-center rounded-md px-1 text-xs font-medium tabular-nums text-sidebar-foreground select-none pointer-events-none",
-      "peer-hover/menu-button:text-sidebar-accent-foreground peer-data-[active=true]/menu-button:text-sidebar-accent-foreground",
-      "peer-data-[size=sm]/menu-button:top-1",
-      "peer-data-[size=default]/menu-button:top-1.5",
-      "peer-data-[size=lg]/menu-button:top-2.5",
-      "group-data-[collapsible=icon]:hidden",
-      className
-    )}
-    {...props}
-  />
-))
+  React.HTMLAttributes<HTMLDivElement> & { asChild?: boolean } // Added asChild
+>(({ className, asChild, ...props }, ref) => { // Destructured asChild
+  const Comp = asChild ? Slot : "div";
+  return (
+    <Comp // Use Comp
+      ref={ref}
+      data-sidebar="menu-badge"
+      className={cn(
+        "absolute right-1 flex h-5 min-w-5 items-center justify-center rounded-md px-1 text-xs font-medium tabular-nums text-sidebar-foreground select-none pointer-events-none",
+        "peer-hover/menu-button:text-sidebar-accent-foreground peer-data-[active=true]/menu-button:text-sidebar-accent-foreground",
+        "peer-data-[size=sm]/menu-button:top-1",
+        "peer-data-[size=default]/menu-button:top-1.5",
+        "peer-data-[size=lg]/menu-button:top-2.5",
+        "group-data-[collapsible=icon]:hidden",
+        className
+      )}
+      {...props} // Spread remaining props
+    />
+  )
+})
 SidebarMenuBadge.displayName = "SidebarMenuBadge"
 
 const SidebarMenuSkeleton = React.forwardRef<
   HTMLDivElement,
   React.ComponentProps<"div"> & {
     showIcon?: boolean
+    asChild?: boolean; // Added asChild
   }
->(({ className, showIcon = false, ...props }, ref) => {
+>(({ className, showIcon = false, asChild, ...props }, ref) => { // Destructured asChild
+  const Comp = asChild ? Slot : "div";
   const width = React.useMemo(() => {
     return `${Math.floor(Math.random() * 40) + 50}%`
   }, [])
 
   return (
-    <div
+    <Comp // Use Comp
       ref={ref}
       data-sidebar="menu-skeleton"
       className={cn("rounded-md h-8 flex gap-2 px-2 items-center", className)}
-      {...props}
+      {...props} // Spread remaining props
     >
       {showIcon && (
         <Skeleton
@@ -674,32 +708,38 @@ const SidebarMenuSkeleton = React.forwardRef<
           } as React.CSSProperties
         }
       />
-    </div>
+    </Comp>
   )
 })
 SidebarMenuSkeleton.displayName = "SidebarMenuSkeleton"
 
 const SidebarMenuSub = React.forwardRef<
   HTMLUListElement,
-  React.HTMLAttributes<HTMLUListElement>
->(({ className, ...props }, ref) => (
-  <ul
-    ref={ref}
-    data-sidebar="menu-sub"
-    className={cn(
-      "mx-3.5 flex min-w-0 translate-x-px flex-col gap-1 border-l border-sidebar-border px-2.5 py-0.5",
-      "group-data-[collapsible=icon]:hidden",
-      className
-    )}
-    {...props}
-  />
-))
+  React.HTMLAttributes<HTMLUListElement> & { asChild?: boolean } // Added asChild
+>(({ className, asChild, ...props }, ref) => { // Destructured asChild
+  const Comp = asChild ? Slot : "ul";
+  return (
+    <Comp // Use Comp
+      ref={ref}
+      data-sidebar="menu-sub"
+      className={cn(
+        "mx-3.5 flex min-w-0 translate-x-px flex-col gap-1 border-l border-sidebar-border px-2.5 py-0.5",
+        "group-data-[collapsible=icon]:hidden",
+        className
+      )}
+      {...props} // Spread remaining props
+    />
+  )
+})
 SidebarMenuSub.displayName = "SidebarMenuSub"
 
 const SidebarMenuSubItem = React.forwardRef<
   HTMLLIElement,
-  React.HTMLAttributes<HTMLLIElement>
->(({ ...props }, ref) => <li ref={ref} {...props} />)
+  React.HTMLAttributes<HTMLLIElement> & { asChild?: boolean } // Added asChild
+>(({ asChild, ...props }, ref) => { // Destructured asChild
+    const Comp = asChild ? Slot : "li";
+    return <Comp ref={ref} {...props} /> // Use Comp and spread remaining props
+})
 SidebarMenuSubItem.displayName = "SidebarMenuSubItem"
 
 
@@ -712,7 +752,7 @@ interface SidebarMenuSubButtonProps extends React.AnchorHTMLAttributes<HTMLAncho
 const SidebarMenuSubButton = React.forwardRef<HTMLAnchorElement, SidebarMenuSubButtonProps>(
   (rawProps, ref) => {
     const {
-      asChild: isAsChildProperty = false,
+      asChild: isAsChildProperty = false, // This is the asChild for the button itself
       size = "md",
       isActive,
       className,
@@ -720,8 +760,16 @@ const SidebarMenuSubButton = React.forwardRef<HTMLAnchorElement, SidebarMenuSubB
       ...otherProps
     } = rawProps;
 
-    const Comp = isAsChildProperty ? Slot : "a";
-    const { asChild: _propAsChild, tooltip: _propTooltip, ...finalProps } = otherProps as any;
+    // If this component receives an `asChild` prop from its *parent* (e.g. <Link asChild><SidebarMenuSubButton /></Link>),
+    // that `asChild` would be in `otherProps`.
+    // `isAsChildProperty` handles `SidebarMenuSubButton`'s own `asChild` for its internal composition if it were to use Slot.
+    // Since SidebarMenuSubButton renders an 'a' tag by default, if `otherProps.asChild` is true,
+    // then `Comp` should be `Slot`.
+    const Comp = (otherProps as any).asChild || isAsChildProperty ? Slot : "a";
+    
+    // Explicitly remove `asChild` from `otherProps` if it exists to prevent it from being spread to the DOM element
+    const { asChild: _asChildFromSpread, tooltip: _propTooltip, ...finalProps } = otherProps as any;
+
 
     return (
       <Comp
@@ -738,7 +786,7 @@ const SidebarMenuSubButton = React.forwardRef<HTMLAnchorElement, SidebarMenuSubB
         data-size={size}
         data-active={isActive}
         aria-current={isActive ? "page" : undefined}
-        {...finalProps}
+        {...finalProps} // Spread finalProps
       >
         {children}
       </Comp>
@@ -773,3 +821,5 @@ export {
   SidebarTrigger,
   useSidebar,
 }
+
+    

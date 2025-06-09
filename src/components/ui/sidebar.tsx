@@ -8,7 +8,7 @@ import { PanelLeft } from "lucide-react"
 
 import { useIsMobile } from "@/hooks/use-mobile"
 import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button" // Keep this Button import
+import { Button as ShadCnButton } from "@/components/ui/button" // Renamed to avoid conflict with our Button
 import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
 import { Sheet, SheetContent } from "@/components/ui/sheet"
@@ -251,13 +251,13 @@ const Sidebar = React.forwardRef<
 Sidebar.displayName = "Sidebar"
 
 const SidebarTrigger = React.forwardRef<
-  React.ElementRef<typeof Button>,
-  React.ComponentProps<typeof Button>
+  React.ElementRef<typeof ShadCnButton>,
+  React.ComponentProps<typeof ShadCnButton>
 >(({ className, onClick, ...props }, ref) => {
   const { toggleSidebar } = useSidebar()
 
   return (
-    <Button
+    <ShadCnButton
       ref={ref}
       data-sidebar="trigger"
       variant="ghost"
@@ -271,7 +271,7 @@ const SidebarTrigger = React.forwardRef<
       {...props}
     >
       <PanelLeft />
-    </Button>
+    </ShadCnButton>
   )
 })
 SidebarTrigger.displayName = "SidebarTrigger"
@@ -465,7 +465,7 @@ SidebarGroupAction.displayName = "SidebarGroupAction"
 
 const SidebarGroupContent = React.forwardRef<
   HTMLDivElement,
-  React.ComponentProps<"div">
+  React.HTMLAttributes<HTMLDivElement>
 >(({ className, ...props }, ref) => (
   <div
     ref={ref}
@@ -478,7 +478,7 @@ SidebarGroupContent.displayName = "SidebarGroupContent"
 
 const SidebarMenu = React.forwardRef<
   HTMLUListElement,
-  React.ComponentProps<"ul">
+  React.HTMLAttributes<HTMLUListElement>
 >(({ className, ...props }, ref) => (
   <ul
     ref={ref}
@@ -491,7 +491,7 @@ SidebarMenu.displayName = "SidebarMenu"
 
 const SidebarMenuItem = React.forwardRef<
   HTMLLIElement,
-  React.ComponentProps<"li">
+  React.HTMLAttributes<HTMLLIElement>
 >(({ className, ...props }, ref) => (
   <li
     ref={ref}
@@ -532,17 +532,21 @@ interface SidebarMenuButtonProps extends React.ButtonHTMLAttributes<HTMLButtonEl
 
 const SidebarMenuButton = React.forwardRef<HTMLButtonElement, SidebarMenuButtonProps>(
   ({
-    asChild = false, // Default if not provided; will be true if Link passes asChild
+    asChild: propAsChild = false, // Use a different name to avoid conflict
     variant = "default",
     size = "default",
     isActive = false,
     tooltip,
     className,
     children,
-    ...props // Contains other props, e.g., href from Link if asChild is true
+    ...props 
   }, ref) => {
     const { isMobile, state } = useSidebar();
-    const Comp = asChild ? Slot : "button";
+    const Comp = propAsChild ? Slot : "button";
+    
+    // Remove asChild from props if it exists, as it's already handled by Comp
+    const { asChild: _asChild, ...restProps } = props as any;
+
 
     const buttonElement = (
       <Comp
@@ -552,9 +556,7 @@ const SidebarMenuButton = React.forwardRef<HTMLButtonElement, SidebarMenuButtonP
         data-size={size}
         data-active={isActive}
         aria-current={isActive ? "page" : undefined}
-        {...props} // Spread the rest of the props. If asChild is true, Comp is Slot,
-                   // and props (like href from Link) are passed to Slot.
-                   // Slot then merges these with its children.
+        {...restProps} 
       >
         {children}
       </Comp>
@@ -674,7 +676,7 @@ SidebarMenuSkeleton.displayName = "SidebarMenuSkeleton"
 
 const SidebarMenuSub = React.forwardRef<
   HTMLUListElement,
-  React.ComponentProps<"ul">
+  React.HTMLAttributes<HTMLUListElement>
 >(({ className, ...props }, ref) => (
   <ul
     ref={ref}
@@ -691,7 +693,7 @@ SidebarMenuSub.displayName = "SidebarMenuSub"
 
 const SidebarMenuSubItem = React.forwardRef<
   HTMLLIElement,
-  React.ComponentProps<"li">
+  React.HTMLAttributes<HTMLLIElement>
 >(({ ...props }, ref) => <li ref={ref} {...props} />)
 SidebarMenuSubItem.displayName = "SidebarMenuSubItem"
 
@@ -704,14 +706,15 @@ interface SidebarMenuSubButtonProps extends React.AnchorHTMLAttributes<HTMLAncho
 
 const SidebarMenuSubButton = React.forwardRef<HTMLAnchorElement, SidebarMenuSubButtonProps>(
   ({
-    asChild = false, // Default if not provided; will be true if Link passes asChild
+    asChild: propAsChild = false,
     size = "md",
     isActive,
     className,
     children,
-    ...props // Contains other props, e.g., href from Link if asChild is true
+    ...props 
   }, ref) => {
-    const Comp = asChild ? Slot : "a";
+    const Comp = propAsChild ? Slot : "a";
+    const { asChild: _asChild, ...restProps } = props as any;
 
     return (
       <Comp
@@ -728,14 +731,14 @@ const SidebarMenuSubButton = React.forwardRef<HTMLAnchorElement, SidebarMenuSubB
         data-size={size}
         data-active={isActive}
         aria-current={isActive ? "page" : undefined}
-        {...props}
+        {...restProps}
       >
         {children}
       </Comp>
     );
   }
 );
-SidebarMenuSubButton.displayName = "SidebarMenuSubButton";
+SidebarMenuSubButton.displayName = "SidebarMenuSubButton"
 
 export {
   Sidebar,
@@ -763,3 +766,5 @@ export {
   SidebarTrigger,
   useSidebar,
 }
+
+    

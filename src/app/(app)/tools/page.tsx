@@ -1,7 +1,7 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Wrench, BookOpen, BrainCog, HeartPulse, Archive, GitFork, History, ChevronRight } from "lucide-react";
+import { Wrench, BookOpen, BrainCog, HeartPulse, Archive, GitFork, History, ChevronRight, Network } from "lucide-react";
 import Link from "next/link";
 
 const tools = [
@@ -20,6 +20,20 @@ const tools = [
     dataAiHint: "cérebro lâmpada",
   },
   {
+    title: "Modelos de Formulação de Caso",
+    description: "Crie e gerencie modelos para formulação de casos (TCC, ACT, etc.).",
+    icon: <Network className="h-6 w-6 text-accent" />,
+    href: "/tools/case-formulation-models",
+    dataAiHint: "fluxograma mental",
+  },
+  {
+    title: "Árvore de Formulação de Sessão",
+    description: "Visualize e construa formulações de caso interativamente.",
+    icon: <GitFork className="h-6 w-6 text-accent" />,
+    href: "/tools/session-formulation-tree",
+    dataAiHint: "mapa mental árvore",
+  },
+  {
     title: "Recursos de Autocuidado",
     description: "Ferramentas para gerenciamento de estresse e bem-estar.",
     icon: <HeartPulse className="h-6 w-6 text-accent" />,
@@ -32,13 +46,6 @@ const tools = [
     icon: <Archive className="h-6 w-6 text-accent" />,
     href: "/tools/backup",
     dataAiHint: "banco de dados arquivo",
-  },
-  {
-    title: "Árvore de Formulação de Sessão",
-    description: "Visualize e construa formulações de caso.",
-    icon: <GitFork className="h-6 w-6 text-accent" />,
-    href: "/tools/session-formulation-tree",
-    dataAiHint: "mapa mental árvore",
   },
   {
     title: "Trilha de Auditoria",

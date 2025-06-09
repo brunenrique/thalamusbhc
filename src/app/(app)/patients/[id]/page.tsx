@@ -5,7 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Mail, Phone, CalendarDays, Edit, FileText, Brain, CheckCircle, Clock, Archive, MessageSquare, Trash2, Users as UsersIconLucide, Home as HomeIconLucide, Share2, UploadCloud, Calendar as CalendarIconShad } from "lucide-react"; 
+import { Mail, Phone, CalendarDays, Edit, FileText, Brain, CheckCircle, Clock, Archive, MessageSquare, Trash2, Users as UsersIconLucide, Home as HomeIconLucide, Share2, UploadCloud, Calendar as CalendarIconShad, Lightbulb, Tag, BarChart3 as BarChart3Icon, ShieldAlert as ShieldAlertIcon, CheckCircle as CheckCircleIcon } from "lucide-react"; 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import PatientTimeline from "@/components/patients/patient-timeline";
@@ -41,6 +41,10 @@ import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
+import { generateSessionInsights, type GenerateSessionInsightsOutput } from '@/ai/flows/generate-session-insights';
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Badge } from "@/components/ui/badge";
 
 
 // Mock data for global clinic resources (could be imported or fetched)
@@ -105,6 +109,11 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
   const [selectedGlobalResource, setSelectedGlobalResource] = useState<string>("");
   const [resourceShareNotes, setResourceShareNotes] = useState<string>("");
 
+  const [generalPatientInsights, setGeneralPatientInsights] = useState<GenerateSessionInsightsOutput | null>(null);
+  const [isLoadingGeneralInsights, setIsLoadingGeneralInsights] = useState(false);
+  const [errorGeneralInsights, setErrorGeneralInsights] = useState<string | null>(null);
+
+
   useEffect(() => {
     setAssessmentSendDate(new Date());
   }, []);
@@ -117,7 +126,6 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
   };
 
   const handleArchivePatient = () => {
-    console.log(`Arquivando paciente ${patient.id}... (Simulado)`);
     toast({
       title: "Paciente Arquivado (Simulado)",
       description: `${patient.name} foi marcado(a) como arquivado(a).`,
@@ -125,7 +133,6 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
   };
   
   const handleDeletePatient = () => {
-    console.log(`Excluindo paciente ${patient.id}... (Simulado)`);
     toast({
       title: "Paciente Excluído (Simulado)",
       description: `${patient.name} foi excluído(a) permanentemente.`,
@@ -181,6 +188,29 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
     });
     setSelectedGlobalResource("");
     setResourceShareNotes("");
+  };
+
+  const handleGenerateGeneralPatientInsights = async () => {
+    if (sessionNotes.length === 0) {
+      toast({ title: "Sem Anotações", description: "Não há anotações de sessão para gerar insights gerais.", variant: "default" });
+      return;
+    }
+    setIsLoadingGeneralInsights(true);
+    setErrorGeneralInsights(null);
+    setGeneralPatientInsights(null);
+
+    const mostRecentNote = sessionNotes.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0];
+
+    try {
+      const result = await generateSessionInsights({ sessionNotes: mostRecentNote.summary });
+      setGeneralPatientInsights(result);
+      toast({ title: "Insights Gerais Gerados", description: "Insights do paciente foram gerados com base na última anotação de sessão." });
+    } catch (e) {
+      console.error("Falha ao gerar insights gerais:", e);
+      setErrorGeneralInsights("Não foi possível gerar os insights gerais do paciente. Por favor, tente novamente.");
+    } finally {
+      setIsLoadingGeneralInsights(false);
+    }
   };
 
 
@@ -286,6 +316,117 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
               <InfoItem icon={<Clock className="text-accent" />} label="Última Sessão" value={formattedLastSession} />
               <InfoItem icon={<UsersIconLucide className="text-accent h-5 w-5" />} label="Psicólogo(a) Responsável" value={patient.assignedPsychologist} />
               <InfoItem icon={<HomeIconLucide className="text-accent h-5 w-5" />} label="Endereço" value={patient.address} className="md:col-span-2"/>
+            </CardContent>
+          </Card>
+
+          <Card className="mt-6 shadow-sm">
+            <CardHeader>
+              <CardTitle className="font-headline flex items-center">
+                <Brain className="mr-2 h-5 w-5 text-primary" /> Insights Chave do Paciente
+              </CardTitle>
+              <CardDescription>
+                Gere e visualize insights baseados nas interações e histórico do paciente.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {!generalPatientInsights && !isLoadingGeneralInsights && !errorGeneralInsights && (
+                <Button onClick={handleGenerateGeneralPatientInsights} variant="outline" className="w-full sm:w-auto">
+                  <Brain className="mr-2 h-4 w-4" /> Gerar Insights Gerais (Baseado na Última Sessão)
+                </Button>
+              )}
+              {isLoadingGeneralInsights && (
+                <div className="space-y-3 p-4 rounded-md bg-muted/30">
+                  <div className="flex items-center space-x-2">
+                    <Skeleton className="h-6 w-6 rounded-full" />
+                    <Skeleton className="h-4 w-[180px]" />
+                  </div>
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-4/5" />
+                  <Skeleton className="h-4 w-3/5" />
+                  <Skeleton className="h-8 w-[200px] mt-2" />
+                </div>
+              )}
+              {errorGeneralInsights && !isLoadingGeneralInsights && (
+                <Alert variant="destructive">
+                  <AlertTitle>Erro ao Gerar Insights</AlertTitle>
+                  <AlertDescription>{errorGeneralInsights}</AlertDescription>
+                  <Button onClick={handleGenerateGeneralPatientInsights} variant="outline" size="sm" className="mt-3">
+                    Tentar Novamente
+                  </Button>
+                </Alert>
+              )}
+              {generalPatientInsights && !isLoadingGeneralInsights && (
+                <div className="space-y-4 pt-2 p-4 rounded-md bg-muted/30">
+                  {generalPatientInsights.potentialRiskAlerts && generalPatientInsights.potentialRiskAlerts.length > 0 && (
+                    <div>
+                      <h4 className="text-sm font-semibold flex items-center text-destructive mb-1">
+                        <ShieldAlertIcon className="mr-2 h-4 w-4" /> Alertas de Risco Potencial:
+                      </h4>
+                      <div className="flex flex-wrap gap-1">
+                        {generalPatientInsights.potentialRiskAlerts.map((alert, idx) => (
+                          <Badge key={idx} variant="destructive">{alert}</Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  <div>
+                    <h4 className="text-sm font-semibold flex items-center mb-1">
+                      <Tag className="mr-2 h-4 w-4 text-muted-foreground" /> Palavras-chave Identificadas:
+                    </h4>
+                    <div className="flex flex-wrap gap-1">
+                      {generalPatientInsights.keywords.map(kw => <Badge key={kw} variant="secondary">{kw}</Badge>)}
+                    </div>
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-semibold flex items-center mb-1">
+                      <Lightbulb className="mr-2 h-4 w-4 text-muted-foreground" /> Temas Recorrentes:
+                    </h4>
+                    <div className="flex flex-wrap gap-1">
+                      {generalPatientInsights.themes.map(theme => <Badge key={theme} variant="outline">{theme}</Badge>)}
+                    </div>
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-semibold flex items-center mb-1">
+                      <BarChart3Icon className="mr-2 h-4 w-4 text-muted-foreground" /> Evolução de Sintomas Observada:
+                    </h4>
+                    <p className="text-sm text-muted-foreground whitespace-pre-wrap">{generalPatientInsights.symptomEvolution}</p>
+                  </div>
+                  {generalPatientInsights.therapeuticMilestones && generalPatientInsights.therapeuticMilestones.length > 0 && (
+                    <div>
+                      <h4 className="text-sm font-semibold flex items-center mb-1">
+                        <CheckCircleIcon className="mr-2 h-4 w-4 text-green-600" /> Marcos Terapêuticos Significativos:
+                      </h4>
+                      <div className="flex flex-wrap gap-1">
+                        {generalPatientInsights.therapeuticMilestones.map((milestone, idx) => (
+                          <Badge key={idx} variant="default" className="bg-green-100 text-green-700 border-green-300 hover:bg-green-200">{milestone}</Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {generalPatientInsights.inventoryComparisonInsights && (
+                      <div>
+                          <h4 className="text-sm font-semibold flex items-center mb-1">
+                              <BarChart3Icon className="mr-2 h-4 w-4 text-muted-foreground" /> Insights Comparativos (Histórico/Inventários):
+                          </h4>
+                          <p className="text-sm text-muted-foreground whitespace-pre-wrap">{generalPatientInsights.inventoryComparisonInsights}</p>
+                      </div>
+                  )}
+                  <div>
+                    <h4 className="text-sm font-semibold flex items-center mb-1">
+                      <Lightbulb className="mr-2 h-4 w-4 text-muted-foreground" /> Sugestões e Observações da IA:
+                    </h4>
+                    <p className="text-sm text-muted-foreground whitespace-pre-wrap">{generalPatientInsights.suggestiveInsights}</p>
+                  </div>
+                  <div className="flex gap-2 mt-3">
+                    <Button onClick={() => { setGeneralPatientInsights(null); setErrorGeneralInsights(null); }} variant="outline" size="sm">
+                        Limpar Insights
+                    </Button>
+                     <Button onClick={handleGenerateGeneralPatientInsights} variant="outline" size="sm">
+                        <Brain className="mr-2 h-3.5 w-3.5" /> Regenerar Insights
+                    </Button>
+                  </div>
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>

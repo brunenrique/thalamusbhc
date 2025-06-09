@@ -26,7 +26,7 @@ import {
   History as HistoryIcon, 
   BarChartBig, 
   Users2 as GroupsIcon,
-  Network, // Ícone para Modelos de Formulação
+  Network, 
 } from "lucide-react";
 import {
   SidebarMenu,
@@ -56,8 +56,8 @@ const navStructure: NavItem[] = [
   { href: "/patients", label: "Pacientes", icon: Users, group: "Gestão de Pacientes" },
   { href: "/groups", label: "Grupos Terapêuticos", icon: GroupsIcon, group: "Gestão de Pacientes"},
   { href: "/waiting-list", label: "Lista de Espera", icon: ListChecks, group: "Gestão de Pacientes" },
-  { href: "/assessments", label: "Avaliações", icon: ClipboardList, group: "Gestão de Pacientes" },
-  { href: "/templates", label: "Modelos de Anotação", icon: FileText, group: "Gestão de Pacientes" },
+  // { href: "/assessments", label: "Avaliações", icon: ClipboardList, group: "Gestão de Pacientes" }, // Removido daqui
+  { href: "/templates", label: "Modelos Inteligentes", icon: FileText, group: "Gestão de Pacientes" },
   
   { href: "/tasks", label: "Tarefas", icon: CheckSquare, group: "Operações da Clínica" },
   { href: "/resources", label: "Recursos da Clínica", icon: FolderArchive, group: "Operações da Clínica" },
@@ -76,6 +76,7 @@ const navStructure: NavItem[] = [
       { href: "/tools/case-formulation-models", label: "Modelos de Formulação", icon: Network },
       { href: "/tools/session-formulation-tree", label: "Árvore de Formulação", icon: GitFork },
       { href: "/tools/self-care", label: "Autocuidado", icon: HeartPulse },
+      { href: "/inventories-scales", label: "Inventários e Escalas", icon: ClipboardList }, // Adicionado aqui
     ]
   },
   
@@ -84,7 +85,7 @@ const navStructure: NavItem[] = [
     subItems: [
         { href: "/user-approvals", label: "Aprovação de Usuários", icon: ShieldQuestion, adminOnly: true },
         { href: "/tools/backup", label: "Backup de Dados", icon: DataBackupIcon },
-        { href: "/tools/audit-trail", label: "Trilha de Auditoria", icon: HistoryIcon, adminOnly: true }, // Movido e mantido adminOnly
+        { href: "/tools/audit-trail", label: "Trilha de Auditoria", icon: HistoryIcon, adminOnly: true }, 
     ]
   },
   { href: "/settings", label: "Configurações", icon: Settings, group: "Configuração" },
@@ -119,17 +120,15 @@ export default function SidebarNav({ currentPath, userRole = "admin" }: SidebarN
     const ButtonComponent = isSubItem ? SidebarMenuSubButton : SidebarMenuButton;
 
     if (item.subItems && item.subItems.length > 0 && state === "expanded") {
-      // Filtrar subItens baseado no userRole ANTES de decidir se renderiza como SubMenu
       const visibleSubItems = item.subItems.filter(sub => !sub.adminOnly || userRole === "admin");
-      if (visibleSubItems.length === 0 && item.adminOnly && userRole !== "admin") return null; // Se todos subitens são adminOnly e user não é admin
+      if (visibleSubItems.length === 0 && item.adminOnly && userRole !== "admin") return null; 
 
-      // Se o item principal tem um link próprio E subitens visíveis, renderize o botão principal e depois o submenu
       if (item.href && item.href !== "#" && visibleSubItems.length > 0) {
          return (
             <SidebarMenuItem key={`${item.label}-${index}-group`}>
-            <Link href={item.href} asChild>
+            <Link href={item.href} passHref asChild>
                 <ButtonComponent
-                isActive={isActive && !visibleSubItems.some(sub => currentPath.startsWith(sub.href))} // Ativo se for a página exata E não um subitem ativo
+                isActive={isActive && !visibleSubItems.some(sub => currentPath.startsWith(sub.href))} 
                 tooltip={state === "collapsed" ? item.label : undefined}
                 className={isSubItem ? "text-xs" : ""}
                 >
@@ -142,19 +141,13 @@ export default function SidebarNav({ currentPath, userRole = "admin" }: SidebarN
             </SidebarMenuItem>
         );
       }
-      // Se o item principal NÃO tem link próprio (ou é '#') OU não há subitens visíveis (pouco provável com filtro acima)
-      // mas ainda tem subItens na definição original E estamos expandidos, renderiza como grupo de subitens.
-      // Esta lógica pode precisar de ajuste se um item PAI for adminOnly e não tiver href.
-      // Por agora, assumimos que itens com subitens têm um href que leva à página principal da seção.
-      // E se não tiver href, mas tiver subitens, renderiza só os subitens (caso comum)
        if (visibleSubItems.length > 0) {
         return (
             <SidebarMenuItem key={`${item.label}-${index}-group`}>
                  <ButtonComponent
-                    isActive={isActive} // O pai pode ser ativo se um dos filhos for.
+                    isActive={isActive} 
                     tooltip={state === "collapsed" ? item.label : undefined}
                     className={isSubItem ? "text-xs" : ""}
-                    // Se não há href no pai, o clique não faz nada, mas permite expandir
                     onClick={(e) => { if (!item.href || item.href === "#") e.preventDefault(); }} 
                  >
                     {buttonContent}
@@ -167,10 +160,9 @@ export default function SidebarNav({ currentPath, userRole = "admin" }: SidebarN
        }
     }
     
-    // Renderiza item simples ou item colapsado que não tem subitens visíveis
     return (
       <SidebarMenuItem key={`${item.label}-${index}`}>
-        <Link href={item.href} asChild>
+        <Link href={item.href} passHref asChild>
           <ButtonComponent
             isActive={isActive}
             tooltip={state === "collapsed" ? item.label : undefined}
@@ -199,9 +191,8 @@ export default function SidebarNav({ currentPath, userRole = "admin" }: SidebarN
     <div className="flex flex-col h-full justify-between">
         <SidebarMenu className="p-2 space-y-0">
             {Object.entries(groupedNavItems).map(([groupName, items]) => {
-                // Filtra os itens principais do grupo se eles forem adminOnly e o usuário não for admin
                 const visibleItemsInGroup = items.filter(item => !item.adminOnly || userRole === "admin");
-                if (visibleItemsInGroup.length === 0) return null; // Não renderiza o grupo se não houver itens visíveis
+                if (visibleItemsInGroup.length === 0) return null; 
 
                 return (
                     <SidebarGroup key={groupName} className="p-0 pt-1">
@@ -229,7 +220,7 @@ export default function SidebarNav({ currentPath, userRole = "admin" }: SidebarN
             </SidebarMenuButton>
         </SidebarMenuItem>
         <SidebarMenuItem>
-            <Link href="/help" asChild>
+            <Link href="/help" passHref asChild>
                 <SidebarMenuButton tooltip={state === "collapsed" ? "Ajuda e Suporte" : undefined} isActive={currentPath.startsWith("/help")}>
                     <HelpCircle />
                     <span className="group-data-[collapsible=icon]:hidden">Ajuda e Suporte</span>

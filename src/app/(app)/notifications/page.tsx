@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Bell, CheckCheck, Trash2, Settings } from "lucide-react";
@@ -7,7 +8,7 @@ import NotificationItem from "@/components/notifications/notification-item";
 const mockNotifications = [
   { id: "notif1", type: "task_assigned" as const, message: "Nova tarefa 'Preparar relatório para João D.' atribuída a você.", date: "2024-07-18T10:00:00Z", read: false, link: "/tasks/task5" },
   { id: "notif2", type: "appointment_reminder" as const, message: "Próximo agendamento com Alice W. em 1 hora.", date: "2024-07-19T09:00:00Z", read: false, link: "/schedule" },
-  { id: "notif3", type: "assessment_completed" as const, message: "Bob B. completou a avaliação GAD-7.", date: "2024-07-19T14:30:00Z", read: true, link: "/assessments/asm2/results" },
+  { id: "notif3", type: "assessment_completed" as const, message: "Bob B. completou o inventário GAD-7.", date: "2024-07-19T14:30:00Z", read: true, link: "/inventories-scales/asm2/results" },
   { id: "notif4", type: "system_update" as const, message: "PsiGuard será atualizado Domingo às 2h. Espere breve indisponibilidade.", date: "2024-07-17T16:00:00Z", read: true },
   { id: "notif5", type: "new_patient_waiting" as const, message: "Nova paciente 'Eva Green' adicionada à lista de espera.", date: "2024-07-20T11:00:00Z", read: false, link: "/waiting-list" },
 ];

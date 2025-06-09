@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Mail, Phone, CalendarDays, Edit, FileText, Brain, CheckCircle, Clock, Archive, MessageSquare, Trash2, Users as UsersIconLucide, Home as HomeIconLucide, Share2, UploadCloud, Calendar as CalendarIconShad, Lightbulb, Tag, BarChart3 as BarChart3Icon, ShieldAlert as ShieldAlertIcon, CheckCircle as CheckCircleIcon, TrendingUp, BookOpen, Activity, Users2, Layers } from "lucide-react";
+import { Mail, Phone, CalendarDays, Edit, FileText, Brain, CheckCircle, Clock, Archive, MessageSquare, Trash2, Users as UsersIconLucide, Home as HomeIconLucide, Share2, UploadCloud, Calendar as CalendarIconShad, Lightbulb, Tag, BarChart3 as BarChart3Icon, ShieldAlert as ShieldAlertIcon, CheckCircle as CheckCircleIcon, TrendingUp, BookOpen, Activity, Users2, Layers, ClipboardList } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import PatientTimeline from "@/components/patients/patient-timeline";
@@ -82,7 +82,7 @@ const mockPatient = {
 };
 
 const initialSessionNotes = [
-  // TODO: Implementar criptografia/descriptografia client-side AES aqui
+  // TODO: Implementar criptografia/descriptografia client-side AES aqui - summaryForInsights should be decrypted
   { id: "sn1", date: "2024-07-15", summary: "Sessão focada em mecanismos de enfrentamento para ansiedade. Paciente relata melhora na qualidade do sono após aplicar técnicas de relaxamento que foram ensinadas na sessão anterior. Apresentou-se engajada e participativa. Discutimos a importância da exposição gradual e planejamos pequenos passos para a próxima semana. Tarefa: praticar respiração diafragmática duas vezes ao dia.", keywords: ["ansiedade", "enfrentamento", "sono", "relaxamento", "exposição gradual"], themes: ["gerenciamento de estresse", "técnicas de relaxamento", "TCC"] },
   { id: "sn2", date: "2024-07-08", summary: "Exploramos dinâmicas familiares e padrões de comunicação. Identificamos alguns gatilhos em interações com a mãe que disparam sentimentos de inadequação. Paciente expressou dificuldade em estabelecer limites saudáveis. Trabalhamos role-playing de comunicação assertiva, focando em frases 'Eu sinto...' e pedidos claros. Paciente demonstrou progresso na identificação de pensamentos automáticos negativos relacionados a estas interações.", keywords: ["família", "comunicação", "limites", "assertividade", "pensamentos automáticos"], themes: ["relacionamentos interpessoais", "comunicação assertiva", "dinâmica familiar"] },
 ];
@@ -98,7 +98,7 @@ const initialPatientResources = [
 ];
 
 // Mock data for assessment templates (used in "Assign Assessment" Dialog)
-const mockAssessmentTemplates = [
+const mockInventoryTemplates = [
   { id: "tpl_bdi", name: "Inventário de Depressão de Beck (BDI)" },
   { id: "tpl_gad7", name: "Escala de Ansiedade GAD-7" },
   { id: "tpl_rosenberg", name: "Escala de Autoestima de Rosenberg" },
@@ -137,8 +137,8 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
   const [assessments, setAssessments] = useState(initialAssessments);
   const [patientResources, setPatientResources] = useState(initialPatientResources);
 
-  const [selectedAssessmentTemplate, setSelectedAssessmentTemplate] = useState<string>("");
-  const [assessmentSendDate, setAssessmentSendDate] = useState<Date | undefined>(undefined);
+  const [selectedInventoryTemplate, setSelectedInventoryTemplate] = useState<string>("");
+  const [inventorySendDate, setInventorySendDate] = useState<Date | undefined>(undefined);
 
   const [selectedGlobalResource, setSelectedGlobalResource] = useState<string>("");
   const [resourceShareNotes, setResourceShareNotes] = useState<string>("");
@@ -153,7 +153,7 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
 
 
   useEffect(() => {
-    setAssessmentSendDate(new Date());
+    setInventorySendDate(new Date());
   }, []);
 
   useEffect(() => {
@@ -188,29 +188,29 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
     router.push("/patients");
   };
 
-  const handleAssignAssessment = () => {
-    if (!selectedAssessmentTemplate || !assessmentSendDate) {
+  const handleAssignInventory = () => {
+    if (!selectedInventoryTemplate || !inventorySendDate) {
       toast({ title: "Erro", description: "Selecione um modelo e uma data de envio.", variant: "destructive" });
       return;
     }
-    const template = mockAssessmentTemplates.find(t => t.id === selectedAssessmentTemplate);
+    const template = mockInventoryTemplates.find(t => t.id === selectedInventoryTemplate);
     if (!template) {
-        toast({ title: "Erro", description: "Modelo de avaliação não encontrado.", variant: "destructive" });
+        toast({ title: "Erro", description: "Modelo de inventário/escala não encontrado.", variant: "destructive" });
         return;
     }
     const newAssessment = {
       id: `asm_${Date.now()}`,
       name: template.name,
-      dateSent: format(assessmentSendDate, "yyyy-MM-dd"),
+      dateSent: format(inventorySendDate, "yyyy-MM-dd"),
       status: "Sent" as const,
     };
     setAssessments(prev => [newAssessment, ...prev].sort((a, b) => new Date(b.dateSent).getTime() - new Date(a.dateSent).getTime()));
     toast({
-      title: "Avaliação Atribuída",
-      description: `"${template.name}" atribuída a ${patient.name}. Link de preenchimento simulado enviado.`,
+      title: "Inventário/Escala Atribuído(a)",
+      description: `"${template.name}" atribuído(a) a ${patient.name}. Link de preenchimento simulado enviado.`,
     });
-    setSelectedAssessmentTemplate("");
-    setAssessmentSendDate(new Date());
+    setSelectedInventoryTemplate("");
+    setInventorySendDate(new Date());
   };
 
   const handleShareResource = () => {
@@ -500,40 +500,40 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
       <Card className="mt-6 shadow-sm">
         <CardHeader className="flex flex-row justify-between items-center">
           <div>
-            <CardTitle className="font-headline flex items-center"><Layers className="mr-2 h-5 w-5 text-primary"/> Avaliações</CardTitle>
-            <CardDescription>Acompanhe e gerencie as avaliações do paciente.</CardDescription>
+            <CardTitle className="font-headline flex items-center"><ClipboardList className="mr-2 h-5 w-5 text-primary"/> Inventários e Escalas</CardTitle>
+            <CardDescription>Acompanhe e gerencie os instrumentos aplicados ao paciente.</CardDescription>
           </div>
           <Dialog>
             <DialogTrigger asChild>
                 <Button variant="outline" className="bg-accent hover:bg-accent/90 text-accent-foreground">
-                    <CheckCircle className="mr-2 h-4 w-4" /> Atribuir Avaliação
+                    <CheckCircle className="mr-2 h-4 w-4" /> Atribuir Inventário/Escala
                 </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
-                    <DialogTitle>Atribuir Avaliação a {patient.name}</DialogTitle>
+                    <DialogTitle>Atribuir Inventário/Escala a {patient.name}</DialogTitle>
                     <DialogDescription>
-                        Selecione um modelo de avaliação e uma data de envio.
+                        Selecione um modelo e uma data de envio.
                     </DialogDescription>
                 </DialogHeader>
                 <div className="grid gap-4 py-4">
                     <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="assessment-template" className="text-right col-span-1">
+                        <Label htmlFor="inventory-template" className="text-right col-span-1">
                             Modelo
                         </Label>
-                        <Select value={selectedAssessmentTemplate} onValueChange={setSelectedAssessmentTemplate}>
-                            <SelectTrigger id="assessment-template" className="col-span-3">
+                        <Select value={selectedInventoryTemplate} onValueChange={setSelectedInventoryTemplate}>
+                            <SelectTrigger id="inventory-template" className="col-span-3">
                                 <SelectValue placeholder="Selecione um modelo" />
                             </SelectTrigger>
                             <SelectContent>
-                                {mockAssessmentTemplates.map(template => (
+                                {mockInventoryTemplates.map(template => (
                                     <SelectItem key={template.id} value={template.id}>{template.name}</SelectItem>
                                 ))}
                             </SelectContent>
                         </Select>
                     </div>
                     <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="assessment-date" className="text-right col-span-1">
+                        <Label htmlFor="inventory-date" className="text-right col-span-1">
                             Data Envio
                         </Label>
                          <div className="col-span-3">
@@ -544,14 +544,14 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
                                     className="w-full justify-start text-left font-normal"
                                 >
                                     <CalendarIconShad className="mr-2 h-4 w-4" />
-                                    {assessmentSendDate ? format(assessmentSendDate, "P", {locale: ptBR}) : <span>Escolha uma data</span>}
+                                    {inventorySendDate ? format(inventorySendDate, "P", {locale: ptBR}) : <span>Escolha uma data</span>}
                                 </Button>
                                 </PopoverTrigger>
                                 <PopoverContent className="w-auto p-0">
                                 <Calendar
                                     mode="single"
-                                    selected={assessmentSendDate}
-                                    onSelect={setAssessmentSendDate}
+                                    selected={inventorySendDate}
+                                    onSelect={setInventorySendDate}
                                     initialFocus
                                     locale={ptBR}
                                 />
@@ -565,7 +565,7 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
                         <Button type="button" variant="outline">Cancelar</Button>
                     </DialogClose>
                     <DialogClose asChild>
-                        <Button type="button" onClick={handleAssignAssessment} disabled={!selectedAssessmentTemplate || !assessmentSendDate}>Atribuir</Button>
+                        <Button type="button" onClick={handleAssignInventory} disabled={!selectedInventoryTemplate || !inventorySendDate}>Atribuir</Button>
                     </DialogClose>
                 </DialogFooter>
             </DialogContent>
@@ -575,7 +575,7 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
           {assessments.map(assessment => (
             <AssessmentCard key={assessment.id} assessment={assessment} />
           ))}
-          {assessments.length === 0 && <p className="text-muted-foreground md:col-span-full">Nenhuma avaliação atribuída ou concluída.</p>}
+          {assessments.length === 0 && <p className="text-muted-foreground md:col-span-full">Nenhum inventário/escala atribuído ou concluído.</p>}
         </CardContent>
       </Card>
 
@@ -617,7 +617,7 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
             <div className="text-center py-10 text-muted-foreground">
             <TrendingUp className="mx-auto h-12 w-12" />
             <p className="mt-2">Nenhum dado de progresso disponível para o instrumento selecionado.</p>
-            <p className="text-sm">Certifique-se de que há avaliações concluídas para este paciente com o instrumento escolhido.</p>
+            <p className="text-sm">Certifique-se de que há resultados concluídos para este paciente com o instrumento escolhido.</p>
             </div>
         )}
         </CardContent>
@@ -717,5 +717,3 @@ function InfoItem({ icon, label, value, className }: InfoItemProps) {
     </div>
   );
 }
-
-    

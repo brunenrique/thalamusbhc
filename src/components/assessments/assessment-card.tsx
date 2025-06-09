@@ -1,7 +1,7 @@
 
 "use client";
 
-import React from 'react'; // Import React
+import React from 'react'; 
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -82,7 +82,7 @@ function AssessmentCardComponent({ assessment, showPatientInfo = false }: Assess
         <div className="flex w-full justify-end gap-2">
           {assessment.status === "Completed" && (
             <Button variant="outline" size="sm" asChild>
-              <Link href={`/assessments/${assessment.id}/results`}>
+              <Link href={`/inventories-scales/${assessment.id}/results`}>
                 <BarChart2 className="mr-2 h-4 w-4" /> Ver Resultados
               </Link>
             </Button>
@@ -93,7 +93,7 @@ function AssessmentCardComponent({ assessment, showPatientInfo = false }: Assess
             </Button>
           )}
           <Button variant="default" size="sm" asChild className="bg-primary/90 hover:bg-primary text-primary-foreground">
-             <Link href={`/assessments/${assessment.id}/details`}>
+             <Link href={`/inventories-scales/${assessment.id}/details`}>
                 Ver Detalhes
              </Link>
           </Button>

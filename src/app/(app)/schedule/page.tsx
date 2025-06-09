@@ -11,7 +11,6 @@ import {
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuPortal,
   DropdownMenuSeparator,
   DropdownMenuSub,
   DropdownMenuSubContent,
@@ -252,7 +251,7 @@ export default function SchedulePage() {
               </DropdownMenuGroup>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem>
-                    <Button className="w-full" size="sm" onClick={() => console.log("Aplicando filtros:", filters)}>Aplicar Filtros</Button>
+                    <Button className="w-full" size="sm" onClick={() => { /* console.log("Aplicando filtros:", filters) */ }}>Aplicar Filtros</Button>
                 </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

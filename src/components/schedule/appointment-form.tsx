@@ -154,7 +154,7 @@ export default function AppointmentForm({ appointmentData }: AppointmentFormProp
   
   const initialPsychologistId =
     appointmentData?.psychologistId ||
-    prefilledPsychologistIdParam ||
+    prefilledPsychologistIdParam || 
     'any'; 
 
   const form = useForm<AppointmentFormValues>({
@@ -217,7 +217,7 @@ export default function AppointmentForm({ appointmentData }: AppointmentFormProp
         prefilledPatientName: data.prefilledPatientName,
     };
 
-    console.log("Salvamento de Agendamento Simulado:", JSON.stringify(finalData, null, 2));
+    // console.log("Salvamento de Agendamento Simulado:", JSON.stringify(finalData, null, 2)); // Debug log removed
     await new Promise((resolve) => setTimeout(resolve, 1000));
     setIsLoading(false);
 

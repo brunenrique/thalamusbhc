@@ -51,7 +51,7 @@ function PatientListItemComponent({ patient }: PatientListItemProps) {
     : null;
 
   const handleDeletePatient = () => {
-    console.log(`Excluindo paciente ${patient.id} da lista... (Simulado)`);
+    // console.log(`Excluindo paciente ${patient.id} da lista... (Simulado)`); // Debug log removed
     toast({
       title: "Paciente Excluído (Simulado)",
       description: `${patient.name} foi excluído(a) permanentemente.`,

@@ -59,7 +59,7 @@ export default function PatientForm({ patientData }: PatientFormProps) {
 
   async function onSubmit(data: PatientFormValues) {
     setIsLoading(true);
-    console.log("Salvamento de Paciente Simulado:", JSON.stringify(data, null, 2));
+    // console.log("Salvamento de Paciente Simulado:", JSON.stringify(data, null, 2)); // Debug log removed
     await new Promise((resolve) => setTimeout(resolve, 1000));
     setIsLoading(false);
     toast({

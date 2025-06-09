@@ -1,3 +1,4 @@
+
 "use client";
 
 import { Button } from "@/components/ui/button";
@@ -18,7 +19,7 @@ export default function SettingsForm({ section }: SettingsFormProps) {
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    console.log(`Salvando configurações para ${section}...`, new FormData(event.currentTarget));
+    // console.log(`Salvando configurações para ${section}...`, new FormData(event.currentTarget)); // Debug log removed
     toast({
       title: "Configurações Salvas",
       description: `As configurações de ${section.charAt(0).toUpperCase() + section.slice(1)} foram atualizadas.`,

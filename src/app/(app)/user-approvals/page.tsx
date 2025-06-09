@@ -68,7 +68,10 @@ export default function UserApprovalsPage() {
     });
 
     // Cleanup listener on component unmount
-    return () => unsubscribe();
+    return () => {
+      // console.log("Desinscrevendo do listener de aprovações de usuários."); // Debug log removed
+      unsubscribe();
+    };
   }, [toast]);
 
   const handleApproveUser = async (userId: string) => {

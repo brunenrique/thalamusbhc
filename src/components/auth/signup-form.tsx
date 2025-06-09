@@ -1,3 +1,4 @@
+
 "use client";
 
 import * as React from "react";
@@ -56,7 +57,7 @@ export default function SignUpForm() {
     setIsLoading(true);
     // Simula chamada de API
     await new Promise((resolve) => setTimeout(resolve, 1000));
-    console.log("Dados de cadastro:", data);
+    // console.log("Dados de cadastro:", data); // Debug log removed
     setIsLoading(false);
     // Em caso de cadastro bem-sucedido:
     router.push("/dashboard"); 

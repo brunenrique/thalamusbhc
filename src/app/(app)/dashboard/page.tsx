@@ -1,4 +1,6 @@
 
+"use client"; // Adicionado para tornar este um Client Component
+
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Activity, Users, CalendarCheck, BarChart3, ArrowUpRight, DollarSign, Clock, ClipboardList, LineChart, UsersRound, CalendarClock, UserX, FileX2, Repeat } from "lucide-react";
@@ -143,3 +145,4 @@ function StatsCard({ title, value, icon, trend }: StatsCardProps) {
     </Card>
   );
 }
+

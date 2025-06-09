@@ -101,7 +101,7 @@ export default function TemplateEditor({
     setIsSaving(true);
     // Simula chamada de API
     await new Promise(resolve => setTimeout(resolve, 1000));
-    console.log("Salvando modelo:", { templateId, templateName, templateContent });
+    // console.log("Salvando modelo:", { templateId, templateName, templateContent }); // Debug log removed
     toast({
       title: templateId ? "Modelo Atualizado" : "Modelo Criado",
       description: `O modelo "${templateName}" foi ${templateId ? 'atualizado' : 'criado'} com sucesso.`,

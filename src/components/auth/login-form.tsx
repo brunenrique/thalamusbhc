@@ -1,3 +1,4 @@
+
 "use client";
 
 import * as React from "react";
@@ -45,7 +46,7 @@ export default function LoginForm() {
     setIsLoading(true);
     // Simula chamada de API
     await new Promise((resolve) => setTimeout(resolve, 1000));
-    console.log("Dados de login:", data);
+    // console.log("Dados de login:", data); // Debug log removed
     setIsLoading(false);
     // Em caso de login bem-sucedido:
     router.push("/dashboard");

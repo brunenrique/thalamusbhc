@@ -1,3 +1,4 @@
+
 "use client";
 
 import * as React from "react";
@@ -39,7 +40,7 @@ export default function ForgotPasswordForm() {
     setIsLoading(true);
     // Simula chamada de API
     await new Promise((resolve) => setTimeout(resolve, 1000));
-    console.log("Esqueceu a senha para o e-mail:", data.email);
+    // console.log("Esqueceu a senha para o e-mail:", data.email); // Debug log removed
     setIsLoading(false);
     toast({
       title: "E-mail de Redefinição de Senha Enviado",

@@ -5,8 +5,8 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Brain, FileText, Tag, Lightbulb, BarChart3, Edit, Trash2, AlertTriangleIcon, CheckCircle, ShieldAlert, FilePlus2 } from "lucide-react";
-import { generateSessionInsights, type GenerateSessionInsightsOutput } from '@/ai/flows/generate-session-insights';
-import { generateReportDraft, type GenerateReportDraftInput, type GenerateReportDraftOutput } from '@/ai/flows/generate-report-draft-flow';
+// import { generateSessionInsights, type GenerateSessionInsightsOutput } from '@/ai/flows/generate-session-insights';
+// import { generateReportDraft, type GenerateReportDraftInput, type GenerateReportDraftOutput } from '@/ai/flows/generate-report-draft-flow';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Skeleton } from '../ui/skeleton';
@@ -48,75 +48,76 @@ interface SessionNoteCardProps {
 
 function SessionNoteCardComponent({ note, patientName, therapistName = "Psicólogo(a) Responsável" }: SessionNoteCardProps) {
   const { toast } = useToast();
-  const [insights, setInsights] = useState<GenerateSessionInsightsOutput | null>(null);
-  const [isLoadingInsights, setIsLoadingInsights] = useState(false);
-  const [errorInsights, setErrorInsights] = useState<string | null>(null);
+  // const [insights, setInsights] = useState<GenerateSessionInsightsOutput | null>(null);
+  // const [isLoadingInsights, setIsLoadingInsights] = useState(false);
+  // const [errorInsights, setErrorInsights] = useState<string | null>(null);
 
-  const [reportDraft, setReportDraft] = useState<string | null>(null);
-  const [currentReportType, setCurrentReportType] = useState<string>("");
-  const [isGeneratingReport, setIsGeneratingReport] = useState(false);
-  const [errorReport, setErrorReport] = useState<string | null>(null);
-  const [isReportDialogValid, setIsReportDialogValid] = useState(false);
+  // const [reportDraft, setReportDraft] = useState<string | null>(null);
+  // const [currentReportType, setCurrentReportType] = useState<string>("");
+  // const [isGeneratingReport, setIsGeneratingReport] = useState(false);
+  // const [errorReport, setErrorReport] = useState<string | null>(null);
+  // const [isReportDialogValid, setIsReportDialogValid] = useState(false);
 
 
-  const handleGenerateInsights = async () => {
-    setIsLoadingInsights(true);
-    setErrorInsights(null);
-    try {
-      const result = await generateSessionInsights({ sessionNotes: note.summary });
-      setInsights(result);
-    } catch (e) {
-      console.error("Falha ao gerar insights:", e);
-      setErrorInsights("Falha ao gerar insights. Por favor, tente novamente.");
-    } finally {
-      setIsLoadingInsights(false);
-    }
-  };
+  // const handleGenerateInsights = async () => {
+  //   setIsLoadingInsights(true);
+  //   setErrorInsights(null);
+  //   try {
+  //     // const result = await generateSessionInsights({ sessionNotes: note.summary });
+  //     // setInsights(result);
+  //     toast({title: "Simulado: Insights Gerados"});
+  //   } catch (e) {
+  //     console.error("Falha ao gerar insights:", e);
+  //     setErrorInsights("Falha ao gerar insights. Por favor, tente novamente.");
+  //   } finally {
+  //     setIsLoadingInsights(false);
+  //   }
+  // };
 
-  const handleGenerateReport = async (reportType: GenerateReportDraftInput["reportType"]) => {
-    setIsGeneratingReport(true);
-    setErrorReport(null);
-    setReportDraft(null);
-    setCurrentReportType(getReportTypeName(reportType));
-    setIsReportDialogValid(true); // Open dialog immediately
+  // const handleGenerateReport = async (reportType: GenerateReportDraftInput["reportType"]) => {
+  //   setIsGeneratingReport(true);
+  //   setErrorReport(null);
+  //   setReportDraft(null);
+  //   setCurrentReportType(getReportTypeName(reportType));
+  //   setIsReportDialogValid(true); // Open dialog immediately
 
-    try {
-      const result = await generateReportDraft({
-        sessionNotes: note.summary,
-        patientName: patientName,
-        reportType: reportType,
-        therapistName: therapistName,
-      });
-      setReportDraft(result.draftContent);
-    } catch (e) {
-      console.error("Falha ao gerar rascunho de relatório:", e);
-      setErrorReport(`Falha ao gerar rascunho de ${getReportTypeName(reportType)}. Por favor, tente novamente.`);
-      // Don't close dialog on error, user can try again or close manually
-    } finally {
-      setIsGeneratingReport(false);
-    }
-  };
+  //   try {
+  //     // const result = await generateReportDraft({
+  //     //   sessionNotes: note.summary,
+  //     //   patientName: patientName,
+  //     //   reportType: reportType,
+  //     //   therapistName: therapistName,
+  //     // });
+  //     // setReportDraft(result.draftContent);
+  //      toast({title: "Simulado: Rascunho de relatório gerado"});
+  //   } catch (e) {
+  //     console.error("Falha ao gerar rascunho de relatório:", e);
+  //     setErrorReport(`Falha ao gerar rascunho de ${getReportTypeName(reportType)}. Por favor, tente novamente.`);
+  //   } finally {
+  //     setIsGeneratingReport(false);
+  //   }
+  // };
 
-  const getReportTypeName = (type: GenerateReportDraftInput["reportType"]): string => {
-    if (type === "progress_report") return "Relatório de Progresso";
-    if (type === "referral_letter") return "Carta de Encaminhamento";
-    if (type === "session_summary") return "Resumo da Sessão";
-    return "Documento";
-  };
+  // const getReportTypeName = (type: GenerateReportDraftInput["reportType"]): string => {
+  //   if (type === "progress_report") return "Relatório de Progresso";
+  //   if (type === "referral_letter") return "Carta de Encaminhamento";
+  //   if (type === "session_summary") return "Resumo da Sessão";
+  //   return "Documento";
+  // };
 
-  const handleCopyReportDraft = () => {
-    if (reportDraft) {
-      navigator.clipboard.writeText(reportDraft);
-      toast({ title: "Rascunho Copiado", description: "O conteúdo do rascunho foi copiado para a área de transferência." });
-    }
-  };
+  // const handleCopyReportDraft = () => {
+  //   if (reportDraft) {
+  //     navigator.clipboard.writeText(reportDraft);
+  //     toast({ title: "Rascunho Copiado", description: "O conteúdo do rascunho foi copiado para a área de transferência." });
+  //   }
+  // };
   
-  const closeReportDialog = () => {
-    setIsReportDialogValid(false); // This will trigger Dialog's onOpenChange
-    setReportDraft(null);
-    setErrorReport(null);
-    setIsGeneratingReport(false);
-  };
+  // const closeReportDialog = () => {
+  //   setIsReportDialogValid(false); 
+  //   setReportDraft(null);
+  //   setErrorReport(null);
+  //   setIsGeneratingReport(false);
+  // };
 
 
   return (
@@ -130,6 +131,7 @@ function SessionNoteCardComponent({ note, patientName, therapistName = "Psicólo
             <CardDescription>{format(new Date(note.date), "PPP", { locale: ptBR })}</CardDescription>
           </div>
           <div className="flex gap-1">
+            {/* 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon" aria-label={`Gerar documento a partir da anotação de ${format(new Date(note.date), "P", { locale: ptBR })}`}>
@@ -144,6 +146,7 @@ function SessionNoteCardComponent({ note, patientName, therapistName = "Psicólo
                 <DropdownMenuItem onClick={() => handleGenerateReport("session_summary")}>Resumo da Sessão</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
+             */}
             <Button variant="ghost" size="icon" aria-label={`Editar anotação de ${format(new Date(note.date), "P", { locale: ptBR })}`}>
               <Edit className="h-4 w-4" />
             </Button>
@@ -156,6 +159,7 @@ function SessionNoteCardComponent({ note, patientName, therapistName = "Psicólo
       <CardContent>
         <p className="text-sm leading-relaxed whitespace-pre-wrap">{note.summary}</p>
 
+        {/* 
         {!insights && !isLoadingInsights && (
           <Button onClick={handleGenerateInsights} variant="outline" size="sm" className="mt-4">
             <Brain className="mr-2 h-4 w-4" /> Gerar Insights com IA
@@ -226,8 +230,10 @@ function SessionNoteCardComponent({ note, patientName, therapistName = "Psicólo
             </div>
           </div>
         )}
+         */}
       </CardContent>
 
+      {/* 
       <Dialog open={isReportDialogValid} onOpenChange={(open) => { if(!open) closeReportDialog(); else setIsReportDialogValid(true); }}>
         <DialogContent className="sm:max-w-2xl">
           <DialogHeader>
@@ -254,7 +260,7 @@ function SessionNoteCardComponent({ note, patientName, therapistName = "Psicólo
             {!isGeneratingReport && reportDraft && (
               <Textarea
                 value={reportDraft}
-                readOnly // Or allow editing: onChange={setReportDraft}
+                readOnly 
                 rows={15}
                 className="min-h-[300px] bg-muted/50"
               />
@@ -270,9 +276,13 @@ function SessionNoteCardComponent({ note, patientName, therapistName = "Psicólo
           </DialogFooter>
         </DialogContent>
       </Dialog>
+       */}
     </Card>
   );
 }
 
 const SessionNoteCard = React.memo(SessionNoteCardComponent);
 export default SessionNoteCard;
+
+
+    

@@ -41,7 +41,7 @@ import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
-import { generateSessionInsights, type GenerateSessionInsightsOutput } from '@/ai/flows/generate-session-insights';
+// import { generateSessionInsights, type GenerateSessionInsightsOutput } from '@/ai/flows/generate-session-insights';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
@@ -109,9 +109,9 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
   const [selectedGlobalResource, setSelectedGlobalResource] = useState<string>("");
   const [resourceShareNotes, setResourceShareNotes] = useState<string>("");
 
-  const [generalPatientInsights, setGeneralPatientInsights] = useState<GenerateSessionInsightsOutput | null>(null);
-  const [isLoadingGeneralInsights, setIsLoadingGeneralInsights] = useState(false);
-  const [errorGeneralInsights, setErrorGeneralInsights] = useState<string | null>(null);
+  // const [generalPatientInsights, setGeneralPatientInsights] = useState<GenerateSessionInsightsOutput | null>(null);
+  // const [isLoadingGeneralInsights, setIsLoadingGeneralInsights] = useState(false);
+  // const [errorGeneralInsights, setErrorGeneralInsights] = useState<string | null>(null);
 
 
   useEffect(() => {
@@ -190,28 +190,28 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
     setResourceShareNotes("");
   };
 
-  const handleGenerateGeneralPatientInsights = async () => {
-    if (sessionNotes.length === 0) {
-      toast({ title: "Sem Anotações", description: "Não há anotações de sessão para gerar insights gerais.", variant: "default" });
-      return;
-    }
-    setIsLoadingGeneralInsights(true);
-    setErrorGeneralInsights(null);
-    setGeneralPatientInsights(null);
+  // const handleGenerateGeneralPatientInsights = async () => {
+  //   if (sessionNotes.length === 0) {
+  //     toast({ title: "Sem Anotações", description: "Não há anotações de sessão para gerar insights gerais.", variant: "default" });
+  //     return;
+  //   }
+  //   setIsLoadingGeneralInsights(true);
+  //   setErrorGeneralInsights(null);
+  //   setGeneralPatientInsights(null);
 
-    const mostRecentNote = sessionNotes.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0];
+  //   const mostRecentNote = sessionNotes.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0];
 
-    try {
-      const result = await generateSessionInsights({ sessionNotes: mostRecentNote.summary });
-      setGeneralPatientInsights(result);
-      toast({ title: "Insights Gerais Gerados", description: "Insights do paciente foram gerados com base na última anotação de sessão." });
-    } catch (e) {
-      console.error("Falha ao gerar insights gerais:", e);
-      setErrorGeneralInsights("Não foi possível gerar os insights gerais do paciente. Por favor, tente novamente.");
-    } finally {
-      setIsLoadingGeneralInsights(false);
-    }
-  };
+  //   try {
+  //     // const result = await generateSessionInsights({ sessionNotes: mostRecentNote.summary });
+  //     // setGeneralPatientInsights(result);
+  //     toast({ title: "Insights Gerais Gerados (Simulado)", description: "Insights do paciente foram gerados com base na última anotação de sessão." });
+  //   } catch (e) {
+  //     console.error("Falha ao gerar insights gerais:", e);
+  //     // setErrorGeneralInsights("Não foi possível gerar os insights gerais do paciente. Por favor, tente novamente.");
+  //   } finally {
+  //     // setIsLoadingGeneralInsights(false);
+  //   }
+  // };
 
 
   const formattedDob = patient.dob ? format(new Date(patient.dob), "P", { locale: ptBR }) : "N/A";
@@ -319,6 +319,7 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
             </CardContent>
           </Card>
 
+          {/* 
           <Card className="mt-6 shadow-sm">
             <CardHeader>
               <CardTitle className="font-headline flex items-center">
@@ -429,6 +430,7 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
               )}
             </CardContent>
           </Card>
+           */}
         </TabsContent>
 
         <TabsContent value="session_notes" className="mt-6">
@@ -636,5 +638,7 @@ function InfoItem({ icon, label, value, className }: InfoItemProps) {
   );
 }
 
+
+    
 
     

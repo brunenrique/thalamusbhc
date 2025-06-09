@@ -12,7 +12,7 @@
     "node": true,
     "es6": true
   },
-  "settings": {
+  "settings": {"local-rules": { "rulesDirectories": "./eslint-rules" }
     "react": {
       "version": "detect"
     }

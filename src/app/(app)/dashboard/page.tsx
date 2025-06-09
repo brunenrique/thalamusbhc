@@ -51,7 +51,7 @@ export default function DashboardPage() {
         <StatsCard title="Pacientes Ativos" value="78" icon={<UsersRound className="text-primary" />} trend="+2 esta semana" href="/patients" />
         <StatsCard title="Consultas Hoje" value="8" icon={<CalendarClock className="text-primary" />} trend="2 pendentes" href="/schedule/today" />
         <StatsCard title="Sessões Este Mês" value="45" icon={<LineChart className="text-primary" />} trend="+10% vs mês passado" />
-        <StatsCard title="Tarefas Abertas" value="12" icon={<Activity className="text-primary" />} trend="3 atrasadas" />
+        <StatsCard title="Tarefas Abertas" value="12" icon={<Activity className="text-primary" />} trend="3 atrasadas" href="/tasks" />
         <StatsCard title="Ausências no Mês" value="3" icon={<UserX className="text-primary" />} trend="-1 vs mês passado" />
         <StatsCard title="Cancelamentos no Mês" value="5" icon={<FileX2 className="text-primary" />} trend="+2 vs mês passado" />
         <StatsCard title="Remarcações no Mês" value="7" icon={<Repeat className="text-primary" />} trend="Estável" />

@@ -533,73 +533,27 @@ type SidebarMenuButtonProps = React.ComponentProps<"button"> & {
 const SidebarMenuButton = React.forwardRef<HTMLButtonElement, SidebarMenuButtonProps>(
   (
     {
-<<<<<<< HEAD
-<<<<<<< HEAD
-      asChild: isAsChild, // Renamed to avoid conflict and explicitly use
-=======
-      asChild: propAsChild, // Use the renamed prop
->>>>>>> f5ceba4 (Error: React does not recognize the `asChild` prop on a DOM element. If)
-=======
-      asChild = false, // Explicitly define and default asChild
->>>>>>> e4d09bc (Error: React does not recognize the `asChild` prop on a DOM element. If)
+      asChild = false,
       isActive = false,
       variant = "default",
       size = "default",
       tooltip,
       className,
-<<<<<<< HEAD
-<<<<<<< HEAD
-      ...props // `asChild` from Link should not be in here if handled correctly
-    },
-    ref
-  ) => {
-    const Comp = isAsChild ? Slot : "button"
-=======
-      ...props // These are the remaining props, which might include 'asChild' from Link
-=======
       ...props 
->>>>>>> e4d09bc (Error: React does not recognize the `asChild` prop on a DOM element. If)
     },
     ref
   ) => {
->>>>>>> f5ceba4 (Error: React does not recognize the `asChild` prop on a DOM element. If)
     const { isMobile, state } = useSidebar()
     const Comp = asChild ? Slot : "button"
     
-<<<<<<< HEAD
-    // Filter out 'asChild' from props if it came from ...props to avoid passing it to the DOM element
-    const finalProps = { ...props };
-    if ((props as any).asChild && isSlot) {
-      delete (finalProps as any).asChild;
-    }
-
-<<<<<<< HEAD
-    // Ensure `asChild` prop is not passed to the DOM element if `Comp` is not `Slot`
-    const finalProps = isAsChild ? props : (({ asChild: _asChild, ...restProps }) => restProps)(props as any);
-
-
-    const button = (
-=======
-
-=======
->>>>>>> e4d09bc (Error: React does not recognize the `asChild` prop on a DOM element. If)
     const buttonElement = (
->>>>>>> f5ceba4 (Error: React does not recognize the `asChild` prop on a DOM element. If)
       <Comp
         ref={ref}
         data-sidebar="menu-button"
         data-size={size}
         data-active={isActive}
         className={cn(sidebarMenuButtonVariants({ variant, size }), className)}
-<<<<<<< HEAD
-<<<<<<< HEAD
-        {...finalProps}
-=======
-        {...finalProps} // Use the filtered props
->>>>>>> f5ceba4 (Error: React does not recognize the `asChild` prop on a DOM element. If)
-=======
         {...props} 
->>>>>>> e4d09bc (Error: React does not recognize the `asChild` prop on a DOM element. If)
       />
     )
 
@@ -637,7 +591,6 @@ const SidebarMenuAction = React.forwardRef<
   }
 >(({ className, asChild = false, showOnHover = false, ...props }, ref) => {
   const Comp = asChild ? Slot : "button"
-   // Ensure `asChild` prop is not passed to the DOM element if `Comp` is not `Slot`
    const finalProps = asChild ? props : (({ asChild: _asChild, ...restProps }) => restProps)(props as any);
 
   return (
@@ -742,39 +695,6 @@ const SidebarMenuSubItem = React.forwardRef<
 >(({ ...props }, ref) => <li ref={ref} {...props} />)
 SidebarMenuSubItem.displayName = "SidebarMenuSubItem"
 
-<<<<<<< HEAD
-const SidebarMenuSubButton = React.forwardRef<
-  HTMLAnchorElement,
-  React.ComponentProps<"a"> & {
-    asChild?: boolean
-    size?: "sm" | "md"
-    isActive?: boolean
-  }
->(({ asChild: isAsChild, size = "md", isActive, className, ...props }, ref) => {
-  const Comp = isAsChild ? Slot : "a";
-    // Ensure `asChild` prop is not passed to the DOM element if `Comp` is not `Slot`
-  const finalProps = isAsChild ? props : (({ asChild: _asChild, ...restProps }) => restProps)(props as any);
-
-
-  return (
-    <Comp
-      ref={ref}
-      data-sidebar="menu-sub-button"
-      data-size={size}
-      data-active={isActive}
-      className={cn(
-        "flex h-7 min-w-0 -translate-x-px items-center gap-2 overflow-hidden rounded-md px-2 text-sidebar-foreground outline-none ring-sidebar-ring hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 [&>svg]:text-sidebar-accent-foreground",
-        "data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground",
-        size === "sm" && "text-xs",
-        size === "md" && "text-sm",
-        "group-data-[collapsible=icon]:hidden",
-        className
-      )}
-      {...finalProps}
-    />
-  )
-})
-=======
 
 type SidebarMenuSubButtonProps = React.ComponentProps<"a"> & {
   asChild?: boolean;
@@ -805,7 +725,6 @@ const SidebarMenuSubButton = React.forwardRef<HTMLAnchorElement, SidebarMenuSubB
     )
   }
 )
->>>>>>> f5ceba4 (Error: React does not recognize the `asChild` prop on a DOM element. If)
 SidebarMenuSubButton.displayName = "SidebarMenuSubButton"
 
 export {
@@ -834,3 +753,5 @@ export {
   SidebarTrigger,
   useSidebar,
 }
+
+    

@@ -1,5 +1,6 @@
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Settings as SettingsIcon, UserCog, Clock, Palette, BellDot, Briefcase } from "lucide-react";
+import { Settings as SettingsIcon, UserCog, Clock, Palette, BellDot, Briefcase, SlidersHorizontal } from "lucide-react";
 import SettingsForm from "@/components/settings/settings-form";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -12,12 +13,13 @@ export default function SettingsPage() {
       </div>
 
       <Tabs defaultValue="general" className="w-full">
-        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-5">
+        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-6">
           <TabsTrigger value="general"><Briefcase className="mr-2 h-4 w-4" /> Geral</TabsTrigger>
           <TabsTrigger value="account"><UserCog className="mr-2 h-4 w-4" /> Conta</TabsTrigger>
           <TabsTrigger value="appearance"><Palette className="mr-2 h-4 w-4" /> Aparência</TabsTrigger>
           <TabsTrigger value="notifications"><BellDot className="mr-2 h-4 w-4" /> Notificações</TabsTrigger>
           <TabsTrigger value="schedule"><Clock className="mr-2 h-4 w-4" /> Agenda</TabsTrigger>
+          <TabsTrigger value="modules"><SlidersHorizontal className="mr-2 h-4 w-4" /> Funcionalidades</TabsTrigger>
         </TabsList>
 
         <TabsContent value="general" className="mt-6">
@@ -76,6 +78,18 @@ export default function SettingsPage() {
             </CardHeader>
             <CardContent>
               <SettingsForm section="schedule" />
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="modules" className="mt-6">
+          <Card className="shadow-sm">
+            <CardHeader>
+              <CardTitle className="font-headline">Gerenciar Funcionalidades</CardTitle>
+              <CardDescription>Ative ou desative módulos e funcionalidades da plataforma.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <SettingsForm section="modules" />
             </CardContent>
           </Card>
         </TabsContent>

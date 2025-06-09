@@ -8,13 +8,13 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Save } from "lucide-react";
+import { Save, SlidersHorizontal } from "lucide-react";
 import { Checkbox } from "../ui/checkbox";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"; // Adicionado Card
-import { Separator } from "@/components/ui/separator"; // Adicionado Separator
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 
 interface SettingsFormProps {
-  section: "general" | "account" | "appearance" | "notifications" | "schedule";
+  section: "general" | "account" | "appearance" | "notifications" | "schedule" | "modules";
 }
 
 const timezones = [
@@ -45,7 +45,6 @@ const reminderOptions = [
 export default function SettingsForm({ section }: SettingsFormProps) {
   const { toast } = useToast();
 
-  // Estado para controlar se os inputs de horário estão habilitados para cada dia
   const [workingDays, setWorkingDays] = React.useState<Record<string, boolean>>(
     daysOfWeekMap.reduce((acc, day) => {
       acc[day.id] = day.defaultChecked;
@@ -59,7 +58,6 @@ export default function SettingsForm({ section }: SettingsFormProps) {
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    // console.log(`Salvando configurações para ${section}...`, new FormData(event.currentTarget));
     toast({
       title: "Configurações Salvas (Simulado)",
       description: `As configurações de ${section.charAt(0).toUpperCase() + section.slice(1)} foram atualizadas.`,
@@ -104,7 +102,7 @@ export default function SettingsForm({ section }: SettingsFormProps) {
           </div>
           <div className="flex items-center space-x-2">
             <Switch id="enableOnlineBooking" defaultChecked />
-            <Label htmlFor="enableOnlineBooking">Permitir Agendamento Online por Pacientes</Label>
+            <Label htmlFor="enableOnlineBooking">Permitir Agendamento Online por Pacientes (pode ser gerenciado em Funcionalidades)</Label>
           </div>
         </>
       )}
@@ -276,6 +274,64 @@ export default function SettingsForm({ section }: SettingsFormProps) {
         </>
       )}
 
+      {section === "modules" && (
+        <>
+          <p className="text-lg font-semibold">Controle de Funcionalidades</p>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between rounded-lg border p-4 shadow-sm bg-card">
+              <div className="space-y-0.5">
+                <Label htmlFor="enableAIAnalysis" className="text-base font-medium">Análise de IA para Notas de Sessão</Label>
+                <p className="text-xs text-muted-foreground">
+                  Habilita sugestões e insights automáticos baseados no conteúdo das suas anotações de sessão.
+                </p>
+              </div>
+              <Switch id="enableAIAnalysis" defaultChecked />
+            </div>
+
+            <div className="flex items-center justify-between rounded-lg border p-4 shadow-sm bg-card">
+              <div className="space-y-0.5">
+                <Label htmlFor="enableAIReports" className="text-base font-medium">Geração de Relatórios com IA</Label>
+                <p className="text-xs text-muted-foreground">
+                  Permite que a IA ajude a rascunhar relatórios de progresso, cartas de encaminhamento, etc.
+                </p>
+              </div>
+              <Switch id="enableAIReports" defaultChecked />
+            </div>
+
+            <div className="flex items-center justify-between rounded-lg border p-4 shadow-sm bg-card">
+              <div className="space-y-0.5">
+                <Label htmlFor="enableFinancialModule" className="text-base font-medium">Módulo Financeiro</Label>
+                <p className="text-xs text-muted-foreground">
+                  Gerencie pagamentos, faturas e despesas (Funcionalidade em breve).
+                </p>
+              </div>
+              <Switch id="enableFinancialModule" disabled />
+            </div>
+
+            <div className="flex items-center justify-between rounded-lg border p-4 shadow-sm bg-card">
+              <div className="space-y-0.5">
+                <Label htmlFor="enablePatientPortal" className="text-base font-medium">Portal do Paciente</Label>
+                <p className="text-xs text-muted-foreground">
+                  Permite que pacientes acessem informações, agendem consultas e preencham avaliações online (Funcionalidade em breve).
+                </p>
+              </div>
+              <Switch id="enablePatientPortal" disabled />
+            </div>
+            
+            <div className="flex items-center justify-between rounded-lg border p-4 shadow-sm bg-card">
+              <div className="space-y-0.5">
+                <Label htmlFor="enableOnlineBookingFeature" className="text-base font-medium">Agendamento Online por Pacientes</Label>
+                <p className="text-xs text-muted-foreground">
+                  Permite que pacientes solicitem ou marquem agendamentos através de um link público ou portal.
+                </p>
+              </div>
+              <Switch id="enableOnlineBookingFeature" defaultChecked />
+            </div>
+
+          </div>
+        </>
+      )}
+
       <div className="flex justify-end">
         <Button type="submit" className="bg-accent hover:bg-accent/90 text-accent-foreground">
             <Save className="mr-2 h-4 w-4" /> Salvar Alterações
@@ -284,4 +340,3 @@ export default function SettingsForm({ section }: SettingsFormProps) {
     </form>
   );
 }
-

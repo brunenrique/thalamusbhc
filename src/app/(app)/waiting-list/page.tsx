@@ -72,7 +72,11 @@ export default function WaitingListPage() {
               <TableBody>
                 {mockWaitingList.map(item => (
                   <TableRow key={item.id}>
-                    <TableCell className="font-medium">{item.name}</TableCell>
+                    <TableCell className="font-medium">
+                       <Link href={`/schedule/new?patientName=${encodeURIComponent(item.name)}&psychologistId=${item.requestedPsychologistId || 'any'}`} className="hover:underline text-accent">
+                        {item.name}
+                      </Link>
+                    </TableCell>
                     <TableCell>{item.requestedPsychologist}</TableCell>
                     <TableCell>{format(new Date(item.dateAdded), "P", { locale: ptBR })}</TableCell>
                     <TableCell>

@@ -10,7 +10,7 @@ import { CalendarClock, UserCog, Edit, Trash2, AlertTriangle, CheckCircle2, Link
 import Link from "next/link";
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import type { Task } from "@/app/(app)/tasks/page";
+import type { Task } from "@/types";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -23,7 +23,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { useToast } from '@/hooks/use-toast';
-import { cn } from '@/lib/utils';
+import { cn } from '@/shared/utils';
 
 interface TaskItemProps {
   task: Task;
@@ -151,5 +151,3 @@ function TaskItemComponent({ task }: TaskItemProps) {
 
 const TaskItem = React.memo(TaskItemComponent);
 export default TaskItem;
-
-    

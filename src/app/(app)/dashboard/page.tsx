@@ -8,7 +8,7 @@ import Link from "next/link";
 import dynamic from "next/dynamic";
 import { Skeleton } from "@/components/ui/skeleton";
 import { RecentActivityItem } from "@/components/dashboard/recent-activity-item";
-import { cn } from "@/lib/utils";
+import { cn } from "@/shared/utils";
 
 
 const OccupancyChart = dynamic(() => import('@/components/dashboard/occupancy-chart').then(mod => mod.OccupancyChart), {

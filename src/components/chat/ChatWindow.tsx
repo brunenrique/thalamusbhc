@@ -8,7 +8,7 @@ import { X, Users } from 'lucide-react';
 import { useChatStore } from '@/stores/chatStore';
 import MessageList from './MessageList';
 import MessageInput from './MessageInput';
-import { cn } from '@/lib/utils';
+import { cn } from '@/shared/utils';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 
 export default function ChatWindow() {

@@ -9,7 +9,7 @@ import { Clock, User, PlusCircle, Edit, Trash2, CheckCircle, AlertTriangle, XCir
 import { format, startOfWeek, endOfWeek, eachDayOfInterval, addDays, subDays, isSameMonth, isSameDay, parse } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import Link from 'next/link';
-import { cn } from '@/lib/utils';
+import { cn } from "@/shared/utils";
 import {
   AlertDialog,
   AlertDialogAction,

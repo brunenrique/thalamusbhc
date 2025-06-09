@@ -24,7 +24,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { CalendarIcon, Clock, Save, User, Users, Repeat } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn } from "@/shared/utils";
 import { format, set, parse } from "date-fns";
 import { ptBR } from 'date-fns/locale';
 import { useToast } from "@/hooks/use-toast";

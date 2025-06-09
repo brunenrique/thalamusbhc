@@ -5,7 +5,7 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { MessageSquare, X } from 'lucide-react';
 import { useChatStore } from '@/stores/chatStore';
-import { cn } from '@/lib/utils';
+import { cn } from '@/shared/utils';
 
 export default function ChatFloatingButton() {
   const { isChatOpen, toggleChat, currentUser } = useChatStore();

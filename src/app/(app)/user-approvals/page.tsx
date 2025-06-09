@@ -10,7 +10,7 @@ import { Users, CheckCircle, ShieldQuestion, Trash2, UserX } from "lucide-react"
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { collection, doc, getFirestore, query, updateDoc, where, deleteDoc, onSnapshot, Unsubscribe } from "firebase/firestore";
-import { app } from "@/lib/firebase";
+import { app } from "@/services/firebase";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -69,7 +69,6 @@ export default function UserApprovalsPage() {
 
     // Cleanup listener on component unmount
     return () => {
-      // console.log("Desinscrevendo do listener de aprovações de usuários."); // Debug log removed
       unsubscribe();
     };
   }, [toast]);

@@ -7,7 +7,7 @@ import { VariantProps, cva } from "class-variance-authority"
 import { PanelLeft } from "lucide-react"
 
 import { useIsMobile } from "@/hooks/use-mobile"
-import { cn } from "@/lib/utils"
+import { cn } from "@/shared/utils"
 import { Button as ShadCnButton } from "@/components/ui/button" // Renamed to avoid conflict with our Button
 import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
@@ -545,18 +545,7 @@ const SidebarMenuButton = React.forwardRef<HTMLButtonElement, SidebarMenuButtonP
 
     const { isMobile, state } = useSidebar();
     const Comp = isAsChildProperty ? Slot : "button";
-
-    // Explicitly prepare props for spreading, ensuring asChild from parent Link is handled by isAsChildProperty
-    // and not spread again if Comp is a native element.
-    const finalProps: Record<string, any> = { ...otherProps };
-    if (Comp !== Slot && 'asChild' in finalProps) { // If Comp is native, remove any lingering asChild
-      delete finalProps.asChild;
-    }
-     // Native button doesn't take tooltip object. If Comp is button, and tooltip is object, it might need special handling or removal.
-    if (Comp === "button" && tooltip && typeof tooltip !== 'string') {
-        // For now, let's assume tooltip prop on native button is okay if it's just for the TooltipProvider context
-        // Or, we could remove it: delete finalProps.tooltip; (but this would break the Tooltip component wrapper)
-    }
+    const { asChild: _propAsChild, ...finalProps } = otherProps as any;
 
 
     const buttonElement = (
@@ -727,15 +716,7 @@ const SidebarMenuSubButton = React.forwardRef<HTMLAnchorElement, SidebarMenuSubB
     } = rawProps;
 
     const Comp = isAsChildProperty ? Slot : "a";
-
-    const finalProps: Record<string, any> = { ...otherProps };
-    if (Comp !== Slot && 'asChild' in finalProps) {
-      delete finalProps.asChild;
-    }
-    // Remove tooltip if Comp is native 'a' as it's not a valid HTML attribute for 'a'
-    if (Comp === 'a' && 'tooltip' in finalProps) {
-        delete finalProps.tooltip;
-    }
+    const { asChild: _propAsChild, tooltip: _propTooltip, ...finalProps } = otherProps as any;
 
     return (
       <Comp

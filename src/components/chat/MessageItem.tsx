@@ -5,7 +5,7 @@ import React from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { cn } from '@/lib/utils';
+import { cn } from '@/shared/utils';
 import type { Message } from '@/hooks/useChatMessages';
 
 interface MessageItemProps {

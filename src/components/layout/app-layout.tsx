@@ -18,7 +18,7 @@ import { usePathname } from 'next/navigation';
 import ChatFloatingButton from '@/components/chat/ChatFloatingButton';
 import ChatWindow from '@/components/chat/ChatWindow';
 import { useChatStore } from '@/stores/chatStore';
-import { auth } from '@/lib/firebase'; // Import Firebase auth
+import { auth } from '@/services/firebase'; // Import Firebase auth
 import { onAuthStateChanged } from 'firebase/auth'; // Import onAuthStateChanged
 
 interface AppLayoutProps {
@@ -64,7 +64,6 @@ export default function AppLayout({ children }: AppLayoutProps) {
   // This will run once after the initial auth check.
   useEffect(() => {
     if (process.env.NODE_ENV === 'development' && !auth.currentUser && !currentUser?.uid) {
-      // console.log("AppLayout: Setting mock current user for development chat."); // Debug log removed
       setCurrentUser({
          uid: "dev-user-uid",
          displayName: "Dev User",

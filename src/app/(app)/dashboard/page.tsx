@@ -49,7 +49,7 @@ export default function DashboardPage() {
       {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatsCard title="Pacientes Ativos" value="78" icon={<UsersRound className="text-primary" />} trend="+2 esta semana" href="/patients" />
-        <StatsCard title="Consultas Hoje" value="8" icon={<CalendarClock className="text-primary" />} trend="2 pendentes" />
+        <StatsCard title="Consultas Hoje" value="8" icon={<CalendarClock className="text-primary" />} trend="2 pendentes" href="/schedule" />
         <StatsCard title="Sessões Este Mês" value="45" icon={<LineChart className="text-primary" />} trend="+10% vs mês passado" />
         <StatsCard title="Tarefas Abertas" value="12" icon={<Activity className="text-primary" />} trend="3 atrasadas" />
         <StatsCard title="Ausências no Mês" value="3" icon={<UserX className="text-primary" />} trend="-1 vs mês passado" />
@@ -157,3 +157,4 @@ function StatsCard({ title, value, icon, trend, href }: StatsCardProps) {
   }
   return cardContent;
 }
+

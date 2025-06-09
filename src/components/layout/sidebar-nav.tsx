@@ -76,10 +76,10 @@ const navStructure: NavItem[] = [
   },
   
   { 
-    href: "/admin/tools", label: "Ferramentas Admin", icon: Settings, adminOnly: true, group: "Administração",
+    href: "#", label: "Ferramentas Admin", icon: Settings, adminOnly: true, group: "Administração", // Changed href to # as it's a group
     subItems: [
         { href: "/user-approvals", label: "Aprovação de Usuários", icon: ShieldQuestion, adminOnly: true },
-        { href: "/tools/backup", label: "Backup de Dados", icon: DataBackupIcon },
+        { href: "/tools/backup", label: "Backup de Dados", icon: DataBackupIcon, adminOnly: true },
         { href: "/tools/audit-trail", label: "Trilha de Auditoria", icon: HistoryIcon, adminOnly: true }, 
     ]
   },
@@ -103,13 +103,14 @@ export default function SidebarNav({ currentPath, userRole = "admin" }: SidebarN
     const IconComponent = item.icon;
     const isActive = item.href === "/dashboard" 
       ? currentPath === item.href
-      : (item.href === "/" ? currentPath === "/" : currentPath.startsWith(item.href));
+      : (item.href === "/" ? currentPath === "/" : currentPath.startsWith(item.href) && item.href !== "#");
 
     const buttonContent = (
-        <>
+        // Ensure buttonContent is a single element
+        <span className="flex items-center gap-2">
             <IconComponent className={isSubItem ? "h-3.5 w-3.5" : "h-4 w-4"} />
             <span className={isSubItem ? "" : "group-data-[collapsible=icon]:hidden"}>{item.label}</span>
-        </>
+        </span>
     );
     
     let ButtonComponent;
@@ -129,11 +130,9 @@ export default function SidebarNav({ currentPath, userRole = "admin" }: SidebarN
             <SidebarMenuItem key={`${item.label}-${index}-group`}>
             <Link href={item.href} passHref asChild>
                 <ButtonComponent
-                isActive={isActive && !visibleSubItems.some(sub => currentPath.startsWith(sub.href))} 
-                tooltip={state === "collapsed" ? item.label : undefined}
-                className={isSubItem ? "text-xs" : ""}
-                // Explicitly pass asChild={false} to SidebarMenuButton if it's not a direct child of Link
-                asChild={false} 
+                  isActive={isActive && !visibleSubItems.some(sub => currentPath.startsWith(sub.href))} 
+                  tooltip={state === "collapsed" ? item.label : undefined}
+                  className={isSubItem ? "text-xs" : ""}
                 >
                 {buttonContent}
                 </ButtonComponent>
@@ -144,7 +143,7 @@ export default function SidebarNav({ currentPath, userRole = "admin" }: SidebarN
             </SidebarMenuItem>
         );
       }
-       if (visibleSubItems.length > 0) {
+       if (visibleSubItems.length > 0) { // This case is for parent items that are not links themselves but have sub-items
         return (
             <SidebarMenuItem key={`${item.label}-${index}-group`}>
                  <ButtonComponent
@@ -152,7 +151,6 @@ export default function SidebarNav({ currentPath, userRole = "admin" }: SidebarN
                     tooltip={state === "collapsed" ? item.label : undefined}
                     className={isSubItem ? "text-xs" : ""}
                     onClick={(e: React.MouseEvent<HTMLButtonElement>) => { if (!item.href || item.href === "#") e.preventDefault(); }} 
-                    asChild={false}
                  >
                     {buttonContent}
                  </ButtonComponent>
@@ -164,6 +162,8 @@ export default function SidebarNav({ currentPath, userRole = "admin" }: SidebarN
        }
     }
     
+    // This is for items that are direct links (no sub-items or sub-items not shown due to collapsed state)
+    // or for sub-items themselves
     return (
       <SidebarMenuItem key={`${item.label}-${index}`}>
         <Link href={item.href} passHref asChild>
@@ -171,7 +171,6 @@ export default function SidebarNav({ currentPath, userRole = "admin" }: SidebarN
             isActive={isActive}
             tooltip={state === "collapsed" ? item.label : undefined}
             className={isSubItem ? "text-xs" : ""}
-            asChild={!isSubItem} // Only direct children of Link should have asChild
           >
             {buttonContent}
           </ButtonComponent>
@@ -186,7 +185,20 @@ export default function SidebarNav({ currentPath, userRole = "admin" }: SidebarN
       acc[groupName] = [];
     }
     if (!item.adminOnly || userRole === "admin") {
-        acc[groupName].push(item);
+        // Only add item if it's not adminOnly or user is admin
+        // For items with subItems, check if any subItem is visible
+        if (item.subItems && item.subItems.length > 0) {
+            const visibleSubItems = item.subItems.filter(sub => !sub.adminOnly || userRole === "admin");
+            if (visibleSubItems.length > 0) {
+                acc[groupName].push(item);
+            } else if (!item.href || item.href === "#") {
+                // If it's a non-link group header with no visible sub-items, don't add it
+            } else {
+                 acc[groupName].push(item); // It's a link itself, add it
+            }
+        } else {
+            acc[groupName].push(item);
+        }
     }
     return acc;
   }, {} as Record<string, NavItem[]>);
@@ -196,18 +208,27 @@ export default function SidebarNav({ currentPath, userRole = "admin" }: SidebarN
     <div className="flex flex-col h-full justify-between">
         <SidebarMenu className="p-2 space-y-0">
             {Object.entries(groupedNavItems).map(([groupName, items]) => {
-                const visibleItemsInGroup = items.filter(item => !item.adminOnly || userRole === "admin");
-                if (visibleItemsInGroup.length === 0) return null; 
+                const visibleItemsInGroup = items.filter(item => {
+                    if (item.adminOnly && userRole !== "admin") return false;
+                    if (item.subItems) {
+                        return item.subItems.some(sub => !sub.adminOnly || userRole === "admin");
+                    }
+                    return true;
+                });
+
+                if (items.length === 0) return null; // if the original items array for the group is empty
+                if (visibleItemsInGroup.length === 0 && groupName === "Administração" && userRole !== "admin") return null;
+
 
                 return (
                     <SidebarGroup key={groupName} className="p-0 pt-1">
                         {state === "expanded" && (
                             <SidebarGroupLabel className="mb-0.5 mt-1.5">{groupName}</SidebarGroupLabel>
                         )}
-                        {state === "collapsed" && visibleItemsInGroup.length > 0 && <div className="h-2"/>} 
+                        {state === "collapsed" && items.length > 0 && <div className="h-2"/>} 
                         
                         <SidebarGroupContent className="space-y-0.5">
-                        {visibleItemsInGroup.map((item, index) => renderNavItem(item, index))}
+                        {items.map((item, index) => renderNavItem(item, index))}
                         </SidebarGroupContent>
                     </SidebarGroup>
                 );
@@ -219,7 +240,6 @@ export default function SidebarNav({ currentPath, userRole = "admin" }: SidebarN
             <SidebarMenuButton
                 tooltip={state === "collapsed" ? "Sair" : undefined}
                 onClick={() => console.log("Logout action")} 
-                asChild={false}
             >
                 <LogOut />
                 <span className="group-data-[collapsible=icon]:hidden">Sair</span>
@@ -227,7 +247,7 @@ export default function SidebarNav({ currentPath, userRole = "admin" }: SidebarN
         </SidebarMenuItem>
         <SidebarMenuItem>
             <Link href="/help" passHref asChild>
-                <SidebarMenuButton tooltip={state === "collapsed" ? "Ajuda e Suporte" : undefined} isActive={currentPath.startsWith("/help")} asChild>
+                <SidebarMenuButton tooltip={state === "collapsed" ? "Ajuda e Suporte" : undefined} isActive={currentPath.startsWith("/help")}>
                     <HelpCircle />
                     <span className="group-data-[collapsible=icon]:hidden">Ajuda e Suporte</span>
                 </SidebarMenuButton>

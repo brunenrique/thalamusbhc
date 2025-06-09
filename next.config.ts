@@ -1,3 +1,4 @@
+
 import type {NextConfig} from 'next';
 
 const nextConfig: NextConfig = {
@@ -18,6 +19,12 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  experimental: {
+    allowedDevOrigins: [
+        "6000-firebase-studio-1749420368814.cluster-kc2r6y3mtba5mswcmol45orivs.cloudworkstations.dev",
+        // You might want to add http://localhost:6000 if you access it that way sometimes
+    ],
+  }
 };
 
 export default nextConfig;

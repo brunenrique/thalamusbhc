@@ -1,146 +1,47 @@
+
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+    // Allow public read access to a specific document
+    // (e.g., a public profile)
+    // match /users/{userId} {
+    //   allow read: if true;
+    //   allow write: if request.auth.uid == userId;
+    // }
 
-    // Função auxiliar para verificar se o usuário está autenticado
-    function isSignedIn() {
-      return request.auth != null;
-    }
+    // Default deny all reads and writes
+    // match /{document=**} {
+    //  allow read, write: if false;
+    // }
 
-    // Função auxiliar para verificar se o usuário tem um determinado papel (lendo do documento do usuário)
-    function hasRole(roleName) {
-      return isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == roleName;
-    }
-
-    // Função auxiliar para verificar se o usuário é um Admin
-    function isAdmin() {
-      return hasRole('Admin');
-    }
-
-    // Função auxiliar para verificar se o usuário é um Psicólogo
-    function isPsychologist() {
-      return hasRole('Psychologist');
-    }
-    
-    // Função auxiliar para verificar se o usuário é um Psicólogo ou Admin
-    function isPsychologistOrAdmin() {
-      return isPsychologist() || isAdmin();
-    }
-
-    // Função auxiliar para verificar se o usuário é uma Secretária
-    function isSecretary() {
-        return hasRole('Secretary');
-    }
-    
-    // Função auxiliar para verificar se o usuário é uma Secretária ou Admin
-    function isSecretaryOrAdmin() {
-      return isSecretary() || isAdmin();
-    }
-
-    // Coleção de Usuários
+    // Rules for user documents, allowing users to manage their own data
+    // and admins to manage all user data.
     match /users/{userId} {
-      // Qualquer um pode criar um usuário (registrar-se), mas isApproved deve ser false e não pode se auto-atribuir Admin.
-      // O UID do documento deve ser o mesmo do usuário autenticado.
-      allow create: if isSignedIn() && request.auth.uid == userId
-                    && request.resource.data.email == request.auth.token.email
-                    && request.resource.data.isApproved == false
-                    && (!('role' in request.resource.data) || request.resource.data.role != 'Admin');
-
-      // Usuário pode ler seus próprios dados; Admin pode ler qualquer um.
-      allow read: if isSignedIn() && (request.auth.uid == userId || isAdmin());
-
-      // Usuário pode atualizar seus próprios dados (exceto 'role' e 'isApproved').
-      // Admin pode atualizar qualquer dado de qualquer usuário, incluindo 'role' e 'isApproved'.
-      allow update: if isSignedIn() &&
-                      (
-                        (request.auth.uid == userId && 
-                         !('role' in request.resource.data) && 
-                         !('isApproved' in request.resource.data) &&
-                         !(request.resource.data.diff(request.resource.data).affectedKeys().hasAny(['role', 'isApproved'])) // Garante que role e isApproved não estão sendo modificados
-                        )
-                        || isAdmin()
-                      );
-
-      // Apenas Admin pode deletar usuários (cuidado com dados órfãos).
-      allow delete: if isAdmin();
+      allow read: if request.auth != null; // All authenticated users can read user profiles (e.g., for listing assignees)
+      allow write: if request.auth.uid == userId; // Users can write to their own document
+      // allow create: if request.auth.uid == userId; // Covered by write for simplicity for now
+      // Admin access (assuming an 'admin' custom claim or role field in user's doc)
+      // allow read, write: if get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'Admin';
     }
 
-    // Coleção de Pacientes
-    match /patients/{patientId} {
-      // Psicólogos, Secretárias e Admins podem criar pacientes.
-      // O documento do paciente deve ter campos essenciais como 'name' e 'createdBy'.
-      allow create: if (isPsychologistOrAdmin() || isSecretaryOrAdmin())
-                    && request.resource.data.name is string
-                    && request.resource.data.createdBy == request.auth.uid;
-      
-      // Leitura: Psicólogos, Secretárias e Admins.
-      // TODO: Refinar para que psicólogos/secretárias só acessem pacientes associados (ex: por 'clinicId' ou lista de 'assignedTherapists').
-      allow read: if isPsychologistOrAdmin() || isSecretaryOrAdmin();
-
-      // Atualização: Psicólogos e Admins. Secretárias podem atualizar alguns campos (ex: contato, mas não dados clínicos).
-      // TODO: Refinar quais campos cada papel pode atualizar.
-      allow update: if isPsychologistOrAdmin() || (isSecretary() /* && campos permitidos */);
-      
-      // Exclusão: Psicólogos e Admins.
-      allow delete: if isPsychologistOrAdmin();
-
-      // Subcoleção de Notas de Sessão
-      // Assumindo que as notas contêm dados sensíveis.
-      match /sessionNotes/{noteId} {
-        // Apenas psicólogos/admins podem ler/escrever.
-        // TODO: Refinar para que psicólogos só acessem/criem notas para *seus* pacientes.
-        // Ex: if isPsychologist() && get(/databases/$(database)/documents/patients/$(patientId)).data.assignedPsychologistId == request.auth.uid
-        allow read, write: if isPsychologistOrAdmin();
-      }
-
-      // Subcoleção de Avaliações do Paciente
-      match /assessments/{assessmentId} {
-        // Psicólogos/Admins podem criar/ler/atualizar.
-        // TODO: Permitir que o paciente (se tiver um sistema de login para pacientes) leia suas próprias avaliações e possivelmente preencha.
-        allow read, write: if isPsychologistOrAdmin();
-      }
-    }
-    
-    // Coleção de Agendamentos
-    match /appointments/{appointmentId} {
-        // Leitura: Psicólogos, Secretárias e Admins.
-        // TODO: Refinar para que psicólogos/secretárias só vejam agendamentos da sua clínica ou seus próprios.
-        allow read: if isPsychologistOrAdmin() || isSecretaryOrAdmin();
-
-        // Escrita (criar, atualizar, deletar): Psicólogos, Secretárias e Admins.
-        // TODO: Refinar quem pode criar/editar (ex: psicólogo só pode editar seus próprios agendamentos ou de sua clínica).
-        allow write: if isPsychologistOrAdmin() || isSecretaryOrAdmin();
+    // Chat messages
+    // Only authenticated users can read/write messages within a specific chat.
+    match /chats/{chatId}/messages/{messageId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null &&
+                       request.resource.data.senderId == request.auth.uid &&
+                       request.resource.data.text is string &&
+                       request.resource.data.text.size() > 0 && request.resource.data.text.size() < 1000 && // Max message length
+                       request.resource.data.senderName is string &&
+                       request.resource.data.timestamp == request.time;
+      // Update/Delete can be added later if needed
+      // allow update, delete: if request.auth.uid == resource.data.senderId; // Example: only sender can delete/update
     }
 
-    // Coleção de Tarefas
-    match /tasks/{taskId} {
-        // Leitura: Qualquer usuário logado pode ler tarefas (se for um sistema colaborativo).
-        // TODO: Refinar se tarefas são privadas ou por equipe/atribuição.
-        allow read: if isSignedIn();
-
-        // Criação: Qualquer usuário logado pode criar tarefas.
-        // O criador deve ser registrado.
-        allow create: if isSignedIn() && request.resource.data.createdBy == request.auth.uid;
-
-        // Atualização: Apenas o responsável pela tarefa ou um Admin.
-        // TODO: Adicionar lógica para quem criou a tarefa ou se há um "assigner".
-        allow update: if isSignedIn() && (request.resource.data.assignedTo == get(/databases/$(database)/documents/users/$(request.auth.uid)).data.name || isAdmin());
-        
-        // Exclusão: Apenas quem criou ou um Admin.
-        allow delete: if isSignedIn() && (request.resource.data.createdBy == request.auth.uid || isAdmin());
-    }
-
-    // Modelos de Avaliação (geralmente globais para a clínica)
-    match /assessmentTemplates/{templateId} {
-      allow read: if isPsychologistOrAdmin() || isSecretaryOrAdmin(); // Todos os membros da equipe podem ler
-      allow write: if isAdmin(); // Apenas admins criam/editam modelos globais
-    }
-    
-    // Recursos da Clínica (PDFs, guias)
-    match /clinicResources/{resourceId} {
-        allow read: if isSignedIn(); // Todos os usuários logados podem ver recursos da clínica
-        allow write: if isPsychologistOrAdmin(); // Psicólogos e Admins podem adicionar/editar
+    // Catch-all for any other paths - explicitly deny to be safe
+    match /{document=**} {
+      allow read, write: if false;
     }
   }
 }

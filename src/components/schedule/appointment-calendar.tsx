@@ -105,9 +105,6 @@ export const getInitialMockAppointments = (): AppointmentsByDate => {
   return initialData;
 };
 
-// Keep a reference to the initially generated mock data for other components to import
-export const mockAppointments = getInitialMockAppointments();
-
 
 const getStatusIcon = (status: AppointmentStatus) => {
     // Usar text-inherit para que a cor do ícone seja definida pelo contêiner pai
@@ -158,6 +155,10 @@ function AppointmentCalendarComponent({ view, currentDate, filters, onAppointmen
   const { toast } = useToast();
   
   useEffect(() => {
+    // This effect ensures that if the initial mock data changes due to HMR or other reasons,
+    // the component's state is re-initialized. This is generally not needed if
+    // getInitialMockAppointments() produces truly static data or if data comes from an API.
+    // For mock data that uses `new Date()`, it's useful.
     setAppointmentsState(getInitialMockAppointments());
   }, []);
 

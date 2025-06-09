@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { CalendarDays, PlusCircle, ChevronLeft, ChevronRight, ListFilter, Download, CheckSquare } from "lucide-react";
 import Link from "next/link";
-import AppointmentCalendar, { type AppointmentsByDate, mockAppointments as initialMockAppointments } from "@/components/schedule/appointment-calendar";
+import AppointmentCalendar, { type AppointmentsByDate, getInitialMockAppointments } from "@/components/schedule/appointment-calendar";
 import TaskItem from '@/components/tasks/task-item';
 import { mockTasksData, type Task } from '@/app/(app)/tasks/page';
 import {
@@ -48,7 +48,7 @@ const appointmentStatuses = [
 export default function TodaySchedulePage() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [currentView, setCurrentView] = useState<"Month" | "Week" | "Day">("Day"); // Default to Day view
-  const [appointmentsData, setAppointmentsData] = useState<AppointmentsByDate>(initialMockAppointments);
+  const [appointmentsData, setAppointmentsData] = useState<AppointmentsByDate>(() => getInitialMockAppointments());
   const { toast } = useToast();
 
   const [filters, setFilters] = useState({

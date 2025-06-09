@@ -6,13 +6,13 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, CalendarDays } from "lucide-react";
 import Link from "next/link";
-import AppointmentCalendar, { type AppointmentsByDate, getInitialMockAppointments, mockAppointments as globalMockAppointments } from "@/components/schedule/appointment-calendar";
+import AppointmentCalendar, { type AppointmentsByDate, getInitialMockAppointments } from "@/components/schedule/appointment-calendar";
 import { format, startOfWeek, addDays, subDays } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
 export default function DashboardWeeklySchedule() {
   const [currentDate, setCurrentDate] = useState<Date | null>(null);
-  const [appointmentsData, setAppointmentsData] = useState<AppointmentsByDate>(globalMockAppointments);
+  const [appointmentsData, setAppointmentsData] = useState<AppointmentsByDate>(() => getInitialMockAppointments());
 
   useEffect(() => {
     setCurrentDate(new Date());

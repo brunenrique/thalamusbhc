@@ -4,7 +4,7 @@ import React, { useState, useMemo, useEffect, useCallback } from 'react'; // Add
 import { Button } from "@/components/ui/button";
 import { CalendarDays, PlusCircle, ChevronLeft, ChevronRight, ListFilter, Download } from "lucide-react";
 import Link from "next/link";
-import AppointmentCalendar, { type AppointmentsByDate, mockAppointments as initialMockAppointments } from "@/components/schedule/appointment-calendar";
+import AppointmentCalendar, { type AppointmentsByDate, getInitialMockAppointments } from "@/components/schedule/appointment-calendar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -48,7 +48,7 @@ const appointmentStatuses = [
 export default function SchedulePage() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [currentView, setCurrentView] = useState<"Month" | "Week" | "Day">("Week");
-  const [appointmentsData, setAppointmentsData] = useState<AppointmentsByDate>(initialMockAppointments);
+  const [appointmentsData, setAppointmentsData] = useState<AppointmentsByDate>(() => getInitialMockAppointments());
   const { toast } = useToast();
 
   const [filters, setFilters] = useState({

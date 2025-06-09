@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -91,9 +91,9 @@ export const getInitialMockAppointments = (): AppointmentsByDate => {
     { id: "apptToday2", startTime: "17:00", endTime: "17:30", patient: "Diana Prince", type: "Revisão", psychologistId: "psy2", status: "NoShow" as AppointmentStatus}
   ];
 
-  const initialData = { ...baseMockAppointments }; // Shallow copy
+  // Create a deep copy to avoid modifying the original baseMockAppointments
+  const initialData = JSON.parse(JSON.stringify(baseMockAppointments));
   
-  // Ensure to clone arrays if modifying them
   if (initialData[todayStr]) {
     initialData[todayStr] = [...initialData[todayStr], ...todayAppointments];
   } else {
@@ -111,7 +111,7 @@ export const getInitialMockAppointments = (): AppointmentsByDate => {
   return initialData;
 };
 
-// Keep a reference to the initially generated mock data
+// Keep a reference to the initially generated mock data for other components to import
 export const mockAppointments = getInitialMockAppointments();
 
 
@@ -161,18 +161,22 @@ const getStatusLabel = (status: AppointmentStatus): string => {
 
 function AppointmentCalendarComponent({ view, currentDate, filters, onAppointmentsUpdate }: AppointmentCalendarProps) {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(currentDate);
-  const [currentMockAppointments, setCurrentMockAppointments] = useState<AppointmentsByDate>(getInitialMockAppointments());
-  const { toast } = useToast();
+  // Use a local state for appointments, initialized from a global/prop or fetched
+  const [appointmentsState, setAppointmentsState] = useState<AppointmentsByDate>(() => getInitialMockAppointments());
 
-  React.useEffect(() => {
-    // If mockAppointments could change globally, refresh state here
-    setCurrentMockAppointments(getInitialMockAppointments());
-  }, []); // Or add dependency if mockAppointments source can change
+  const { toast } = useToast();
+  
+  // Update local state if the global mockAppointments source changes or props change.
+  // This effect might be more complex if `globalMockAppointments` itself is dynamic.
+  useEffect(() => {
+    setAppointmentsState(getInitialMockAppointments());
+  }, []);
+
 
   const filteredAppointments = useMemo(() => {
     const appointmentsResult: AppointmentsByDate = {};
-    for (const dateKey in currentMockAppointments) { 
-        const dateAppointments = currentMockAppointments[dateKey] || [];
+    for (const dateKey in appointmentsState) { 
+        const dateAppointments = appointmentsState[dateKey] || [];
         appointmentsResult[dateKey] = dateAppointments.filter(appt => {
             const matchesPsychologist = filters.psychologistId === "all" || appt.psychologistId === filters.psychologistId;
             const matchesStatus = filters.status === "All" || appt.status === filters.status;
@@ -187,7 +191,7 @@ function AppointmentCalendarComponent({ view, currentDate, filters, onAppointmen
         }).sort((a, b) => a.startTime.localeCompare(b.startTime)); // Sort by start time
     }
     return appointmentsResult;
-  }, [filters, currentMockAppointments]);
+  }, [filters, appointmentsState]);
 
 
   const getAppointmentsForDay = (dayDate: Date): Appointment[] => {
@@ -197,13 +201,18 @@ function AppointmentCalendarComponent({ view, currentDate, filters, onAppointmen
 
   const handleDeleteAppointment = (appointmentId: string, appointmentPatient: string, dayDate: Date) => {
     const dateStr = format(dayDate, "yyyy-MM-dd");
-    const updatedAppointmentsForDate = (currentMockAppointments[dateStr] || []).filter(appt => appt.id !== appointmentId);
-    const newMockAppointments = {
-      ...currentMockAppointments,
-      [dateStr]: updatedAppointmentsForDate
-    };
-    setCurrentMockAppointments(newMockAppointments);
-    if(onAppointmentsUpdate) onAppointmentsUpdate(newMockAppointments);
+    const updatedAppointmentsForDate = (appointmentsState[dateStr] || []).filter(appt => appt.id !== appointmentId);
+    
+    setAppointmentsState(prev => {
+        const newState = {
+            ...prev,
+            [dateStr]: updatedAppointmentsForDate
+        };
+        if (onAppointmentsUpdate) {
+            onAppointmentsUpdate(newState);
+        }
+        return newState;
+    });
 
     toast({
       title: "Agendamento Excluído",
@@ -213,15 +222,20 @@ function AppointmentCalendarComponent({ view, currentDate, filters, onAppointmen
 
   const handleUpdateStatus = (appointment: Appointment, newStatus: AppointmentStatus, dayDate: Date) => {
     const dateStr = format(dayDate, "yyyy-MM-dd");
-    const updatedAppointmentsForDate = (currentMockAppointments[dateStr] || []).map(appt => 
-      appt.id === appointment.id ? { ...appt, status: newStatus } : appt
-    );
-    const newMockAppointments = {
-      ...currentMockAppointments,
-      [dateStr]: updatedAppointmentsForDate
-    };
-    setCurrentMockAppointments(newMockAppointments);
-    if(onAppointmentsUpdate) onAppointmentsUpdate(newMockAppointments);
+    
+    setAppointmentsState(prev => {
+        const updatedAppointmentsForDate = (prev[dateStr] || []).map(appt => 
+            appt.id === appointment.id ? { ...appt, status: newStatus } : appt
+        );
+        const newState = {
+            ...prev,
+            [dateStr]: updatedAppointmentsForDate
+        };
+        if (onAppointmentsUpdate) {
+            onAppointmentsUpdate(newState);
+        }
+        return newState;
+    });
     
     toast({
       title: "Status do Agendamento Atualizado",
@@ -399,3 +413,4 @@ const mockPsychologists = [
   { id: "psy2", name: "Dra. Jones" },
   { id: "all", name: "Todos os Psicólogos" },
 ];
+

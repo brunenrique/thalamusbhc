@@ -8,6 +8,7 @@ import Link from "next/link";
 import dynamic from "next/dynamic";
 import { Skeleton } from "@/components/ui/skeleton";
 import { RecentActivityItem } from "@/components/dashboard/recent-activity-item";
+import DashboardWeeklySchedule from "@/components/dashboard/dashboard-weekly-schedule"; // Importando o novo componente
 
 const OccupancyChart = dynamic(() => import('@/components/dashboard/occupancy-chart').then(mod => mod.OccupancyChart), {
   loading: () => <Skeleton className="h-[300px] w-full" />,
@@ -53,6 +54,9 @@ export default function DashboardPage() {
         <StatsCard title="Cancelamentos no Mês" value="5" icon={<FileX2 className="text-primary" />} trend="+2 vs mês passado" />
         <StatsCard title="Remarcações no Mês" value="7" icon={<Repeat className="text-primary" />} trend="Estável" />
       </div>
+
+      {/* Weekly Schedule Section */}
+      <DashboardWeeklySchedule />
 
       {/* Charts Section */}
       <div className="grid gap-6 md:grid-cols-2">
@@ -145,4 +149,3 @@ function StatsCard({ title, value, icon, trend }: StatsCardProps) {
     </Card>
   );
 }
-

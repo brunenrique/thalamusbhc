@@ -1,5 +1,4 @@
 
-
 "use client"
 
 import * as React from "react"
@@ -9,7 +8,7 @@ import { PanelLeft } from "lucide-react"
 
 import { useIsMobile } from "@/hooks/use-mobile"
 import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button" // Keep this Button import
 import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
 import { Sheet, SheetContent } from "@/components/ui/sheet"
@@ -525,60 +524,47 @@ const sidebarMenuButtonVariants = cva(
   }
 )
 
-type SidebarMenuButtonProps = React.ComponentProps<"button"> & {
+interface SidebarMenuButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement>, VariantProps<typeof sidebarMenuButtonVariants> {
   asChild?: boolean;
   isActive?: boolean;
   tooltip?: string | React.ComponentProps<typeof TooltipContent>;
-} & VariantProps<typeof sidebarMenuButtonVariants>;
-
+}
 
 const SidebarMenuButton = React.forwardRef<HTMLButtonElement, SidebarMenuButtonProps>(
-  (
-    props,
-    ref
-  ) => {
-    const {
-      // `propAsChild` captures the `asChild` prop if explicitly passed to SidebarMenuButton.
-      asChild: propAsChild = false, 
-      variant = "default",
-      size = "default",
-      isActive = false,
-      tooltip,
-      className,
-      children,
-      // `restProps` captures all other props, including `asChild` if passed from a parent like `<Link asChild>`.
-      ...restProps 
-    } = props;
-
+  ({
+    asChild = false, // Default if not provided; will be true if Link passes asChild
+    variant = "default",
+    size = "default",
+    isActive = false,
+    tooltip,
+    className,
+    children,
+    ...props // Contains other props, e.g., href from Link if asChild is true
+  }, ref) => {
     const { isMobile, state } = useSidebar();
+    const Comp = asChild ? Slot : "button";
 
-    // Determines if the component should render as a Slot. True if its own `asChild` is true,
-    // OR if `asChild` is passed from a parent (e.g., Link) via `restProps`.
-    const renderAsSlot = propAsChild || (restProps as any).asChild === true;
-    const Comp = renderAsSlot ? Slot : "button";
-
-    // Prepare the props to be spread. Crucially, remove `asChild` from `restProps`
-    // to prevent it from being passed to the underlying `Comp` if `Comp` is Slot or a native element.
-    const { asChild: _discardedAsChildFromRest, ...finalSpreadProps } = restProps as any;
-
-    const combinedProps: React.ComponentProps<typeof Comp> & {ref: React.Ref<any>} = {
-      ref,
-      className: cn(sidebarMenuButtonVariants({ variant, size, className })),
-      "data-sidebar": "menu-button",
-      "data-size": size,
-      "data-active": isActive,
-      "aria-current": isActive ? "page" : undefined,
-      ...finalSpreadProps, // `asChild` from Link (if any) is not in `finalSpreadProps`
-      children,
-    };
-    
-    const buttonElement = <Comp {...combinedProps} />;
+    const buttonElement = (
+      <Comp
+        ref={ref}
+        className={cn(sidebarMenuButtonVariants({ variant, size, className }))}
+        data-sidebar="menu-button"
+        data-size={size}
+        data-active={isActive}
+        aria-current={isActive ? "page" : undefined}
+        {...props} // Spread the rest of the props. If asChild is true, Comp is Slot,
+                   // and props (like href from Link) are passed to Slot.
+                   // Slot then merges these with its children.
+      >
+        {children}
+      </Comp>
+    );
 
     if (!tooltip) {
-      return buttonElement
+      return buttonElement;
     }
 
-    const tooltipProps: Partial<React.ComponentProps<typeof TooltipContent>> = 
+    const tooltipProps: Partial<React.ComponentProps<typeof TooltipContent>> =
       typeof tooltip === "string" ? { children: tooltip } : tooltip;
 
     return (
@@ -591,10 +577,10 @@ const SidebarMenuButton = React.forwardRef<HTMLButtonElement, SidebarMenuButtonP
           {...tooltipProps}
         />
       </Tooltip>
-    )
+    );
   }
-)
-SidebarMenuButton.displayName = "SidebarMenuButton"
+);
+SidebarMenuButton.displayName = "SidebarMenuButton";
 
 
 const SidebarMenuAction = React.forwardRef<
@@ -710,53 +696,46 @@ const SidebarMenuSubItem = React.forwardRef<
 SidebarMenuSubItem.displayName = "SidebarMenuSubItem"
 
 
-type SidebarMenuSubButtonProps = React.ComponentProps<"a"> & {
+interface SidebarMenuSubButtonProps extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
   asChild?: boolean;
   size?: "sm" | "md";
   isActive?: boolean;
-};
+}
 
 const SidebarMenuSubButton = React.forwardRef<HTMLAnchorElement, SidebarMenuSubButtonProps>(
-  (
-    props,
-    ref
-  ) => {
-    const {
-      asChild: propAsChild = false,
-      size = "md",
-      isActive,
-      className,
-      children,
-      ...restProps
-    } = props;
+  ({
+    asChild = false, // Default if not provided; will be true if Link passes asChild
+    size = "md",
+    isActive,
+    className,
+    children,
+    ...props // Contains other props, e.g., href from Link if asChild is true
+  }, ref) => {
+    const Comp = asChild ? Slot : "a";
 
-    const renderAsSlot = propAsChild || (restProps as any).asChild === true;
-    const Comp = renderAsSlot ? Slot : "a";
-    
-    const { asChild: _discardedAsChildFromRest, ...finalSpreadProps } = restProps as any;
-
-    const combinedProps: React.ComponentProps<typeof Comp> & {ref: React.Ref<any>} = {
-      ref,
-      className: cn(
-        "flex h-7 min-w-0 -translate-x-px items-center gap-2 overflow-hidden rounded-md px-2 text-sidebar-foreground outline-none ring-sidebar-ring hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 [&>svg]:text-sidebar-accent-foreground",
-        "data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground",
-        size === "sm" && "text-xs",
-        size === "md" && "text-sm",
-        "group-data-[collapsible=icon]:hidden",
-        className
-      ),
-      "data-sidebar": "menu-sub-button",
-      "data-size": size,
-      "data-active": isActive,
-      "aria-current": isActive ? "page" : undefined,
-      ...finalSpreadProps,
-      children,
-    };
-    
-    return <Comp {...combinedProps} />;
+    return (
+      <Comp
+        ref={ref}
+        className={cn(
+          "flex h-7 min-w-0 -translate-x-px items-center gap-2 overflow-hidden rounded-md px-2 text-sidebar-foreground outline-none ring-sidebar-ring hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 [&>svg]:text-sidebar-accent-foreground",
+          "data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground",
+          size === "sm" && "text-xs",
+          size === "md" && "text-sm",
+          "group-data-[collapsible=icon]:hidden",
+          className
+        )}
+        data-sidebar="menu-sub-button"
+        data-size={size}
+        data-active={isActive}
+        aria-current={isActive ? "page" : undefined}
+        {...props}
+      >
+        {children}
+      </Comp>
+    );
   }
-)
-SidebarMenuSubButton.displayName = "SidebarMenuSubButton"
+);
+SidebarMenuSubButton.displayName = "SidebarMenuSubButton";
 
 export {
   Sidebar,

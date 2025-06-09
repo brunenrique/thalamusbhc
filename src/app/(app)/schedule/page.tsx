@@ -168,93 +168,119 @@ export default function SchedulePage() {
         </Button>
       </div>
 
-      <div className="flex items-center justify-between p-4 border rounded-lg shadow-sm bg-card">
+      <div className="flex flex-col sm:flex-row items-center justify-between p-3 sm:p-4 border rounded-lg shadow-sm bg-card gap-3">
         <div className="flex items-center gap-2">
           <Button variant="outline" size="icon" onClick={() => navigateDate('prev')} aria-label="Visualização anterior da agenda"><ChevronLeft className="h-4 w-4" /></Button>
           <h2 className="text-lg sm:text-xl font-semibold text-foreground min-w-[150px] sm:min-w-[240px] text-center capitalize">{displayDateRange()}</h2>
           <Button variant="outline" size="icon" onClick={() => navigateDate('next')} aria-label="Próxima visualização da agenda"><ChevronRight className="h-4 w-4" /></Button>
         </div>
-        <div className="flex items-center gap-1 sm:gap-2">
+        <div className="flex flex-wrap items-center justify-center sm:justify-end gap-2">
           <Button variant="outline" size="sm" onClick={() => setCurrentDate(new Date())}>Hoje</Button>
-          <Button variant={currentView === "Day" ? "secondary" : "ghost"} size="sm" onClick={() => setCurrentView("Day")}>Dia</Button>
-          <Button variant={currentView === "Week" ? "secondary" : "ghost"} size="sm" onClick={() => setCurrentView("Week")}>Semana</Button>
-          <Button variant={currentView === "Month" ? "secondary" : "ghost"} size="sm" onClick={() => setCurrentView("Month")}>Mês</Button>
           
-          <Button variant="outline" size="sm" onClick={handleExportICS} title="Exportar visualização atual para .ics" aria-label="Exportar visualização atual da agenda para arquivo ICS">
-            <Download className="mr-0 sm:mr-1 h-4 w-4" /> <span className="hidden sm:inline">Exportar</span>
-          </Button>
+          <div className="flex items-center rounded-md border overflow-hidden">
+            <Button 
+              variant={currentView === "Day" ? "secondary" : "ghost"} 
+              size="sm" 
+              onClick={() => setCurrentView("Day")}
+              className="rounded-none border-r"
+            >
+              Dia
+            </Button>
+            <Button 
+              variant={currentView === "Week" ? "secondary" : "ghost"} 
+              size="sm" 
+              onClick={() => setCurrentView("Week")}
+              className="rounded-none border-r"
+            >
+              Semana
+            </Button>
+            <Button 
+              variant={currentView === "Month" ? "secondary" : "ghost"} 
+              size="sm" 
+              onClick={() => setCurrentView("Month")}
+              className="rounded-none"
+            >
+              Mês
+            </Button>
+          </div>
+          
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" onClick={handleExportICS} title="Exportar visualização atual para .ics" aria-label="Exportar visualização atual da agenda para arquivo ICS">
+              <Download className="mr-0 sm:mr-1 h-4 w-4" /> <span className="hidden sm:inline">Exportar</span>
+            </Button>
 
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="icon" aria-label="Filtrar agendamentos">
-                <ListFilter className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-64 p-2" align="end">
-              <DropdownMenuLabel>Filtrar Por</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuGroup>
-                <div className="space-y-2 px-2 py-1.5">
-                  <Label htmlFor="filterPsychologist">Psicólogo(a)</Label>
-                  <Select
-                    value={filters.psychologistId}
-                    onValueChange={(value) => handleFilterChange("psychologistId", value)}
-                  >
-                    <SelectTrigger id="filterPsychologist">
-                      <SelectValue placeholder="Selecione psicólogo(a)" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {mockPsychologists.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2 px-2 py-1.5">
-                  <Label htmlFor="filterStatus">Status</Label>
-                  <Select
-                    value={filters.status}
-                    onValueChange={(value) => handleFilterChange("status", value)}
-                  >
-                    <SelectTrigger id="filterStatus">
-                      <SelectValue placeholder="Selecione status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {appointmentStatuses.map(s => <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>)}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2 px-2 py-1.5">
-                    <Label>Intervalo de Datas</Label>
-                    <div className="flex gap-2">
-                        <Popover>
-                            <PopoverTrigger asChild>
-                                <Button variant="outline" className="w-full justify-start text-left font-normal">
-                                    {filters.dateFrom ? format(filters.dateFrom, "P", {locale: ptBR}) : <span>De</span>}
-                                </Button>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-auto p-0">
-                                <CalendarComponent locale={ptBR} mode="single" selected={filters.dateFrom} onSelect={(date) => handleFilterChange("dateFrom", date)} initialFocus />
-                            </PopoverContent>
-                        </Popover>
-                         <Popover>
-                            <PopoverTrigger asChild>
-                                <Button variant="outline" className="w-full justify-start text-left font-normal">
-                                    {filters.dateTo ? format(filters.dateTo, "P", {locale: ptBR}) : <span>Até</span>}
-                                </Button>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-auto p-0">
-                                <CalendarComponent locale={ptBR} mode="single" selected={filters.dateTo} onSelect={(date) => handleFilterChange("dateTo", date)} initialFocus />
-                            </PopoverContent>
-                        </Popover>
-                    </div>
-                </div>
-
-              </DropdownMenuGroup>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="icon" aria-label="Filtrar agendamentos">
+                  <ListFilter className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-64 p-2" align="end">
+                <DropdownMenuLabel>Filtrar Por</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
-                    <Button className="w-full" size="sm" onClick={() => { /* console.log("Aplicando filtros:", filters) */ }}>Aplicar Filtros</Button>
-                </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+                <DropdownMenuGroup>
+                  <div className="space-y-2 px-2 py-1.5">
+                    <Label htmlFor="filterPsychologist">Psicólogo(a)</Label>
+                    <Select
+                      value={filters.psychologistId}
+                      onValueChange={(value) => handleFilterChange("psychologistId", value)}
+                    >
+                      <SelectTrigger id="filterPsychologist">
+                        <SelectValue placeholder="Selecione psicólogo(a)" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {mockPsychologists.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2 px-2 py-1.5">
+                    <Label htmlFor="filterStatus">Status</Label>
+                    <Select
+                      value={filters.status}
+                      onValueChange={(value) => handleFilterChange("status", value)}
+                    >
+                      <SelectTrigger id="filterStatus">
+                        <SelectValue placeholder="Selecione status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {appointmentStatuses.map(s => <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2 px-2 py-1.5">
+                      <Label>Intervalo de Datas</Label>
+                      <div className="flex gap-2">
+                          <Popover>
+                              <PopoverTrigger asChild>
+                                  <Button variant="outline" className="w-full justify-start text-left font-normal">
+                                      {filters.dateFrom ? format(filters.dateFrom, "P", {locale: ptBR}) : <span>De</span>}
+                                  </Button>
+                              </PopoverTrigger>
+                              <PopoverContent className="w-auto p-0">
+                                  <CalendarComponent locale={ptBR} mode="single" selected={filters.dateFrom} onSelect={(date) => handleFilterChange("dateFrom", date)} initialFocus />
+                              </PopoverContent>
+                          </Popover>
+                           <Popover>
+                              <PopoverTrigger asChild>
+                                  <Button variant="outline" className="w-full justify-start text-left font-normal">
+                                      {filters.dateTo ? format(filters.dateTo, "P", {locale: ptBR}) : <span>Até</span>}
+                                  </Button>
+                              </PopoverTrigger>
+                              <PopoverContent className="w-auto p-0">
+                                  <CalendarComponent locale={ptBR} mode="single" selected={filters.dateTo} onSelect={(date) => handleFilterChange("dateTo", date)} initialFocus />
+                              </PopoverContent>
+                          </Popover>
+                      </div>
+                  </div>
+
+                </DropdownMenuGroup>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem>
+                      <Button className="w-full" size="sm" onClick={() => { /* console.log("Aplicando filtros:", filters) */ }}>Aplicar Filtros</Button>
+                  </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </div>
       </div>
 

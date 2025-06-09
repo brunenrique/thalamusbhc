@@ -20,9 +20,7 @@ import {
   Wrench, 
   BookOpen, 
   BrainCog, 
-  HeartPulse, 
   ArchiveIcon as DataBackupIcon, 
-  GitFork, 
   History as HistoryIcon, 
   BarChartBig, 
   Users2 as GroupsIcon,
@@ -56,7 +54,6 @@ const navStructure: NavItem[] = [
   { href: "/patients", label: "Pacientes", icon: Users, group: "Gestão de Pacientes" },
   { href: "/groups", label: "Grupos Terapêuticos", icon: GroupsIcon, group: "Gestão de Pacientes"},
   { href: "/waiting-list", label: "Lista de Espera", icon: ListChecks, group: "Gestão de Pacientes" },
-  // { href: "/assessments", label: "Avaliações", icon: ClipboardList, group: "Gestão de Pacientes" }, // Removido daqui
   { href: "/templates", label: "Modelos Inteligentes", icon: FileText, group: "Gestão de Pacientes" },
   
   { href: "/tasks", label: "Tarefas", icon: CheckSquare, group: "Operações da Clínica" },
@@ -74,9 +71,7 @@ const navStructure: NavItem[] = [
       { href: "/tools/psychopharmacology", label: "Psicofarmacologia", icon: BookOpen },
       { href: "/tools/knowledge-base", label: "Base de Conhecimento", icon: BrainCog },
       { href: "/tools/case-formulation-models", label: "Modelos de Formulação", icon: Network },
-      { href: "/tools/session-formulation-tree", label: "Árvore de Formulação", icon: GitFork },
-      { href: "/tools/self-care", label: "Autocuidado", icon: HeartPulse },
-      { href: "/inventories-scales", label: "Inventários e Escalas", icon: ClipboardList }, // Adicionado aqui
+      { href: "/inventories-scales", label: "Inventários e Escalas", icon: ClipboardList },
     ]
   },
   
@@ -117,7 +112,13 @@ export default function SidebarNav({ currentPath, userRole = "admin" }: SidebarN
         </>
     );
     
-    const ButtonComponent = isSubItem ? SidebarMenuSubButton : SidebarMenuButton;
+    let ButtonComponent;
+    if (isSubItem) {
+      ButtonComponent = SidebarMenuSubButton;
+    } else {
+      ButtonComponent = SidebarMenuButton;
+    }
+
 
     if (item.subItems && item.subItems.length > 0 && state === "expanded") {
       const visibleSubItems = item.subItems.filter(sub => !sub.adminOnly || userRole === "admin");
@@ -131,6 +132,8 @@ export default function SidebarNav({ currentPath, userRole = "admin" }: SidebarN
                 isActive={isActive && !visibleSubItems.some(sub => currentPath.startsWith(sub.href))} 
                 tooltip={state === "collapsed" ? item.label : undefined}
                 className={isSubItem ? "text-xs" : ""}
+                // Explicitly pass asChild={false} to SidebarMenuButton if it's not a direct child of Link
+                asChild={false} 
                 >
                 {buttonContent}
                 </ButtonComponent>
@@ -148,7 +151,8 @@ export default function SidebarNav({ currentPath, userRole = "admin" }: SidebarN
                     isActive={isActive} 
                     tooltip={state === "collapsed" ? item.label : undefined}
                     className={isSubItem ? "text-xs" : ""}
-                    onClick={(e) => { if (!item.href || item.href === "#") e.preventDefault(); }} 
+                    onClick={(e: React.MouseEvent<HTMLButtonElement>) => { if (!item.href || item.href === "#") e.preventDefault(); }} 
+                    asChild={false}
                  >
                     {buttonContent}
                  </ButtonComponent>
@@ -167,6 +171,7 @@ export default function SidebarNav({ currentPath, userRole = "admin" }: SidebarN
             isActive={isActive}
             tooltip={state === "collapsed" ? item.label : undefined}
             className={isSubItem ? "text-xs" : ""}
+            asChild={!isSubItem} // Only direct children of Link should have asChild
           >
             {buttonContent}
           </ButtonComponent>
@@ -214,6 +219,7 @@ export default function SidebarNav({ currentPath, userRole = "admin" }: SidebarN
             <SidebarMenuButton
                 tooltip={state === "collapsed" ? "Sair" : undefined}
                 onClick={() => console.log("Logout action")} 
+                asChild={false}
             >
                 <LogOut />
                 <span className="group-data-[collapsible=icon]:hidden">Sair</span>
@@ -221,7 +227,7 @@ export default function SidebarNav({ currentPath, userRole = "admin" }: SidebarN
         </SidebarMenuItem>
         <SidebarMenuItem>
             <Link href="/help" passHref asChild>
-                <SidebarMenuButton tooltip={state === "collapsed" ? "Ajuda e Suporte" : undefined} isActive={currentPath.startsWith("/help")}>
+                <SidebarMenuButton tooltip={state === "collapsed" ? "Ajuda e Suporte" : undefined} isActive={currentPath.startsWith("/help")} asChild>
                     <HelpCircle />
                     <span className="group-data-[collapsible=icon]:hidden">Ajuda e Suporte</span>
                 </SidebarMenuButton>
@@ -231,4 +237,3 @@ export default function SidebarNav({ currentPath, userRole = "admin" }: SidebarN
     </div>
   );
 }
-

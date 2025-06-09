@@ -1,7 +1,7 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Wrench, BookOpen, BrainCog, HeartPulse, Archive, GitFork, History, ChevronRight, Network } from "lucide-react";
+import { Wrench, BookOpen, BrainCog, Archive, Network, ChevronRight } from "lucide-react";
 import Link from "next/link";
 
 const tools = [
@@ -13,11 +13,11 @@ const tools = [
     dataAiHint: "livro medicina",
   },
   {
-    title: "Base de Conhecimento",
-    description: "Acesse artigos, FAQs e diretrizes clínicas.",
+    title: "Base de Conhecimento (Drive)",
+    description: "Acesse seus documentos e PDFs do Google Drive.",
     icon: <BrainCog className="h-6 w-6 text-accent" />,
     href: "/tools/knowledge-base",
-    dataAiHint: "cérebro lâmpada",
+    dataAiHint: "cérebro nuvem",
   },
   {
     title: "Modelos de Formulação de Caso",
@@ -26,38 +26,8 @@ const tools = [
     href: "/tools/case-formulation-models",
     dataAiHint: "fluxograma mental",
   },
-  {
-    title: "Árvore de Formulação de Sessão",
-    description: "Visualize e construa formulações de caso interativamente.",
-    icon: <GitFork className="h-6 w-6 text-accent" />,
-    href: "/tools/session-formulation-tree",
-    dataAiHint: "mapa mental árvore",
-  },
-  {
-    title: "Recursos de Autocuidado",
-    description: "Ferramentas para gerenciamento de estresse e bem-estar.",
-    icon: <HeartPulse className="h-6 w-6 text-accent" />,
-    href: "/tools/self-care",
-    dataAiHint: "coração cuidado",
-  },
-  // O Backup de Dados e Trilha de Auditoria foram movidos para /admin/tools visualmente no menu,
-  // mas os links diretos aqui podem ser mantidos ou removidos dependendo da preferência de acesso.
-  // Por enquanto, vou mantê-los, mas você pode querer criar uma página separada /admin/tools
-  // que liste apenas as ferramentas administrativas.
-  {
-    title: "Backup de Dados (Admin)",
-    description: "Gerencie e agende backups de dados seguros.",
-    icon: <Archive className="h-6 w-6 text-accent" />,
-    href: "/tools/backup", // Link permanece o mesmo, mas o acesso via menu é restrito
-    dataAiHint: "banco de dados arquivo",
-  },
-  {
-    title: "Trilha de Auditoria (Admin)",
-    description: "Rastreie atividades do sistema e alterações de dados.",
-    icon: <History className="h-6 w-6 text-accent" />,
-    href: "/tools/audit-trail", // Link permanece o mesmo, mas o acesso via menu é restrito
-    dataAiHint: "histórico log",
-  },
+  // Ferramentas Administrativas como Backup e Auditoria foram movidas para o menu de Admin
+  // e não são listadas aqui como ferramentas clínicas gerais.
 ];
 
 export default function ToolsPage() {
@@ -68,11 +38,11 @@ export default function ToolsPage() {
         <h1 className="text-3xl font-headline font-bold">Ferramentas Clínicas</h1>
       </div>
       <CardDescription>
-        Uma coleção de recursos e utilitários para apoiar sua prática clínica e tarefas administrativas.
+        Uma coleção de recursos e utilitários para apoiar sua prática clínica.
       </CardDescription>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {tools.filter(tool => !tool.href.includes('/audit-trail') && !tool.href.includes('/backup')).map((tool) => ( // Filtra para não mostrar as ferramentas admin aqui
+        {tools.map((tool) => (
           <Card key={tool.title} className="shadow-sm hover:shadow-lg transition-shadow duration-200 flex flex-col">
             <CardHeader className="flex flex-row items-start gap-4 space-y-0">
               <div className="p-2 bg-muted rounded-md">{tool.icon}</div>
@@ -96,4 +66,3 @@ export default function ToolsPage() {
     </div>
   );
 }
-

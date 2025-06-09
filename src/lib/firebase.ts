@@ -44,16 +44,16 @@ if (process.env.NODE_ENV === 'development') {
   console.info('Development mode: Attempting to connect to Firebase Emulators...');
   try {
     // Auth Emulator
-    connectAuthEmulator(auth, 'http://127.0.0.1:9099', { disableWarnings: true });
-    console.info('Auth Emulator connected to http://127.0.0.1:9099');
+    connectAuthEmulator(auth, 'http://localhost:9099', { disableWarnings: true });
+    console.info('Auth Emulator connected to http://localhost:9099');
 
     // Firestore Emulator
-    connectFirestoreEmulator(db, '127.0.0.1', 8080);
-    console.info('Firestore Emulator connected to 127.0.0.1:8080');
+    connectFirestoreEmulator(db, 'localhost', 8080);
+    console.info('Firestore Emulator connected to localhost:8080');
 
     // Storage Emulator
-    connectStorageEmulator(storage, '127.0.0.1', 9199);
-    console.info('Storage Emulator connected to 127.0.0.1:9199');
+    connectStorageEmulator(storage, 'localhost', 9199);
+    console.info('Storage Emulator connected to localhost:9199');
 
     // Functions Emulator (se necessário)
     // connectFunctionsEmulator(functions, 'localhost', 5001);

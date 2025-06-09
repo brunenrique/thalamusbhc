@@ -40,18 +40,22 @@ const tools = [
     href: "/tools/self-care",
     dataAiHint: "coração cuidado",
   },
+  // O Backup de Dados e Trilha de Auditoria foram movidos para /admin/tools visualmente no menu,
+  // mas os links diretos aqui podem ser mantidos ou removidos dependendo da preferência de acesso.
+  // Por enquanto, vou mantê-los, mas você pode querer criar uma página separada /admin/tools
+  // que liste apenas as ferramentas administrativas.
   {
-    title: "Backup de Dados",
+    title: "Backup de Dados (Admin)",
     description: "Gerencie e agende backups de dados seguros.",
     icon: <Archive className="h-6 w-6 text-accent" />,
-    href: "/tools/backup",
+    href: "/tools/backup", // Link permanece o mesmo, mas o acesso via menu é restrito
     dataAiHint: "banco de dados arquivo",
   },
   {
-    title: "Trilha de Auditoria",
+    title: "Trilha de Auditoria (Admin)",
     description: "Rastreie atividades do sistema e alterações de dados.",
     icon: <History className="h-6 w-6 text-accent" />,
-    href: "/tools/audit-trail",
+    href: "/tools/audit-trail", // Link permanece o mesmo, mas o acesso via menu é restrito
     dataAiHint: "histórico log",
   },
 ];
@@ -68,7 +72,7 @@ export default function ToolsPage() {
       </CardDescription>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {tools.map((tool) => (
+        {tools.filter(tool => !tool.href.includes('/audit-trail') && !tool.href.includes('/backup')).map((tool) => ( // Filtra para não mostrar as ferramentas admin aqui
           <Card key={tool.title} className="shadow-sm hover:shadow-lg transition-shadow duration-200 flex flex-col">
             <CardHeader className="flex flex-row items-start gap-4 space-y-0">
               <div className="p-2 bg-muted rounded-md">{tool.icon}</div>
@@ -92,3 +96,4 @@ export default function ToolsPage() {
     </div>
   );
 }
+

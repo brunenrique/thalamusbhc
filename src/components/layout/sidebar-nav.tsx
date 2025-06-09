@@ -84,7 +84,7 @@ const navStructure: NavItem[] = [
     subItems: [
         { href: "/user-approvals", label: "Aprovação de Usuários", icon: ShieldQuestion, adminOnly: true },
         { href: "/tools/backup", label: "Backup de Dados", icon: DataBackupIcon },
-        { href: "/tools/audit-trail", label: "Trilha de Auditoria", icon: HistoryIcon },
+        { href: "/tools/audit-trail", label: "Trilha de Auditoria", icon: HistoryIcon, adminOnly: true }, // Movido e mantido adminOnly
     ]
   },
   { href: "/settings", label: "Configurações", icon: Settings, group: "Configuração" },

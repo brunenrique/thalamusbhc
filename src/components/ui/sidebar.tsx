@@ -543,9 +543,11 @@ const SidebarMenuButton = React.forwardRef<HTMLButtonElement, SidebarMenuButtonP
     },
     ref
   ) => {
-    const { isMobile, state } = useSidebar()
-    const Comp = asChild ? Slot : "button"
-    
+    const { isMobile, state } = useSidebar();
+    const Comp = asChild ? Slot : "button";
+    // If Comp is "button", we must not pass an 'asChild' prop to it from ...props.
+    const finalProps = Comp === "button" ? (({ asChild: _pAsChild, ...pRest }) => pRest)(props as any) : props;
+
     const buttonElement = (
       <Comp
         ref={ref}
@@ -554,9 +556,9 @@ const SidebarMenuButton = React.forwardRef<HTMLButtonElement, SidebarMenuButtonP
         data-active={isActive}
         aria-current={isActive ? "page" : undefined}
         className={cn(sidebarMenuButtonVariants({ variant, size }), className)}
-        {...props} 
+        {...finalProps} 
       />
-    )
+    );
 
     if (!tooltip) {
       return buttonElement
@@ -574,7 +576,7 @@ const SidebarMenuButton = React.forwardRef<HTMLButtonElement, SidebarMenuButtonP
         <TooltipContent
           side="right"
           align="center"
-          hidden={state !== "expanded" || isMobile} // Corrected: hidden when state is "expanded" or isMobile
+          hidden={isMobile || state === "expanded"}
           {...tooltip}
         />
       </Tooltip>
@@ -706,6 +708,8 @@ type SidebarMenuSubButtonProps = React.ComponentProps<"a"> & {
 const SidebarMenuSubButton = React.forwardRef<HTMLAnchorElement, SidebarMenuSubButtonProps>(
   ({ asChild = false, size = "md", isActive, className, ...props }, ref) => {
     const Comp = asChild ? Slot : "a";
+    // If Comp is "a", we must not pass an 'asChild' prop to it from ...props.
+    const finalProps = Comp === "a" ? (({ asChild: _pAsChild, ...pRest }) => pRest)(props as any) : props;
     
     return (
       <Comp
@@ -722,7 +726,7 @@ const SidebarMenuSubButton = React.forwardRef<HTMLAnchorElement, SidebarMenuSubB
           "group-data-[collapsible=icon]:hidden",
           className
         )}
-        {...props}
+        {...finalProps}
       />
     )
   }

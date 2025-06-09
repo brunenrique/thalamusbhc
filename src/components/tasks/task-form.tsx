@@ -27,7 +27,7 @@ import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { ptBR } from 'date-fns/locale';
 import { useToast } from "@/hooks/use-toast";
-import type { Task, TaskPriority, TaskStatus } from "@/app/(app)/tasks/page";
+import type { Task, TaskPriority, TaskStatus } from "@/types"; // Updated import
 
 const taskFormSchema = z.object({
   title: z.string().min(3, { message: "O título deve ter pelo menos 3 caracteres." }),
@@ -76,21 +76,23 @@ export default function TaskForm({ initialData, isEditMode = false }: TaskFormPr
   });
 
   React.useEffect(() => {
+    // Set default dueDate on client-side if not already set by initialData
     if (!form.getValues("dueDate") && !initialData?.dueDate) {
-      form.setValue("dueDate", new Date()); // Set default date on client-side
+      form.setValue("dueDate", new Date()); 
     }
   }, [form, initialData?.dueDate]);
 
   async function onSubmit(data: TaskFormValues) {
     setIsLoading(true);
     const dataToSave = {
-      ...initialData, 
+      ...initialData, // Spread initialData first to retain 'id' if editing
       ...data,
-      dueDate: format(data.dueDate, "yyyy-MM-dd"), 
+      dueDate: format(data.dueDate, "yyyy-MM-dd"), // Format date to string for saving
     };
 
+    // In a real app, you would send dataToSave to your backend/API
     console.log(isEditMode ? "Atualização de Tarefa (Simulado):" : "Criação de Tarefa (Simulado):", dataToSave);
-    await new Promise((resolve) => setTimeout(resolve, 1000)); 
+    await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate API call
 
     setIsLoading(false);
     toast({
@@ -165,7 +167,7 @@ export default function TaskForm({ initialData, isEditMode = false }: TaskFormPr
                           mode="single"
                           selected={field.value}
                           onSelect={field.onChange}
-                          disabled={(date) => date < new Date(new Date().setDate(new Date().getDate() -1)) } 
+                          disabled={(date) => date < new Date(new Date().setDate(new Date().getDate() -1)) } // Allow today
                           initialFocus
                           locale={ptBR}
                         />

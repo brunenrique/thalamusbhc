@@ -23,35 +23,23 @@ import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { Label } from '@/components/ui/label';
 import { format, isEqual, startOfDay } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import type { Task, TaskStatus, TaskPriority } from "@/types"; // Updated import
 
-export const mockTasksData = [
-  { id: "task1", title: "Acompanhar Alice W.", description: "Ligar para Alice para verificar seu progresso e agendar próxima consulta.", dueDate: "2024-07-25", assignedTo: "Dr. Silva", status: "Pendente" as const, priority: "Alta" as const, patientId: "1" },
-  { id: "task2", title: "Preparar relatório de avaliação para Bob B.", description: "Compilar os resultados da avaliação GAD-7 e BDI para Bob.", dueDate: "2024-07-22", assignedTo: "Secretaria", status: "Em Progresso" as const, priority: "Média" as const, patientId: "2" },
-  { id: "task3", title: "Revisar entrada de novo paciente - Charlie B.", description: "Verificar todos os documentos e informações de Charlie.", dueDate: "2024-07-20", assignedTo: "Dra. Jones", status: "Concluída" as const, priority: "Alta" as const, patientId: "3" },
-  { id: "task4", title: "Enviar lembrete para Diana P. para avaliação", description: "Diana precisa completar a PCL-5 até o final da semana.", dueDate: "2024-07-28", assignedTo: "Secretaria", status: "Pendente" as const, priority: "Baixa" as const, patientId: "4" },
-  { id: "task5", title: "Atualizar documento de políticas da clínica", description: "Incorporar novas diretrizes de teleatendimento.", dueDate: "2024-08-01", assignedTo: "Admin", status: "Pendente" as const, priority: "Média" as const },
+export const mockTasksData: Task[] = [ // Added Task[] type here for clarity
+  { id: "task1", title: "Acompanhar Alice W.", description: "Ligar para Alice para verificar seu progresso e agendar próxima consulta.", dueDate: "2024-07-25", assignedTo: "Dr. Silva", status: "Pendente", priority: "Alta", patientId: "1" },
+  { id: "task2", title: "Preparar relatório de avaliação para Bob B.", description: "Compilar os resultados da avaliação GAD-7 e BDI para Bob.", dueDate: "2024-07-22", assignedTo: "Secretaria", status: "Em Progresso", priority: "Média", patientId: "2" },
+  { id: "task3", title: "Revisar entrada de novo paciente - Charlie B.", description: "Verificar todos os documentos e informações de Charlie.", dueDate: "2024-07-20", assignedTo: "Dra. Jones", status: "Concluída", priority: "Alta", patientId: "3" },
+  { id: "task4", title: "Enviar lembrete para Diana P. para avaliação", description: "Diana precisa completar a PCL-5 até o final da semana.", dueDate: "2024-07-28", assignedTo: "Secretaria", status: "Pendente", priority: "Baixa", patientId: "4" },
+  { id: "task5", title: "Atualizar documento de políticas da clínica", description: "Incorporar novas diretrizes de teleatendimento.", dueDate: "2024-08-01", assignedTo: "Admin", status: "Pendente", priority: "Média" },
 ];
 
-export type TaskStatus = "Pendente" | "Em Progresso" | "Concluída";
-export type TaskPriority = "Alta" | "Média" | "Baixa";
-export interface Task {
-  id: string;
-  title: string;
-  description?: string;
-  dueDate: string;
-  assignedTo: string;
-  status: TaskStatus;
-  priority: TaskPriority;
-  patientId?: string;
-}
-
-const taskStatusOptions = [
+const taskStatusOptions: {value: TaskStatus | "All", label: string}[] = [ // Ensure TaskStatus is used correctly
     {value: "All", label: "Todos os Status"},
     {value: "Pendente", label: "Pendente"},
     {value: "Em Progresso", label: "Em Progresso"},
     {value: "Concluída", label: "Concluída"},
 ];
-const taskPriorityOptions = [
+const taskPriorityOptions: {value: TaskPriority | "All", label: string}[] = [ // Ensure TaskPriority is used correctly
     {value: "All", label: "Todas as Prioridades"},
     {value: "Alta", label: "Alta"},
     {value: "Média", label: "Média"},
@@ -60,11 +48,16 @@ const taskPriorityOptions = [
 
 export default function TasksPage() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [filters, setFilters] = useState({
+  const [filters, setFilters] = useState<{
+    status: TaskStatus | "All"; // Use imported type
+    priority: TaskPriority | "All"; // Use imported type
+    assignedTo: string;
+    dueDate?: Date;
+  }>({
     status: "All",
     priority: "All",
     assignedTo: "Todos",
-    dueDate: undefined as Date | undefined,
+    dueDate: undefined,
   });
 
   const handleFilterChange = (filterName: keyof typeof filters, value: any) => {
@@ -144,7 +137,7 @@ export default function TasksPage() {
                 <DropdownMenuGroup>
                   <div className="space-y-2 px-2 py-1.5">
                     <Label htmlFor="filterStatus">Status</Label>
-                    <Select value={filters.status} onValueChange={(value) => handleFilterChange("status", value)}>
+                    <Select value={filters.status} onValueChange={(value: TaskStatus | "All") => handleFilterChange("status", value)}>
                       <SelectTrigger id="filterStatus"><SelectValue /></SelectTrigger>
                       <SelectContent>
                         {taskStatusOptions.map(opt => <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>)}
@@ -153,7 +146,7 @@ export default function TasksPage() {
                   </div>
                   <div className="space-y-2 px-2 py-1.5">
                     <Label htmlFor="filterPriority">Prioridade</Label>
-                    <Select value={filters.priority} onValueChange={(value) => handleFilterChange("priority", value)}>
+                    <Select value={filters.priority} onValueChange={(value: TaskPriority | "All") => handleFilterChange("priority", value)}>
                       <SelectTrigger id="filterPriority"><SelectValue /></SelectTrigger>
                       <SelectContent>
                          {taskPriorityOptions.map(opt => <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>)}
@@ -243,5 +236,4 @@ export default function TasksPage() {
     </div>
   );
 }
-
     

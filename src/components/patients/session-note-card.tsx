@@ -46,7 +46,7 @@ interface SessionNoteCardProps {
   therapistName?: string; 
 }
 
-export default function SessionNoteCard({ note, patientName, therapistName = "Psicólogo(a) Responsável" }: SessionNoteCardProps) {
+function SessionNoteCardComponent({ note, patientName, therapistName = "Psicólogo(a) Responsável" }: SessionNoteCardProps) {
   const { toast } = useToast();
   const [insights, setInsights] = useState<GenerateSessionInsightsOutput | null>(null);
   const [isLoadingInsights, setIsLoadingInsights] = useState(false);
@@ -132,7 +132,7 @@ export default function SessionNoteCard({ note, patientName, therapistName = "Ps
           <div className="flex gap-1">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" aria-label="Gerar documento a partir desta anotação">
+                <Button variant="ghost" size="icon" aria-label={`Gerar documento a partir da anotação de ${format(new Date(note.date), "P", { locale: ptBR })}`}>
                   <FilePlus2 className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
@@ -273,3 +273,6 @@ export default function SessionNoteCard({ note, patientName, therapistName = "Ps
     </Card>
   );
 }
+
+const SessionNoteCard = React.memo(SessionNoteCardComponent);
+export default SessionNoteCard;

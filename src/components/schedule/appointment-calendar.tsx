@@ -159,7 +159,7 @@ const getStatusLabel = (status: AppointmentStatus): string => {
 }
 
 
-export default function AppointmentCalendar({ view, currentDate, filters, onAppointmentsUpdate }: AppointmentCalendarProps) {
+function AppointmentCalendarComponent({ view, currentDate, filters, onAppointmentsUpdate }: AppointmentCalendarProps) {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(currentDate);
   const [currentMockAppointments, setCurrentMockAppointments] = useState<AppointmentsByDate>(getInitialMockAppointments());
   const { toast } = useToast();
@@ -388,6 +388,10 @@ export default function AppointmentCalendar({ view, currentDate, filters, onAppo
     </div>
   );
 }
+
+const AppointmentCalendar = React.memo(AppointmentCalendarComponent);
+export default AppointmentCalendar;
+
 
 // Helper to populate mockPsychologists if not already defined in schedule/appointment-form
 const mockPsychologists = [

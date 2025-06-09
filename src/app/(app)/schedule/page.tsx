@@ -1,6 +1,6 @@
 
 "use client";
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react'; // Added useCallback
 import { Button } from "@/components/ui/button";
 import { CalendarDays, PlusCircle, ChevronLeft, ChevronRight, ListFilter, Download } from "lucide-react";
 import Link from "next/link";
@@ -150,9 +150,9 @@ export default function SchedulePage() {
     toast({ title: "Agenda Exportada", description: "O arquivo .ics foi baixado com sucesso." });
   };
   
-  const handleAppointmentsUpdate = (updatedAppointments: AppointmentsByDate) => {
+  const handleAppointmentsUpdate = useCallback((updatedAppointments: AppointmentsByDate) => {
     setAppointmentsData(updatedAppointments);
-  };
+  }, []);
 
 
   return (

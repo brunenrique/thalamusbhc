@@ -1,6 +1,7 @@
 
 "use client";
 
+import React from "react"; // Import React
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -20,7 +21,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
-import React from "react";
+
 
 interface Patient {
   id: string;
@@ -36,7 +37,7 @@ interface PatientListItemProps {
   patient: Patient;
 }
 
-export default function PatientListItem({ patient }: PatientListItemProps) {
+function PatientListItemComponent({ patient }: PatientListItemProps) {
   const { toast } = useToast();
 
   const getInitials = (name: string) => {
@@ -125,3 +126,6 @@ export default function PatientListItem({ patient }: PatientListItemProps) {
     </Card>
   );
 }
+
+const PatientListItem = React.memo(PatientListItemComponent);
+export default PatientListItem;

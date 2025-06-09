@@ -1,3 +1,7 @@
+
+"use client";
+
+import React from 'react'; // Import React
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -32,7 +36,7 @@ const statusLabels: Record<AssessmentStatus, string> = {
 };
 
 
-export default function AssessmentCard({ assessment, showPatientInfo = false }: AssessmentCardProps) {
+function AssessmentCardComponent({ assessment, showPatientInfo = false }: AssessmentCardProps) {
   const getStatusIcon = () => {
     switch (assessment.status) {
       case "Completed": return <CheckCircle className="h-4 w-4 text-green-500" />;
@@ -98,3 +102,6 @@ export default function AssessmentCard({ assessment, showPatientInfo = false }: 
     </Card>
   );
 }
+
+const AssessmentCard = React.memo(AssessmentCardComponent);
+export default AssessmentCard;

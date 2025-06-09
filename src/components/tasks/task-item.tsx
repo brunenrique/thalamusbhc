@@ -1,4 +1,7 @@
 
+"use client";
+
+import React from 'react'; // Import React
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -13,7 +16,7 @@ interface TaskItemProps {
   task: Task; // Usando o tipo Task importado
 }
 
-export default function TaskItem({ task }: TaskItemProps) {
+function TaskItemComponent({ task }: TaskItemProps) {
   const getPriorityBadgeVariant = (): "destructive" | "secondary" | "outline" => {
     if (task.priority === "Alta") return "destructive";
     if (task.priority === "Média") return "secondary";
@@ -72,3 +75,6 @@ export default function TaskItem({ task }: TaskItemProps) {
     </Card>
   );
 }
+
+const TaskItem = React.memo(TaskItemComponent);
+export default TaskItem;

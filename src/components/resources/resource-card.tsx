@@ -1,4 +1,7 @@
 
+"use client";
+
+import React from 'react'; // Import React
 import Image from "next/image";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -24,7 +27,7 @@ interface ResourceCardProps {
   isGlobalList?: boolean; 
 }
 
-export default function ResourceCard({ resource, isGlobalList = false }: ResourceCardProps) {
+function ResourceCardComponent({ resource, isGlobalList = false }: ResourceCardProps) {
   const getFileIcon = () => {
     switch (resource.type) {
       case "pdf": return <FileText className="h-8 w-8 text-red-500" />;
@@ -81,3 +84,6 @@ export default function ResourceCard({ resource, isGlobalList = false }: Resourc
     </Card>
   );
 }
+
+const ResourceCard = React.memo(ResourceCardComponent);
+export default ResourceCard;

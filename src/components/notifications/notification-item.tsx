@@ -1,3 +1,7 @@
+
+"use client";
+
+import React from 'react'; // Import React
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Bell, Check, X, ExternalLink, AlertTriangle, Info, CheckCircle } from "lucide-react";
@@ -20,7 +24,7 @@ interface NotificationItemProps {
   notification: Notification;
 }
 
-export default function NotificationItem({ notification }: NotificationItemProps) {
+function NotificationItemComponent({ notification }: NotificationItemProps) {
   const timeAgo = formatDistanceToNow(new Date(notification.date), { addSuffix: true, locale: ptBR });
 
   const getIcon = () => {
@@ -78,3 +82,6 @@ export default function NotificationItem({ notification }: NotificationItemProps
     </Card>
   );
 }
+
+const NotificationItem = React.memo(NotificationItemComponent);
+export default NotificationItem;

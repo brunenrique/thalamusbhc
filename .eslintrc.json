@@ -1,0 +1,46 @@
+
+{
+  "parserOptions": {
+    "ecmaVersion": 2020,
+    "sourceType": "module",
+    "ecmaFeatures": {
+      "jsx": true
+    }
+  },
+  "env": {
+    "browser": true,
+    "node": true,
+    "es6": true
+  },
+  "settings": {
+    "react": {
+      "version": "detect"
+    }
+  },
+  "plugins": [
+    "react",
+    "react-hooks",
+    "jsx-a11y"
+  ],
+  "extends": [
+    "eslint:recommended",
+    "plugin:react/recommended",
+    "plugin:react-hooks/recommended",
+    "plugin:jsx-a11y/recommended",
+    "plugin:@next/next/recommended"
+  ],
+  "rules": {
+    "react/react-in-jsx-scope": "off", // Not needed with Next.js 17+ and new JSX transform
+    "react/prop-types": "off", // We use TypeScript for prop types
+    "react/no-unknown-property": ["error"], // This will catch `asChild` on DOM elements.
+    "@next/next/no-html-link-for-pages": "warn",
+    "@next/next/link-passhref": "error", // Ensure passHref is used correctly with custom components in Link
+    "no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }],
+    "no-console": ["warn", { "allow": ["warn", "error", "info"] }], // Allow warn, error, info
+    "jsx-a11y/anchor-is-valid": ["warn", {
+      "components": ["Link"],
+      "specialLink": ["hrefLeft", "hrefRight"],
+      "aspects": ["invalidHref", "preferButton"]
+    }]
+  }
+}

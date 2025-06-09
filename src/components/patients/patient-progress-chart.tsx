@@ -17,26 +17,25 @@ interface PatientProgressChartProps {
   instrumentName: string;
 }
 
-const chartConfig = (instrumentName: string) => ({
+const chartConfig = (instrumentName: string): ChartConfig => ({ // Added explicit return type for chartConfig
   score: {
     label: instrumentName,
     color: "hsl(var(--chart-1))",
   },
-}) satisfies ChartConfig;
+});
 
 
-export default function PatientProgressChart({ data, instrumentName }: PatientProgressChartProps) {
+function PatientProgressChartComponent({ data, instrumentName }: PatientProgressChartProps) {
   if (!data || data.length === 0) {
     return <p className="text-center text-muted-foreground py-10">Nenhum dado de progresso disponível para este instrumento.</p>;
   }
 
-  const formattedData = data.map(item => ({
+  const formattedData = React.useMemo(() => data.map(item => ({
     ...item,
-    // Format date for display on X-axis. Example: "dd/MM"
     formattedDate: format(item.date, "dd/MM", { locale: ptBR }),
-  }));
+  })), [data]);
 
-  const config = chartConfig(instrumentName);
+  const config = React.useMemo(() => chartConfig(instrumentName), [instrumentName]);
 
   return (
     <ChartContainer config={config} className="min-h-[200px] w-full h-full">
@@ -56,21 +55,19 @@ export default function PatientProgressChart({ data, instrumentName }: PatientPr
             tickLine={false}
             axisLine={false}
             tickMargin={8}
-            // stroke="hsl(var(--muted-foreground))"
           />
           <YAxis
             tickLine={false}
             axisLine={false}
             tickMargin={8}
-            // stroke="hsl(var(--muted-foreground))"
-            domain={['auto', 'auto']} // Allow Y-axis to adjust to data
+            domain={['auto', 'auto']}
           />
           <RechartsChartTooltip
             cursor={true}
             content={({ active, payload, label }) => {
               if (active && payload && payload.length) {
-                const fullDate = data.find(d => format(d.date, "dd/MM", {locale: ptBR}) === label)?.date;
-                const displayLabel = fullDate ? format(fullDate, "P", {locale: ptBR}) : label;
+                const originalDataPoint = data.find(d => format(d.date, "dd/MM", {locale: ptBR}) === label);
+                const displayLabel = originalDataPoint ? format(originalDataPoint.date, "P", {locale: ptBR}) : label;
                 return (
                   <ChartTooltipContent
                     label={displayLabel}
@@ -102,3 +99,6 @@ export default function PatientProgressChart({ data, instrumentName }: PatientPr
     </ChartContainer>
   );
 }
+
+const PatientProgressChart = React.memo(PatientProgressChartComponent);
+export default PatientProgressChart;

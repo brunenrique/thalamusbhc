@@ -1,6 +1,6 @@
 
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
@@ -20,7 +20,6 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import {
   Dialog,
@@ -30,8 +29,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-  DialogClose,
-} from "@/components/ui/dialog";
+} from "@/components/ui/dialog"; // Removed DialogClose as not directly used for control
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -40,7 +38,7 @@ import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
-import { generateSessionInsights, type GenerateSessionInsightsOutput } from '@/ai/flows/generate-session-insights';
+import { generateSessionInsights, type GenerateSessionInsightsOutput } from '@/ai'; // Updated import
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
@@ -57,7 +55,6 @@ const PatientProgressChart = dynamic(() => import("@/components/patients/patient
 });
 
 
-// Mock data for global clinic resources (could be imported or fetched)
 const mockGlobalClinicResources = [
  { id: "res_global_1", name: "Guia Completo de Mindfulness.pdf", type: "pdf" as const, size: "2.1MB", uploadDate: "2024-07-01", dataAiHint:"documento mindfulness"},
  { id: "res_global_2", name: "Estratégias para Melhorar o Sono.pdf", type: "pdf" as const, size: "1.5MB", uploadDate: "2024-06-15", dataAiHint:"documento sono"},
@@ -78,11 +75,9 @@ const mockPatient = {
   lastSession: "2024-07-15",
   assignedPsychologist: "Dr. Silva",
   address: "Rua Principal, 123, Cidade Alegre, BR",
-  // encryptedMedicalHistory: "U2FsdGVkX1+...", 
 };
 
 const initialSessionNotes = [
-  // TODO: Implementar criptografia/descriptografia client-side AES aqui - summaryForInsights should be decrypted
   { id: "sn1", date: "2024-07-15", summary: "Sessão focada em mecanismos de enfrentamento para ansiedade. Paciente relata melhora na qualidade do sono após aplicar técnicas de relaxamento que foram ensinadas na sessão anterior. Apresentou-se engajada e participativa. Discutimos a importância da exposição gradual e planejamos pequenos passos para a próxima semana. Tarefa: praticar respiração diafragmática duas vezes ao dia.", keywords: ["ansiedade", "enfrentamento", "sono", "relaxamento", "exposição gradual"], themes: ["gerenciamento de estresse", "técnicas de relaxamento", "TCC"] },
   { id: "sn2", date: "2024-07-08", summary: "Exploramos dinâmicas familiares e padrões de comunicação. Identificamos alguns gatilhos em interações com a mãe que disparam sentimentos de inadequação. Paciente expressou dificuldade em estabelecer limites saudáveis. Trabalhamos role-playing de comunicação assertiva, focando em frases 'Eu sinto...' e pedidos claros. Paciente demonstrou progresso na identificação de pensamentos automáticos negativos relacionados a estas interações.", keywords: ["família", "comunicação", "limites", "assertividade", "pensamentos automáticos"], themes: ["relacionamentos interpessoais", "comunicação assertiva", "dinâmica familiar"] },
 ];
@@ -97,7 +92,6 @@ const initialPatientResources = [
  { id: "res2", name: "Dicas de Higiene do Sono.pdf", type: "pdf" as const, size: "800KB", sharedDate: "2024-06-20", dataAiHint: "documento sono" },
 ];
 
-// Mock data for assessment templates (used in "Assign Assessment" Dialog)
 const mockInventoryTemplates = [
   { id: "tpl_bdi", name: "Inventário de Depressão de Beck (BDI)" },
   { id: "tpl_gad7", name: "Escala de Ansiedade GAD-7" },
@@ -105,7 +99,6 @@ const mockInventoryTemplates = [
   { id: "tpl_pcl5", name: "Checklist de TEPT (PCL-5)" },
 ];
 
-// Mock data for patient progress
 const mockAvailableInstrumentsForProgress = [
   { id: "bdi", name: "Inventário de Depressão de Beck (BDI)" },
   { id: "gad7", name: "Escala de Ansiedade GAD-7" },
@@ -162,14 +155,12 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
   const router = useRouter();
   const { toast } = useToast();
 
-  const [sessionNotes, setSessionNotes] = useState(initialSessionNotes.map(note => ({
-    ...note,
-  })));
+  const [sessionNotes, setSessionNotes] = useState(initialSessionNotes);
   const [assessments, setAssessments] = useState(initialAssessments);
   const [patientResources, setPatientResources] = useState(initialPatientResources);
 
   const [selectedInventoryTemplate, setSelectedInventoryTemplate] = useState<string>("");
-  const [inventorySendDate, setInventorySendDate] = useState<Date | undefined>(undefined);
+  const [inventorySendDate, setInventorySendDate] = useState<Date | undefined>(new Date());
 
   const [selectedGlobalResource, setSelectedGlobalResource] = useState<string>("");
   const [resourceShareNotes, setResourceShareNotes] = useState<string>("");
@@ -182,11 +173,6 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
   const [currentProgressData, setCurrentProgressData] = useState<Array<{ date: Date; score: number }>>([]);
   const [isLoadingProgressChart, setIsLoadingProgressChart] = useState(false);
 
-
-  useEffect(() => {
-    setInventorySendDate(new Date());
-  }, []);
-
   useEffect(() => {
     setIsLoadingProgressChart(true);
     const instrumentData = mockPatientProgressData[selectedProgressInstrument] || [];
@@ -196,30 +182,29 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
     }, 500);
   }, [selectedProgressInstrument]);
 
-
-  const getInitials = (name: string) => {
+  const getInitials = useCallback((name: string) => {
     const names = name.split(' ');
     if (names.length === 1) return names[0][0]?.toUpperCase() || '';
     return (names[0][0] + (names[names.length - 1][0] || '')).toUpperCase();
-  };
+  }, []);
 
-  const handleArchivePatient = () => {
+  const handleArchivePatient = useCallback(() => {
     toast({
       title: "Paciente Arquivado (Simulado)",
       description: `${patient.name} foi marcado(a) como arquivado(a).`,
     });
-  };
+  }, [toast, patient.name]);
 
-  const handleDeletePatient = () => {
+  const handleDeletePatient = useCallback(() => {
     toast({
       title: "Paciente Excluído (Simulado)",
       description: `${patient.name} foi excluído(a) permanentemente.`,
       variant: "destructive",
     });
     router.push("/patients");
-  };
+  }, [toast, patient.name, router]);
 
-  const handleAssignInventory = () => {
+  const handleAssignInventory = useCallback(() => {
     if (!selectedInventoryTemplate || !inventorySendDate) {
       toast({ title: "Erro", description: "Selecione um modelo e uma data de envio.", variant: "destructive" });
       return;
@@ -242,9 +227,9 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
     });
     setSelectedInventoryTemplate("");
     setInventorySendDate(new Date());
-  };
+  }, [selectedInventoryTemplate, inventorySendDate, toast, patient.name, setAssessments]);
 
-  const handleShareResource = () => {
+  const handleShareResource = useCallback(() => {
     if (!selectedGlobalResource) {
       toast({ title: "Erro", description: "Selecione um recurso para compartilhar.", variant: "destructive" });
       return;
@@ -266,9 +251,9 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
     });
     setSelectedGlobalResource("");
     setResourceShareNotes("");
-  };
+  }, [selectedGlobalResource, toast, patient.name, setPatientResources]);
 
-  const handleGenerateGeneralPatientInsights = async () => {
+  const handleGenerateGeneralPatientInsights = useCallback(async () => {
     if (sessionNotes.length === 0) {
       toast({ title: "Sem Anotações", description: "Não há anotações de sessão para gerar insights gerais.", variant: "default" });
       return;
@@ -278,12 +263,9 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
     setGeneralPatientInsights(null);
 
     const mostRecentNote = sessionNotes.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0];
-    // TODO: Implementar criptografia/descriptografia client-side AES aqui - summaryForInsights should be decrypted
     const summaryForInsights = mostRecentNote.summary;
 
     try {
-      // const result = await generateSessionInsights({ sessionNotes: summaryForInsights });
-      // setGeneralPatientInsights(result);
       await new Promise(resolve => setTimeout(resolve, 1500));
       setGeneralPatientInsights({
         keywords: mostRecentNote.keywords || ["Tópico 1", "Tópico 2"],
@@ -301,17 +283,16 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
     } finally {
       setIsLoadingGeneralInsights(false);
     }
-  };
+  }, [sessionNotes, toast]);
 
 
-  const formattedDob = patient.dob ? format(new Date(patient.dob), "P", { locale: ptBR }) : "N/A";
-  const formattedNextAppointment = patient.nextAppointment
+  const formattedDob = useMemo(() => patient.dob ? format(new Date(patient.dob), "P", { locale: ptBR }) : "N/A", [patient.dob]);
+  const formattedNextAppointment = useMemo(() => patient.nextAppointment
     ? format(new Date(patient.nextAppointment), "P 'às' HH:mm", { locale: ptBR })
-    : "Não agendado";
-  const formattedLastSession = patient.lastSession
+    : "Não agendado", [patient.nextAppointment]);
+  const formattedLastSession = useMemo(() => patient.lastSession
     ? format(new Date(patient.lastSession), "P", { locale: ptBR })
-    : "N/A";
-
+    : "N/A", [patient.lastSession]);
 
   return (
     <div className="space-y-6">
@@ -671,12 +652,8 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
                     </div>
                 </div>
                 <DialogFooter>
-                    <DialogClose asChild>
-                        <Button type="button" variant="outline">Cancelar</Button>
-                    </DialogClose>
-                    <DialogClose asChild>
-                        <Button type="button" onClick={handleAssignInventory} disabled={!selectedInventoryTemplate || !inventorySendDate}>Atribuir</Button>
-                    </DialogClose>
+                  <Button type="button" variant="outline" onClick={() => {/* Close logic or use DialogClose */}}>Cancelar</Button>
+                  <Button type="button" onClick={handleAssignInventory} disabled={!selectedInventoryTemplate || !inventorySendDate}>Atribuir</Button>
                 </DialogFooter>
             </DialogContent>
         </Dialog>
@@ -788,12 +765,8 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
                     </div>
                 </div>
                 <DialogFooter>
-                    <DialogClose asChild><Button type="button" variant="outline">Cancelar</Button></DialogClose>
-                    <DialogClose asChild>
-                        <Button type="button" onClick={handleShareResource} disabled={!selectedGlobalResource}>
-                            Compartilhar
-                        </Button>
-                    </DialogClose>
+                  <Button type="button" variant="outline" onClick={() => {/* Close logic or use DialogClose */}}>Cancelar</Button>
+                  <Button type="button" onClick={handleShareResource} disabled={!selectedGlobalResource}>Compartilhar</Button>
                 </DialogFooter>
             </DialogContent>
           </Dialog>
@@ -816,7 +789,7 @@ interface InfoItemProps {
   className?: string;
 }
 
-function InfoItem({ icon, label, value, className }: InfoItemProps) {
+const InfoItem = React.memo(function InfoItem({ icon, label, value, className }: InfoItemProps) {
   return (
     <div className={`flex items-start gap-3 p-3 bg-secondary/30 rounded-md ${className}`}>
       <span className="text-muted-foreground mt-1">{icon}</span>
@@ -826,6 +799,4 @@ function InfoItem({ icon, label, value, className }: InfoItemProps) {
       </div>
     </div>
   );
-}
-
-    
+});

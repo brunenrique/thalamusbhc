@@ -1,6 +1,7 @@
 
 "use client";
 
+import React from "react";
 import {
   Table,
   TableBody,
@@ -37,7 +38,7 @@ const getOccupancyBadgeVariant = (occupancy: string): "default" | "secondary" | 
   return "destructive";
 };
 
-export default function DetailedOccupancyTable({ data }: DetailedOccupancyTableProps) {
+function DetailedOccupancyTableComponent({ data }: DetailedOccupancyTableProps) {
   if (!data || data.length === 0) {
     return (
       <div className="text-center py-10 text-muted-foreground">
@@ -82,3 +83,6 @@ export default function DetailedOccupancyTable({ data }: DetailedOccupancyTableP
     </div>
   );
 }
+
+const DetailedOccupancyTable = React.memo(DetailedOccupancyTableComponent);
+export default DetailedOccupancyTable;

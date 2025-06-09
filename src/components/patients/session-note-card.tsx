@@ -1,12 +1,12 @@
 
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Brain, FileText, Tag, Lightbulb, BarChart3, Edit, Trash2, AlertTriangleIcon, CheckCircle, ShieldAlert, FilePlus2 } from "lucide-react";
-import { generateSessionInsights, type GenerateSessionInsightsOutput } from '@/ai/flows/generate-session-insights';
-import { generateReportDraft, type GenerateReportDraftInput, type GenerateReportDraftOutput } from '@/ai/flows/generate-report-draft-flow';
+import { generateSessionInsights, type GenerateSessionInsightsOutput } from '@/ai'; // Updated import
+import { generateReportDraft, type GenerateReportDraftInput, type GenerateReportDraftOutput } from '@/ai'; // Updated import
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Skeleton } from '../ui/skeleton';
@@ -27,15 +27,14 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogClose,
-} from "@/components/ui/dialog";
+} from "@/components/ui/dialog"; // Removed DialogClose as it's not directly used for control here
 import { Textarea } from '../ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 
 interface SessionNote {
   id: string;
   date: string;
-  summary: string; // TODO: Este campo deve ser criptografado no DB e descriptografado no cliente.
+  summary: string;
   keywords?: string[];
   themes?: string[];
 }
@@ -58,15 +57,10 @@ function SessionNoteCardComponent({ note, patientName, therapistName = "Psicólo
   const [errorReport, setErrorReport] = useState<string | null>(null);
   const [isReportDialogVisible, setIsReportDialogVisible] = useState(false);
 
-
-  const handleGenerateInsights = async () => {
+  const handleGenerateInsights = useCallback(async () => {
     setIsLoadingInsights(true);
     setErrorInsights(null);
     try {
-      // TODO: Assegurar que note.summary seja a versão descriptografada se a criptografia estiver ativa.
-      // const result = await generateSessionInsights({ sessionNotes: note.summary });
-      // setInsights(result);
-      // Simulação
       await new Promise(resolve => setTimeout(resolve, 1000));
       setInsights({
         keywords: note.keywords || ["Insight Palavra 1", "Insight Palavra 2"],
@@ -84,60 +78,50 @@ function SessionNoteCardComponent({ note, patientName, therapistName = "Psicólo
     } finally {
       setIsLoadingInsights(false);
     }
-  };
+  }, [note.keywords, note.themes, toast]);
 
-  const handleGenerateReport = async (reportType: GenerateReportDraftInput["reportType"]) => {
-    setIsGeneratingReport(true);
-    setErrorReport(null);
-    setReportDraft(null);
-    setCurrentReportType(getReportTypeName(reportType));
-    setIsReportDialogVisible(true); 
-
-    try {
-      // TODO: Assegurar que note.summary seja a versão descriptografada.
-      // const result = await generateReportDraft({
-      //   sessionNotes: note.summary,
-      //   patientName: patientName,
-      //   reportType: reportType,
-      //   therapistName: therapistName,
-      // });
-      // setReportDraft(result.draftContent);
-      // Simulação
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      setReportDraft(`Este é um rascunho simulado de ${getReportTypeName(reportType)} para ${patientName} baseado na sessão de ${format(new Date(note.date), "P", {locale:ptBR})}.\n\n${note.summary}`);
-      toast({title: "Simulado: Rascunho de relatório gerado"});
-    } catch (e) {
-      console.error("Falha ao gerar rascunho de relatório:", e);
-      setErrorReport(`Falha ao gerar rascunho de ${getReportTypeName(reportType)}. Por favor, tente novamente.`);
-    } finally {
-      setIsGeneratingReport(false);
-    }
-  };
-
-  const getReportTypeName = (type: GenerateReportDraftInput["reportType"]): string => {
+  const getReportTypeName = useCallback((type: GenerateReportDraftInput["reportType"]): string => {
     if (type === "progress_report") return "Relatório de Progresso";
     if (type === "referral_letter") return "Carta de Encaminhamento";
     if (type === "session_summary") return "Resumo da Sessão";
     return "Documento";
-  };
+  }, []);
 
-  const handleCopyReportDraft = () => {
+  const handleGenerateReport = useCallback(async (reportType: GenerateReportDraftInput["reportType"]) => {
+    setIsGeneratingReport(true);
+    setErrorReport(null);
+    setReportDraft(null);
+    const reportTypeName = getReportTypeName(reportType);
+    setCurrentReportType(reportTypeName);
+    setIsReportDialogVisible(true); 
+
+    try {
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      setReportDraft(`Este é um rascunho simulado de ${reportTypeName} para ${patientName} baseado na sessão de ${format(new Date(note.date), "P", {locale:ptBR})}.\n\n${note.summary}`);
+      toast({title: "Simulado: Rascunho de relatório gerado"});
+    } catch (e) {
+      console.error("Falha ao gerar rascunho de relatório:", e);
+      setErrorReport(`Falha ao gerar rascunho de ${reportTypeName}. Por favor, tente novamente.`);
+    } finally {
+      setIsGeneratingReport(false);
+    }
+  }, [getReportTypeName, patientName, note.date, note.summary, toast]);
+
+  const handleCopyReportDraft = useCallback(() => {
     if (reportDraft) {
       navigator.clipboard.writeText(reportDraft);
       toast({ title: "Rascunho Copiado", description: "O conteúdo do rascunho foi copiado para a área de transferência." });
     }
-  };
+  }, [reportDraft, toast]);
   
-  const closeReportDialog = () => {
+  const closeReportDialog = useCallback(() => {
     setIsReportDialogVisible(false); 
     setReportDraft(null);
     setErrorReport(null);
-    setIsGeneratingReport(false); // Reset generation state
-  };
+    setIsGeneratingReport(false);
+  }, []);
 
-  // TODO: Para edição/criação de notas, o conteúdo seria criptografado antes de salvar.
-  // A exclusão também precisaria considerar a gestão de dados criptografados.
-
+  const formattedDate = useMemo(() => format(new Date(note.date), "PPP", { locale: ptBR }), [note.date]);
 
   return (
     <Card className="shadow-sm">
@@ -147,13 +131,12 @@ function SessionNoteCardComponent({ note, patientName, therapistName = "Psicólo
             <CardTitle className="font-headline text-lg flex items-center">
               <FileText className="mr-2 h-5 w-5 text-primary" /> Anotação de Sessão
             </CardTitle>
-            <CardDescription>{format(new Date(note.date), "PPP", { locale: ptBR })}</CardDescription>
+            <CardDescription>{formattedDate}</CardDescription>
           </div>
           <div className="flex gap-1">
-            
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" aria-label={`Gerar documento a partir da anotação de ${format(new Date(note.date), "P", { locale: ptBR })}`}>
+                <Button variant="ghost" size="icon" aria-label={`Gerar documento a partir da anotação de ${formattedDate}`}>
                   <FilePlus2 className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
@@ -165,27 +148,22 @@ function SessionNoteCardComponent({ note, patientName, therapistName = "Psicólo
                 <DropdownMenuItem onClick={() => handleGenerateReport("session_summary")}>Resumo da Sessão</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-            
-            <Button variant="ghost" size="icon" aria-label={`Editar anotação de ${format(new Date(note.date), "P", { locale: ptBR })}`}>
+            <Button variant="ghost" size="icon" aria-label={`Editar anotação de ${formattedDate}`}>
               <Edit className="h-4 w-4" />
             </Button>
-            <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive" aria-label={`Excluir anotação de ${format(new Date(note.date), "P", { locale: ptBR })}`}>
+            <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive" aria-label={`Excluir anotação de ${formattedDate}`}>
               <Trash2 className="h-4 w-4" />
             </Button>
           </div>
         </div>
       </CardHeader>
       <CardContent>
-        {/* TODO: O `note.summary` exibido aqui deveria ser a versão descriptografada. */}
         <p className="text-sm leading-relaxed whitespace-pre-wrap">{note.summary}</p>
-
-        
         {!insights && !isLoadingInsights && (
           <Button onClick={handleGenerateInsights} variant="outline" size="sm" className="mt-4">
             <Brain className="mr-2 h-4 w-4" /> Gerar Insights com IA
           </Button>
         )}
-
         {isLoadingInsights && (
           <div className="mt-4 space-y-2">
             <Skeleton className="h-4 w-1/3" />
@@ -193,18 +171,15 @@ function SessionNoteCardComponent({ note, patientName, therapistName = "Psicólo
             <Skeleton className="h-4 w-2/3" />
           </div>
         )}
-
         {errorInsights && (
           <Alert variant="destructive" className="mt-4">
             <AlertTitle>Erro nos Insights</AlertTitle>
             <AlertDescription>{errorInsights}</AlertDescription>
           </Alert>
         )}
-
         {insights && (
           <div className="mt-6 space-y-4 p-4 bg-muted/30 rounded-lg">
             <h4 className="text-md font-semibold text-accent flex items-center"><Lightbulb className="mr-2 h-5 w-5" /> Insights da IA</h4>
-            
             {insights.potentialRiskAlerts && insights.potentialRiskAlerts.length > 0 && (
               <div>
                 <h5 className="text-sm font-medium flex items-center text-destructive"><ShieldAlert className="mr-2 h-4 w-4" /> Alertas de Risco Potencial:</h5>
@@ -213,7 +188,6 @@ function SessionNoteCardComponent({ note, patientName, therapistName = "Psicólo
                 </div>
               </div>
             )}
-
             <div>
               <h5 className="text-sm font-medium flex items-center"><Tag className="mr-2 h-4 w-4 text-muted-foreground" /> Palavras-chave:</h5>
               <div className="flex flex-wrap gap-1 mt-1">
@@ -250,11 +224,8 @@ function SessionNoteCardComponent({ note, patientName, therapistName = "Psicólo
             </div>
           </div>
         )}
-        
       </CardContent>
-
-      
-      <Dialog open={isReportDialogVisible} onOpenChange={(open) => { if(!open) closeReportDialog(); else setIsReportDialogVisible(true); }}>
+      <Dialog open={isReportDialogVisible} onOpenChange={setIsReportDialogVisible}>
         <DialogContent className="sm:max-w-2xl">
           <DialogHeader>
             <DialogTitle>Rascunho: {currentReportType}</DialogTitle>
@@ -296,13 +267,9 @@ function SessionNoteCardComponent({ note, patientName, therapistName = "Psicólo
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      
     </Card>
   );
 }
 
 const SessionNoteCard = React.memo(SessionNoteCardComponent);
 export default SessionNoteCard;
-
-
-    

@@ -1,3 +1,4 @@
+
 import React from 'react';
 
 interface RecentActivityItemProps {
@@ -6,7 +7,7 @@ interface RecentActivityItemProps {
   time: string;
 }
 
-export function RecentActivityItem({ icon, description, time }: RecentActivityItemProps) {
+function RecentActivityItemComponent({ icon, description, time }: RecentActivityItemProps) {
   return (
     <div className="flex items-start space-x-3 p-3 hover:bg-secondary/30 rounded-md transition-colors">
       <span className="flex-shrink-0 text-muted-foreground mt-1">{icon}</span>
@@ -17,3 +18,5 @@ export function RecentActivityItem({ icon, description, time }: RecentActivityIt
     </div>
   );
 }
+
+export const RecentActivityItem = React.memo(RecentActivityItemComponent);

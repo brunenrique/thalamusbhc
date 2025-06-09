@@ -531,21 +531,32 @@ interface SidebarMenuButtonProps extends React.ButtonHTMLAttributes<HTMLButtonEl
 }
 
 const SidebarMenuButton = React.forwardRef<HTMLButtonElement, SidebarMenuButtonProps>(
-  ({
-    asChild: propAsChild = false, // Use a different name to avoid conflict
-    variant = "default",
-    size = "default",
-    isActive = false,
-    tooltip,
-    className,
-    children,
-    ...props 
-  }, ref) => {
+  (rawProps, ref) => {
+    const {
+      asChild: isAsChildProperty = false,
+      variant = "default",
+      size = "default",
+      isActive = false,
+      tooltip,
+      className,
+      children,
+      ...otherProps
+    } = rawProps;
+
     const { isMobile, state } = useSidebar();
-    const Comp = propAsChild ? Slot : "button";
-    
-    // Remove asChild from props if it exists, as it's already handled by Comp
-    const { asChild: _asChild, ...restProps } = props as any;
+    const Comp = isAsChildProperty ? Slot : "button";
+
+    // Explicitly prepare props for spreading, ensuring asChild from parent Link is handled by isAsChildProperty
+    // and not spread again if Comp is a native element.
+    const finalProps: Record<string, any> = { ...otherProps };
+    if (Comp !== Slot && 'asChild' in finalProps) { // If Comp is native, remove any lingering asChild
+      delete finalProps.asChild;
+    }
+     // Native button doesn't take tooltip object. If Comp is button, and tooltip is object, it might need special handling or removal.
+    if (Comp === "button" && tooltip && typeof tooltip !== 'string') {
+        // For now, let's assume tooltip prop on native button is okay if it's just for the TooltipProvider context
+        // Or, we could remove it: delete finalProps.tooltip; (but this would break the Tooltip component wrapper)
+    }
 
 
     const buttonElement = (
@@ -556,7 +567,7 @@ const SidebarMenuButton = React.forwardRef<HTMLButtonElement, SidebarMenuButtonP
         data-size={size}
         data-active={isActive}
         aria-current={isActive ? "page" : undefined}
-        {...restProps} 
+        {...finalProps}
       >
         {children}
       </Comp>
@@ -566,7 +577,7 @@ const SidebarMenuButton = React.forwardRef<HTMLButtonElement, SidebarMenuButtonP
       return buttonElement;
     }
 
-    const tooltipProps: Partial<React.ComponentProps<typeof TooltipContent>> =
+    const tooltipContentProps: Partial<React.ComponentProps<typeof TooltipContent>> =
       typeof tooltip === "string" ? { children: tooltip } : tooltip;
 
     return (
@@ -576,7 +587,7 @@ const SidebarMenuButton = React.forwardRef<HTMLButtonElement, SidebarMenuButtonP
           side="right"
           align="center"
           hidden={isMobile || state === "expanded"}
-          {...tooltipProps}
+          {...tooltipContentProps}
         />
       </Tooltip>
     );
@@ -705,16 +716,26 @@ interface SidebarMenuSubButtonProps extends React.AnchorHTMLAttributes<HTMLAncho
 }
 
 const SidebarMenuSubButton = React.forwardRef<HTMLAnchorElement, SidebarMenuSubButtonProps>(
-  ({
-    asChild: propAsChild = false,
-    size = "md",
-    isActive,
-    className,
-    children,
-    ...props 
-  }, ref) => {
-    const Comp = propAsChild ? Slot : "a";
-    const { asChild: _asChild, ...restProps } = props as any;
+  (rawProps, ref) => {
+    const {
+      asChild: isAsChildProperty = false,
+      size = "md",
+      isActive,
+      className,
+      children,
+      ...otherProps
+    } = rawProps;
+
+    const Comp = isAsChildProperty ? Slot : "a";
+
+    const finalProps: Record<string, any> = { ...otherProps };
+    if (Comp !== Slot && 'asChild' in finalProps) {
+      delete finalProps.asChild;
+    }
+    // Remove tooltip if Comp is native 'a' as it's not a valid HTML attribute for 'a'
+    if (Comp === 'a' && 'tooltip' in finalProps) {
+        delete finalProps.tooltip;
+    }
 
     return (
       <Comp
@@ -731,7 +752,7 @@ const SidebarMenuSubButton = React.forwardRef<HTMLAnchorElement, SidebarMenuSubB
         data-size={size}
         data-active={isActive}
         aria-current={isActive ? "page" : undefined}
-        {...restProps}
+        {...finalProps}
       >
         {children}
       </Comp>
@@ -766,5 +787,3 @@ export {
   SidebarTrigger,
   useSidebar,
 }
-
-    

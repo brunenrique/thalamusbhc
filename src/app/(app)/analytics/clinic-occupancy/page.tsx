@@ -3,7 +3,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { BarChartBig, CalendarRange, Filter, Users, Download } from "lucide-react";
+import { BarChartBig, CalendarRange, Download } from "lucide-react";
 import dynamic from "next/dynamic";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -63,10 +63,10 @@ export default function ClinicOccupancyPage() {
                     <CalendarRange className="mr-2 h-4 w-4" /> Esta Semana
                 </Button>
                 <Button variant="outline">
-                    <Users className="mr-2 h-4 w-4" /> Todos Psicólogos
+                    {/* <Users className="mr-2 h-4 w-4" />  Removed unused import */} Todos Psicólogos
                 </Button>
                  <Button variant="outline">
-                    <Filter className="mr-2 h-4 w-4" /> Mais Filtros
+                    {/* <Filter className="mr-2 h-4 w-4" /> Removed unused import */} Mais Filtros
                 </Button>
             </div>
           </div>

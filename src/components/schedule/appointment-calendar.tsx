@@ -5,7 +5,7 @@ import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
-import { Clock, User, PlusCircle, Edit, Trash2, CheckCircle, AlertTriangle, XCircle, CalendarCog, Check, Ban, UserCheck, UserX, RepeatIcon } from 'lucide-react';
+import { Clock, User, PlusCircle, Edit, Trash2, CheckCircle, AlertTriangle, XCircle, Check, Ban, UserCheck, UserX, RepeatIcon } from 'lucide-react';
 import { format, startOfWeek, endOfWeek, eachDayOfInterval, addDays, subDays, isSameMonth, isSameDay, parse } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import Link from 'next/link';
@@ -290,9 +290,7 @@ function AppointmentCalendarComponent({ view, currentDate, filters, onAppointmen
         </CardContent>
       </Card>
     );
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [getAppointmentsForDay, selectedDate, filters.psychologistId, handleDeleteAppointment, handleUpdateStatus]); 
-  // Added missing dependencies to useCallback for renderDayCell
 
   const renderMonthView = useCallback(() => {
     const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);

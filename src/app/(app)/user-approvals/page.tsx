@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Users, CheckCircle, ShieldQuestion, Trash2, UserX } from "lucide-react";
+import { Users, CheckCircle, ShieldQuestion, UserX } from "lucide-react";
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { collection, doc, getFirestore, query, updateDoc, where, deleteDoc, onSnapshot, Unsubscribe } from "firebase/firestore";
@@ -58,7 +58,7 @@ export default function UserApprovalsPage() {
       setPendingUsers(users);
       setLoading(false);
     }, (error) => {
-      console.error("Erro ao buscar usuários pendentes com onSnapshot:", error);
+      
       toast({
         title: "Erro ao Carregar Usuários",
         description: "Não foi possível buscar os usuários pendentes em tempo real. Tente novamente mais tarde.",
@@ -83,7 +83,7 @@ export default function UserApprovalsPage() {
         description: "O usuário foi aprovado com sucesso e agora tem acesso ao sistema.",
       });
     } catch (error) {
-      console.error("Erro ao aprovar usuário:", error);
+      
       toast({
         title: "Erro ao Aprovar",
         description: "Não foi possível aprovar o usuário. Tente novamente.",
@@ -103,7 +103,7 @@ export default function UserApprovalsPage() {
         variant: "default",
       });
     } catch (error) {
-      console.error("Erro ao rejeitar usuário:", error);
+      
       toast({
         title: "Erro ao Rejeitar",
         description: "Não foi possível rejeitar o usuário. Tente novamente.",

@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useEffect } from 'react'; // Added useEffect
+import React, { useEffect } from 'react'; 
 import {
   SidebarProvider,
   Sidebar,
@@ -9,7 +9,7 @@ import {
   SidebarContent,
   SidebarFooter,
   SidebarInset,
-} from "@/components/ui/sidebar"; // Removed SidebarTrigger as it's used inside AppHeader
+} from "@/components/ui/sidebar"; 
 import AppHeader from "@/components/layout/header";
 import SidebarNav from "@/components/layout/sidebar-nav";
 import { Brain } from "lucide-react";
@@ -18,8 +18,8 @@ import { usePathname } from 'next/navigation';
 import ChatFloatingButton from '@/components/chat/ChatFloatingButton';
 import ChatWindow from '@/components/chat/ChatWindow';
 import { useChatStore } from '@/stores/chatStore';
-import { auth } from '@/services/firebase'; // Import Firebase auth
-import { onAuthStateChanged } from 'firebase/auth'; // Import onAuthStateChanged
+import { auth } from '@/services/firebase'; 
+import { onAuthStateChanged } from 'firebase/auth'; 
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -27,7 +27,7 @@ interface AppLayoutProps {
 
 export default function AppLayout({ children }: AppLayoutProps) {
   const pathname = usePathname();
-  const { setCurrentUser, currentUser } = useChatStore(); // Get setCurrentUser from the store
+  const { setCurrentUser, currentUser } = useChatStore(); 
   
   const [defaultOpen, setDefaultOpen] = React.useState(true);
 

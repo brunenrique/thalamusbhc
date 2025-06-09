@@ -1,7 +1,7 @@
 
 "use client";
 
-import React from 'react'; // Import React
+import React, { useEffect, useState } from 'react'; // Import React
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Bell, Check, X, ExternalLink, AlertTriangle, Info, CheckCircle } from "lucide-react";
@@ -25,7 +25,16 @@ interface NotificationItemProps {
 }
 
 function NotificationItemComponent({ notification }: NotificationItemProps) {
-  const timeAgo = formatDistanceToNow(new Date(notification.date), { addSuffix: true, locale: ptBR });
+  const [timeAgo, setTimeAgo] = useState<string>('');
+
+  useEffect(() => {
+    if (notification.date) {
+      setTimeAgo(formatDistanceToNow(new Date(notification.date), { addSuffix: true, locale: ptBR }));
+    } else {
+      setTimeAgo('Data inválida');
+    }
+  }, [notification.date]);
+
 
   const getIcon = () => {
     switch (notification.type) {
@@ -56,7 +65,7 @@ function NotificationItemComponent({ notification }: NotificationItemProps) {
             <p className={cn("text-sm", notification.read ? "text-muted-foreground" : "font-medium text-foreground")}>
               {notification.message}
             </p>
-            <p className="text-xs text-muted-foreground mt-0.5">{timeAgo}</p>
+            <p className="text-xs text-muted-foreground mt-0.5">{timeAgo || 'Calculando...'}</p>
           </div>
           <div className="flex flex-col sm:flex-row items-center gap-1.5">
             {notification.link && (

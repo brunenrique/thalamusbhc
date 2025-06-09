@@ -46,11 +46,18 @@ const initialMockBackupHistory: BackupHistoryEntry[] = [
 export default function BackupPage() {
   const { toast } = useToast();
   const [lastBackupDate, setLastBackupDate] = useState(new Date("2024-07-20T02:00:00Z"));
-  const [nextBackupDate, setNextBackupDate] = useState(new Date(new Date().setDate(new Date().getDate() + 1)).setHours(2,0,0,0)); // Tomorrow at 2 AM
+  const [nextBackupDate, setNextBackupDate] = useState<number | null>(null);
   const [currentBackupStatus, setCurrentBackupStatus] = useState<BackupStatus>("Bem-sucedido");
   const [currentBackupProgress, setCurrentBackupProgress] = useState(100);
   const [backupHistory, setBackupHistory] = useState<BackupHistoryEntry[]>(initialMockBackupHistory);
   const [isManualBackupRunning, setIsManualBackupRunning] = useState(false);
+
+  useEffect(() => {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    tomorrow.setHours(2,0,0,0);
+    setNextBackupDate(tomorrow.getTime());
+  }, []);
 
   useEffect(() => {
     let progressInterval: NodeJS.Timeout;
@@ -147,7 +154,7 @@ export default function BackupPage() {
                     {currentBackupStatus}
                 </Badge>
             </div>
-            <p className="text-sm"><strong>Próximo Backup Agendado:</strong> {format(new Date(nextBackupDate), "P 'às' HH:mm", { locale: ptBR })}</p>
+            <p className="text-sm"><strong>Próximo Backup Agendado:</strong> {nextBackupDate ? format(new Date(nextBackupDate), "P 'às' HH:mm", { locale: ptBR }) : "Calculando..."}</p>
             {(currentBackupStatus === "Em Progresso" || isManualBackupRunning) && (
               <div>
                 <Label htmlFor="backupProgress" className="text-sm">Progresso do Backup Atual:</Label>
@@ -275,6 +282,3 @@ export default function BackupPage() {
     </div>
   );
 }
-
-
-    

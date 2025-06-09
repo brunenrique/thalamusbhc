@@ -3,7 +3,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Activity, Users, CalendarCheck, BarChart3, ArrowUpRight, DollarSign, Clock, ClipboardList, LineChart, UsersRound, CalendarClock, UserX, FileX2, Repeat, CalendarDays } from "lucide-react";
+import { Activity, Users, CalendarCheck, BarChart3, ArrowUpRight, LineChart, UsersRound, CalendarClock, UserX, FileX2, Repeat, CalendarDays } from "lucide-react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { Skeleton } from "@/components/ui/skeleton";

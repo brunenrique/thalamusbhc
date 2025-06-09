@@ -3,7 +3,7 @@
 
 import * as React from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm, Controller } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -23,12 +23,12 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { CalendarIcon, Clock, Save, User, Users, Repeat } from "lucide-react";
+import { CalendarIcon, Save, Repeat } from "lucide-react";
 import { cn } from "@/shared/utils";
-import { format, set, parse } from "date-fns";
+import { format, parse } from "date-fns";
 import { ptBR } from 'date-fns/locale';
 import { useToast } from "@/hooks/use-toast";
-import type { Appointment, AppointmentsByDate } from "@/components/schedule/appointment-calendar"; 
+import type { Appointment } from "@/components/schedule/appointment-calendar"; 
 
 const mockPatients = [
   { id: "1", name: "Alice Wonderland" },

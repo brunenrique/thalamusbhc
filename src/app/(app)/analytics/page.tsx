@@ -1,7 +1,7 @@
 
 "use client";
 
-import { BarChart3, Users, CalendarCheck, TrendingUp, PieChart as PieChartIcon, Link as LinkIconLucide, UsersRound, Activity as ActivityIcon } from "lucide-react";
+import { BarChart3, Users, CalendarCheck, TrendingUp, PieChart as PieChartIcon, UsersRound, Activity as ActivityIcon } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -218,4 +218,3 @@ export default function AnalyticsPage() {
     </div>
   );
 }
-

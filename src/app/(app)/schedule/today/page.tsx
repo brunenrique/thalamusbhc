@@ -70,7 +70,7 @@ export default function TodaySchedulePage() {
         const tasks = await getTasksForDate(currentDate);
         setTasksForCurrentDate(tasks);
       } catch (error) {
-        console.error("Erro ao buscar tarefas para a data:", error);
+        
         toast({
           title: "Erro ao Carregar Tarefas",
           description: "Não foi possível buscar as tarefas para hoje.",
@@ -298,7 +298,7 @@ export default function TodaySchedulePage() {
                 </DropdownMenuGroup>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem>
-                      <Button className="w-full" size="sm" onClick={() => { /* console.log("Aplicando filtros:", filters) */ }}>Aplicar Filtros</Button>
+                      <Button className="w-full" size="sm" onClick={() => { /* Aplicar filtros */ }}>Aplicar Filtros</Button>
                   </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

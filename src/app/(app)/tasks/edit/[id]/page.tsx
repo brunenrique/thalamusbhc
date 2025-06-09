@@ -30,7 +30,7 @@ export default function EditTaskPage() {
             setError("Tarefa não encontrada.");
           }
         } catch (err) {
-          console.error("Erro ao buscar tarefa:", err);
+          
           setError("Falha ao carregar a tarefa. Tente novamente.");
         } finally {
           setLoading(false);

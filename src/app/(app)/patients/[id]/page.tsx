@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
-import { Mail, Phone, CalendarDays, Edit, FileText, Brain, CheckCircle, Clock, Archive, MessageSquare, Trash2, Users as UsersIconLucide, Home as HomeIconLucide, Share2, UploadCloud, Calendar as CalendarIconShad, Lightbulb, Tag, BarChart3 as BarChart3Icon, ShieldAlert as ShieldAlertIcon, CheckCircle as CheckCircleIcon, TrendingUp, BookOpen, Activity, Users2, Layers, ClipboardList, Target, ListChecks, PlusCircle } from "lucide-react";
+import { Mail, Phone, CalendarDays, Edit, FileText, Brain, CheckCircle, Clock, MessageSquare, Trash2, Users as UsersIconLucide, Home as HomeIconLucide, Share2, UploadCloud, Calendar as CalendarIconShad, Lightbulb, Tag, BarChart3 as BarChart3Icon, ShieldAlert as ShieldAlertIcon, CheckCircle as CheckCircleIcon, TrendingUp, BookOpen, Activity, Users2, ClipboardList, Target, ListChecks, PlusCircle } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import PatientTimeline from "@/components/patients/patient-timeline";
@@ -29,7 +29,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"; // Removed DialogClose as not directly used for control
+} from "@/components/ui/dialog"; 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -38,7 +38,7 @@ import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
-import { generateSessionInsights, type GenerateSessionInsightsOutput } from '@/ai'; // Updated import
+import { generateSessionInsights, type GenerateSessionInsightsOutput } from '@/ai/flows/generate-session-insights'; 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
@@ -160,9 +160,7 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
   const [patientResources, setPatientResources] = useState(initialPatientResources);
 
   const [selectedInventoryTemplate, setSelectedInventoryTemplate] = useState<string>("");
-  const [inventorySendDate, setInventorySendDate] = useState<Date | undefined>(new Date());
-
-  const [selectedGlobalResource, setSelectedGlobalResource] = useState<string>("");
+  const [inventorySendDate, setInventorySendDate] = useState<Date | undefined>(undefined); // Initialize as undefined for useEffect
   const [resourceShareNotes, setResourceShareNotes] = useState<string>("");
 
   const [generalPatientInsights, setGeneralPatientInsights] = useState<GenerateSessionInsightsOutput | null>(null); 
@@ -172,6 +170,12 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
   const [selectedProgressInstrument, setSelectedProgressInstrument] = useState<string>("bdi");
   const [currentProgressData, setCurrentProgressData] = useState<Array<{ date: Date; score: number }>>([]);
   const [isLoadingProgressChart, setIsLoadingProgressChart] = useState(false);
+  const [selectedGlobalResource, setSelectedGlobalResource] = useState<string>("");
+
+
+  useEffect(() => {
+    setInventorySendDate(new Date());
+  }, []);
 
   useEffect(() => {
     setIsLoadingProgressChart(true);
@@ -278,7 +282,7 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
       });
       toast({ title: "Insights Gerais Gerados (Simulado)", description: "Insights do paciente foram gerados com base na última anotação de sessão." });
     } catch (e) {
-      console.error("Falha ao gerar insights gerais:", e);
+      
       setErrorGeneralInsights("Não foi possível gerar os insights gerais do paciente. Por favor, tente novamente.");
     } finally {
       setIsLoadingGeneralInsights(false);

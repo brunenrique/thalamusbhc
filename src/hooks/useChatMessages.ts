@@ -52,7 +52,7 @@ export function useChatMessages(chatId: string) {
         setLoading(false);
       },
       (err) => {
-        console.error("Error fetching chat messages: ", err);
+        
         setError(err);
         setLoading(false);
       }

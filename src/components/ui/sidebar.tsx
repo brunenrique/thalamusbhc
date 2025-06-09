@@ -50,11 +50,11 @@ function useSidebar() {
 
 const SidebarProvider = React.forwardRef<
   HTMLDivElement,
-  React.ComponentPropsWithoutRef<"div"> & { // Changed to ComponentPropsWithoutRef
+  React.ComponentPropsWithoutRef<"div"> & {
     defaultOpen?: boolean
     open?: boolean
     onOpenChange?: (open: boolean) => void
-    asChild?: boolean; // Explicitly add asChild
+    asChild?: boolean;
   }
 >(
   (
@@ -65,7 +65,7 @@ const SidebarProvider = React.forwardRef<
       className,
       style,
       children,
-      asChild = false, // Destructure asChild, default to false
+      asChild, // Destructure asChild
       ...props // Remaining props
     },
     ref
@@ -124,6 +124,7 @@ const SidebarProvider = React.forwardRef<
     )
 
     const Comp = asChild ? Slot : "div";
+    const { ...restProps } = props; // All props except asChild which is already destructured
 
     return (
       <SidebarContext.Provider value={contextValue}>
@@ -141,7 +142,7 @@ const SidebarProvider = React.forwardRef<
               className
             )}
             ref={ref}
-            {...props} // Spread the remaining props (asChild is now destructured)
+            {...restProps}
           >
             {children}
           </Comp>

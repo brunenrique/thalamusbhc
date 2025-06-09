@@ -35,7 +35,7 @@ export async function getTasksForDate(date: Date): Promise<Task[]> {
       const taskDueDate = parse(task.dueDate, 'yyyy-MM-dd', new Date());
       return isEqual(startOfDay(taskDueDate), startOfDay(date));
     } catch (e) {
-      console.error("Erro ao parsear data da tarefa:", task.dueDate, e);
+      // console.error("Erro ao parsear data da tarefa:", task.dueDate, e); // Removido
       return false;
     }
   });

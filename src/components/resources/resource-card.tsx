@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { FileText, FileImage, FileArchive, Download, Share2, Trash2, Users, Edit } from "lucide-react";
-import Link from "next/link";
+
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 

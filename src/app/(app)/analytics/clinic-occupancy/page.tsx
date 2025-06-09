@@ -1,27 +1,29 @@
 
-"use client"; // Added to make this a Client Component
+"use client"; 
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { BarChartBig, CalendarRange, Filter, Users, Download } from "lucide-react";
 import dynamic from "next/dynamic";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
-import { Badge } from "@/components/ui/badge";
-import { format } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
 
 const OccupancyChart = dynamic(() => import("@/components/dashboard/occupancy-chart").then(mod => mod.OccupancyChart), {
   loading: () => <Skeleton className="h-[350px] w-full" />,
   ssr: false
 });
+
+const DetailedOccupancyTable = dynamic(() => import("@/components/analytics/detailed-occupancy-table"), {
+  loading: () => (
+    <div className="space-y-2 mt-4">
+      <Skeleton className="h-8 w-full" />
+      <Skeleton className="h-10 w-full" />
+      <Skeleton className="h-10 w-full" />
+      <Skeleton className="h-10 w-full" />
+    </div>
+  ),
+  ssr: false,
+});
+
 
 const mockOccupancyData = [
   { day: "Segunda", date: "2024-07-22", psychologist: "Dr. Silva", totalSlots: 8, bookedSlots: 6, blockedSlots: 1, occupancy: "75%" },
@@ -34,15 +36,6 @@ const mockOccupancyData = [
 ];
 
 export default function ClinicOccupancyPage() {
-  const getOccupancyBadgeVariant = (occupancy: string): "default" | "secondary" | "outline" | "destructive" => {
-    if (occupancy === "N/A") return "outline";
-    const percentage = parseFloat(occupancy);
-    if (percentage >= 90) return "default"; 
-    if (percentage >= 70) return "secondary"; 
-    if (percentage >= 40) return "outline"; 
-    return "destructive"; 
-  };
-
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -84,45 +77,7 @@ export default function ClinicOccupancyPage() {
           </div>
           
           <h3 className="text-xl font-semibold mb-3 font-headline">Dados Detalhados de Ocupação</h3>
-          {mockOccupancyData.length > 0 ? (
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="min-w-[100px]">Dia</TableHead>
-                    <TableHead className="min-w-[120px]">Data</TableHead>
-                    <TableHead className="min-w-[150px]">Psicólogo(a)</TableHead>
-                    <TableHead className="text-center min-w-[100px]">Total Horários</TableHead>
-                    <TableHead className="text-center min-w-[100px]">Agendados</TableHead>
-                    <TableHead className="text-center min-w-[100px]">Bloqueados</TableHead>
-                    <TableHead className="text-right min-w-[100px]">Ocupação</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {mockOccupancyData.map((item, index) => (
-                    <TableRow key={index}>
-                      <TableCell className="font-medium">{item.day}</TableCell>
-                      <TableCell>{format(new Date(item.date), "P", { locale: ptBR })}</TableCell>
-                      <TableCell>{item.psychologist}</TableCell>
-                      <TableCell className="text-center">{item.totalSlots}</TableCell>
-                      <TableCell className="text-center">{item.bookedSlots}</TableCell>
-                      <TableCell className="text-center">{item.blockedSlots}</TableCell>
-                      <TableCell className="text-right">
-                          <Badge variant={getOccupancyBadgeVariant(item.occupancy)} className="whitespace-nowrap">
-                              {item.occupancy}
-                          </Badge>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          ) : (
-            <div className="text-center py-10 text-muted-foreground">
-              <BarChartBig className="mx-auto h-12 w-12" />
-              <p className="mt-2">Nenhum dado de ocupação disponível para os critérios selecionados.</p>
-            </div>
-          )}
+          <DetailedOccupancyTable data={mockOccupancyData} />
         </CardContent>
       </Card>
     </div>

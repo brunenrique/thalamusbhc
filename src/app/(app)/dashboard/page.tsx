@@ -1,14 +1,13 @@
 
-"use client"; // Adicionado para tornar este um Client Component
+"use client"; 
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Activity, Users, CalendarCheck, BarChart3, ArrowUpRight, DollarSign, Clock, ClipboardList, LineChart, UsersRound, CalendarClock, UserX, FileX2, Repeat } from "lucide-react";
+import { Activity, Users, CalendarCheck, BarChart3, ArrowUpRight, DollarSign, Clock, ClipboardList, LineChart, UsersRound, CalendarClock, UserX, FileX2, Repeat, CalendarDays } from "lucide-react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { Skeleton } from "@/components/ui/skeleton";
 import { RecentActivityItem } from "@/components/dashboard/recent-activity-item";
-import DashboardWeeklySchedule from "@/components/dashboard/dashboard-weekly-schedule"; // Importando o novo componente
 import { cn } from "@/lib/utils";
 
 
@@ -18,6 +17,20 @@ const OccupancyChart = dynamic(() => import('@/components/dashboard/occupancy-ch
 });
 const PerformanceChart = dynamic(() => import('@/components/dashboard/performance-chart').then(mod => mod.PerformanceChart), {
   loading: () => <Skeleton className="h-[300px] w-full" />,
+  ssr: false,
+});
+const DashboardWeeklySchedule = dynamic(() => import("@/components/dashboard/dashboard-weekly-schedule"), {
+  loading: () => (
+    <Card className="shadow-sm">
+      <CardHeader>
+        <Skeleton className="h-6 w-1/3 mb-1" />
+        <Skeleton className="h-4 w-1/2" />
+      </CardHeader>
+      <CardContent className="h-[400px] flex items-center justify-center">
+        <CalendarDays className="h-12 w-12 text-muted-foreground animate-pulse" />
+      </CardContent>
+    </Card>
+  ),
   ssr: false,
 });
 

@@ -1,3 +1,4 @@
+
 import Image from "next/image";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -59,20 +60,20 @@ export default function ResourceCard({ resource, isGlobalList = false }: Resourc
       </CardContent>
       <CardFooter className="border-t pt-3">
         <div className="flex w-full justify-end gap-1.5">
-          <Button variant="ghost" size="icon" className="h-7 w-7" aria-label="Baixar">
+          <Button variant="ghost" size="icon" className="h-7 w-7" aria-label={`Baixar recurso ${resource.name}`}>
             <Download className="h-4 w-4" />
           </Button>
           {isGlobalList && (
             <>
-              <Button variant="ghost" size="icon" className="h-7 w-7" aria-label="Compartilhar">
+              <Button variant="ghost" size="icon" className="h-7 w-7" aria-label={`Compartilhar recurso ${resource.name}`}>
                 <Share2 className="h-4 w-4" />
               </Button>
-              <Button variant="ghost" size="icon" className="h-7 w-7" aria-label="Editar">
+              <Button variant="ghost" size="icon" className="h-7 w-7" aria-label={`Editar recurso ${resource.name}`}>
                 <Edit className="h-4 w-4" />
               </Button>
             </>
           )}
-          <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:text-destructive" aria-label="Excluir">
+          <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:text-destructive" aria-label={`Excluir recurso ${resource.name}`}>
             <Trash2 className="h-4 w-4" />
           </Button>
         </div>

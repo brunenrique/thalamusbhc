@@ -1,3 +1,4 @@
+
 "use client";
 
 import React from "react";
@@ -44,17 +45,17 @@ export default function AppHeader() {
         </form> */}
       </div>
       <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" onClick={toggleTheme} aria-label="Alternar tema">
+        <Button variant="ghost" size="icon" onClick={toggleTheme} aria-label={currentTheme === 'light' ? "Ativar tema escuro" : "Ativar tema claro"}>
           {currentTheme === 'light' ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
         </Button>
-        <Button variant="ghost" size="icon" asChild aria-label="Notificações">
+        <Button variant="ghost" size="icon" asChild aria-label="Ver notificações">
           <Link href="/notifications">
             <Bell className="h-5 w-5" />
           </Link>
         </Button>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="rounded-full">
+            <Button variant="ghost" size="icon" className="rounded-full" aria-label="Menu do usuário">
               <Avatar className="h-8 w-8">
                 <AvatarImage src="https://placehold.co/100x100.png" alt="Usuário" data-ai-hint="user avatar" />
                 <AvatarFallback>

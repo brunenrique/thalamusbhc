@@ -22,7 +22,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar"; 
 import { Label } from '@/components/ui/label';
-import { format, getDay, startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachDayOfInterval, isWithinInterval } from 'date-fns';
+import { format, getDay, startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachDayOfInterval, isWithinInterval, parse } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { generateICS } from '@/lib/ics-generator';
 import { useToast } from '@/hooks/use-toast';
@@ -171,9 +171,9 @@ export default function SchedulePage() {
 
       <div className="flex items-center justify-between p-4 border rounded-lg shadow-sm bg-card">
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="icon" onClick={() => navigateDate('prev')}><ChevronLeft className="h-4 w-4" /></Button>
+          <Button variant="outline" size="icon" onClick={() => navigateDate('prev')} aria-label="Visualização anterior da agenda"><ChevronLeft className="h-4 w-4" /></Button>
           <h2 className="text-lg sm:text-xl font-semibold text-foreground min-w-[150px] sm:min-w-[240px] text-center capitalize">{displayDateRange()}</h2>
-          <Button variant="outline" size="icon" onClick={() => navigateDate('next')}><ChevronRight className="h-4 w-4" /></Button>
+          <Button variant="outline" size="icon" onClick={() => navigateDate('next')} aria-label="Próxima visualização da agenda"><ChevronRight className="h-4 w-4" /></Button>
         </div>
         <div className="flex items-center gap-1 sm:gap-2">
           <Button variant="outline" size="sm" onClick={() => setCurrentDate(new Date())}>Hoje</Button>
@@ -181,7 +181,7 @@ export default function SchedulePage() {
           <Button variant={currentView === "Week" ? "secondary" : "ghost"} size="sm" onClick={() => setCurrentView("Week")}>Semana</Button>
           <Button variant={currentView === "Month" ? "secondary" : "ghost"} size="sm" onClick={() => setCurrentView("Month")}>Mês</Button>
           
-          <Button variant="outline" size="sm" onClick={handleExportICS} title="Exportar visualização atual para .ics">
+          <Button variant="outline" size="sm" onClick={handleExportICS} title="Exportar visualização atual para .ics" aria-label="Exportar visualização atual da agenda para arquivo ICS">
             <Download className="mr-0 sm:mr-1 h-4 w-4" /> <span className="hidden sm:inline">Exportar</span>
           </Button>
 

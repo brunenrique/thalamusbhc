@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from "next/link";
@@ -84,17 +85,17 @@ export default function PatientListItem({ patient }: PatientListItemProps) {
             </div>
           </div>
           <div className="flex items-center gap-1 sm:gap-2">
-            <Button variant="outline" size="sm" asChild className="h-8 px-2 sm:px-3">
+            <Button variant="outline" size="sm" asChild className="h-8 px-2 sm:px-3" aria-label={`Editar perfil de ${patient.name}`}>
               <Link href={`/patients/${patient.id}/edit`}>
                 <Edit3 className="h-3.5 w-3.5 sm:mr-1" />
-                <span className="sr-only sm:not-sr-only">Editar</span>
+                <span className="hidden sm:inline">Editar</span>
+                <span className="sr-only sm:hidden">Editar perfil de {patient.name}</span>
               </Link>
             </Button>
             <AlertDialog>
               <AlertDialogTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10">
+                <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10" aria-label={`Excluir paciente ${patient.name}`}>
                   <Trash2 className="h-4 w-4" />
-                  <span className="sr-only">Excluir</span>
                 </Button>
               </AlertDialogTrigger>
               <AlertDialogContent>
@@ -113,10 +114,9 @@ export default function PatientListItem({ patient }: PatientListItemProps) {
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
-            <Button variant="ghost" size="icon" asChild className="h-8 w-8">
+            <Button variant="ghost" size="icon" asChild className="h-8 w-8" aria-label={`Ver detalhes de ${patient.name}`}>
               <Link href={`/patients/${patient.id}`}>
                 <ChevronRight className="h-5 w-5" />
-                 <span className="sr-only">Ver</span>
               </Link>
             </Button>
           </div>

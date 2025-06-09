@@ -31,7 +31,11 @@ export default function TaskItem({ task }: TaskItemProps) {
       <CardContent className="p-4">
         <div className="flex items-start gap-4">
           <div className="flex items-center space-x-2 pt-1">
-            <Checkbox id={`task-${task.id}`} checked={task.status === "Concluída"} aria-label={`Marcar tarefa ${task.title} como ${task.status === "Concluída" ? 'pendente' : 'concluída'}`} />
+            <Checkbox 
+              id={`task-${task.id}`} 
+              checked={task.status === "Concluída"} 
+              aria-label={`Marcar tarefa "${task.title}" como ${task.status === "Concluída" ? 'pendente' : 'concluída'}`} 
+            />
             {getStatusIcon()}
           </div>
           <div className="flex-1">
@@ -53,12 +57,12 @@ export default function TaskItem({ task }: TaskItemProps) {
           <div className="flex flex-col items-end gap-2">
             <Badge variant={getPriorityBadgeVariant()}>{task.priority}</Badge>
             <div className="flex gap-1">
-                <Button variant="ghost" size="icon" className="h-7 w-7" aria-label="Editar tarefa" asChild>
+                <Button variant="ghost" size="icon" className="h-7 w-7" aria-label={`Editar tarefa ${task.title}`} asChild>
                   <Link href={`/tasks/edit/${task.id}`}>
                     <Edit className="h-4 w-4" />
                   </Link>
                 </Button>
-                <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:text-destructive" aria-label="Excluir tarefa">
+                <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:text-destructive" aria-label={`Excluir tarefa ${task.title}`}>
                     <Trash2 className="h-4 w-4" />
                 </Button>
             </div>

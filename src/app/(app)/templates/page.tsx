@@ -62,13 +62,13 @@ export default function TemplatesPage() {
                     <p className="text-xs text-muted-foreground">Última Modificação: {format(new Date(template.lastModified), "P", { locale: ptBR })}</p>
                   </CardContent>
                   <CardFooter className="border-t pt-3 flex justify-end gap-1.5">
-                    <Button variant="ghost" size="icon" className="h-7 w-7" aria-label="Usar Modelo"><Copy className="h-4 w-4" /></Button>
-                    <Button variant="ghost" size="icon" className="h-7 w-7" aria-label="Editar Modelo" asChild>
+                    <Button variant="ghost" size="icon" className="h-7 w-7" aria-label={`Usar modelo ${template.name}`}><Copy className="h-4 w-4" /></Button>
+                    <Button variant="ghost" size="icon" className="h-7 w-7" aria-label={`Editar modelo ${template.name}`} asChild>
                       <Link href={`/templates/edit/${template.id}`}>
                         <Edit className="h-4 w-4" />
                       </Link>
                     </Button>
-                    <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:text-destructive" aria-label="Excluir Modelo"><Trash2 className="h-4 w-4" /></Button>
+                    <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:text-destructive" aria-label={`Excluir modelo ${template.name}`}><Trash2 className="h-4 w-4" /></Button>
                   </CardFooter>
                 </Card>
               ))}

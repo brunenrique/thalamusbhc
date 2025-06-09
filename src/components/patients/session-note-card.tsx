@@ -132,7 +132,7 @@ export default function SessionNoteCard({ note, patientName, therapistName = "Ps
           <div className="flex gap-1">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" aria-label="Gerar documento">
+                <Button variant="ghost" size="icon" aria-label="Gerar documento a partir desta anotação">
                   <FilePlus2 className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
@@ -144,10 +144,10 @@ export default function SessionNoteCard({ note, patientName, therapistName = "Ps
                 <DropdownMenuItem onClick={() => handleGenerateReport("session_summary")}>Resumo da Sessão</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-            <Button variant="ghost" size="icon" aria-label="Editar anotação">
+            <Button variant="ghost" size="icon" aria-label={`Editar anotação de ${format(new Date(note.date), "P", { locale: ptBR })}`}>
               <Edit className="h-4 w-4" />
             </Button>
-            <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive" aria-label="Excluir anotação">
+            <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive" aria-label={`Excluir anotação de ${format(new Date(note.date), "P", { locale: ptBR })}`}>
               <Trash2 className="h-4 w-4" />
             </Button>
           </div>

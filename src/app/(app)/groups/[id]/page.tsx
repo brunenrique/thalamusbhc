@@ -135,19 +135,19 @@ export default function GroupDetailPage({ params }: { params: { id: string } }) 
         <CardContent className="p-6 grid md:grid-cols-2 gap-x-6 gap-y-4">
           <InfoItem icon={<CalendarDays />} label="Horário Regular" value={group.schedule} />
           <InfoItem icon={<Clock />} label="Próxima Sessão" value={formattedNextSession} />
-          <InfoItem icon={<UsersIcon />} label="Contagem de Membros" value={`${group.membersCount} participante(s)`} />
+          <InfoItem icon={<GroupIcon />} label="Contagem de Membros" value={`${group.membersCount} participante(s)`} />
         </CardContent>
       </Card>
 
       <Card className="shadow-sm">
         <CardHeader>
-          <CardTitle className="font-headline flex items-center"><UserIcon className="mr-2 h-5 w-5 text-primary" /> Participantes ({group.participants.length})</CardTitle>
+          <CardTitle className="font-headline flex items-center"><UserIcon className="mr-2 h-5 w-5 text-primary" /> Participantes ({(group.participants || []).length})</CardTitle>
           <CardDescription>Membros atuais do grupo terapêutico.</CardDescription>
         </CardHeader>
         <CardContent>
-          {group.participants.length > 0 ? (
+          {(group.participants || []).length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {group.participants.map(participant => (
+              {(group.participants || []).map(participant => (
                 <Link key={participant.id} href={`/patients/${participant.id}`} className="block">
                   <Card className="hover:shadow-md transition-shadow hover:border-accent">
                     <CardContent className="p-3 flex items-center gap-3">

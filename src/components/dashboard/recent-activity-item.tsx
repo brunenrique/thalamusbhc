@@ -2,6 +2,7 @@
 import React from 'react';
 
 interface RecentActivityItemProps {
+  id: string; // Added id for key prop if needed
   icon: React.ReactNode;
   description: string;
   time: string;

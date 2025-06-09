@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { CalendarClock, UserCog, Edit, Trash2, AlertTriangle, CheckCircle2, LinkIcon, ChevronsUpDown } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation"; // Import useRouter
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import type { Task } from "@/types";
@@ -31,6 +32,7 @@ interface TaskItemProps {
 
 function TaskItemComponent({ task }: TaskItemProps) {
   const { toast } = useToast();
+  const router = useRouter(); // Initialize useRouter
   const [isExpanded, setIsExpanded] = React.useState(false);
 
   const getPriorityBadgeVariant = (): "destructive" | "secondary" | "outline" => {

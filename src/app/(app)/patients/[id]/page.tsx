@@ -4,13 +4,14 @@ import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
-import { Mail, Phone, CalendarDays, Edit, FileText, Brain, CheckCircle, Clock, MessageSquare, Trash2, Users as UsersIconLucide, Home as HomeIconLucide, Share2, UploadCloud, Calendar as CalendarIconShad, Lightbulb, Tag, BarChart3 as BarChart3Icon, ShieldAlert as ShieldAlertIcon, CheckCircle as CheckCircleIcon, TrendingUp, BookOpen, Activity, Users2, ClipboardList, Target, ListChecks, PlusCircle } from "lucide-react";
+import { Mail, Phone, CalendarDays, Edit, FileText, Brain, CheckCircle, Clock, MessageSquare, Trash2, Users as UsersIconLucide, Home as HomeIconLucide, Share2, UploadCloud, Calendar as CalendarIconShad, Lightbulb, Tag, BarChart3 as BarChart3Icon, ShieldAlert as ShieldAlertIcon, CheckCircle as CheckCircleIcon, TrendingUp, BookOpen, Activity, Users2, ClipboardList, Target, ListChecks, PlusCircle, Archive } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import PatientTimeline from "@/components/patients/patient-timeline";
 import SessionNoteCard from "@/components/patients/session-note-card";
 import ResourceCard from "@/components/resources/resource-card";
 import AssessmentCard from "@/components/assessments/assessment-card";
+import InfoItem from "@/components/patients/info-item";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -785,22 +786,3 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
     </div>
   );
 }
-
-interface InfoItemProps {
-  icon: React.ReactNode;
-  label: string;
-  value: string | null | undefined;
-  className?: string;
-}
-
-const InfoItem = React.memo(function InfoItem({ icon, label, value, className }: InfoItemProps) {
-  return (
-    <div className={`flex items-start gap-3 p-3 bg-secondary/30 rounded-md ${className}`}>
-      <span className="text-muted-foreground mt-1">{icon}</span>
-      <div>
-        <p className="text-sm font-medium text-muted-foreground">{label}</p>
-        <p className="text-foreground">{value || "N/A"}</p>
-      </div>
-    </div>
-  );
-});

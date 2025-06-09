@@ -9,6 +9,8 @@ import dynamic from "next/dynamic";
 import { Skeleton } from "@/components/ui/skeleton";
 import { RecentActivityItem } from "@/components/dashboard/recent-activity-item";
 import DashboardWeeklySchedule from "@/components/dashboard/dashboard-weekly-schedule"; // Importando o novo componente
+import { cn } from "@/lib/utils";
+
 
 const OccupancyChart = dynamic(() => import('@/components/dashboard/occupancy-chart').then(mod => mod.OccupancyChart), {
   loading: () => <Skeleton className="h-[300px] w-full" />,
@@ -46,7 +48,7 @@ export default function DashboardPage() {
 
       {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <StatsCard title="Pacientes Ativos" value="78" icon={<UsersRound className="text-primary" />} trend="+2 esta semana" />
+        <StatsCard title="Pacientes Ativos" value="78" icon={<UsersRound className="text-primary" />} trend="+2 esta semana" href="/patients" />
         <StatsCard title="Consultas Hoje" value="8" icon={<CalendarClock className="text-primary" />} trend="2 pendentes" />
         <StatsCard title="Sessões Este Mês" value="45" icon={<LineChart className="text-primary" />} trend="+10% vs mês passado" />
         <StatsCard title="Tarefas Abertas" value="12" icon={<Activity className="text-primary" />} trend="3 atrasadas" />
@@ -131,11 +133,12 @@ interface StatsCardProps {
   value: string;
   icon: React.ReactNode;
   trend?: string;
+  href?: string;
 }
 
-function StatsCard({ title, value, icon, trend }: StatsCardProps) {
-  return (
-    <Card className="shadow-sm hover:shadow-md transition-shadow">
+function StatsCard({ title, value, icon, trend, href }: StatsCardProps) {
+  const cardContent = (
+    <Card className={cn("shadow-sm hover:shadow-md transition-shadow", href && "cursor-pointer")}>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-sm font-medium text-muted-foreground">{title}</CardTitle>
         {icon}
@@ -148,4 +151,9 @@ function StatsCard({ title, value, icon, trend }: StatsCardProps) {
       </CardContent>
     </Card>
   );
+
+  if (href) {
+    return <Link href={href} className="block">{cardContent}</Link>;
+  }
+  return cardContent;
 }

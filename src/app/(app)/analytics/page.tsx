@@ -1,12 +1,22 @@
 
 "use client";
 
-import { BarChart3, Users, CalendarCheck, TrendingUp, PieChart as PieChartIcon, Link as LinkIconLucide } from "lucide-react";
+import { BarChart3, Users, CalendarCheck, TrendingUp, PieChart as PieChartIcon, Link as LinkIconLucide, UsersRound, Activity as ActivityIcon } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+
 
 const SessionsTrendChart = dynamic(() => import("@/components/dashboard/sessions-trend-chart").then(mod => mod.SessionsTrendChart), {
   loading: () => <Skeleton className="h-[350px] w-full" />,
@@ -30,6 +40,14 @@ const mockPsychologistStats = {
     avgSessionDuration: 55,
 };
 
+const mockAllPsychologistsPerformance = [
+  { id: "psy1", name: "Dr. Silva", activePatients: 25, sessionsThisMonth: 52, avgSessionRating: 4.8, noShowRate: "5%" },
+  { id: "psy2", name: "Dra. Jones", activePatients: 30, sessionsThisMonth: 60, avgSessionRating: 4.9, noShowRate: "3%" },
+  { id: "psy3", name: "Dra. Eva", activePatients: 22, sessionsThisMonth: 45, avgSessionRating: 4.7, noShowRate: "8%" },
+  { id: "psy4", name: "Dr. Carlos", activePatients: 18, sessionsThisMonth: 40, avgSessionRating: 4.6, noShowRate: "10%" },
+];
+
+
 export default function AnalyticsPage() {
   return (
     <div className="space-y-6">
@@ -38,7 +56,7 @@ export default function AnalyticsPage() {
         <h1 className="text-3xl font-headline font-bold">Painel Analítico</h1>
       </div>
       <CardDescription>
-        Visão geral das métricas chave da clínica e desempenho dos psicólogos.
+        Visão geral das métricas chave da clínica, desempenho dos psicólogos e outros relatórios detalhados.
       </CardDescription>
 
       {/* General Clinic KPIs */}
@@ -96,6 +114,58 @@ export default function AnalyticsPage() {
             </div>
         </CardContent>
       </Card>
+      
+      {/* Psychologist Performance Overview Table */}
+      <Card className="shadow-sm">
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <UsersRound className="h-6 w-6 text-primary" />
+            <CardTitle className="font-headline text-xl">Desempenho Geral dos Psicólogos</CardTitle>
+          </div>
+          <CardDescription>Estatísticas de atendimento e performance por psicólogo.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {mockAllPsychologistsPerformance.length > 0 ? (
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="min-w-[150px]">Psicólogo(a)</TableHead>
+                    <TableHead className="text-center">Pacientes Ativos</TableHead>
+                    <TableHead className="text-center">Sessões no Mês</TableHead>
+                    <TableHead className="text-center">Avaliação Média</TableHead>
+                    <TableHead className="text-right">Taxa de Ausência</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {mockAllPsychologistsPerformance.map((psy) => (
+                    <TableRow key={psy.id}>
+                      <TableCell className="font-medium">{psy.name}</TableCell>
+                      <TableCell className="text-center">{psy.activePatients}</TableCell>
+                      <TableCell className="text-center">{psy.sessionsThisMonth}</TableCell>
+                      <TableCell className="text-center">
+                        <Badge variant={psy.avgSessionRating >= 4.8 ? "default" : psy.avgSessionRating >= 4.5 ? "secondary" : "outline"}>
+                          {psy.avgSessionRating.toFixed(1)}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Badge variant={parseFloat(psy.noShowRate) > 5 ? "destructive" : "secondary"}>
+                          {psy.noShowRate}
+                        </Badge>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          ) : (
+            <div className="text-center py-10 text-muted-foreground">
+              <UsersRound className="mx-auto h-12 w-12" />
+              <p className="mt-2">Nenhum dado de desempenho de psicólogos disponível.</p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
 
       {/* Charts Section */}
@@ -123,8 +193,8 @@ export default function AnalyticsPage() {
       {/* Links to Detailed Reports */}
       <Card className="shadow-sm">
         <CardHeader>
-            <CardTitle className="font-headline text-xl">Relatórios Detalhados</CardTitle>
-            <CardDescription>Acesse análises mais específicas.</CardDescription>
+            <CardTitle className="font-headline text-xl">Relatórios Detalhados e Administrativos</CardTitle>
+            <CardDescription>Acesse análises mais específicas e relatórios administrativos.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-2">
             <Button variant="outline" asChild className="w-full sm:w-auto">
@@ -132,10 +202,20 @@ export default function AnalyticsPage() {
                     <BarChart3 className="mr-2 h-4 w-4" /> Ver Ocupação da Clínica Detalhada
                 </Link>
             </Button>
-            {/* Add more links as other detailed reports are created */}
+            <Button variant="outline" asChild className="w-full sm:w-auto">
+                <Link href="/analytics/financial-overview"> {/* Placeholder Link */}
+                    <ActivityIcon className="mr-2 h-4 w-4" /> Visão Geral Financeira (Em Breve)
+                </Link>
+            </Button>
+             <Button variant="outline" asChild className="w-full sm:w-auto">
+                <Link href="/analytics/patient-demographics"> {/* Placeholder Link */}
+                    <PieChartIcon className="mr-2 h-4 w-4" /> Demografia de Pacientes (Em Breve)
+                </Link>
+            </Button>
         </CardContent>
       </Card>
 
     </div>
   );
 }
+

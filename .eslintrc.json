@@ -20,7 +20,9 @@
   "plugins": [
     "react",
     "react-hooks",
-    "jsx-a11y"
+    "jsx-a11y",
+    "@next/next",
+    "local-rules"
   ],
   "extends": [
     "eslint:recommended",
@@ -30,17 +32,18 @@
     "plugin:@next/next/recommended"
   ],
   "rules": {
-    "react/react-in-jsx-scope": "off", // Not needed with Next.js 17+ and new JSX transform
-    "react/prop-types": "off", // We use TypeScript for prop types
-    "react/no-unknown-property": ["error"], // This will catch `asChild` on DOM elements.
+    "react/react-in-jsx-scope": "off",
+    "react/prop-types": "off",
+    "react/no-unknown-property": ["error"],
     "@next/next/no-html-link-for-pages": "warn",
-    "@next/next/link-passhref": "error", // Ensure passHref is used correctly with custom components in Link
+    "@next/next/link-passhref": "error",
     "no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }],
-    "no-console": ["warn", { "allow": ["warn", "error", "info"] }], // Allow warn, error, info
+    "no-console": ["warn", { "allow": ["warn", "error", "info"] }],
     "jsx-a11y/anchor-is-valid": ["warn", {
       "components": ["Link"],
       "specialLink": ["hrefLeft", "hrefRight"],
       "aspects": ["invalidHref", "preferButton"]
-    }]
+    }],
+    "local-rules/no-aschild-on-a": "error"
   }
 }

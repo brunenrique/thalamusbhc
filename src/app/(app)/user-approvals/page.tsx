@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Users, CheckCircle, ShieldQuestion, Trash2, UserX } from "lucide-react";
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { collection, doc, getDocs, getFirestore, query, updateDoc, where, deleteDoc } from "firebase/firestore";
+import { collection, doc, getFirestore, query, updateDoc, where, deleteDoc, onSnapshot, Unsubscribe } from "firebase/firestore";
 import { app } from "@/lib/firebase";
 import {
   AlertDialog,
@@ -39,44 +39,43 @@ export default function UserApprovalsPage() {
   const { toast } = useToast();
 
   useEffect(() => {
-    const fetchPendingUsers = async () => {
-      setLoading(true);
-      try {
-        const db = getFirestore(app);
-        const q = query(collection(db, "users"), where("isApproved", "==", false));
-        const snapshot = await getDocs(q);
-        const users = snapshot.docs.map(docSnap => {
-          const data = docSnap.data() as any;
-          return {
-            id: docSnap.id,
-            name: data.name || "Nome não informado",
-            email: data.email,
-            role: data.role || "Função não definida",
-            dateRegistered: data.dateRegistered?.toDate ? data.dateRegistered.toDate().toISOString() : new Date().toISOString(),
-            status: "Pendente",
-          } as PendingUser;
-        });
-        setPendingUsers(users);
-      } catch (err) {
-        console.error("Erro ao buscar usuários pendentes:", err);
-        toast({
-          title: "Erro ao Carregar Usuários",
-          description: "Não foi possível buscar os usuários pendentes. Tente novamente mais tarde.",
-          variant: "destructive",
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
+    setLoading(true);
+    const db = getFirestore(app);
+    const q = query(collection(db, "users"), where("isApproved", "==", false));
 
-    fetchPendingUsers();
+    const unsubscribe: Unsubscribe = onSnapshot(q, (snapshot) => {
+      const users = snapshot.docs.map(docSnap => {
+        const data = docSnap.data() as any;
+        return {
+          id: docSnap.id,
+          name: data.name || "Nome não informado",
+          email: data.email,
+          role: data.role || "Função não definida",
+          dateRegistered: data.dateRegistered?.toDate ? data.dateRegistered.toDate().toISOString() : new Date().toISOString(),
+          status: "Pendente",
+        } as PendingUser;
+      });
+      setPendingUsers(users);
+      setLoading(false);
+    }, (error) => {
+      console.error("Erro ao buscar usuários pendentes com onSnapshot:", error);
+      toast({
+        title: "Erro ao Carregar Usuários",
+        description: "Não foi possível buscar os usuários pendentes em tempo real. Tente novamente mais tarde.",
+        variant: "destructive",
+      });
+      setLoading(false);
+    });
+
+    // Cleanup listener on component unmount
+    return () => unsubscribe();
   }, [toast]);
 
   const handleApproveUser = async (userId: string) => {
     try {
       const db = getFirestore(app);
       await updateDoc(doc(db, "users", userId), { isApproved: true });
-      setPendingUsers(prev => prev.filter(u => u.id !== userId));
+      // No need to manually update setPendingUsers here, onSnapshot will handle it
       toast({
         title: "Usuário Aprovado",
         description: "O usuário foi aprovado com sucesso e agora tem acesso ao sistema.",
@@ -95,11 +94,11 @@ export default function UserApprovalsPage() {
     try {
       const db = getFirestore(app);
       await deleteDoc(doc(db, "users", userId));
-      setPendingUsers(prev => prev.filter(u => u.id !== userId));
+      // No need to manually update setPendingUsers here, onSnapshot will handle it
       toast({
         title: "Usuário Rejeitado",
         description: `O usuário ${userName} foi rejeitado e removido da lista de pendências.`,
-        variant: "default", 
+        variant: "default",
       });
     } catch (error) {
       console.error("Erro ao rejeitar usuário:", error);

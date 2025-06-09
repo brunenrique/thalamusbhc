@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Mail, Phone, CalendarDays, Edit, FileText, Brain, CheckCircle, Clock, Archive, MessageSquare, Trash2, Users as UsersIconLucide, Home as HomeIconLucide } from "lucide-react"; 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import PatientTimeline from "@/components/patients/patient-timeline";
 import SessionNoteCard from "@/components/patients/session-note-card";
 import ResourceCard from "@/components/resources/resource-card";
@@ -58,7 +59,8 @@ const mockResources = [
 
 
 export default function PatientDetailPage({ params }: { params: { id: string } }) {
-  const patient = mockPatient; 
+  const patient = mockPatient;
+  const router = useRouter();
   const { toast } = useToast();
 
   const getInitials = (name: string) => {
@@ -82,7 +84,7 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
       description: `${patient.name} foi excluído(a) permanentemente.`,
       variant: "destructive",
     });
-    // TODO: router.push("/patients"); ou similar após exclusão real
+    router.push("/patients");
   };
 
   const formattedDob = patient.dob ? format(new Date(patient.dob), "P", { locale: ptBR }) : "N/A";

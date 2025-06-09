@@ -67,7 +67,7 @@ export default function TaskForm({ initialData, isEditMode = false }: TaskFormPr
     defaultValues: {
       title: initialData?.title || "",
       description: initialData?.description || "",
-      dueDate: initialData?.dueDate ? new Date(initialData.dueDate) : new Date(),
+      dueDate: initialData?.dueDate ? new Date(initialData.dueDate) : undefined, // Initialize as undefined
       assignedTo: initialData?.assignedTo || "",
       priority: initialData?.priority || "Média",
       status: initialData?.status || "Pendente",
@@ -75,16 +75,22 @@ export default function TaskForm({ initialData, isEditMode = false }: TaskFormPr
     },
   });
 
+  React.useEffect(() => {
+    if (!form.getValues("dueDate") && !initialData?.dueDate) {
+      form.setValue("dueDate", new Date()); // Set default date on client-side
+    }
+  }, [form, initialData?.dueDate]);
+
   async function onSubmit(data: TaskFormValues) {
     setIsLoading(true);
     const dataToSave = {
-      ...initialData, // Preserve ID if editing
+      ...initialData, 
       ...data,
-      dueDate: format(data.dueDate, "yyyy-MM-dd"), // Format date back to string for mock data consistency
+      dueDate: format(data.dueDate, "yyyy-MM-dd"), 
     };
 
     console.log(isEditMode ? "Atualização de Tarefa (Simulado):" : "Criação de Tarefa (Simulado):", dataToSave);
-    await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate API call
+    await new Promise((resolve) => setTimeout(resolve, 1000)); 
 
     setIsLoading(false);
     toast({
@@ -159,7 +165,7 @@ export default function TaskForm({ initialData, isEditMode = false }: TaskFormPr
                           mode="single"
                           selected={field.value}
                           onSelect={field.onChange}
-                          disabled={(date) => date < new Date(new Date().setDate(new Date().getDate() -1)) } // Allow today
+                          disabled={(date) => date < new Date(new Date().setDate(new Date().getDate() -1)) } 
                           initialFocus
                           locale={ptBR}
                         />
@@ -257,3 +263,6 @@ export default function TaskForm({ initialData, isEditMode = false }: TaskFormPr
     </Card>
   );
 }
+
+
+    

@@ -28,7 +28,7 @@ import { cn } from "@/lib/utils";
 import { format, set, parse } from "date-fns";
 import { ptBR } from 'date-fns/locale';
 import { useToast } from "@/hooks/use-toast";
-import type { Appointment, AppointmentsByDate } from "./appointment-calendar"; // Import Appointment type
+import type { Appointment, AppointmentsByDate } from "./appointment-calendar"; 
 
 const mockPatients = [
   { id: "1", name: "Alice Wonderland" },
@@ -143,10 +143,10 @@ export default function AppointmentForm({ appointmentData }: AppointmentFormProp
   const prefilledPatientNameParam = searchParams.get("patientName");
   const prefilledPsychologistIdParam = searchParams.get("psychologistId");
   const prefilledDateParam = searchParams.get("date");
-
+  
   const initialDate = prefilledDateParam 
     ? parse(prefilledDateParam, "yyyy-MM-dd", new Date()) 
-    : (appointmentData?.appointmentDate ? new Date(appointmentData.appointmentDate) : new Date());
+    : (appointmentData?.appointmentDate ? new Date(appointmentData.appointmentDate) : undefined); // Initialize as undefined
   
   const foundPatient = mockPatients.find(p => p.name === prefilledPatientNameParam);
   const initialPatientId = appointmentData?.patientId || (foundPatient ? foundPatient.id : "");
@@ -172,6 +172,12 @@ export default function AppointmentForm({ appointmentData }: AppointmentFormProp
       blockReason: appointmentData?.blockReason || "",
     },
   });
+
+  React.useEffect(() => {
+    if (!form.getValues("appointmentDate") && !initialDate) {
+      form.setValue("appointmentDate", new Date()); // Set default date on client-side if not prefilled
+    }
+  }, [form, initialDate]);
   
   const isBlockTime = form.watch("isBlockTime");
   const isRecurring = form.watch("isRecurring");
@@ -192,7 +198,7 @@ export default function AppointmentForm({ appointmentData }: AppointmentFormProp
     setIsLoading(true);
     
     const finalData: Partial<Appointment> & { appointmentDateFormatted: string, prefilledPatientName?: string } = {
-        id: appointmentData?.id || `appt_${Date.now()}`, // Generate new ID if not editing
+        id: appointmentData?.id || `appt_${Date.now()}`,
         patient: data.prefilledPatientName || mockPatients.find(p => p.id === data.patientId)?.name || "N/A",
         psychologistId: data.psychologistId,
         appointmentDateFormatted: format(data.appointmentDate, "yyyy-MM-dd"),
@@ -200,20 +206,13 @@ export default function AppointmentForm({ appointmentData }: AppointmentFormProp
         endTime: data.endTime,
         type: data.isBlockTime ? "Blocked Slot" : data.appointmentType || "Agendamento",
         notes: data.notes,
-        status: appointmentData?.id ? (data as Appointment).status : "Scheduled", // Keep status if editing, else "Scheduled"
-        isRecurring: data.isRecurring,
-        // recurrenceFrequency: data.recurrenceFrequency, // These are form specific, not part of Appointment type directly
-        // recurrenceInterval: data.recurrenceInterval,
-        // recurrenceEndDate: data.recurrenceEndDate ? format(data.recurrenceEndDate, "yyyy-MM-dd") : undefined,
-        // recurrenceDaysOfWeek: data.recurrenceDaysOfWeek,
+        status: appointmentData?.id ? (data as Appointment).status : "Scheduled", 
         isBlockTime: data.isBlockTime,
         blockReason: data.isBlockTime ? data.blockReason : undefined,
-        prefilledPatientName: data.prefilledPatientName, // Keep for logging/debugging if needed
+        prefilledPatientName: data.prefilledPatientName,
     };
 
     console.log("Salvamento de Agendamento Simulado:", JSON.stringify(finalData, null, 2));
-    // Here you would typically update a global state / call API.
-    // For now, we just show a toast and redirect.
     await new Promise((resolve) => setTimeout(resolve, 1000));
     setIsLoading(false);
 
@@ -586,3 +585,6 @@ export default function AppointmentForm({ appointmentData }: AppointmentFormProp
     </Card>
   );
 }
+
+
+    

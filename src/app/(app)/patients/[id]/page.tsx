@@ -39,7 +39,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { Calendar } from "@/components/ui/calendar"; // Ensure this is the shadcn calendar
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
+
 
 // Mock data for global clinic resources (could be imported or fetched)
 const mockGlobalClinicResources = [
@@ -65,8 +67,8 @@ const mockPatient = {
 };
 
 const initialSessionNotes = [
-  { id: "sn1", date: "2024-07-15", summary: "Discutimos mecanismos de enfrentamento para ansiedade. Paciente relata melhora na qualidade do sono após aplicar técnicas de relaxamento. Apresentou-se engajada e participativa. Próxima sessão focará em exposição gradual a situações ansiogênicas leves.", keywords: ["ansiedade", "enfrentamento", "sono"], themes: ["gerenciamento de estresse", "técnicas de relaxamento"] },
-  { id: "sn2", date: "2024-07-08", summary: "Exploramos dinâmicas familiares e padrões de comunicação. Identificamos alguns gatilhos em interações com a mãe. Paciente expressou dificuldade em estabelecer limites. Trabalhamos role-playing de comunicação assertiva.", keywords: ["família", "comunicação", "limites"], themes: ["relacionamentos interpessoais", "comunicação assertiva"] },
+  { id: "sn1", date: "2024-07-15", summary: "Sessão focada em mecanismos de enfrentamento para ansiedade. Paciente relata melhora na qualidade do sono após aplicar técnicas de relaxamento que foram ensinadas na sessão anterior. Apresentou-se engajada e participativa. Discutimos a importância da exposição gradual e planejamos pequenos passos para a próxima semana. Tarefa: praticar respiração diafragmática duas vezes ao dia.", keywords: ["ansiedade", "enfrentamento", "sono", "relaxamento", "exposição gradual"], themes: ["gerenciamento de estresse", "técnicas de relaxamento", "TCC"] },
+  { id: "sn2", date: "2024-07-08", summary: "Exploramos dinâmicas familiares e padrões de comunicação. Identificamos alguns gatilhos em interações com a mãe que disparam sentimentos de inadequação. Paciente expressou dificuldade em estabelecer limites saudáveis. Trabalhamos role-playing de comunicação assertiva, focando em frases 'Eu sinto...' e pedidos claros. Paciente demonstrou progresso na identificação de pensamentos automáticos negativos relacionados a estas interações.", keywords: ["família", "comunicação", "limites", "assertividade", "pensamentos automáticos"], themes: ["relacionamentos interpessoais", "comunicação assertiva", "dinâmica familiar"] },
 ];
 
 const initialAssessments = [
@@ -89,7 +91,7 @@ const mockAssessmentTemplates = [
 
 
 export default function PatientDetailPage({ params }: { params: { id: string } }) {
-  const patient = mockPatient; // In real app, fetch patient by params.id
+  const patient = mockPatient; 
   const router = useRouter();
   const { toast } = useToast();
 
@@ -98,10 +100,14 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
   const [patientResources, setPatientResources] = useState(initialPatientResources);
 
   const [selectedAssessmentTemplate, setSelectedAssessmentTemplate] = useState<string>("");
-  const [assessmentSendDate, setAssessmentSendDate] = useState<Date | undefined>(new Date());
+  const [assessmentSendDate, setAssessmentSendDate] = useState<Date | undefined>(undefined);
 
   const [selectedGlobalResource, setSelectedGlobalResource] = useState<string>("");
   const [resourceShareNotes, setResourceShareNotes] = useState<string>("");
+
+  useEffect(() => {
+    setAssessmentSendDate(new Date());
+  }, []);
 
 
   const getInitials = (name: string) => {
@@ -167,7 +173,6 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
       ...resourceToShare,
       id: `pat_res_${Date.now()}`, 
       sharedDate: format(new Date(), "yyyy-MM-dd"),
-      // notesForPatient: resourceShareNotes, // Could add this to ResourceCard if needed
     };
     setPatientResources(prev => [newSharedResource, ...prev].sort((a,b) => new Date(b.sharedDate!).getTime() - new Date(a.sharedDate!).getTime()));
     toast({
@@ -489,3 +494,6 @@ function InfoItem({ icon, label, value, className }: InfoItemProps) {
     </div>
   );
 }
+
+
+    

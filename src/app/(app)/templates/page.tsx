@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
@@ -7,11 +8,11 @@ import TemplateEditor from "@/components/templates/template-editor";
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
-const mockTemplates = [
-  { id: "tpl1", name: "Nota de Consulta Inicial", description: "Modelo padrão para primeiras sessões.", lastModified: "2024-07-10", category: "Geral" },
-  { id: "tpl2", name: "Acompanhamento Sessão TCC", description: "Modelo para sessões de Terapia Cognitivo-Comportamental.", lastModified: "2024-06-25", category: "TCC" },
-  { id: "tpl3", name: "Resumo Avaliação Infantil", description: "Para resumir avaliações de psicologia infantil.", lastModified: "2024-07-15", category: "Pediátrico" },
-  { id: "tpl4", name: "Nota de Progresso - Curta", description: "Nota de progresso rápida para check-ins breves.", lastModified: "2024-07-01", category: "Geral" },
+export const mockTemplates = [
+  { id: "tpl1", name: "Nota de Consulta Inicial", description: "Modelo padrão para primeiras sessões.", lastModified: "2024-07-10", category: "Geral", content: "Seção de Queixa Principal:\n\nHistórico do Paciente:\n\nExame do Estado Mental:\n\nDiagnóstico Provisório:\n\nPlano de Tratamento:\n" },
+  { id: "tpl2", name: "Acompanhamento Sessão TCC", description: "Modelo para sessões de Terapia Cognitivo-Comportamental.", lastModified: "2024-06-25", category: "TCC", content: "Revisão da Tarefa de Casa:\n\nAvaliação do Humor (escala 0-10):\n\nAgenda da Sessão:\n\nDiscussão dos Pensamentos Automáticos:\n\nDefinição da Nova Tarefa de Casa:\n" },
+  { id: "tpl3", name: "Resumo Avaliação Infantil", description: "Para resumir avaliações de psicologia infantil.", lastModified: "2024-07-15", category: "Pediátrico", content: "Dados de Identificação da Criança:\n\nMotivo da Avaliação:\n\nInstrumentos Utilizados:\n\nResultados e Observações Comportamentais:\n\nConclusões e Recomendações:\n" },
+  { id: "tpl4", name: "Nota de Progresso - Curta", description: "Nota de progresso rápida para check-ins breves.", lastModified: "2024-07-01", category: "Geral", content: "Atualização do Estado do Paciente:\n\nIntervenção Breve:\n\nPróximos Passos:\n" },
 ];
 
 
@@ -62,7 +63,11 @@ export default function TemplatesPage() {
                   </CardContent>
                   <CardFooter className="border-t pt-3 flex justify-end gap-1.5">
                     <Button variant="ghost" size="icon" className="h-7 w-7" aria-label="Usar Modelo"><Copy className="h-4 w-4" /></Button>
-                    <Button variant="ghost" size="icon" className="h-7 w-7" aria-label="Editar Modelo"><Edit className="h-4 w-4" /></Button>
+                    <Button variant="ghost" size="icon" className="h-7 w-7" aria-label="Editar Modelo" asChild>
+                      <Link href={`/templates/edit/${template.id}`}>
+                        <Edit className="h-4 w-4" />
+                      </Link>
+                    </Button>
                     <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:text-destructive" aria-label="Excluir Modelo"><Trash2 className="h-4 w-4" /></Button>
                   </CardFooter>
                 </Card>

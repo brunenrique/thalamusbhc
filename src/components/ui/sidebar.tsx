@@ -216,6 +216,7 @@ const Sidebar = React.forwardRef<
         <div
           className={cn(
             "duration-200 relative h-svh w-[--sidebar-width] bg-transparent transition-[width] ease-linear",
+            "group-data-[collapsible=icon]:w-[--sidebar-width-icon]",
             "group-data-[collapsible=offcanvas]:w-0",
             "group-data-[side=right]:rotate-180",
             variant === "floating" || variant === "inset"
@@ -523,7 +524,7 @@ const sidebarMenuButtonVariants = cva(
 )
 
 type SidebarMenuButtonProps = React.ComponentProps<"button"> & {
-  asChild?: boolean; // Renamed to avoid conflict with the spread props
+  asChild?: boolean; 
   isActive?: boolean;
   tooltip?: string | React.ComponentProps<typeof TooltipContent>;
 } & VariantProps<typeof sidebarMenuButtonVariants>;
@@ -533,15 +534,20 @@ const SidebarMenuButton = React.forwardRef<HTMLButtonElement, SidebarMenuButtonP
   (
     {
 <<<<<<< HEAD
+<<<<<<< HEAD
       asChild: isAsChild, // Renamed to avoid conflict and explicitly use
 =======
       asChild: propAsChild, // Use the renamed prop
 >>>>>>> f5ceba4 (Error: React does not recognize the `asChild` prop on a DOM element. If)
+=======
+      asChild = false, // Explicitly define and default asChild
+>>>>>>> e4d09bc (Error: React does not recognize the `asChild` prop on a DOM element. If)
       isActive = false,
       variant = "default",
       size = "default",
       tooltip,
       className,
+<<<<<<< HEAD
 <<<<<<< HEAD
       ...props // `asChild` from Link should not be in here if handled correctly
     },
@@ -550,16 +556,17 @@ const SidebarMenuButton = React.forwardRef<HTMLButtonElement, SidebarMenuButtonP
     const Comp = isAsChild ? Slot : "button"
 =======
       ...props // These are the remaining props, which might include 'asChild' from Link
+=======
+      ...props 
+>>>>>>> e4d09bc (Error: React does not recognize the `asChild` prop on a DOM element. If)
     },
     ref
   ) => {
 >>>>>>> f5ceba4 (Error: React does not recognize the `asChild` prop on a DOM element. If)
     const { isMobile, state } = useSidebar()
-    // Determine if the component should act as a Slot
-    // It acts as a Slot if its own propAsChild is true, OR if 'asChild' is passed in via ...props (from Link)
-    const isSlot = propAsChild || (props as any).asChild;
-    const Comp = isSlot ? Slot : "button"
+    const Comp = asChild ? Slot : "button"
     
+<<<<<<< HEAD
     // Filter out 'asChild' from props if it came from ...props to avoid passing it to the DOM element
     const finalProps = { ...props };
     if ((props as any).asChild && isSlot) {
@@ -574,6 +581,8 @@ const SidebarMenuButton = React.forwardRef<HTMLButtonElement, SidebarMenuButtonP
     const button = (
 =======
 
+=======
+>>>>>>> e4d09bc (Error: React does not recognize the `asChild` prop on a DOM element. If)
     const buttonElement = (
 >>>>>>> f5ceba4 (Error: React does not recognize the `asChild` prop on a DOM element. If)
       <Comp
@@ -583,10 +592,14 @@ const SidebarMenuButton = React.forwardRef<HTMLButtonElement, SidebarMenuButtonP
         data-active={isActive}
         className={cn(sidebarMenuButtonVariants({ variant, size }), className)}
 <<<<<<< HEAD
+<<<<<<< HEAD
         {...finalProps}
 =======
         {...finalProps} // Use the filtered props
 >>>>>>> f5ceba4 (Error: React does not recognize the `asChild` prop on a DOM element. If)
+=======
+        {...props} 
+>>>>>>> e4d09bc (Error: React does not recognize the `asChild` prop on a DOM element. If)
       />
     )
 
@@ -764,21 +777,15 @@ const SidebarMenuSubButton = React.forwardRef<
 =======
 
 type SidebarMenuSubButtonProps = React.ComponentProps<"a"> & {
-  asChild?: boolean; // Renamed
+  asChild?: boolean;
   size?: "sm" | "md";
   isActive?: boolean;
 };
 
 const SidebarMenuSubButton = React.forwardRef<HTMLAnchorElement, SidebarMenuSubButtonProps>(
-  ({ asChild: propAsChild, size = "md", isActive, className, ...props }, ref) => {
-    const isSlot = propAsChild || (props as any).asChild;
-    const Comp = isSlot ? Slot : "a";
+  ({ asChild = false, size = "md", isActive, className, ...props }, ref) => {
+    const Comp = asChild ? Slot : "a";
     
-    const finalProps = { ...props };
-    if ((props as any).asChild && isSlot) {
-      delete (finalProps as any).asChild;
-    }
-
     return (
       <Comp
         ref={ref}
@@ -793,7 +800,7 @@ const SidebarMenuSubButton = React.forwardRef<HTMLAnchorElement, SidebarMenuSubB
           "group-data-[collapsible=icon]:hidden",
           className
         )}
-        {...finalProps}
+        {...props}
       />
     )
   }
@@ -827,5 +834,3 @@ export {
   SidebarTrigger,
   useSidebar,
 }
-
-    

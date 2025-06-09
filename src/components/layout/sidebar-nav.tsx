@@ -24,7 +24,8 @@ import {
   History as HistoryIcon, 
   BarChartBig, 
   Users2 as GroupsIcon,
-  Network, 
+  Network,
+  LineChart 
 } from "lucide-react";
 import {
   SidebarMenu,
@@ -81,6 +82,7 @@ const navStructure: NavItem[] = [
         { href: "/user-approvals", label: "Aprovação de Usuários", icon: ShieldQuestion, adminOnly: true },
         { href: "/tools/backup", label: "Backup de Dados", icon: DataBackupIcon, adminOnly: true },
         { href: "/tools/audit-trail", label: "Trilha de Auditoria", icon: HistoryIcon, adminOnly: true }, 
+        { href: "/admin/metrics", label: "Métricas da Clínica", icon: LineChart, adminOnly: true },
     ]
   },
   { href: "/settings", label: "Configurações", icon: Settings, group: "Configuração" },
@@ -161,15 +163,15 @@ export default function SidebarNav({ currentPath, userRole = "admin" }: SidebarN
        }
     }
     
-    if (!item.href || item.href === "#") { // Item without a link, possibly just a header for a sub-menu if not expanded
+    if (!item.href || item.href === "#") { 
          return (
             <SidebarMenuItem key={`${item.label}-${index}`}>
                 <ButtonComponent
                     isActive={isActive}
                     tooltip={state === "collapsed" ? item.label : undefined}
                     className={isSubItem ? "text-xs" : ""}
-                    onClick={(e: React.MouseEvent<HTMLButtonElement>) => e.preventDefault()} // Prevent any action if no href
-                    aria-disabled="true" // Indicate it's not interactive as a link
+                    onClick={(e: React.MouseEvent<HTMLButtonElement>) => e.preventDefault()} 
+                    aria-disabled="true" 
                  >
                 {buttonContent}
                 </ButtonComponent>
@@ -200,9 +202,9 @@ export default function SidebarNav({ currentPath, userRole = "admin" }: SidebarN
     if (!item.adminOnly || userRole === "admin") {
         if (item.subItems && item.subItems.length > 0) {
             const visibleSubItems = item.subItems.filter(sub => !sub.adminOnly || userRole === "admin");
-            if (visibleSubItems.length > 0) { // Only add group if it has visible sub-items or is a link itself
+            if (visibleSubItems.length > 0) { 
                 acc[groupName].push(item);
-            } else if (item.href && item.href !== "#") { // If it's a link itself, add it
+            } else if (item.href && item.href !== "#") { 
                  acc[groupName].push(item); 
             }
         } else {
@@ -238,7 +240,7 @@ export default function SidebarNav({ currentPath, userRole = "admin" }: SidebarN
          <SidebarMenuItem>
             <SidebarMenuButton
                 tooltip={state === "collapsed" ? "Sair" : undefined}
-                onClick={() => console.warn("Logout action triggered")} 
+                onClick={() => { /* console.log("Logout action") */ }} 
             >
                 <LogOut />
                 <span className="group-data-[collapsible=icon]:hidden">Sair</span>

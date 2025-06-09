@@ -22,7 +22,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar"; 
 import { Label } from '@/components/ui/label';
-import { format } from 'date-fns';
+import { format, getDay } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
 const mockPsychologists = [
@@ -74,11 +74,13 @@ export default function SchedulePage() {
   const displayDateRange = () => {
     if (currentView === "Month") return currentMonthYear.charAt(0).toUpperCase() + currentMonthYear.slice(1);
     if (currentView === "Week") {
-        const startOfWeek = new Date(currentDate);
-        startOfWeek.setDate(currentDate.getDate() - getDay(currentDate) + (getDay(currentDate) === 0 ? -6 : 1) ); // Ajustado para semana começando na Segunda
-        const endOfWeek = new Date(startOfWeek);
-        endOfWeek.setDate(startOfWeek.getDate() + 6);
-        return `${format(startOfWeek, "d MMM", {locale: ptBR})} - ${format(endOfWeek, "d MMM, yyyy", {locale: ptBR})}`;
+        const startOfWeekDate = new Date(currentDate);
+        // Adjust for week starting on Monday for ptBR locale if getDay is 0 (Sunday)
+        const offset = getDay(startOfWeekDate) === 0 ? -6 : 1; 
+        startOfWeekDate.setDate(currentDate.getDate() - getDay(currentDate) + offset);
+        const endOfWeekDate = new Date(startOfWeekDate);
+        endOfWeekDate.setDate(startOfWeekDate.getDate() + 6);
+        return `${format(startOfWeekDate, "d MMM", {locale: ptBR})} - ${format(endOfWeekDate, "d MMM, yyyy", {locale: ptBR})}`;
     }
     return format(currentDate, "EEEE, d 'de' MMMM 'de' yyyy", { locale: ptBR });
   }
@@ -190,3 +192,4 @@ export default function SchedulePage() {
     </div>
   );
 }
+

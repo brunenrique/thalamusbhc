@@ -106,7 +106,6 @@ export default function SidebarNav({ currentPath, userRole = "admin" }: SidebarN
       ? currentPath === item.href
       : (item.href === "/" ? currentPath === "/" : currentPath.startsWith(item.href));
 
-
     const buttonContent = (
         <>
             <IconComponent className={isSubItem ? "h-3.5 w-3.5" : "h-4 w-4"} />
@@ -115,6 +114,7 @@ export default function SidebarNav({ currentPath, userRole = "admin" }: SidebarN
     );
 
     if (item.subItems && item.subItems.length > 0) {
+        // Main item of a dropdown
         return (
             <SidebarMenuItem key={`${item.label}-${index}-group`}>
                 <Link href={item.href} asChild>
@@ -135,21 +135,23 @@ export default function SidebarNav({ currentPath, userRole = "admin" }: SidebarN
         );
     }
 
-    if (isSubItem) {
+    if (isSubItem) { // SidebarMenuSubButton is used, which renders an <a> by default
         return (
             <SidebarMenuItem key={`${item.label}-${index}`}>
-                <Link href={item.href} asChild>
+                 {/* Use legacyBehavior with SidebarMenuSubButton as it renders an <a> tag itself */}
+                <Link href={item.href} legacyBehavior passHref>
                     <SidebarMenuSubButton
                         isActive={isActive}
                         tooltip={state === "collapsed" ? item.label : undefined}
                         className="text-xs"
+                        href={item.href} // passHref ensures this is passed
                     >
                         {buttonContent}
                     </SidebarMenuSubButton>
                 </Link>
             </SidebarMenuItem>
         );
-    } else {
+    } else { // SidebarMenuButton is used, which renders a <button> that Link asChild turns into <a>
         return (
             <SidebarMenuItem key={`${item.label}-${index}`}>
                 <Link href={item.href} asChild>
@@ -217,3 +219,4 @@ export default function SidebarNav({ currentPath, userRole = "admin" }: SidebarN
     </div>
   );
 }
+

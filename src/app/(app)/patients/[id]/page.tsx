@@ -3,8 +3,8 @@
 import React, { useState, useEffect } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Mail, Phone, CalendarDays, Edit, FileText, Brain, CheckCircle, Clock, Archive, MessageSquare, Trash2, Users as UsersIconLucide, Home as HomeIconLucide, Share2, UploadCloud, Calendar as CalendarIconShad, Lightbulb, Tag, BarChart3 as BarChart3Icon, ShieldAlert as ShieldAlertIcon, CheckCircle as CheckCircleIcon, TrendingUp, BookOpen, Activity, Users2, Layers, ClipboardList } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
+import { Mail, Phone, CalendarDays, Edit, FileText, Brain, CheckCircle, Clock, Archive, MessageSquare, Trash2, Users as UsersIconLucide, Home as HomeIconLucide, Share2, UploadCloud, Calendar as CalendarIconShad, Lightbulb, Tag, BarChart3 as BarChart3Icon, ShieldAlert as ShieldAlertIcon, CheckCircle as CheckCircleIcon, TrendingUp, BookOpen, Activity, Users2, Layers, ClipboardList, Target, ListChecks, PlusCircle } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import PatientTimeline from "@/components/patients/patient-timeline";
@@ -124,6 +124,37 @@ const mockPatientProgressData: Record<string, Array<{ date: string; score: numbe
     { date: "2024-07-10", score: 10 },
   ],
 };
+
+type TherapeuticGoalStatus = "Em Andamento" | "Alcançado" | "Em Pausa" | "Não Iniciado";
+interface TherapeuticGoal {
+  id: string;
+  title: string;
+  description?: string;
+  status: TherapeuticGoalStatus;
+  targetDate?: string;
+}
+
+const mockTherapeuticGoals: TherapeuticGoal[] = [
+  { id: "goal1", title: "Reduzir sintomas de ansiedade social", status: "Em Andamento", targetDate: "2024-12-31", description: "Participar de 2 eventos sociais por mês e iniciar conversas." },
+  { id: "goal2", title: "Melhorar a qualidade do sono", status: "Alcançado", description: "Dormir 7-8 horas por noite consistentemente e acordar descansado." },
+  { id: "goal3", title: "Desenvolver habilidades de comunicação assertiva", status: "Em Pausa", targetDate: "2025-03-31", description: "Expressar necessidades e limites de forma clara e respeitosa em relacionamentos." },
+];
+
+type PatientTaskStatus = "A Fazer" | "Concluído" | "Não Feito" | "Sugerido";
+interface PatientTask {
+  id: string;
+  description: string;
+  dateProposed: string;
+  status: PatientTaskStatus;
+  category: "Tarefa" | "Exercício" | "Plano de Ação";
+  details?: string;
+}
+const mockPatientTasks: PatientTask[] = [
+  { id: "ptask1", description: "Praticar respiração diafragmática 2x ao dia por 5 min", dateProposed: "2024-07-15", status: "A Fazer", category: "Exercício" },
+  { id: "ptask2", description: "Preencher diário de pensamentos automáticos diariamente", dateProposed: "2024-07-08", status: "Concluído", category: "Tarefa" },
+  { id: "ptask3", description: "Ler capítulo sobre exposição gradual do material compartilhado", dateProposed: "2024-07-15", status: "A Fazer", category: "Tarefa" },
+  { id: "ptask4", description: "Revisar técnicas de relaxamento progressivo (vídeo)", dateProposed: "N/A", status: "Sugerido", category: "Exercício", details: "Pode ser útil para momentos de maior tensão." },
+];
 
 
 export default function PatientDetailPage({ params }: { params: { id: string } }) {
@@ -365,6 +396,85 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
           <InfoItem icon={<Clock className="text-accent" />} label="Última Sessão" value={formattedLastSession} />
           <InfoItem icon={<UsersIconLucide className="text-accent h-5 w-5" />} label="Psicólogo(a) Responsável" value={patient.assignedPsychologist} />
           <InfoItem icon={<HomeIconLucide className="text-accent h-5 w-5" />} label="Endereço" value={patient.address} className="md:col-span-2"/>
+        </CardContent>
+      </Card>
+
+      <Card className="shadow-sm">
+        <CardHeader className="flex flex-row justify-between items-center">
+          <div>
+            <CardTitle className="font-headline flex items-center">
+              <Target className="mr-2 h-5 w-5 text-primary" /> Metas e Alvos Terapêuticos
+            </CardTitle>
+            <CardDescription>Acompanhe as metas definidas para o tratamento do paciente.</CardDescription>
+          </div>
+          <Button variant="outline" className="bg-accent hover:bg-accent/90 text-accent-foreground">
+            <PlusCircle className="mr-2 h-4 w-4" /> Adicionar Meta
+          </Button>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {mockTherapeuticGoals.length > 0 ? mockTherapeuticGoals.map(goal => (
+            <div key={goal.id} className="p-3 border rounded-md bg-secondary/30 hover:shadow-sm transition-shadow">
+              <div className="flex justify-between items-start">
+                <h4 className="font-medium text-sm">{goal.title}</h4>
+                <Badge 
+                  variant={goal.status === "Alcançado" ? "default" : goal.status === "Em Andamento" ? "secondary" : "outline"}
+                  className={goal.status === "Alcançado" ? "bg-green-100 text-green-700 border-green-300" : ""}
+                >
+                  {goal.status}
+                </Badge>
+              </div>
+              {goal.description && <p className="text-xs text-muted-foreground mt-1">{goal.description}</p>}
+              {goal.targetDate && <p className="text-xs text-muted-foreground mt-1">Data Alvo: {format(new Date(goal.targetDate), "P", { locale: ptBR })}</p>}
+            </div>
+          )) : <p className="text-muted-foreground text-sm">Nenhuma meta terapêutica definida ainda.</p>}
+        </CardContent>
+      </Card>
+
+      <Card className="shadow-sm">
+        <CardHeader className="flex flex-row justify-between items-center">
+           <div>
+            <CardTitle className="font-headline flex items-center">
+              <ListChecks className="mr-2 h-5 w-5 text-primary" /> Plano de Ação e Tarefas do Paciente
+            </CardTitle>
+            <CardDescription>Exercícios, tarefas e planos propostos ao paciente.</CardDescription>
+          </div>
+          <Button variant="outline" className="bg-accent hover:bg-accent/90 text-accent-foreground">
+            <PlusCircle className="mr-2 h-4 w-4" /> Adicionar Tarefa/Exercício
+          </Button>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {mockPatientTasks.filter(task => task.status !== "Sugerido").length > 0 && (
+            <>
+              <h4 className="text-sm font-semibold text-muted-foreground">Atribuídos:</h4>
+              {mockPatientTasks.filter(task => task.status !== "Sugerido").map(task => (
+                <div key={task.id} className="p-3 border rounded-md bg-secondary/30 hover:shadow-sm transition-shadow">
+                  <div className="flex justify-between items-start">
+                    <h5 className="font-medium text-sm">{task.category}: {task.description}</h5>
+                    <Badge 
+                      variant={task.status === "Concluído" ? "default" : task.status === "A Fazer" ? "secondary" : "destructive"}
+                      className={task.status === "Concluído" ? "bg-green-100 text-green-700 border-green-300" : ""}
+                    >
+                      {task.status}
+                    </Badge>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">Proposto em: {format(new Date(task.dateProposed), "P", { locale: ptBR })}</p>
+                </div>
+              ))}
+            </>
+          )}
+          {mockPatientTasks.filter(task => task.status === "Sugerido").length > 0 && (
+            <>
+              <h4 className="text-sm font-semibold text-muted-foreground mt-4">Sugestões de Exercícios Futuros:</h4>
+              {mockPatientTasks.filter(task => task.status === "Sugerido").map(task => (
+                <div key={task.id} className="p-3 border rounded-md bg-blue-500/5 hover:shadow-sm transition-shadow">
+                  <h5 className="font-medium text-sm text-blue-700 dark:text-blue-400">{task.category}: {task.description}</h5>
+                  {task.details && <p className="text-xs text-muted-foreground mt-1">{task.details}</p>}
+                   <Button variant="link" size="sm" className="p-0 h-auto text-xs mt-1">Atribuir este exercício</Button>
+                </div>
+              ))}
+            </>
+          )}
+          {mockPatientTasks.length === 0 && <p className="text-muted-foreground text-sm">Nenhum plano de ação ou tarefa definida.</p>}
         </CardContent>
       </Card>
 
@@ -717,3 +827,5 @@ function InfoItem({ icon, label, value, className }: InfoItemProps) {
     </div>
   );
 }
+
+    

@@ -1,4 +1,6 @@
 
+"use client"; // Added to make this a Client Component
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { BarChartBig, CalendarRange, Filter, Users, Download } from "lucide-react";

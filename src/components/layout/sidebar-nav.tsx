@@ -127,7 +127,7 @@ export default function SidebarNav({ currentPath, userRole = "admin" }: SidebarN
       if (item.href && item.href !== "#" && visibleSubItems.length > 0) {
          return (
             <SidebarMenuItem key={`${item.label}-${index}-group`}>
-            <Link href={item.href} passHref asChild>
+            <Link href={item.href} asChild>
                 <ButtonComponent 
                   isActive={isActive && !visibleSubItems.some(sub => currentPath.startsWith(sub.href))} 
                   tooltip={state === "collapsed" ? item.label : undefined}
@@ -161,9 +161,25 @@ export default function SidebarNav({ currentPath, userRole = "admin" }: SidebarN
        }
     }
     
+    if (!item.href || item.href === "#") { // Item without a link, possibly just a header for a sub-menu if not expanded
+         return (
+            <SidebarMenuItem key={`${item.label}-${index}`}>
+                <ButtonComponent
+                    isActive={isActive}
+                    tooltip={state === "collapsed" ? item.label : undefined}
+                    className={isSubItem ? "text-xs" : ""}
+                    onClick={(e: React.MouseEvent<HTMLButtonElement>) => e.preventDefault()} // Prevent any action if no href
+                    aria-disabled="true" // Indicate it's not interactive as a link
+                 >
+                {buttonContent}
+                </ButtonComponent>
+            </SidebarMenuItem>
+        );
+    }
+
     return (
       <SidebarMenuItem key={`${item.label}-${index}`}>
-        <Link href={item.href} passHref asChild>
+        <Link href={item.href} asChild>
           <ButtonComponent
             isActive={isActive}
             tooltip={state === "collapsed" ? item.label : undefined}
@@ -184,11 +200,9 @@ export default function SidebarNav({ currentPath, userRole = "admin" }: SidebarN
     if (!item.adminOnly || userRole === "admin") {
         if (item.subItems && item.subItems.length > 0) {
             const visibleSubItems = item.subItems.filter(sub => !sub.adminOnly || userRole === "admin");
-            if (visibleSubItems.length > 0) {
+            if (visibleSubItems.length > 0) { // Only add group if it has visible sub-items or is a link itself
                 acc[groupName].push(item);
-            } else if (!item.href || item.href === "#") {
-                // Group header with no visible sub-items, don't add
-            } else {
+            } else if (item.href && item.href !== "#") { // If it's a link itself, add it
                  acc[groupName].push(item); 
             }
         } else {
@@ -203,17 +217,7 @@ export default function SidebarNav({ currentPath, userRole = "admin" }: SidebarN
     <div className="flex flex-col h-full justify-between">
         <SidebarMenu className="p-2 space-y-0">
             {Object.entries(groupedNavItems).map(([groupName, items]) => {
-                const visibleItemsInGroup = items.filter(item => {
-                    if (item.adminOnly && userRole !== "admin") return false;
-                    if (item.subItems) {
-                        return item.subItems.some(sub => !sub.adminOnly || userRole === "admin");
-                    }
-                    return true;
-                });
-
                 if (items.length === 0) return null; 
-                if (visibleItemsInGroup.length === 0 && groupName === "Administração" && userRole !== "admin") return null;
-
 
                 return (
                     <SidebarGroup key={groupName} className="p-0 pt-1">
@@ -234,7 +238,7 @@ export default function SidebarNav({ currentPath, userRole = "admin" }: SidebarN
          <SidebarMenuItem>
             <SidebarMenuButton
                 tooltip={state === "collapsed" ? "Sair" : undefined}
-                onClick={() => console.log("Logout action")} 
+                onClick={() => console.warn("Logout action triggered")} 
             >
                 <LogOut />
                 <span className="group-data-[collapsible=icon]:hidden">Sair</span>

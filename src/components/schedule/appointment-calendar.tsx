@@ -3,7 +3,7 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+// import { Badge } from "@/components/ui/badge"; // Não será mais usada diretamente para cada item
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { Clock, User, PlusCircle, Edit, Trash2, CheckCircle, AlertTriangle, XCircle, CalendarCog, Check, Ban, UserCheck, UserX, RepeatIcon } from 'lucide-react';
@@ -57,18 +57,12 @@ export type Appointment = {
 
 export type AppointmentsByDate = Record<string, Appointment[]>; // Date string "yyyy-MM-dd" as key
 
-interface AppointmentCalendarProps {
-  view: "Month" | "Week" | "Day";
-  currentDate: Date;
-  filters: {
-    psychologistId: string;
-    status: string;
-    dateFrom?: Date;
-    dateTo?: Date;
-  };
-  onAppointmentsUpdate?: (appointments: AppointmentsByDate) => void; // Callback for updates
-}
-
+// Helper to populate mockPsychologists if not already defined in schedule/appointment-form
+const mockPsychologists = [
+  { id: "psy1", name: "Dr. Silva" },
+  { id: "psy2", name: "Dra. Jones" },
+  { id: "all", name: "Todos os Psicólogos" },
+];
 
 const baseMockAppointments: AppointmentsByDate = {
   "2024-08-15": [
@@ -116,31 +110,17 @@ export const mockAppointments = getInitialMockAppointments();
 
 
 const getStatusIcon = (status: AppointmentStatus) => {
+    // Usar text-inherit para que a cor do ícone seja definida pelo contêiner pai
     switch (status) {
-        case "Scheduled": return <Clock className="w-3 h-3 mr-1 inline-block text-blue-500" />;
-        case "Confirmed": return <UserCheck className="w-3 h-3 mr-1 inline-block text-yellow-600" />;
-        case "Completed": return <CheckCircle className="w-3 h-3 mr-1 inline-block text-green-500" />;
-        case "CancelledByPatient": return <UserX className="w-3 h-3 mr-1 inline-block text-red-500" />;
-        case "CancelledByClinic": return <Ban className="w-3 h-3 mr-1 inline-block text-red-700" />;
-        case "Blocked": return <AlertTriangle className="w-3 h-3 mr-1 inline-block text-gray-500" />;
-        case "NoShow": return <UserX className="w-3 h-3 mr-1 inline-block text-orange-500" />;
-        case "Rescheduled": return <RepeatIcon className="w-3 h-3 mr-1 inline-block text-purple-500" />;
-        default: return <Clock className="w-3 h-3 mr-1 inline-block" />;
-    }
-};
-
-const getStatusBadgeVariant = (status: AppointmentStatus): "default" | "secondary" | "destructive" | "outline" => {
-    switch (status) {
-        case "Completed": return "default"; 
-        case "Scheduled": return "secondary";
-        case "Confirmed": return "secondary"; 
-        case "CancelledByPatient": 
-        case "CancelledByClinic": 
-        case "NoShow": 
-            return "destructive"; 
-        case "Blocked": return "outline"; 
-        case "Rescheduled": return "outline"; 
-        default: return "outline";
+        case "Scheduled": return <Clock className="w-3 h-3 mr-1 inline-block text-inherit" />;
+        case "Confirmed": return <UserCheck className="w-3 h-3 mr-1 inline-block text-inherit" />;
+        case "Completed": return <CheckCircle className="w-3 h-3 mr-1 inline-block text-inherit" />;
+        case "CancelledByPatient": return <UserX className="w-3 h-3 mr-1 inline-block text-inherit" />;
+        case "CancelledByClinic": return <Ban className="w-3 h-3 mr-1 inline-block text-inherit" />;
+        case "Blocked": return <AlertTriangle className="w-3 h-3 mr-1 inline-block text-inherit" />;
+        case "NoShow": return <UserX className="w-3 h-3 mr-1 inline-block text-inherit" />;
+        case "Rescheduled": return <RepeatIcon className="w-3 h-3 mr-1 inline-block text-inherit" />;
+        default: return <Clock className="w-3 h-3 mr-1 inline-block text-inherit" />;
     }
 };
 
@@ -159,15 +139,24 @@ const getStatusLabel = (status: AppointmentStatus): string => {
 }
 
 
+interface AppointmentCalendarProps {
+  view: "Month" | "Week" | "Day";
+  currentDate: Date;
+  filters: {
+    psychologistId: string;
+    status: string;
+    dateFrom?: Date;
+    dateTo?: Date;
+  };
+  onAppointmentsUpdate?: (appointments: AppointmentsByDate) => void; // Callback for updates
+}
+
 function AppointmentCalendarComponent({ view, currentDate, filters, onAppointmentsUpdate }: AppointmentCalendarProps) {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(currentDate);
-  // Use a local state for appointments, initialized from a global/prop or fetched
   const [appointmentsState, setAppointmentsState] = useState<AppointmentsByDate>(() => getInitialMockAppointments());
 
   const { toast } = useToast();
   
-  // Update local state if the global mockAppointments source changes or props change.
-  // This effect might be more complex if `globalMockAppointments` itself is dynamic.
   useEffect(() => {
     setAppointmentsState(getInitialMockAppointments());
   }, []);
@@ -188,7 +177,7 @@ function AppointmentCalendarComponent({ view, currentDate, filters, onAppointmen
             const matchesDateTo = !filters.dateTo || apptDate <= new Date(new Date(filters.dateTo).setUTCHours(23,59,59,999));
             
             return matchesPsychologist && matchesStatus && matchesDateFrom && matchesDateTo;
-        }).sort((a, b) => a.startTime.localeCompare(b.startTime)); // Sort by start time
+        }).sort((a, b) => a.startTime.localeCompare(b.startTime)); 
     }
     return appointmentsResult;
   }, [filters, appointmentsState]);
@@ -255,7 +244,6 @@ function AppointmentCalendarComponent({ view, currentDate, filters, onAppointmen
             "p-2 min-h-[120px] bg-card border-r border-b rounded-none shadow-none hover:bg-secondary/30 transition-colors flex flex-col",
             !isCurrentMonth && "bg-muted/30 text-muted-foreground",
             isSelected && "ring-2 ring-primary ring-inset",
-            // isToday && "border-2 border-accent" // Removed to avoid double border effect with selected
             isToday && !isSelected && "bg-accent/10 border-accent" 
         )}
         onClick={() => setSelectedDate(dayDate)}
@@ -272,13 +260,30 @@ function AppointmentCalendarComponent({ view, currentDate, filters, onAppointmen
             {dayAppointments.map((appt) => (
               <Popover key={appt.id}>
                 <PopoverTrigger asChild>
-                   <Badge 
-                     variant={getStatusBadgeVariant(appt.status)} 
-                     className="w-full truncate block cursor-pointer py-1 text-xs"
-                   >
+                  <div
+                    className={cn(
+                      "w-full p-1.5 rounded cursor-pointer text-[0.7rem] shadow-sm transition-colors leading-tight",
+                      "flex items-center gap-1",
+                      appt.status === "Blocked" ? "bg-muted/70 text-muted-foreground hover:bg-muted" :
+                      appt.status === "Completed" ? "bg-green-500/10 text-green-700 dark:text-green-300 dark:bg-green-700/20 hover:bg-green-500/20 dark:hover:bg-green-700/30" :
+                      appt.status === "Scheduled" || appt.status === "Confirmed" ? "bg-accent/10 text-accent-foreground hover:bg-accent/20" :
+                      appt.status === "CancelledByPatient" || appt.status === "CancelledByClinic" || appt.status === "NoShow" ? "bg-destructive/10 text-destructive dark:text-destructive-foreground/70 dark:bg-destructive/20 hover:bg-destructive/20 dark:hover:bg-destructive/30" :
+                      "bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700" // Fallback for Rescheduled or other statuses
+                    )}
+                  >
                     {getStatusIcon(appt.status)}
-                    {appt.startTime} - {appt.type === "Blocked Slot" ? appt.blockReason : appt.patient}
-                   </Badge>
+                    <div className="flex-grow truncate">
+                      <span className="font-semibold">{appt.startTime}</span>
+                      <span className="ml-1">
+                        {appt.type === "Blocked Slot" ? `Bloq: ${appt.blockReason}` : appt.patient}
+                      </span>
+                      {filters.psychologistId === "all" && appt.psychologistId && appt.type !== "Blocked Slot" && (
+                        <span className="text-[0.65rem] opacity-80 ml-0.5">
+                          ({mockPsychologists.find(p => p.id === appt.psychologistId)?.name.match(/\b(\w)/g)?.join('') || '??'})
+                        </span>
+                      )}
+                    </div>
+                  </div>
                 </PopoverTrigger>
                 <PopoverContent className="w-72 p-3 shadow-lg rounded-lg">
                     <h4 className="font-semibold text-sm mb-0.5">{appt.type === "Blocked Slot" ? `Bloqueado: ${appt.blockReason}` : appt.patient}</h4>
@@ -405,12 +410,3 @@ function AppointmentCalendarComponent({ view, currentDate, filters, onAppointmen
 
 const AppointmentCalendar = React.memo(AppointmentCalendarComponent);
 export default AppointmentCalendar;
-
-
-// Helper to populate mockPsychologists if not already defined in schedule/appointment-form
-const mockPsychologists = [
-  { id: "psy1", name: "Dr. Silva" },
-  { id: "psy2", name: "Dra. Jones" },
-  { id: "all", name: "Todos os Psicólogos" },
-];
-

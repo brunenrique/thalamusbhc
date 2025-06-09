@@ -1,4 +1,4 @@
-# Firebase Studio
+git add src/components/ui/sidebar.tsx# Firebase Studio
 
 This is a NextJS starter in Firebase Studio.
 

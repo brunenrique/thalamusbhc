@@ -12,7 +12,10 @@
     "node": true,
     "es6": true
   },
-  "settings": {"local-rules": { "rulesDirectories": "./eslint-rules" }
+  "settings": {
+    "local-rules": { // Adicionado uma quebra de linha e indentação para clareza
+      "rulesDirectories": "./eslint-rules"
+    }, // Adicionado uma vírgula aqui
     "react": {
       "version": "detect"
     }

@@ -1,4 +1,5 @@
 
+
 "use client"
 
 import * as React from "react"
@@ -537,26 +538,28 @@ const SidebarMenuButton = React.forwardRef<HTMLButtonElement, SidebarMenuButtonP
     ref
   ) => {
     const {
-      asChild: propAsChild = false,
+      // `propAsChild` captures the `asChild` prop if explicitly passed to SidebarMenuButton.
+      asChild: propAsChild = false, 
       variant = "default",
       size = "default",
       isActive = false,
       tooltip,
       className,
       children,
-      ...restProps // Contains props from parent, potentially including 'asChild'
+      // `restProps` captures all other props, including `asChild` if passed from a parent like `<Link asChild>`.
+      ...restProps 
     } = props;
 
     const { isMobile, state } = useSidebar();
 
-    // Determine if this component should render as a Slot.
-    // It should if its own asChild prop is true, OR if a parent (like Link) passes asChild=true.
+    // Determines if the component should render as a Slot. True if its own `asChild` is true,
+    // OR if `asChild` is passed from a parent (e.g., Link) via `restProps`.
     const renderAsSlot = propAsChild || (restProps as any).asChild === true;
     const Comp = renderAsSlot ? Slot : "button";
 
-    // Remove 'asChild' from restProps, as it has served its purpose.
-    // It should not be passed to the native DOM element or to the Radix Slot primitive.
-    const { asChild: _discardedAsChild, ...finalSpreadProps } = restProps as any;
+    // Prepare the props to be spread. Crucially, remove `asChild` from `restProps`
+    // to prevent it from being passed to the underlying `Comp` if `Comp` is Slot or a native element.
+    const { asChild: _discardedAsChildFromRest, ...finalSpreadProps } = restProps as any;
 
     const combinedProps: React.ComponentProps<typeof Comp> & {ref: React.Ref<any>} = {
       ref,
@@ -565,7 +568,7 @@ const SidebarMenuButton = React.forwardRef<HTMLButtonElement, SidebarMenuButtonP
       "data-size": size,
       "data-active": isActive,
       "aria-current": isActive ? "page" : undefined,
-      ...finalSpreadProps,
+      ...finalSpreadProps, // `asChild` from Link (if any) is not in `finalSpreadProps`
       children,
     };
     
@@ -724,15 +727,13 @@ const SidebarMenuSubButton = React.forwardRef<HTMLAnchorElement, SidebarMenuSubB
       isActive,
       className,
       children,
-      ...restProps // Contains props from parent, potentially including 'asChild'
+      ...restProps
     } = props;
 
-    // Determine if this component should render as a Slot.
     const renderAsSlot = propAsChild || (restProps as any).asChild === true;
     const Comp = renderAsSlot ? Slot : "a";
-
-    // Remove 'asChild' from restProps.
-    const { asChild: _discardedAsChild, ...finalSpreadProps } = restProps as any;
+    
+    const { asChild: _discardedAsChildFromRest, ...finalSpreadProps } = restProps as any;
 
     const combinedProps: React.ComponentProps<typeof Comp> & {ref: React.Ref<any>} = {
       ref,

@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import Link from "next/link";
@@ -25,6 +26,7 @@ import {
   GitFork, 
   History as HistoryIcon, 
   BarChartBig, 
+  Users2 as GroupsIcon, // Added for Groups
 } from "lucide-react";
 import {
   SidebarMenu,
@@ -52,6 +54,7 @@ const navStructure: NavItem[] = [
   { href: "/schedule", label: "Agenda", icon: CalendarDays, group: "Visão Geral" },
   
   { href: "/patients", label: "Pacientes", icon: Users, group: "Gestão de Pacientes" },
+  { href: "/groups", label: "Grupos Terapêuticos", icon: GroupsIcon, group: "Gestão de Pacientes"}, // New Item
   { href: "/waiting-list", label: "Lista de Espera", icon: ListChecks, group: "Gestão de Pacientes" },
   { href: "/assessments", label: "Avaliações", icon: ClipboardList, group: "Gestão de Pacientes" },
   { href: "/templates", label: "Modelos", icon: FileText, group: "Gestão de Pacientes" },
@@ -201,3 +204,4 @@ export default function SidebarNav({ currentPath, userRole = "admin" }: SidebarN
     </div>
   );
 }
+

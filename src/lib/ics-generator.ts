@@ -1,15 +1,19 @@
 
 import { type Appointment, type AppointmentsByDate } from '@/components/schedule/appointment-calendar';
 import { format } from 'date-fns';
-import { parse, utcToZonedTime } from 'date-fns-tz';
+import { toDate } from 'date-fns-tz';
 
 // Function to format a date string (YYYY-MM-DD) and time string (HH:mm) into an ICS compatible UTC string (YYYYMMDDTHHMMSSZ)
 function formatToICSDateTime(dateString: string, timeString: string, timeZone: string = 'America/Sao_Paulo'): string {
-  const dateTimeString = `${dateString}T${timeString}`;
-  // Use parse from date-fns-tz with the timeZone option.
-  // This interprets dateTimeString as being in 'timeZone' and returns a Date object representing that instant in UTC.
-  const utcDate = parse(dateTimeString, "yyyy-MM-dd'T'HH:mm", new Date(), { timeZone });
-  return format(utcDate, "yyyyMMdd'T'HHmmss'Z'"); // format from date-fns is fine for UTC Date
+  const dateTimeString = `${dateString}T${timeString}`; // e.g., "2024-08-15T10:00"
+  
+  // Use toDate from date-fns-tz to parse the string *in the specified timezone*.
+  // This returns a Date object representing that specific instant (which is internally UTC).
+  const dateInSpecifiedTimeZoneAsUtc = toDate(dateTimeString, { timeZone });
+  
+  // Now format this Date object (which is already the correct UTC instant)
+  // The 'Z' in the format string indicates UTC.
+  return format(dateInSpecifiedTimeZoneAsUtc, "yyyyMMdd'T'HHmmss'Z'");
 }
 
 
@@ -36,6 +40,8 @@ export function generateICS(appointmentsByDate: AppointmentsByDate, specificDate
   icsString += 'CALSCALE:GREGORIAN\r\n';
 
   // DTSTAMP is the current UTC time when the ICS file is generated.
+  // new Date() creates a date object for the current moment.
+  // format with 'Z' ensures it's output as UTC.
   const dtStamp = format(new Date(), "yyyyMMdd'T'HHmmss'Z'");
 
   for (const dateKey in appointmentsByDate) {

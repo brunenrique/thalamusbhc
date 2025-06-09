@@ -445,6 +445,7 @@ const SidebarGroupAction = React.forwardRef<
   React.ComponentProps<"button"> & { asChild?: boolean }
 >(({ className, asChild = false, ...props }, ref) => {
   const Comp = asChild ? Slot : "button"
+   const finalProps = asChild ? props : (({ asChild: _asChild, ...restProps }) => restProps)(props as any);
 
   return (
     <Comp
@@ -456,7 +457,7 @@ const SidebarGroupAction = React.forwardRef<
         "group-data-[collapsible=icon]:hidden",
         className
       )}
-      {...props}
+      {...finalProps}
     />
   )
 })
@@ -524,7 +525,7 @@ const sidebarMenuButtonVariants = cva(
 )
 
 type SidebarMenuButtonProps = React.ComponentProps<"button"> & {
-  asChild?: boolean; 
+  asChild?: boolean;
   isActive?: boolean;
   tooltip?: string | React.ComponentProps<typeof TooltipContent>;
 } & VariantProps<typeof sidebarMenuButtonVariants>;
@@ -532,43 +533,50 @@ type SidebarMenuButtonProps = React.ComponentProps<"button"> & {
 
 const SidebarMenuButton = React.forwardRef<HTMLButtonElement, SidebarMenuButtonProps>(
   (
-    {
-      asChild = false,
-      isActive = false,
-      variant = "default",
-      size = "default",
-      tooltip,
-      className,
-      ...props 
-    },
+    props,
     ref
   ) => {
-    const { isMobile, state } = useSidebar();
-    const Comp = asChild ? Slot : "button";
-    // If Comp is "button", we must not pass an 'asChild' prop to it from ...props.
-    const finalProps = Comp === "button" ? (({ asChild: _pAsChild, ...pRest }) => pRest)(props as any) : props;
+    const {
+      asChild: propAsChild = false,
+      variant = "default",
+      size = "default",
+      isActive = false,
+      tooltip,
+      className,
+      children,
+      ...restProps // Contains props from parent, potentially including 'asChild'
+    } = props;
 
-    const buttonElement = (
-      <Comp
-        ref={ref}
-        data-sidebar="menu-button"
-        data-size={size}
-        data-active={isActive}
-        aria-current={isActive ? "page" : undefined}
-        className={cn(sidebarMenuButtonVariants({ variant, size }), className)}
-        {...finalProps} 
-      />
-    );
+    const { isMobile, state } = useSidebar();
+
+    // Determine if this component should render as a Slot.
+    // It should if its own asChild prop is true, OR if a parent (like Link) passes asChild=true.
+    const renderAsSlot = propAsChild || (restProps as any).asChild === true;
+    const Comp = renderAsSlot ? Slot : "button";
+
+    // Remove 'asChild' from restProps, as it has served its purpose.
+    // It should not be passed to the native DOM element or to the Radix Slot primitive.
+    const { asChild: _discardedAsChild, ...finalSpreadProps } = restProps as any;
+
+    const combinedProps: React.ComponentProps<typeof Comp> & {ref: React.Ref<any>} = {
+      ref,
+      className: cn(sidebarMenuButtonVariants({ variant, size, className })),
+      "data-sidebar": "menu-button",
+      "data-size": size,
+      "data-active": isActive,
+      "aria-current": isActive ? "page" : undefined,
+      ...finalSpreadProps,
+      children,
+    };
+    
+    const buttonElement = <Comp {...combinedProps} />;
 
     if (!tooltip) {
       return buttonElement
     }
 
-    if (typeof tooltip === "string") {
-      tooltip = {
-        children: tooltip,
-      }
-    }
+    const tooltipProps: Partial<React.ComponentProps<typeof TooltipContent>> = 
+      typeof tooltip === "string" ? { children: tooltip } : tooltip;
 
     return (
       <Tooltip>
@@ -577,7 +585,7 @@ const SidebarMenuButton = React.forwardRef<HTMLButtonElement, SidebarMenuButtonP
           side="right"
           align="center"
           hidden={isMobile || state === "expanded"}
-          {...tooltip}
+          {...tooltipProps}
         />
       </Tooltip>
     )
@@ -706,29 +714,45 @@ type SidebarMenuSubButtonProps = React.ComponentProps<"a"> & {
 };
 
 const SidebarMenuSubButton = React.forwardRef<HTMLAnchorElement, SidebarMenuSubButtonProps>(
-  ({ asChild = false, size = "md", isActive, className, ...props }, ref) => {
-    const Comp = asChild ? Slot : "a";
-    // If Comp is "a", we must not pass an 'asChild' prop to it from ...props.
-    const finalProps = Comp === "a" ? (({ asChild: _pAsChild, ...pRest }) => pRest)(props as any) : props;
+  (
+    props,
+    ref
+  ) => {
+    const {
+      asChild: propAsChild = false,
+      size = "md",
+      isActive,
+      className,
+      children,
+      ...restProps // Contains props from parent, potentially including 'asChild'
+    } = props;
+
+    // Determine if this component should render as a Slot.
+    const renderAsSlot = propAsChild || (restProps as any).asChild === true;
+    const Comp = renderAsSlot ? Slot : "a";
+
+    // Remove 'asChild' from restProps.
+    const { asChild: _discardedAsChild, ...finalSpreadProps } = restProps as any;
+
+    const combinedProps: React.ComponentProps<typeof Comp> & {ref: React.Ref<any>} = {
+      ref,
+      className: cn(
+        "flex h-7 min-w-0 -translate-x-px items-center gap-2 overflow-hidden rounded-md px-2 text-sidebar-foreground outline-none ring-sidebar-ring hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 [&>svg]:text-sidebar-accent-foreground",
+        "data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground",
+        size === "sm" && "text-xs",
+        size === "md" && "text-sm",
+        "group-data-[collapsible=icon]:hidden",
+        className
+      ),
+      "data-sidebar": "menu-sub-button",
+      "data-size": size,
+      "data-active": isActive,
+      "aria-current": isActive ? "page" : undefined,
+      ...finalSpreadProps,
+      children,
+    };
     
-    return (
-      <Comp
-        ref={ref}
-        data-sidebar="menu-sub-button"
-        data-size={size}
-        data-active={isActive}
-        aria-current={isActive ? "page" : undefined}
-        className={cn(
-          "flex h-7 min-w-0 -translate-x-px items-center gap-2 overflow-hidden rounded-md px-2 text-sidebar-foreground outline-none ring-sidebar-ring hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 [&>svg]:text-sidebar-accent-foreground",
-          "data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground",
-          size === "sm" && "text-xs",
-          size === "md" && "text-sm",
-          "group-data-[collapsible=icon]:hidden",
-          className
-        )}
-        {...finalProps}
-      />
-    )
+    return <Comp {...combinedProps} />;
   }
 )
 SidebarMenuSubButton.displayName = "SidebarMenuSubButton"

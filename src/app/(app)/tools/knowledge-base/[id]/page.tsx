@@ -1,4 +1,5 @@
 
+import React from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, BookOpenText, CalendarDays, Tag } from "lucide-react";
@@ -55,16 +56,17 @@ export default function KnowledgeBaseArticlePage({ params }: { params: { id: str
           <article className="prose prose-sm sm:prose-base lg:prose-lg dark:prose-invert max-w-none">
             <p className="lead text-lg text-muted-foreground mb-6">{article.summary}</p>
             {article.content.split('\n\n').map((paragraph, index) => {
-                if (paragraph.startsWith("Principais Técnicas:") || paragraph.startsWith("Gerenciamento Ético:") || paragraph.match(/^\d+\./)) {
+                // Simple heuristic to identify list-like structures or subheadings
+                if (paragraph.startsWith("Principais Técnicas:") || paragraph.startsWith("Gerenciamento Ético:") || paragraph.match(/^\d+\./) || paragraph.startsWith("- ")) {
                     const lines = paragraph.split('\n');
                     const heading = lines[0];
-                    const listItems = lines.slice(1);
+                    const listItems = lines.slice(1).filter(line => line.trim() !== "");
                     return (
                         <React.Fragment key={index}>
-                            <h3 className="font-semibold text-xl mt-4 mb-2 text-foreground">{heading}</h3>
+                            <h3 className="font-semibold text-xl mt-4 mb-2 text-foreground">{heading.replace(/^- /, '')}</h3>
                             {listItems.length > 0 && (
                                 <ul className="list-disc pl-5 space-y-1 mb-4">
-                                    {listItems.map((item, i) => <li key={i} className="text-muted-foreground">{item.replace(/^\d+\.\s*/, '')}</li>)}
+                                    {listItems.map((item, i) => <li key={i} className="text-muted-foreground">{item.replace(/^\d+\.\s*/, '').replace(/^- /, '')}</li>)}
                                 </ul>
                             )}
                         </React.Fragment>

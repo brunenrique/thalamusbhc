@@ -50,7 +50,6 @@ interface NavItem {
 const navStructure: NavItem[] = [
   { href: "/dashboard", label: "Painel", icon: LayoutDashboard, group: "Visão Geral" },
   { href: "/schedule", label: "Agenda", icon: CalendarDays, group: "Visão Geral" },
-  { href: "/notifications", label: "Notificações", icon: Bell, group: "Visão Geral" },
   
   { href: "/patients", label: "Pacientes", icon: Users, group: "Gestão de Pacientes" },
   { href: "/waiting-list", label: "Lista de Espera", icon: ListChecks, group: "Gestão de Pacientes" },

@@ -5,7 +5,7 @@ import * as React from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, Controller } from "react-hook-form";
 import * as z from "zod";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -25,7 +25,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { CalendarIcon, Clock, Save, User, Users, Repeat } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { format, set } from "date-fns";
+import { format, set, parse } from "date-fns";
 import { ptBR } from 'date-fns/locale';
 import { useToast } from "@/hooks/use-toast";
 
@@ -33,14 +33,19 @@ const mockPatients = [
   { id: "1", name: "Alice Wonderland" },
   { id: "2", name: "Bob O Construtor" },
   { id: "3", name: "Charlie Brown" },
+  { id: "wl1", name: "Edward Mãos de Tesoura"}, // From waiting list
+  { id: "wl2", name: "Fiona Gallagher"},
+  { id: "wl3", name: "George Jetson"},
+  { id: "wl4", name: "Harry Potter"},
 ];
 const mockPsychologists = [
   { id: "psy1", name: "Dr. Silva" },
   { id: "psy2", name: "Dra. Jones" },
+  { id: "any", name: "Qualquer Psicólogo(a)" }, // Added for waiting list prefill
 ];
 const appointmentTypes = ["Consulta Inicial", "Acompanhamento", "Sessão de Terapia", "Revisão de Avaliação", "Sessão em Grupo"];
 const daysOfWeek = [
-  { id: "SU", label: "Dom" }, // Sunday first for consistency with date-fns default
+  { id: "SU", label: "Dom" }, 
   { id: "MO", label: "Seg" },
   { id: "TU", label: "Ter" },
   { id: "WE", label: "Qua" },
@@ -64,10 +69,12 @@ const appointmentFormSchema = z.object({
   recurrenceDaysOfWeek: z.array(z.string()).optional(),
   isBlockTime: z.boolean().default(false),
   blockReason: z.string().optional(),
+  // New field for pre-filling patient name if not in mockPatients list yet
+  prefilledPatientName: z.string().optional(), 
 })
 .refine(data => {
     if (data.isBlockTime) return true;
-    if (!data.patientId) return false;
+    if (!data.patientId && !data.prefilledPatientName) return false; // Require patientId or prefilledPatientName if not block time
     return true;
 }, {
     message: "Paciente é obrigatório a menos que seja um bloqueio de horário.",
@@ -82,8 +89,8 @@ const appointmentFormSchema = z.object({
     path: ["appointmentType"],
 })
 .refine(data => {
-    if (data.isBlockTime) return true; // No need to check time for blocked slots specifically here, can be an all-day block.
-    if (!data.startTime || !data.endTime) return true; // If times are not set, don't validate this.
+    if (data.isBlockTime) return true; 
+    if (!data.startTime || !data.endTime) return true; 
     const [startHour, startMinute] = data.startTime.split(':').map(Number);
     const [endHour, endMinute] = data.endTime.split(':').map(Number);
     if (endHour < startHour || (endHour === startHour && endMinute <= startMinute)) {
@@ -125,15 +132,30 @@ interface AppointmentFormProps {
 
 export default function AppointmentForm({ appointmentData }: AppointmentFormProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = React.useState(false);
+
+  const prefilledPatientNameParam = searchParams.get("patientName");
+  const prefilledPsychologistIdParam = searchParams.get("psychologistId");
+  const prefilledDateParam = searchParams.get("date");
+
+  const initialDate = prefilledDateParam 
+    ? parse(prefilledDateParam, "yyyy-MM-dd", new Date()) 
+    : (appointmentData?.appointmentDate ? new Date(appointmentData.appointmentDate) : new Date());
   
+  // Find patient ID if name matches, otherwise keep prefilledPatientName
+  const foundPatient = mockPatients.find(p => p.name === prefilledPatientNameParam);
+  const initialPatientId = appointmentData?.patientId || (foundPatient ? foundPatient.id : "");
+  const initialPrefilledPatientName = !foundPatient && prefilledPatientNameParam ? prefilledPatientNameParam : appointmentData?.prefilledPatientName || "";
+
   const form = useForm<AppointmentFormValues>({
     resolver: zodResolver(appointmentFormSchema),
     defaultValues: {
-      patientId: appointmentData?.patientId || "",
-      psychologistId: appointmentData?.psychologistId || "",
-      appointmentDate: appointmentData?.appointmentDate ? new Date(appointmentData.appointmentDate) : new Date(),
+      patientId: initialPatientId,
+      prefilledPatientName: initialPrefilledPatientName,
+      psychologistId: appointmentData?.psychologistId || prefilledPsychologistIdParam || "",
+      appointmentDate: initialDate,
       startTime: appointmentData?.startTime || "09:00",
       endTime: appointmentData?.endTime || "10:00",
       appointmentType: appointmentData?.appointmentType || "",
@@ -155,6 +177,7 @@ export default function AppointmentForm({ appointmentData }: AppointmentFormProp
   React.useEffect(() => {
     if (isBlockTime) {
       form.setValue('patientId', undefined); 
+      form.setValue('prefilledPatientName', undefined);
       form.setValue('appointmentType', undefined);
       form.setValue('isRecurring', false);
     } else {
@@ -169,13 +192,16 @@ export default function AppointmentForm({ appointmentData }: AppointmentFormProp
     if(data.isBlockTime) {
       finalData.appointmentType = "Horário Bloqueado";
       finalData.patientId = "N/A"; 
+      finalData.prefilledPatientName = undefined;
     }
-    if (!data.isRecurring || data.isBlockTime) { // Also ensure recurrence is off for block time
+    if (!data.isRecurring || data.isBlockTime) { 
         finalData.recurrenceFrequency = "none";
         finalData.recurrenceInterval = undefined;
         finalData.recurrenceEndDate = undefined;
         finalData.recurrenceDaysOfWeek = [];
     }
+
+    const patientDisplayName = data.prefilledPatientName || mockPatients.find(p=>p.id === data.patientId)?.name;
 
     console.log("Salvamento de Agendamento Simulado:", JSON.stringify(finalData, null, 2));
     await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -183,7 +209,7 @@ export default function AppointmentForm({ appointmentData }: AppointmentFormProp
 
     toast({
       title: appointmentData?.id ? "Agendamento Atualizado (Simulado)" : (data.isBlockTime ? "Horário Bloqueado (Simulado)" : "Agendamento Criado (Simulado)"),
-      description: `O ${data.isBlockTime ? 'horário' : 'agendamento'} para ${data.isBlockTime ? data.blockReason : mockPatients.find(p=>p.id === data.patientId)?.name} em ${format(data.appointmentDate, "P", {locale: ptBR})} foi ${appointmentData?.id ? 'atualizado' : 'criado'} com sucesso.`,
+      description: `O ${data.isBlockTime ? 'horário' : 'agendamento'} para ${data.isBlockTime ? data.blockReason : patientDisplayName} em ${format(data.appointmentDate, "P", {locale: ptBR})} foi ${appointmentData?.id ? 'atualizado' : 'criado'} com sucesso.`,
     });
     router.push("/schedule");
   }
@@ -224,26 +250,43 @@ export default function AppointmentForm({ appointmentData }: AppointmentFormProp
 
             {!isBlockTime && (
                 <>
-                <FormField
-                    control={form.control}
-                    name="patientId"
-                    render={({ field }) => (
-                    <FormItem>
-                        <FormLabel>Paciente *</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                            <SelectTrigger>
-                            <SelectValue placeholder="Selecione um paciente" />
-                            </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                            {mockPatients.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
-                        </SelectContent>
-                        </Select>
-                        <FormMessage />
-                    </FormItem>
-                    )}
-                />
+                {form.getValues("prefilledPatientName") ? (
+                    <FormField
+                        control={form.control}
+                        name="prefilledPatientName"
+                        render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Paciente *</FormLabel>
+                            <FormControl>
+                                <Input {...field} readOnly className="bg-muted/50"/>
+                            </FormControl>
+                            <FormDescription>Paciente da lista de espera. Será criado um novo registro se não existir.</FormDescription>
+                            <FormMessage />
+                        </FormItem>
+                        )}
+                    />
+                ) : (
+                    <FormField
+                        control={form.control}
+                        name="patientId"
+                        render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Paciente *</FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                                <SelectTrigger>
+                                <SelectValue placeholder="Selecione um paciente" />
+                                </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                                {mockPatients.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
+                            </SelectContent>
+                            </Select>
+                            <FormMessage />
+                        </FormItem>
+                        )}
+                    />
+                )}
                 <FormField
                     control={form.control}
                     name="appointmentType"

@@ -1,25 +1,29 @@
+
+"use client"; // Ensure this is a client component
+
+import React from 'react'; // Import React if not already imported
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { ListChecks, UserPlus, Search, Filter, MoreHorizontal, CalendarPlus, Trash2 } from "lucide-react";
+import { ListChecks, UserPlus, Search, Filter, MoreHorizontal, CalendarPlus, Trash2, Edit } from "lucide-react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
 const mockWaitingList = [
-  { id: "wl1", name: "Edward Mãos de Tesoura", requestedPsychologist: "Qualquer", dateAdded: "2024-06-01", priority: "Alta", notes: "Prefere agendamentos pela manhã." },
-  { id: "wl2", name: "Fiona Gallagher", requestedPsychologist: "Dr. Silva", dateAdded: "2024-06-15", priority: "Média", notes: "Precisa de horários à noite." },
-  { id: "wl3", name: "George Jetson", requestedPsychologist: "Dra. Jones", dateAdded: "2024-07-01", priority: "Baixa", notes: "Flexível com horários." },
-  { id: "wl4", name: "Harry Potter", requestedPsychologist: "Qualquer", dateAdded: "2024-07-10", priority: "Alta", notes: "Encaminhamento urgente." },
+  { id: "wl1", name: "Edward Mãos de Tesoura", requestedPsychologist: "Qualquer", requestedPsychologistId: "any", dateAdded: "2024-06-01", priority: "Alta", notes: "Prefere agendamentos pela manhã." },
+  { id: "wl2", name: "Fiona Gallagher", requestedPsychologist: "Dr. Silva", requestedPsychologistId: "psy1", dateAdded: "2024-06-15", priority: "Média", notes: "Precisa de horários à noite." },
+  { id: "wl3", name: "George Jetson", requestedPsychologist: "Dra. Jones", requestedPsychologistId: "psy2", dateAdded: "2024-07-01", priority: "Baixa", notes: "Flexível com horários." },
+  { id: "wl4", name: "Harry Potter", requestedPsychologist: "Qualquer", requestedPsychologistId: "any", dateAdded: "2024-07-10", priority: "Alta", notes: "Encaminhamento urgente." },
 ];
 
 const priorityLabels: Record<string, string> = {
-    High: "Alta",
-    Medium: "Média",
-    Low: "Baixa",
+    Alta: "Alta",
+    Média: "Média",
+    Baixa: "Baixa",
 };
 
 
@@ -76,7 +80,7 @@ export default function WaitingListPage() {
                         {priorityLabels[item.priority] || item.priority}
                       </Badge>
                     </TableCell>
-                    <TableCell className="max-w-xs truncate">{item.notes}</TableCell>
+                    <TableCell className="max-w-xs truncate" title={item.notes}>{item.notes}</TableCell>
                     <TableCell className="text-right">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -85,17 +89,22 @@ export default function WaitingListPage() {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem>
-                            <CalendarPlus className="mr-2 h-4 w-4" />
-                            Alocar Horário
+                          <DropdownMenuItem asChild>
+                            <Link href={`/schedule/new?patientName=${encodeURIComponent(item.name)}&psychologistId=${item.requestedPsychologistId || 'any'}`}>
+                              <CalendarPlus className="mr-2 h-4 w-4" />
+                              Alocar Horário
+                            </Link>
                           </DropdownMenuItem>
-                          <DropdownMenuItem>
-                            <UserPlus className="mr-2 h-4 w-4" />
-                            Ver Detalhes
+                          <DropdownMenuItem asChild>
+                            {/* Placeholder for edit functionality */}
+                            <Link href={`/waiting-list/edit/${item.id}`}>
+                                <Edit className="mr-2 h-4 w-4" />
+                                Editar Entrada
+                            </Link>
                           </DropdownMenuItem>
                           <DropdownMenuItem className="text-destructive">
                             <Trash2 className="mr-2 h-4 w-4" />
-                            Remover
+                            Remover da Lista
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>

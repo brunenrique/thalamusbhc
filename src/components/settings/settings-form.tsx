@@ -1,6 +1,7 @@
 
 "use client";
 
+import * as React from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,6 +10,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import { Save } from "lucide-react";
 import { Checkbox } from "../ui/checkbox";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"; // Adicionado Card
+import { Separator } from "@/components/ui/separator"; // Adicionado Separator
 
 interface SettingsFormProps {
   section: "general" | "account" | "appearance" | "notifications" | "schedule";
@@ -21,14 +24,14 @@ const timezones = [
   { value: "Europe/Lisbon", label: "Horário de Lisboa (GMT+0/GMT+1)" },
 ];
 
-const daysOfWeek = [
-  { id: "monday", label: "Segunda-feira" },
-  { id: "tuesday", label: "Terça-feira" },
-  { id: "wednesday", label: "Quarta-feira" },
-  { id: "thursday", label: "Quinta-feira" },
-  { id: "friday", label: "Sexta-feira" },
-  { id: "saturday", label: "Sábado" },
-  { id: "sunday", label: "Domingo" },
+const daysOfWeekMap = [
+  { id: "monday", label: "Segunda-feira", defaultChecked: true, defaultStartTime: "09:00", defaultEndTime: "18:00" },
+  { id: "tuesday", label: "Terça-feira", defaultChecked: true, defaultStartTime: "09:00", defaultEndTime: "18:00" },
+  { id: "wednesday", label: "Quarta-feira", defaultChecked: true, defaultStartTime: "09:00", defaultEndTime: "18:00" },
+  { id: "thursday", label: "Quinta-feira", defaultChecked: true, defaultStartTime: "09:00", defaultEndTime: "18:00" },
+  { id: "friday", label: "Sexta-feira", defaultChecked: true, defaultStartTime: "09:00", defaultEndTime: "18:00" },
+  { id: "saturday", label: "Sábado", defaultChecked: false, defaultStartTime: "10:00", defaultEndTime: "14:00" },
+  { id: "sunday", label: "Domingo", defaultChecked: false, defaultStartTime: "10:00", defaultEndTime: "14:00" },
 ];
 
 const reminderOptions = [
@@ -41,6 +44,18 @@ const reminderOptions = [
 
 export default function SettingsForm({ section }: SettingsFormProps) {
   const { toast } = useToast();
+
+  // Estado para controlar se os inputs de horário estão habilitados para cada dia
+  const [workingDays, setWorkingDays] = React.useState<Record<string, boolean>>(
+    daysOfWeekMap.reduce((acc, day) => {
+      acc[day.id] = day.defaultChecked;
+      return acc;
+    }, {} as Record<string, boolean>)
+  );
+
+  const handleWorkingDayChange = (dayId: string, checked: boolean) => {
+    setWorkingDays(prev => ({ ...prev, [dayId]: checked }));
+  };
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -77,12 +92,12 @@ export default function SettingsForm({ section }: SettingsFormProps) {
             </Select>
           </div>
           <div className="space-y-3">
-            <Label>Dias Úteis da Clínica</Label>
+            <Label>Dias Úteis da Clínica (Geral)</Label>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                {daysOfWeek.map(day => (
-                    <div key={day.id} className="flex items-center space-x-2">
-                        <Checkbox id={`workday-${day.id}`} defaultChecked={day.id !== 'saturday' && day.id !== 'sunday'} />
-                        <Label htmlFor={`workday-${day.id}`} className="font-normal">{day.label}</Label>
+                {daysOfWeekMap.map(day => (
+                    <div key={`clinic-workday-${day.id}`} className="flex items-center space-x-2">
+                        <Checkbox id={`clinic-workday-${day.id}`} defaultChecked={day.id !== 'saturday' && day.id !== 'sunday'} />
+                        <Label htmlFor={`clinic-workday-${day.id}`} className="font-normal">{day.label}</Label>
                     </div>
                 ))}
             </div>
@@ -168,53 +183,96 @@ export default function SettingsForm({ section }: SettingsFormProps) {
 
       {section === "schedule" && (
         <>
-          <div className="grid sm:grid-cols-2 gap-6">
-            <div className="space-y-2">
-                <Label htmlFor="workStartTime">Horário Padrão de Início do Expediente</Label>
-                <Input id="workStartTime" type="time" defaultValue="09:00" />
-            </div>
-            <div className="space-y-2">
-                <Label htmlFor="workEndTime">Horário Padrão de Término do Expediente</Label>
-                <Input id="workEndTime" type="time" defaultValue="18:00" />
-            </div>
-          </div>
-          <div className="grid sm:grid-cols-2 gap-6">
-            <div className="space-y-2">
-                <Label htmlFor="sessionDuration">Duração Padrão da Sessão (minutos)</Label>
-                <Input id="sessionDuration" type="number" defaultValue="50" min="15" step="5" />
-            </div>
-            <div className="space-y-2">
-                <Label htmlFor="intervalBetweenAppointments">Tempo de Intervalo Padrão Entre Consultas (minutos)</Label>
-                <Input id="intervalBetweenAppointments" type="number" defaultValue="10" min="0" step="5" />
-            </div>
-          </div>
-           <div className="grid sm:grid-cols-2 gap-6">
-            <div className="space-y-2">
-                <Label htmlFor="cancellationNotice">Tempo Mínimo de Antecedência para Cancelamento (horas)</Label>
-                <Input id="cancellationNotice" type="number" defaultValue="24" min="1" />
-            </div>
-            <div className="space-y-2">
-                <Label htmlFor="autoReminderTime">Lembrete Automático Principal</Label>
-                <Select defaultValue="24h">
-                    <SelectTrigger id="autoReminderTime">
-                        <SelectValue placeholder="Selecione o tempo do lembrete" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        {reminderOptions.map(opt => (
-                            <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
-            </div>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Switch id="externalCalendarSync" defaultChecked />
-            <Label htmlFor="externalCalendarSync">Habilitar Integração com Calendário Externo (ex: Google Agenda)</Label>
-          </div>
-           <div className="flex items-center space-x-2">
-            <Switch id="allowPatientSelfReschedule" />
-            <Label htmlFor="allowPatientSelfReschedule">Permitir que Pacientes Remarquem/Cancelem Online (dentro das regras)</Label>
-          </div>
+          <Card className="bg-muted/20 p-4">
+            <CardHeader className="p-0 pb-4">
+              <CardTitle className="text-lg">Horários Gerais da Clínica</CardTitle>
+            </CardHeader>
+            <CardContent className="p-0 space-y-6">
+              <div className="grid sm:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                    <Label htmlFor="workStartTime">Horário Padrão de Início do Expediente (Clínica)</Label>
+                    <Input id="workStartTime" type="time" defaultValue="09:00" />
+                </div>
+                <div className="space-y-2">
+                    <Label htmlFor="workEndTime">Horário Padrão de Término do Expediente (Clínica)</Label>
+                    <Input id="workEndTime" type="time" defaultValue="18:00" />
+                </div>
+              </div>
+              <div className="grid sm:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                    <Label htmlFor="sessionDuration">Duração Padrão da Sessão (minutos)</Label>
+                    <Input id="sessionDuration" type="number" defaultValue="50" min="15" step="5" />
+                </div>
+                <div className="space-y-2">
+                    <Label htmlFor="intervalBetweenAppointments">Tempo de Intervalo Padrão Entre Consultas (minutos)</Label>
+                    <Input id="intervalBetweenAppointments" type="number" defaultValue="10" min="0" step="5" />
+                </div>
+              </div>
+              <div className="grid sm:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                    <Label htmlFor="cancellationNotice">Tempo Mínimo de Antecedência para Cancelamento (horas)</Label>
+                    <Input id="cancellationNotice" type="number" defaultValue="24" min="1" />
+                </div>
+                <div className="space-y-2">
+                    <Label htmlFor="autoReminderTime">Lembrete Automático Principal</Label>
+                    <Select defaultValue="24h">
+                        <SelectTrigger id="autoReminderTime">
+                            <SelectValue placeholder="Selecione o tempo do lembrete" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {reminderOptions.map(opt => (
+                                <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                </div>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Switch id="externalCalendarSync" defaultChecked />
+                <Label htmlFor="externalCalendarSync">Habilitar Integração com Calendário Externo (ex: Google Agenda)</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Switch id="allowPatientSelfReschedule" />
+                <Label htmlFor="allowPatientSelfReschedule">Permitir que Pacientes Remarquem/Cancelem Online (dentro das regras)</Label>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Separator />
+
+          <Card className="bg-muted/20 p-4">
+            <CardHeader className="p-0 pb-4">
+              <CardTitle className="text-lg">Minha Disponibilidade Semanal Padrão</CardTitle>
+              <CardDescription>Defina seus dias e horários de trabalho. Isso será usado como base para novos agendamentos e pode ser sobrescrito por bloqueios específicos.</CardDescription>
+            </CardHeader>
+            <CardContent className="p-0 space-y-4">
+              {daysOfWeekMap.map((day) => (
+                <div key={`availability-${day.id}`} className="p-3 border rounded-md bg-background shadow-sm">
+                  <div className="flex items-center justify-between mb-2">
+                    <Label htmlFor={`workday-active-${day.id}`} className="text-base font-medium">{day.label}</Label>
+                    <Switch
+                      id={`workday-active-${day.id}`}
+                      checked={workingDays[day.id]}
+                      onCheckedChange={(checked) => handleWorkingDayChange(day.id, !!checked)}
+                      aria-label={`Trabalha na ${day.label}`}
+                    />
+                  </div>
+                  {workingDays[day.id] && (
+                    <div className="grid sm:grid-cols-2 gap-4 pt-2 border-t">
+                      <div className="space-y-1">
+                        <Label htmlFor={`workday-start-${day.id}`} className="text-xs">Início</Label>
+                        <Input id={`workday-start-${day.id}`} type="time" defaultValue={day.defaultStartTime} className="h-8 text-sm"/>
+                      </div>
+                      <div className="space-y-1">
+                        <Label htmlFor={`workday-end-${day.id}`} className="text-xs">Fim</Label>
+                        <Input id={`workday-end-${day.id}`} type="time" defaultValue={day.defaultEndTime} className="h-8 text-sm"/>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </CardContent>
+          </Card>
         </>
       )}
 
@@ -226,3 +284,4 @@ export default function SettingsForm({ section }: SettingsFormProps) {
     </form>
   );
 }
+

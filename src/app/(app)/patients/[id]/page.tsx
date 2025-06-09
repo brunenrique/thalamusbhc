@@ -4,8 +4,7 @@ import React, { useState, useEffect } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Mail, Phone, CalendarDays, Edit, FileText, Brain, CheckCircle, Clock, Archive, MessageSquare, Trash2, Users as UsersIconLucide, Home as HomeIconLucide, Share2, UploadCloud, Calendar as CalendarIconShad, Lightbulb, Tag, BarChart3 as BarChart3Icon, ShieldAlert as ShieldAlertIcon, CheckCircle as CheckCircleIcon, TrendingUp } from "lucide-react";
+import { Mail, Phone, CalendarDays, Edit, FileText, Brain, CheckCircle, Clock, Archive, MessageSquare, Trash2, Users as UsersIconLucide, Home as HomeIconLucide, Share2, UploadCloud, Calendar as CalendarIconShad, Lightbulb, Tag, BarChart3 as BarChart3Icon, ShieldAlert as ShieldAlertIcon, CheckCircle as CheckCircleIcon, TrendingUp, BookOpen, Activity, Users2, Layers } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import PatientTimeline from "@/components/patients/patient-timeline";
@@ -79,13 +78,11 @@ const mockPatient = {
   lastSession: "2024-07-15",
   assignedPsychologist: "Dr. Silva",
   address: "Rua Principal, 123, Cidade Alegre, BR",
-  // TODO: Adicionar campos criptografados mockados aqui, ex:
-  // encryptedMedicalHistory: "U2FsdGVkX1+...", // Exemplo de como poderia vir do Firestore
+  // encryptedMedicalHistory: "U2FsdGVkX1+...", 
 };
 
 const initialSessionNotes = [
-  // TODO: O summary aqui deveria ser descriptografado no cliente após carregar do Firestore.
-  // No mock, ele está em texto plano. Em uma implementação real, viria criptografado.
+  // TODO: Implementar criptografia/descriptografia client-side AES aqui
   { id: "sn1", date: "2024-07-15", summary: "Sessão focada em mecanismos de enfrentamento para ansiedade. Paciente relata melhora na qualidade do sono após aplicar técnicas de relaxamento que foram ensinadas na sessão anterior. Apresentou-se engajada e participativa. Discutimos a importância da exposição gradual e planejamos pequenos passos para a próxima semana. Tarefa: praticar respiração diafragmática duas vezes ao dia.", keywords: ["ansiedade", "enfrentamento", "sono", "relaxamento", "exposição gradual"], themes: ["gerenciamento de estresse", "técnicas de relaxamento", "TCC"] },
   { id: "sn2", date: "2024-07-08", summary: "Exploramos dinâmicas familiares e padrões de comunicação. Identificamos alguns gatilhos em interações com a mãe que disparam sentimentos de inadequação. Paciente expressou dificuldade em estabelecer limites saudáveis. Trabalhamos role-playing de comunicação assertiva, focando em frases 'Eu sinto...' e pedidos claros. Paciente demonstrou progresso na identificação de pensamentos automáticos negativos relacionados a estas interações.", keywords: ["família", "comunicação", "limites", "assertividade", "pensamentos automáticos"], themes: ["relacionamentos interpessoais", "comunicação assertiva", "dinâmica familiar"] },
 ];
@@ -130,15 +127,12 @@ const mockPatientProgressData: Record<string, Array<{ date: string; score: numbe
 
 
 export default function PatientDetailPage({ params }: { params: { id: string } }) {
-  const patient = mockPatient; // TODO: Fetch patient data, potentially decrypting sensitive fields
+  const patient = mockPatient; 
   const router = useRouter();
   const { toast } = useToast();
 
-  // TODO: Se as notas de sessão são carregadas do Firestore e criptografadas,
-  // a descriptografia ocorreria aqui antes de definir o estado.
   const [sessionNotes, setSessionNotes] = useState(initialSessionNotes.map(note => ({
     ...note,
-    // summary: decrypt(note.summary, userKey) // Exemplo de como seria
   })));
   const [assessments, setAssessments] = useState(initialAssessments);
   const [patientResources, setPatientResources] = useState(initialPatientResources);
@@ -165,7 +159,6 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
   useEffect(() => {
     setIsLoadingProgressChart(true);
     const instrumentData = mockPatientProgressData[selectedProgressInstrument] || [];
-    // Simulate data fetching delay for chart
     setTimeout(() => {
       setCurrentProgressData(instrumentData.map(d => ({ ...d, date: new Date(d.date) })));
       setIsLoadingProgressChart(false);
@@ -187,7 +180,6 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
   };
 
   const handleDeletePatient = () => {
-    // TODO: Implementar lógica de exclusão segura, considerando dados criptografados se aplicável.
     toast({
       title: "Paciente Excluído (Simulado)",
       description: `${patient.name} foi excluído(a) permanentemente.`,
@@ -255,13 +247,12 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
     setGeneralPatientInsights(null);
 
     const mostRecentNote = sessionNotes.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0];
-    // TODO: O summary aqui já estaria descriptografado se a criptografia client-side estivesse implementada
+    // TODO: Implementar criptografia/descriptografia client-side AES aqui - summaryForInsights should be decrypted
     const summaryForInsights = mostRecentNote.summary;
 
     try {
       // const result = await generateSessionInsights({ sessionNotes: summaryForInsights });
       // setGeneralPatientInsights(result);
-      // Simulação de sucesso
       await new Promise(resolve => setTimeout(resolve, 1500));
       setGeneralPatientInsights({
         keywords: mostRecentNote.keywords || ["Tópico 1", "Tópico 2"],
@@ -365,376 +356,345 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
         </CardHeader>
       </Card>
 
-      <Tabs defaultValue="overview" className="w-full">
-        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-6">
-          <TabsTrigger value="overview">Visão Geral</TabsTrigger>
-          <TabsTrigger value="session_notes">Anotações</TabsTrigger>
-          <TabsTrigger value="assessments">Avaliações</TabsTrigger>
-          <TabsTrigger value="progress">Progresso</TabsTrigger>
-          <TabsTrigger value="timeline">Linha do Tempo</TabsTrigger>
-          <TabsTrigger value="resources">Recursos</TabsTrigger>
-        </TabsList>
+      <Card className="shadow-sm">
+        <CardHeader>
+          <CardTitle className="font-headline flex items-center"><Users2 className="mr-2 h-5 w-5 text-primary"/> Visão Geral do Paciente</CardTitle>
+        </CardHeader>
+        <CardContent className="grid md:grid-cols-2 gap-4">
+          <InfoItem icon={<CalendarDays className="text-accent" />} label="Próximo Agendamento" value={formattedNextAppointment} />
+          <InfoItem icon={<Clock className="text-accent" />} label="Última Sessão" value={formattedLastSession} />
+          <InfoItem icon={<UsersIconLucide className="text-accent h-5 w-5" />} label="Psicólogo(a) Responsável" value={patient.assignedPsychologist} />
+          <InfoItem icon={<HomeIconLucide className="text-accent h-5 w-5" />} label="Endereço" value={patient.address} className="md:col-span-2"/>
+        </CardContent>
+      </Card>
 
-        <TabsContent value="overview" className="mt-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="font-headline">Visão Geral do Paciente</CardTitle>
-            </CardHeader>
-            <CardContent className="grid md:grid-cols-2 gap-4">
-              <InfoItem icon={<CalendarDays className="text-accent" />} label="Próximo Agendamento" value={formattedNextAppointment} />
-              <InfoItem icon={<Clock className="text-accent" />} label="Última Sessão" value={formattedLastSession} />
-              <InfoItem icon={<UsersIconLucide className="text-accent h-5 w-5" />} label="Psicólogo(a) Responsável" value={patient.assignedPsychologist} />
-              <InfoItem icon={<HomeIconLucide className="text-accent h-5 w-5" />} label="Endereço" value={patient.address} className="md:col-span-2"/>
-            </CardContent>
-          </Card>
-
-
-          <Card className="mt-6 shadow-sm">
-            <CardHeader>
-              <CardTitle className="font-headline flex items-center">
-                <Brain className="mr-2 h-5 w-5 text-primary" /> Insights Chave do Paciente
-              </CardTitle>
-              <CardDescription>
-                Gere e visualize insights baseados nas interações e histórico do paciente.
-                 {/* TODO: Adicionar um aviso aqui sobre como os dados sensíveis podem ser usados (ou não) para gerar insights se a criptografia for ponta a ponta. */}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {!generalPatientInsights && !isLoadingGeneralInsights && !errorGeneralInsights && (
-                <Button onClick={handleGenerateGeneralPatientInsights} variant="outline" className="w-full sm:w-auto">
-                  <Brain className="mr-2 h-4 w-4" /> Gerar Insights Gerais (Baseado na Última Sessão)
-                </Button>
-              )}
-              {isLoadingGeneralInsights && (
-                <div className="space-y-3 p-4 rounded-md bg-muted/30">
-                  <div className="flex items-center space-x-2">
-                    <Skeleton className="h-6 w-6 rounded-full" />
-                    <Skeleton className="h-4 w-[180px]" />
-                  </div>
-                  <Skeleton className="h-4 w-full" />
-                  <Skeleton className="h-4 w-4/5" />
-                  <Skeleton className="h-4 w-3/5" />
-                  <Skeleton className="h-8 w-[200px] mt-2" />
-                </div>
-              )}
-              {errorGeneralInsights && !isLoadingGeneralInsights && (
-                <Alert variant="destructive">
-                  <AlertTitle>Erro ao Gerar Insights</AlertTitle>
-                  <AlertDescription>{errorGeneralInsights}</AlertDescription>
-                  <Button onClick={handleGenerateGeneralPatientInsights} variant="outline" size="sm" className="mt-3">
-                    Tentar Novamente
-                  </Button>
-                </Alert>
-              )}
-              {generalPatientInsights && !isLoadingGeneralInsights && (
-                <div className="space-y-4 pt-2 p-4 rounded-md bg-muted/30">
-                  {generalPatientInsights.potentialRiskAlerts && generalPatientInsights.potentialRiskAlerts.length > 0 && (
-                    <div>
-                      <h4 className="text-sm font-semibold flex items-center text-destructive mb-1">
-                        <ShieldAlertIcon className="mr-2 h-4 w-4" /> Alertas de Risco Potencial:
-                      </h4>
-                      <div className="flex flex-wrap gap-1">
-                        {generalPatientInsights.potentialRiskAlerts.map((alert: string, idx: number) => (
-                          <Badge key={idx} variant="destructive">{alert}</Badge>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                  <div>
-                    <h4 className="text-sm font-semibold flex items-center mb-1">
-                      <Tag className="mr-2 h-4 w-4 text-muted-foreground" /> Palavras-chave Identificadas:
-                    </h4>
-                    <div className="flex flex-wrap gap-1">
-                      {generalPatientInsights.keywords.map((kw: string) => <Badge key={kw} variant="secondary">{kw}</Badge>)}
-                    </div>
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-semibold flex items-center mb-1">
-                      <Lightbulb className="mr-2 h-4 w-4 text-muted-foreground" /> Temas Recorrentes:
-                    </h4>
-                    <div className="flex flex-wrap gap-1">
-                      {generalPatientInsights.themes.map((theme: string) => <Badge key={theme} variant="outline">{theme}</Badge>)}
-                    </div>
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-semibold flex items-center mb-1">
-                      <BarChart3Icon className="mr-2 h-4 w-4 text-muted-foreground" /> Evolução de Sintomas Observada:
-                    </h4>
-                    <p className="text-sm text-muted-foreground whitespace-pre-wrap">{generalPatientInsights.symptomEvolution}</p>
-                  </div>
-                  {generalPatientInsights.therapeuticMilestones && generalPatientInsights.therapeuticMilestones.length > 0 && (
-                    <div>
-                      <h4 className="text-sm font-semibold flex items-center mb-1">
-                        <CheckCircleIcon className="mr-2 h-4 w-4 text-green-600" /> Marcos Terapêuticos Significativos:
-                      </h4>
-                      <div className="flex flex-wrap gap-1">
-                        {generalPatientInsights.therapeuticMilestones.map((milestone: string, idx: number) => (
-                          <Badge key={idx} variant="default" className="bg-green-100 text-green-700 border-green-300 hover:bg-green-200">{milestone}</Badge>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                  {generalPatientInsights.inventoryComparisonInsights && (
-                      <div>
-                          <h4 className="text-sm font-semibold flex items-center mb-1">
-                              <BarChart3Icon className="mr-2 h-4 w-4 text-muted-foreground" /> Insights Comparativos (Histórico/Inventários):
-                          </h4>
-                          <p className="text-sm text-muted-foreground whitespace-pre-wrap">{generalPatientInsights.inventoryComparisonInsights}</p>
-                      </div>
-                  )}
-                  <div>
-                    <h4 className="text-sm font-semibold flex items-center mb-1">
-                      <Lightbulb className="mr-2 h-4 w-4 text-muted-foreground" /> Sugestões e Observações da IA:
-                    </h4>
-                    <p className="text-sm text-muted-foreground whitespace-pre-wrap">{generalPatientInsights.suggestiveInsights}</p>
-                  </div>
-                  <div className="flex gap-2 mt-3">
-                    <Button onClick={() => { setGeneralPatientInsights(null); setErrorGeneralInsights(null); }} variant="outline" size="sm">
-                        Limpar Insights
-                    </Button>
-                     <Button onClick={handleGenerateGeneralPatientInsights} variant="outline" size="sm">
-                        <Brain className="mr-2 h-3.5 w-3.5" /> Regenerar Insights
-                    </Button>
-                  </div>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-        </TabsContent>
-
-        <TabsContent value="session_notes" className="mt-6">
-          <Card>
-            <CardHeader className="flex flex-row justify-between items-center">
-              <div>
-                <CardTitle className="font-headline">Anotações de Sessão</CardTitle>
-                <CardDescription>Registro cronológico das sessões de terapia.
-                 {/* TODO: Adicionar um aviso sobre a criptografia das notas, se aplicável. */}
-                </CardDescription>
+      <Card className="mt-6 shadow-sm">
+        <CardHeader>
+          <CardTitle className="font-headline flex items-center">
+            <Brain className="mr-2 h-5 w-5 text-primary" /> Insights Chave do Paciente
+          </CardTitle>
+          <CardDescription>
+            Gere e visualize insights baseados nas interações e histórico do paciente.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {!generalPatientInsights && !isLoadingGeneralInsights && !errorGeneralInsights && (
+            <Button onClick={handleGenerateGeneralPatientInsights} variant="outline" className="w-full sm:w-auto">
+              <Brain className="mr-2 h-4 w-4" /> Gerar Insights Gerais (Baseado na Última Sessão)
+            </Button>
+          )}
+          {isLoadingGeneralInsights && (
+            <div className="space-y-3 p-4 rounded-md bg-muted/30">
+              <div className="flex items-center space-x-2">
+                <Skeleton className="h-6 w-6 rounded-full" />
+                <Skeleton className="h-4 w-[180px]" />
               </div>
-              <Button variant="outline" className="bg-accent hover:bg-accent/90 text-accent-foreground">
-                <FileText className="mr-2 h-4 w-4" /> Nova Anotação
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-4/5" />
+              <Skeleton className="h-4 w-3/5" />
+              <Skeleton className="h-8 w-[200px] mt-2" />
+            </div>
+          )}
+          {errorGeneralInsights && !isLoadingGeneralInsights && (
+            <Alert variant="destructive">
+              <AlertTitle>Erro ao Gerar Insights</AlertTitle>
+              <AlertDescription>{errorGeneralInsights}</AlertDescription>
+              <Button onClick={handleGenerateGeneralPatientInsights} variant="outline" size="sm" className="mt-3">
+                Tentar Novamente
               </Button>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {sessionNotes.map(note => (
-                <SessionNoteCard key={note.id} note={note} patientName={patient.name} therapistName={patient.assignedPsychologist} />
-              ))}
-              {sessionNotes.length === 0 && <p className="text-muted-foreground">Nenhuma anotação de sessão registrada ainda.</p>}
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="assessments" className="mt-6">
-          <Card>
-            <CardHeader className="flex flex-row justify-between items-center">
-              <div>
-                <CardTitle className="font-headline">Avaliações</CardTitle>
-                <CardDescription>Acompanhe e gerencie as avaliações do paciente.</CardDescription>
-              </div>
-              <Dialog>
-                <DialogTrigger asChild>
-                    <Button variant="outline" className="bg-accent hover:bg-accent/90 text-accent-foreground">
-                        <CheckCircle className="mr-2 h-4 w-4" /> Atribuir Avaliação
-                    </Button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-[425px]">
-                    <DialogHeader>
-                        <DialogTitle>Atribuir Avaliação a {patient.name}</DialogTitle>
-                        <DialogDescription>
-                            Selecione um modelo de avaliação e uma data de envio.
-                        </DialogDescription>
-                    </DialogHeader>
-                    <div className="grid gap-4 py-4">
-                        <div className="grid grid-cols-4 items-center gap-4">
-                            <Label htmlFor="assessment-template" className="text-right col-span-1">
-                                Modelo
-                            </Label>
-                            <Select value={selectedAssessmentTemplate} onValueChange={setSelectedAssessmentTemplate}>
-                                <SelectTrigger id="assessment-template" className="col-span-3">
-                                    <SelectValue placeholder="Selecione um modelo" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {mockAssessmentTemplates.map(template => (
-                                        <SelectItem key={template.id} value={template.id}>{template.name}</SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
-                        <div className="grid grid-cols-4 items-center gap-4">
-                            <Label htmlFor="assessment-date" className="text-right col-span-1">
-                                Data Envio
-                            </Label>
-                             <div className="col-span-3">
-                                <Popover>
-                                    <PopoverTrigger asChild>
-                                    <Button
-                                        variant={"outline"}
-                                        className="w-full justify-start text-left font-normal"
-                                    >
-                                        <CalendarIconShad className="mr-2 h-4 w-4" />
-                                        {assessmentSendDate ? format(assessmentSendDate, "P", {locale: ptBR}) : <span>Escolha uma data</span>}
-                                    </Button>
-                                    </PopoverTrigger>
-                                    <PopoverContent className="w-auto p-0">
-                                    <Calendar
-                                        mode="single"
-                                        selected={assessmentSendDate}
-                                        onSelect={setAssessmentSendDate}
-                                        initialFocus
-                                        locale={ptBR}
-                                    />
-                                    </PopoverContent>
-                                </Popover>
-                            </div>
-                        </div>
-                    </div>
-                    <DialogFooter>
-                        <DialogClose asChild>
-                            <Button type="button" variant="outline">Cancelar</Button>
-                        </DialogClose>
-                        <DialogClose asChild>
-                            <Button type="button" onClick={handleAssignAssessment} disabled={!selectedAssessmentTemplate || !assessmentSendDate}>Atribuir</Button>
-                        </DialogClose>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
-
-            </CardHeader>
-            <CardContent className="grid gap-4 md:grid-cols-2">
-              {assessments.map(assessment => (
-                <AssessmentCard key={assessment.id} assessment={assessment} />
-              ))}
-              {assessments.length === 0 && <p className="text-muted-foreground md:col-span-full">Nenhuma avaliação atribuída ou concluída.</p>}
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="progress" className="mt-6">
-            <Card>
-                <CardHeader>
-                <CardTitle className="font-headline flex items-center">
-                    <TrendingUp className="mr-2 h-5 w-5 text-primary" /> Progresso Terapêutico
-                </CardTitle>
-                <CardDescription>
-                    Acompanhe a evolução das pontuações dos instrumentos ao longo do tempo.
-                </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                <div className="max-w-xs">
-                    <Label htmlFor="progressInstrumentSelect">Selecionar Instrumento:</Label>
-                    <Select value={selectedProgressInstrument} onValueChange={setSelectedProgressInstrument}>
-                    <SelectTrigger id="progressInstrumentSelect">
-                        <SelectValue placeholder="Selecione um instrumento" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        {mockAvailableInstrumentsForProgress.map(instrument => (
-                        <SelectItem key={instrument.id} value={instrument.id}>
-                            {instrument.name}
-                        </SelectItem>
-                        ))}
-                    </SelectContent>
-                    </Select>
+            </Alert>
+          )}
+          {generalPatientInsights && !isLoadingGeneralInsights && (
+            <div className="space-y-4 pt-2 p-4 rounded-md bg-muted/30">
+              {generalPatientInsights.potentialRiskAlerts && generalPatientInsights.potentialRiskAlerts.length > 0 && (
+                <div>
+                  <h4 className="text-sm font-semibold flex items-center text-destructive mb-1">
+                    <ShieldAlertIcon className="mr-2 h-4 w-4" /> Alertas de Risco Potencial:
+                  </h4>
+                  <div className="flex flex-wrap gap-1">
+                    {generalPatientInsights.potentialRiskAlerts.map((alert: string, idx: number) => (
+                      <Badge key={idx} variant="destructive">{alert}</Badge>
+                    ))}
+                  </div>
                 </div>
-
-                {isLoadingProgressChart ? (
-                    <div className="h-[350px] w-full flex flex-col items-center justify-center bg-muted/30 rounded-lg">
-                    <Skeleton className="h-4 w-1/4 mb-2" />
-                    <Skeleton className="h-3/4 w-full" />
-                    </div>
-                ) : currentProgressData.length > 0 ? (
-                    <div className="h-[350px] w-full bg-muted/30 rounded-lg p-4">
-                    <PatientProgressChart data={currentProgressData} instrumentName={mockAvailableInstrumentsForProgress.find(i => i.id === selectedProgressInstrument)?.name || ""} />
-                    </div>
-                ) : (
-                    <div className="text-center py-10 text-muted-foreground">
-                    <TrendingUp className="mx-auto h-12 w-12" />
-                    <p className="mt-2">Nenhum dado de progresso disponível para o instrumento selecionado.</p>
-                    <p className="text-sm">Certifique-se de que há avaliações concluídas para este paciente com o instrumento escolhido.</p>
-                    </div>
-                )}
-                </CardContent>
-            </Card>
-        </TabsContent>
-
-
-        <TabsContent value="timeline" className="mt-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="font-headline">Linha do Tempo do Paciente</CardTitle>
-              <CardDescription>Eventos chave e interações relacionadas ao paciente.</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <PatientTimeline patientId={params.id} />
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="resources" className="mt-6">
-          <Card>
-            <CardHeader className="flex flex-row justify-between items-center">
-             <div>
-                <CardTitle className="font-headline">Recursos Compartilhados com {patient.name}</CardTitle>
-                <CardDescription>Documentos e guias compartilhados com este paciente.</CardDescription>
+              )}
+              <div>
+                <h4 className="text-sm font-semibold flex items-center mb-1">
+                  <Tag className="mr-2 h-4 w-4 text-muted-foreground" /> Palavras-chave Identificadas:
+                </h4>
+                <div className="flex flex-wrap gap-1">
+                  {generalPatientInsights.keywords.map((kw: string) => <Badge key={kw} variant="secondary">{kw}</Badge>)}
+                </div>
               </div>
-              <Dialog>
-                <DialogTrigger asChild>
-                   <Button variant="outline" className="bg-accent hover:bg-accent/90 text-accent-foreground">
-                    <Share2 className="mr-2 h-4 w-4" /> Compartilhar Novo Recurso
-                   </Button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-md">
-                    <DialogHeader>
-                        <DialogTitle>Compartilhar Recurso com {patient.name}</DialogTitle>
-                        <DialogDescription>
-                            Selecione um recurso da biblioteca da clínica para compartilhar com este paciente.
-                        </DialogDescription>
-                    </DialogHeader>
-                    <div className="grid gap-4 py-4">
-                        <div className="space-y-2">
-                            <Label htmlFor="global-resource-select">Recurso da Clínica</Label>
-                            <Select value={selectedGlobalResource} onValueChange={setSelectedGlobalResource}>
-                                <SelectTrigger id="global-resource-select">
-                                    <SelectValue placeholder="Selecione um recurso global" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {mockGlobalClinicResources.map(res => (
-                                        <SelectItem key={res.id} value={res.id}>{res.name} ({res.type}, {res.size})</SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
-                         <div className="space-y-2">
-                            <Label htmlFor="resource-share-notes">Notas para o Paciente (Opcional)</Label>
-                            <Textarea
-                                id="resource-share-notes"
-                                value={resourceShareNotes}
-                                onChange={(e) => setResourceShareNotes(e.target.value)}
-                                placeholder="Ex: Dê uma olhada neste material antes da nossa próxima sessão."
-                                rows={3}
-                            />
+              <div>
+                <h4 className="text-sm font-semibold flex items-center mb-1">
+                  <Lightbulb className="mr-2 h-4 w-4 text-muted-foreground" /> Temas Recorrentes:
+                </h4>
+                <div className="flex flex-wrap gap-1">
+                  {generalPatientInsights.themes.map((theme: string) => <Badge key={theme} variant="outline">{theme}</Badge>)}
+                </div>
+              </div>
+              <div>
+                <h4 className="text-sm font-semibold flex items-center mb-1">
+                  <BarChart3Icon className="mr-2 h-4 w-4 text-muted-foreground" /> Evolução de Sintomas Observada:
+                </h4>
+                <p className="text-sm text-muted-foreground whitespace-pre-wrap">{generalPatientInsights.symptomEvolution}</p>
+              </div>
+              {generalPatientInsights.therapeuticMilestones && generalPatientInsights.therapeuticMilestones.length > 0 && (
+                <div>
+                  <h4 className="text-sm font-semibold flex items-center mb-1">
+                    <CheckCircleIcon className="mr-2 h-4 w-4 text-green-600" /> Marcos Terapêuticos Significativos:
+                  </h4>
+                  <div className="flex flex-wrap gap-1">
+                    {generalPatientInsights.therapeuticMilestones.map((milestone: string, idx: number) => (
+                      <Badge key={idx} variant="default" className="bg-green-100 text-green-700 border-green-300 hover:bg-green-200">{milestone}</Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {generalPatientInsights.inventoryComparisonInsights && (
+                  <div>
+                      <h4 className="text-sm font-semibold flex items-center mb-1">
+                          <BarChart3Icon className="mr-2 h-4 w-4 text-muted-foreground" /> Insights Comparativos (Histórico/Inventários):
+                      </h4>
+                      <p className="text-sm text-muted-foreground whitespace-pre-wrap">{generalPatientInsights.inventoryComparisonInsights}</p>
+                  </div>
+              )}
+              <div>
+                <h4 className="text-sm font-semibold flex items-center mb-1">
+                  <Lightbulb className="mr-2 h-4 w-4 text-muted-foreground" /> Sugestões e Observações da IA:
+                </h4>
+                <p className="text-sm text-muted-foreground whitespace-pre-wrap">{generalPatientInsights.suggestiveInsights}</p>
+              </div>
+              <div className="flex gap-2 mt-3">
+                <Button onClick={() => { setGeneralPatientInsights(null); setErrorGeneralInsights(null); }} variant="outline" size="sm">
+                    Limpar Insights
+                </Button>
+                 <Button onClick={handleGenerateGeneralPatientInsights} variant="outline" size="sm">
+                    <Brain className="mr-2 h-3.5 w-3.5" /> Regenerar Insights
+                </Button>
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      <Card className="mt-6 shadow-sm">
+        <CardHeader className="flex flex-row justify-between items-center">
+          <div>
+            <CardTitle className="font-headline flex items-center"><MessageSquare className="mr-2 h-5 w-5 text-primary"/> Anotações de Sessão</CardTitle>
+            <CardDescription>Registro cronológico das sessões de terapia.</CardDescription>
+          </div>
+          <Button variant="outline" className="bg-accent hover:bg-accent/90 text-accent-foreground">
+            <FileText className="mr-2 h-4 w-4" /> Nova Anotação
+          </Button>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {sessionNotes.map(note => (
+            <SessionNoteCard key={note.id} note={note} patientName={patient.name} therapistName={patient.assignedPsychologist} />
+          ))}
+          {sessionNotes.length === 0 && <p className="text-muted-foreground">Nenhuma anotação de sessão registrada ainda.</p>}
+        </CardContent>
+      </Card>
+
+      <Card className="mt-6 shadow-sm">
+        <CardHeader className="flex flex-row justify-between items-center">
+          <div>
+            <CardTitle className="font-headline flex items-center"><Layers className="mr-2 h-5 w-5 text-primary"/> Avaliações</CardTitle>
+            <CardDescription>Acompanhe e gerencie as avaliações do paciente.</CardDescription>
+          </div>
+          <Dialog>
+            <DialogTrigger asChild>
+                <Button variant="outline" className="bg-accent hover:bg-accent/90 text-accent-foreground">
+                    <CheckCircle className="mr-2 h-4 w-4" /> Atribuir Avaliação
+                </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                    <DialogTitle>Atribuir Avaliação a {patient.name}</DialogTitle>
+                    <DialogDescription>
+                        Selecione um modelo de avaliação e uma data de envio.
+                    </DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="assessment-template" className="text-right col-span-1">
+                            Modelo
+                        </Label>
+                        <Select value={selectedAssessmentTemplate} onValueChange={setSelectedAssessmentTemplate}>
+                            <SelectTrigger id="assessment-template" className="col-span-3">
+                                <SelectValue placeholder="Selecione um modelo" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {mockAssessmentTemplates.map(template => (
+                                    <SelectItem key={template.id} value={template.id}>{template.name}</SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="assessment-date" className="text-right col-span-1">
+                            Data Envio
+                        </Label>
+                         <div className="col-span-3">
+                            <Popover>
+                                <PopoverTrigger asChild>
+                                <Button
+                                    variant={"outline"}
+                                    className="w-full justify-start text-left font-normal"
+                                >
+                                    <CalendarIconShad className="mr-2 h-4 w-4" />
+                                    {assessmentSendDate ? format(assessmentSendDate, "P", {locale: ptBR}) : <span>Escolha uma data</span>}
+                                </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-auto p-0">
+                                <Calendar
+                                    mode="single"
+                                    selected={assessmentSendDate}
+                                    onSelect={setAssessmentSendDate}
+                                    initialFocus
+                                    locale={ptBR}
+                                />
+                                </PopoverContent>
+                            </Popover>
                         </div>
                     </div>
-                    <DialogFooter>
-                        <DialogClose asChild><Button type="button" variant="outline">Cancelar</Button></DialogClose>
-                        <DialogClose asChild>
-                            <Button type="button" onClick={handleShareResource} disabled={!selectedGlobalResource}>
-                                Compartilhar
-                            </Button>
-                        </DialogClose>
-                    </DialogFooter>
-                </DialogContent>
-              </Dialog>
-            </CardHeader>
-            <CardContent className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {patientResources.map(resource => (
-                <ResourceCard key={resource.id} resource={resource} />
-              ))}
-              {patientResources.length === 0 && <p className="text-muted-foreground md:col-span-full">Nenhum recurso compartilhado com este paciente ainda.</p>}
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+                </div>
+                <DialogFooter>
+                    <DialogClose asChild>
+                        <Button type="button" variant="outline">Cancelar</Button>
+                    </DialogClose>
+                    <DialogClose asChild>
+                        <Button type="button" onClick={handleAssignAssessment} disabled={!selectedAssessmentTemplate || !assessmentSendDate}>Atribuir</Button>
+                    </DialogClose>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
+        </CardHeader>
+        <CardContent className="grid gap-4 md:grid-cols-2">
+          {assessments.map(assessment => (
+            <AssessmentCard key={assessment.id} assessment={assessment} />
+          ))}
+          {assessments.length === 0 && <p className="text-muted-foreground md:col-span-full">Nenhuma avaliação atribuída ou concluída.</p>}
+        </CardContent>
+      </Card>
+
+      <Card className="mt-6 shadow-sm">
+        <CardHeader>
+        <CardTitle className="font-headline flex items-center">
+            <TrendingUp className="mr-2 h-5 w-5 text-primary" /> Progresso Terapêutico
+        </CardTitle>
+        <CardDescription>
+            Acompanhe a evolução das pontuações dos instrumentos ao longo do tempo.
+        </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+        <div className="max-w-xs">
+            <Label htmlFor="progressInstrumentSelect">Selecionar Instrumento:</Label>
+            <Select value={selectedProgressInstrument} onValueChange={setSelectedProgressInstrument}>
+            <SelectTrigger id="progressInstrumentSelect">
+                <SelectValue placeholder="Selecione um instrumento" />
+            </SelectTrigger>
+            <SelectContent>
+                {mockAvailableInstrumentsForProgress.map(instrument => (
+                <SelectItem key={instrument.id} value={instrument.id}>
+                    {instrument.name}
+                </SelectItem>
+                ))}
+            </SelectContent>
+            </Select>
+        </div>
+        {isLoadingProgressChart ? (
+            <div className="h-[350px] w-full flex flex-col items-center justify-center bg-muted/30 rounded-lg">
+            <Skeleton className="h-4 w-1/4 mb-2" />
+            <Skeleton className="h-3/4 w-full" />
+            </div>
+        ) : currentProgressData.length > 0 ? (
+            <div className="h-[350px] w-full bg-muted/30 rounded-lg p-4">
+            <PatientProgressChart data={currentProgressData} instrumentName={mockAvailableInstrumentsForProgress.find(i => i.id === selectedProgressInstrument)?.name || ""} />
+            </div>
+        ) : (
+            <div className="text-center py-10 text-muted-foreground">
+            <TrendingUp className="mx-auto h-12 w-12" />
+            <p className="mt-2">Nenhum dado de progresso disponível para o instrumento selecionado.</p>
+            <p className="text-sm">Certifique-se de que há avaliações concluídas para este paciente com o instrumento escolhido.</p>
+            </div>
+        )}
+        </CardContent>
+      </Card>
+
+      <Card className="mt-6 shadow-sm">
+        <CardHeader>
+          <CardTitle className="font-headline flex items-center"><Activity className="mr-2 h-5 w-5 text-primary"/> Linha do Tempo do Paciente</CardTitle>
+          <CardDescription>Eventos chave e interações relacionadas ao paciente.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <PatientTimeline patientId={params.id} />
+        </CardContent>
+      </Card>
+
+      <Card className="mt-6 shadow-sm">
+        <CardHeader className="flex flex-row justify-between items-center">
+         <div>
+            <CardTitle className="font-headline flex items-center"><BookOpen className="mr-2 h-5 w-5 text-primary"/> Recursos Compartilhados com {patient.name}</CardTitle>
+            <CardDescription>Documentos e guias compartilhados com este paciente.</CardDescription>
+          </div>
+          <Dialog>
+            <DialogTrigger asChild>
+               <Button variant="outline" className="bg-accent hover:bg-accent/90 text-accent-foreground">
+                <Share2 className="mr-2 h-4 w-4" /> Compartilhar Novo Recurso
+               </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-md">
+                <DialogHeader>
+                    <DialogTitle>Compartilhar Recurso com {patient.name}</DialogTitle>
+                    <DialogDescription>
+                        Selecione um recurso da biblioteca da clínica para compartilhar com este paciente.
+                    </DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                    <div className="space-y-2">
+                        <Label htmlFor="global-resource-select">Recurso da Clínica</Label>
+                        <Select value={selectedGlobalResource} onValueChange={setSelectedGlobalResource}>
+                            <SelectTrigger id="global-resource-select">
+                                <SelectValue placeholder="Selecione um recurso global" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {mockGlobalClinicResources.map(res => (
+                                    <SelectItem key={res.id} value={res.id}>{res.name} ({res.type}, {res.size})</SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+                     <div className="space-y-2">
+                        <Label htmlFor="resource-share-notes">Notas para o Paciente (Opcional)</Label>
+                        <Textarea
+                            id="resource-share-notes"
+                            value={resourceShareNotes}
+                            onChange={(e) => setResourceShareNotes(e.target.value)}
+                            placeholder="Ex: Dê uma olhada neste material antes da nossa próxima sessão."
+                            rows={3}
+                        />
+                    </div>
+                </div>
+                <DialogFooter>
+                    <DialogClose asChild><Button type="button" variant="outline">Cancelar</Button></DialogClose>
+                    <DialogClose asChild>
+                        <Button type="button" onClick={handleShareResource} disabled={!selectedGlobalResource}>
+                            Compartilhar
+                        </Button>
+                    </DialogClose>
+                </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </CardHeader>
+        <CardContent className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {patientResources.map(resource => (
+            <ResourceCard key={resource.id} resource={resource} />
+          ))}
+          {patientResources.length === 0 && <p className="text-muted-foreground md:col-span-full">Nenhum recurso compartilhado com este paciente ainda.</p>}
+        </CardContent>
+      </Card>
     </div>
   );
 }

@@ -100,8 +100,8 @@ export default function TasksPage() {
     });
   }, [searchTerm, filters]);
 
-  const pendingTasks = filteredTasks.filter(task => task.status === "Pendente" || task.status === "Em Progresso");
-  const completedTasks = filteredTasks.filter(task => task.status === "Concluída");
+  const pendingTasks = filteredTasks.filter(task => task.status === "Pendente" || task.status === "Em Progresso").sort((a,b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime());
+  const completedTasks = filteredTasks.filter(task => task.status === "Concluída").sort((a,b) => new Date(b.dueDate).getTime() - new Date(a.dueDate).getTime());
 
   return (
     <div className="space-y-6">
@@ -205,7 +205,7 @@ export default function TasksPage() {
             </TabsList>
             <TabsContent value="pending" className="mt-4">
               {pendingTasks.length > 0 ? (
-                <div className="space-y-4">
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                   {pendingTasks.map(task => (
                     <TaskItem key={task.id} task={task} />
                   ))}
@@ -222,7 +222,7 @@ export default function TasksPage() {
             </TabsContent>
             <TabsContent value="completed" className="mt-4">
               {completedTasks.length > 0 ? (
-                <div className="space-y-4">
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                   {completedTasks.map(task => (
                     <TaskItem key={task.id} task={task} />
                   ))}
@@ -243,3 +243,5 @@ export default function TasksPage() {
     </div>
   );
 }
+
+    

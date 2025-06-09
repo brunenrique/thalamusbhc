@@ -1,18 +1,128 @@
 
+"use client";
+
+import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Archive, DownloadCloud, History, Settings2 } from "lucide-react";
+import { Archive, DownloadCloud, History, Settings2, PlayCircle, AlertTriangle, CheckCircle } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { Label } from '@/components/ui/label';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { useToast } from "@/hooks/use-toast";
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
+type BackupStatus = "Bem-sucedido" | "Em Progresso" | "Falhou";
+type BackupType = "Automático" | "Manual";
+
+interface BackupHistoryEntry {
+  id: string;
+  timestamp: string;
+  type: BackupType;
+  status: BackupStatus;
+  size: string;
+}
+
+const initialMockBackupHistory: BackupHistoryEntry[] = [
+  { id: "bkh1", timestamp: "2024-07-20T02:00:00Z", type: "Automático", status: "Bem-sucedido", size: "1.2 GB" },
+  { id: "bkh2", timestamp: "2024-07-19T02:00:00Z", type: "Automático", status: "Bem-sucedido", size: "1.1 GB" },
+  { id: "bkh3", timestamp: "2024-07-18T10:30:00Z", type: "Manual", status: "Falhou", size: "N/A" },
+  { id: "bkh4", timestamp: "2024-07-18T02:00:00Z", type: "Automático", status: "Bem-sucedido", size: "1.1 GB" },
+];
+
 
 export default function BackupPage() {
-  const lastBackupDate = new Date("2024-07-20T02:00:00Z");
-  const nextBackupDate = new Date("2024-07-21T02:00:00Z");
-  const backupStatus = "Bem-sucedido"; // "Em Progresso", "Falhou"
-  const backupProgress = backupStatus === "Em Progresso" ? 65 : (backupStatus === "Bem-sucedido" ? 100 : 0) ; 
+  const { toast } = useToast();
+  const [lastBackupDate, setLastBackupDate] = useState(new Date("2024-07-20T02:00:00Z"));
+  const [nextBackupDate, setNextBackupDate] = useState(new Date(new Date().setDate(new Date().getDate() + 1)).setHours(2,0,0,0)); // Tomorrow at 2 AM
+  const [currentBackupStatus, setCurrentBackupStatus] = useState<BackupStatus>("Bem-sucedido");
+  const [currentBackupProgress, setCurrentBackupProgress] = useState(100);
+  const [backupHistory, setBackupHistory] = useState<BackupHistoryEntry[]>(initialMockBackupHistory);
+  const [isManualBackupRunning, setIsManualBackupRunning] = useState(false);
+
+  useEffect(() => {
+    let progressInterval: NodeJS.Timeout;
+    if (currentBackupStatus === "Em Progresso") {
+      setCurrentBackupProgress(0);
+      progressInterval = setInterval(() => {
+        setCurrentBackupProgress(prev => {
+          if (prev >= 100) {
+            clearInterval(progressInterval);
+            setCurrentBackupStatus("Bem-sucedido");
+            setIsManualBackupRunning(false);
+            const newBackupEntry: BackupHistoryEntry = {
+              id: `bkh_manual_${Date.now()}`,
+              timestamp: new Date().toISOString(),
+              type: "Manual",
+              status: "Bem-sucedido",
+              size: `${(Math.random() * (1.5 - 0.8) + 0.8).toFixed(1)} GB`
+            };
+            setBackupHistory(prevHistory => [newBackupEntry, ...prevHistory]);
+            setLastBackupDate(new Date(newBackupEntry.timestamp));
+            toast({ title: "Backup Manual Concluído", description: "O backup manual foi concluído com sucesso." });
+            return 100;
+          }
+          return prev + 10;
+        });
+      }, 300);
+    }
+    return () => clearInterval(progressInterval);
+  }, [currentBackupStatus, toast]);
+
+  const handleStartManualBackup = () => {
+    if (isManualBackupRunning) return;
+    setIsManualBackupRunning(true);
+    setCurrentBackupStatus("Em Progresso");
+    toast({ title: "Backup Manual Iniciado", description: "O processo de backup manual foi iniciado." });
+  };
+  
+  const handleSimulateDownload = (backup: BackupHistoryEntry) => {
+    toast({
+      title: "Download Simulado",
+      description: `Iniciando download do backup de ${format(new Date(backup.timestamp), "P 'às' HH:mm", { locale: ptBR })} (${backup.size}).`
+    });
+  };
+
+  const handleSimulateRestore = (backup: BackupHistoryEntry) => {
+    toast({
+      title: "Restauração Simulada Iniciada",
+      description: `Sistema está sendo restaurado para o ponto de ${format(new Date(backup.timestamp), "P 'às' HH:mm", { locale: ptBR })}.`,
+      variant: "default" 
+    });
+  };
+  
+  const handleSettingsClick = () => {
+     toast({
+        title: "Configurações de Backup",
+        description: "Funcionalidade de configuração de backup ainda em desenvolvimento.",
+        variant: "default"
+     })
+  }
+
+  const getStatusBadge = (status: BackupStatus): "default" | "secondary" | "destructive" => {
+    if (status === "Bem-sucedido") return "default";
+    if (status === "Em Progresso") return "secondary";
+    return "destructive";
+  }
+  
+  const getStatusIcon = (status: BackupStatus) => {
+    if (status === "Bem-sucedido") return <CheckCircle className="mr-1.5 h-3.5 w-3.5 text-green-500" />;
+    if (status === "Em Progresso") return <PlayCircle className="mr-1.5 h-3.5 w-3.5 text-blue-500 animate-pulse" />;
+    return <AlertTriangle className="mr-1.5 h-3.5 w-3.5 text-red-500" />;
+  }
+
 
   return (
     <div className="space-y-6">
@@ -27,25 +137,30 @@ export default function BackupPage() {
       <div className="grid gap-6 md:grid-cols-2">
         <Card className="shadow-sm">
           <CardHeader>
-            <CardTitle className="font-headline">Status do Backup</CardTitle>
+            <CardTitle className="font-headline">Status do Backup Atual</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            <p className="text-sm"><strong>Último Backup:</strong> {format(lastBackupDate, "P 'às' HH:mm", { locale: ptBR })}</p>
-            <p className="text-sm"><strong>Status:</strong> <span className={`font-semibold ${backupStatus === "Bem-sucedido" ? "text-green-600" : (backupStatus === "Falhou" ? "text-red-600" : "text-blue-600")}`}>{backupStatus}</span></p>
-            <p className="text-sm"><strong>Próximo Backup Agendado:</strong> {format(nextBackupDate, "P 'às' HH:mm", { locale: ptBR })}</p>
-            {backupStatus === "Em Progresso" && (
+            <p className="text-sm"><strong>Último Backup Concluído:</strong> {format(lastBackupDate, "P 'às' HH:mm", { locale: ptBR })}</p>
+            <div className="text-sm flex items-center"><strong>Status Atual:</strong> 
+                <Badge variant={getStatusBadge(currentBackupStatus)} className="ml-2 text-xs">
+                    {getStatusIcon(currentBackupStatus)}
+                    {currentBackupStatus}
+                </Badge>
+            </div>
+            <p className="text-sm"><strong>Próximo Backup Agendado:</strong> {format(new Date(nextBackupDate), "P 'às' HH:mm", { locale: ptBR })}</p>
+            {(currentBackupStatus === "Em Progresso" || isManualBackupRunning) && (
               <div>
-                <Label htmlFor="backupProgress" className="text-sm">Progresso Atual:</Label>
-                <Progress value={backupProgress} id="backupProgress" className="w-full mt-1" />
-                <p className="text-xs text-muted-foreground text-right">{backupProgress}%</p>
+                <Label htmlFor="backupProgress" className="text-sm">Progresso do Backup Atual:</Label>
+                <Progress value={currentBackupProgress} id="backupProgress" className="w-full mt-1" />
+                <p className="text-xs text-muted-foreground text-right">{currentBackupProgress}%</p>
               </div>
             )}
-            <div className="flex gap-2 pt-2">
-              <Button className="bg-accent hover:bg-accent/90 text-accent-foreground">
+            <div className="flex flex-wrap gap-2 pt-2">
+              <Button onClick={handleStartManualBackup} className="bg-accent hover:bg-accent/90 text-accent-foreground" disabled={isManualBackupRunning || currentBackupStatus === "Em Progresso"}>
                 <DownloadCloud className="mr-2 h-4 w-4" /> Iniciar Backup Manual
               </Button>
-              <Button variant="outline">
-                <Settings2 className="mr-2 h-4 w-4" /> Configurações de Backup
+              <Button variant="outline" onClick={handleSettingsClick}>
+                <Settings2 className="mr-2 h-4 w-4" /> Configurações
               </Button>
             </div>
           </CardContent>
@@ -53,16 +168,37 @@ export default function BackupPage() {
 
         <Card className="shadow-sm">
           <CardHeader>
-            <CardTitle className="font-headline">Restaurar Dados</CardTitle>
-            <CardDescription>Restaure dados de um ponto de backup anterior.</CardDescription>
+            <CardTitle className="font-headline">Restauração Geral</CardTitle>
+            <CardDescription>Selecione um ponto no histórico abaixo para restaurar os dados da clínica.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
-            <p className="text-sm text-muted-foreground">
-              Selecione um backup do histórico para restaurar. Restaurar dados substituirá os dados atuais pelo backup selecionado. Esta ação é irreversível.
+             <p className="text-sm text-muted-foreground">
+              Restaurar dados de um backup substituirá os dados atuais. Esta ação é crítica e deve ser feita com cautela. Recomenda-se fazer um backup manual antes de restaurar.
             </p>
-            <Button variant="destructive" disabled> 
-              <History className="mr-2 h-4 w-4" /> Restaurar do Backup
-            </Button>
+             <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                     <Button variant="destructive" disabled={backupHistory.filter(b => b.status === "Bem-sucedido").length === 0}> 
+                        <History className="mr-2 h-4 w-4" /> Restaurar do Último Backup Bem-sucedido
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Restaurar do Último Backup?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Você tem certeza que deseja restaurar os dados da clínica para o estado do último backup bem-sucedido em {format(new Date(backupHistory.find(b=>b.status === "Bem-sucedido")?.timestamp || Date.now()), "P 'às' HH:mm", { locale: ptBR })}? Esta ação é irreversível.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                      <AlertDialogAction 
+                        onClick={() => handleSimulateRestore(backupHistory.find(b=>b.status === "Bem-sucedido")!)}
+                        className="bg-destructive hover:bg-destructive/90"
+                      >
+                        Confirmar Restauração
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
           </CardContent>
         </Card>
       </div>
@@ -70,14 +206,75 @@ export default function BackupPage() {
       <Card className="shadow-sm">
         <CardHeader>
           <CardTitle className="font-headline">Histórico de Backup</CardTitle>
+          <CardDescription>Lista de backups automáticos e manuais realizados.</CardDescription>
         </CardHeader>
         <CardContent>
-           <div className="text-center py-6 text-muted-foreground">
+           {backupHistory.length > 0 ? (
+            <div className="overflow-x-auto">
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                        <TableHead className="min-w-[150px]">Data/Hora</TableHead>
+                        <TableHead>Tipo</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Tamanho</TableHead>
+                        <TableHead className="text-right">Ações</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {backupHistory.map(backup => (
+                        <TableRow key={backup.id}>
+                            <TableCell>{format(new Date(backup.timestamp), "Pp", { locale: ptBR })}</TableCell>
+                            <TableCell>{backup.type}</TableCell>
+                            <TableCell>
+                                <Badge variant={getStatusBadge(backup.status)} className="text-xs">
+                                    {getStatusIcon(backup.status)}
+                                    {backup.status}
+                                </Badge>
+                            </TableCell>
+                            <TableCell>{backup.size}</TableCell>
+                            <TableCell className="text-right space-x-1">
+                                <Button variant="outline" size="sm" onClick={() => handleSimulateDownload(backup)} disabled={backup.status !== "Bem-sucedido"}>
+                                    <DownloadCloud className="mr-1.5 h-3.5 w-3.5" /> Download
+                                </Button>
+                                <AlertDialog>
+                                  <AlertDialogTrigger asChild>
+                                    <Button variant="outline" size="sm" disabled={backup.status !== "Bem-sucedido" || currentBackupStatus === "Em Progresso"}>
+                                        <History className="mr-1.5 h-3.5 w-3.5" /> Restaurar
+                                    </Button>
+                                  </AlertDialogTrigger>
+                                  <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                      <AlertDialogTitle>Restaurar Deste Ponto de Backup?</AlertDialogTitle>
+                                      <AlertDialogDescription>
+                                        Tem certeza que deseja restaurar os dados da clínica para o estado do backup de {format(new Date(backup.timestamp), "P 'às' HH:mm", { locale: ptBR })}? Esta ação é irreversível e substituirá todos os dados atuais.
+                                      </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                      <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                      <AlertDialogAction onClick={() => handleSimulateRestore(backup)} className="bg-destructive hover:bg-destructive/90">
+                                        Restaurar Agora
+                                      </AlertDialogAction>
+                                    </AlertDialogFooter>
+                                  </AlertDialogContent>
+                                </AlertDialog>
+                            </TableCell>
+                        </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </div>
+           ) : (
+            <div className="text-center py-6 text-muted-foreground">
                 <History className="mx-auto h-10 w-10" />
                 <p className="mt-2">Nenhum histórico de backup disponível ainda.</p>
             </div>
+           )}
         </CardContent>
       </Card>
     </div>
   );
 }
+
+
+    

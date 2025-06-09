@@ -1,19 +1,15 @@
 
 import { type Appointment, type AppointmentsByDate } from '@/components/schedule/appointment-calendar';
-import { format, parse } from 'date-fns';
-import { utcToZonedTime, zonedTimeToUtc } from 'date-fns-tz';
+import { format } from 'date-fns';
+import { parse, utcToZonedTime } from 'date-fns-tz';
 
 // Function to format a date string (YYYY-MM-DD) and time string (HH:mm) into an ICS compatible UTC string (YYYYMMDDTHHMMSSZ)
 function formatToICSDateTime(dateString: string, timeString: string, timeZone: string = 'America/Sao_Paulo'): string {
-  const [hours, minutes] = timeString.split(':').map(Number);
-  
-  // Combine dateString and timeString into a Date object, interpreting it in the local (server/client) timezone first
-  const localDate = parse(`${dateString}T${timeString}`, "yyyy-MM-dd'T'HH:mm", new Date());
-
-  // Convert this local date to a UTC date using the provided target timezone for interpretation
-  const utcDate = zonedTimeToUtc(localDate, timeZone);
-  
-  return format(utcDate, "yyyyMMdd'T'HHmmss'Z'");
+  const dateTimeString = `${dateString}T${timeString}`;
+  // Use parse from date-fns-tz with the timeZone option.
+  // This interprets dateTimeString as being in 'timeZone' and returns a Date object representing that instant in UTC.
+  const utcDate = parse(dateTimeString, "yyyy-MM-dd'T'HH:mm", new Date(), { timeZone });
+  return format(utcDate, "yyyyMMdd'T'HHmmss'Z'"); // format from date-fns is fine for UTC Date
 }
 
 
@@ -39,7 +35,8 @@ export function generateICS(appointmentsByDate: AppointmentsByDate, specificDate
   icsString += `PRODID:-//PsiGuard//App//EN\r\n`;
   icsString += 'CALSCALE:GREGORIAN\r\n';
 
-  const dtStamp = format(zonedTimeToUtc(new Date(), 'America/Sao_Paulo'), "yyyyMMdd'T'HHmmss'Z'");
+  // DTSTAMP is the current UTC time when the ICS file is generated.
+  const dtStamp = format(new Date(), "yyyyMMdd'T'HHmmss'Z'");
 
   for (const dateKey in appointmentsByDate) {
     if (specificDate && format(specificDate, "yyyy-MM-dd") !== dateKey) {
@@ -74,7 +71,7 @@ export function generateICS(appointmentsByDate: AppointmentsByDate, specificDate
 
 
       icsString += 'BEGIN:VEVENT\r\n';
-      icsString += `UID:${appointment.id}-${dateKey}-${generateUID(8)}@psiguard.app\r\n`; // Ensure more unique UIDs
+      icsString += `UID:${appointment.id}-${dateKey}-${generateUID(8)}@psiguard.app\r\n`;
       icsString += `DTSTAMP:${dtStamp}\r\n`;
       icsString += `DTSTART:${dtStart}\r\n`;
       icsString += `DTEND:${dtEnd}\r\n`;
@@ -89,4 +86,3 @@ export function generateICS(appointmentsByDate: AppointmentsByDate, specificDate
   icsString += 'END:VCALENDAR\r\n';
   return icsString;
 }
-

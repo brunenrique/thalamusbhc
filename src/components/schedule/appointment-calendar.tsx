@@ -26,8 +26,7 @@ import { useToast } from "@/hooks/use-toast";
 
 
 // Mock data for appointments - expanded with psychologist and status
-// Exportando para ser usado na página de edição
-export const mockAppointments: AppointmentsByDate = {
+const baseMockAppointments: AppointmentsByDate = {
   "2024-08-15": [
     { id: "appt1", time: "10:00", patient: "Alice Wonderland", type: "Consulta", psychologistId: "psy1", status: "Scheduled" },
     { id: "appt2", time: "14:00", patient: "Bob O Construtor", type: "Acompanhamento", psychologistId: "psy2", status: "Completed" },
@@ -38,12 +37,25 @@ export const mockAppointments: AppointmentsByDate = {
   "2024-08-20": [
     { id: "appt4", time: "11:00", patient: "Charlie Brown", type: "Sessão de Terapia", psychologistId: "psy1", status: "Cancelled" },
   ],
-   // Adicionando um agendamento para a data atual para facilitar o teste do popover
-  [format(new Date(), "yyyy-MM-dd")]: [
-    { id: "apptToday1", time: "15:00", patient: "Paciente Teste Hoje", type: "Consulta Teste", psychologistId: "psy1", status: "Scheduled"},
-    ...(mockAppointments[format(new Date(), "yyyy-MM-dd")] || []) // Mantém outros agendamentos se existirem
-  ]
 };
+
+// Function to add today's appointment to the mock data
+const getInitialMockAppointments = (): AppointmentsByDate => {
+  const todayStr = format(new Date(), "yyyy-MM-dd");
+  const todayAppointments = [
+    { id: "apptToday1", time: "15:00", patient: "Paciente Teste Hoje", type: "Consulta Teste", psychologistId: "psy1", status: "Scheduled" as AppointmentStatus}
+  ];
+
+  const initialData = { ...baseMockAppointments };
+  if (initialData[todayStr]) {
+    initialData[todayStr] = [...initialData[todayStr], ...todayAppointments];
+  } else {
+    initialData[todayStr] = todayAppointments;
+  }
+  return initialData;
+};
+
+export const mockAppointments = getInitialMockAppointments();
 
 
 type AppointmentStatus = "Scheduled" | "Completed" | "Cancelled" | "Blocked" | "Confirmed";
@@ -84,7 +96,7 @@ const getStatusBadgeVariant = (status: AppointmentStatus): "default" | "secondar
     switch (status) {
         case "Completed": return "default";
         case "Scheduled": return "secondary";
-        case "Confirmed": return "secondary"; // Could be a different color like yellow/orange
+        case "Confirmed": return "secondary"; 
         case "Cancelled": return "destructive";
         case "Blocked": return "outline";
         default: return "outline";
@@ -109,12 +121,12 @@ export default function AppointmentCalendar({ view, currentDate, filters }: Appo
 
   const filteredAppointments = useMemo(() => {
     const appointmentsResult: AppointmentsByDate = {};
-    for (const dateKey in mockAppointments) { // Usar o mockAppointments diretamente
-        appointmentsResult[dateKey] = (mockAppointments as AppointmentsByDate)[dateKey].filter(appt => {
+    const currentMockAppointments = getInitialMockAppointments(); // Get fresh mock data
+    for (const dateKey in currentMockAppointments) { 
+        appointmentsResult[dateKey] = (currentMockAppointments as AppointmentsByDate)[dateKey].filter(appt => {
             const matchesPsychologist = filters.psychologistId === "all" || appt.psychologistId === filters.psychologistId;
             const matchesStatus = filters.status === "All" || appt.status === filters.status;
             
-            // Adicionando um offset de fuso horário para evitar problemas com datas
             const apptDateUTC = new Date(dateKey);
             const apptDate = new Date(apptDateUTC.getUTCFullYear(), apptDateUTC.getUTCMonth(), apptDateUTC.getUTCDate());
 
@@ -135,7 +147,6 @@ export default function AppointmentCalendar({ view, currentDate, filters }: Appo
 
   const handleDeleteAppointment = (appointmentId: string, appointmentPatient: string, appointmentDate: string) => {
     console.log(`Excluindo agendamento ${appointmentId} - ${appointmentPatient} em ${appointmentDate} (Simulado)`);
-    // Aqui você faria a lógica para remover o agendamento do seu estado/backend
     toast({
       title: "Agendamento Excluído (Simulado)",
       description: `O agendamento de ${appointmentPatient} foi excluído.`,
@@ -204,7 +215,7 @@ export default function AppointmentCalendar({ view, currentDate, filters }: Appo
               </Popover>
             ))}
           </div>
-           <Button variant="ghost" size="icon" className="mt-auto ml-auto h-6 w-6 self-end opacity-30 hover:opacity-100">
+           <Button variant="ghost" size="icon" className="mt-auto ml-auto h-6 w-6 self-end opacity-30 hover:opacity-100" asChild>
               <Link href="/schedule/new">
                 <PlusCircle className="h-4 w-4" />
                 <span className="sr-only">Adicionar agendamento</span>
@@ -216,11 +227,9 @@ export default function AppointmentCalendar({ view, currentDate, filters }: Appo
   };
 
   const renderMonthView = () => {
-    // Ajuste para startOfWeek para respeitar o locale ptBR (semana começa na Segunda)
     const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
     const monthStart = startOfWeek(firstDayOfMonth, { locale: ptBR, weekStartsOn: 1 });
     
-    // Ajuste para endOfWeek para respeitar o locale ptBR
     const lastDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
     const monthEnd = endOfWeek(lastDayOfMonth, { locale: ptBR, weekStartsOn: 1 });
 
@@ -273,5 +282,3 @@ export default function AppointmentCalendar({ view, currentDate, filters }: Appo
     </div>
   );
 }
-
-    

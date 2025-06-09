@@ -102,7 +102,6 @@ export default function SidebarNav({ currentPath, userRole = "admin" }: SidebarN
     }
 
     const IconComponent = item.icon;
-    // For dashboard, exact match. For others, startsWith.
     const isActive = item.href === "/dashboard" 
       ? currentPath === item.href
       : (item.href === "/" ? currentPath === "/" : currentPath.startsWith(item.href));
@@ -116,11 +115,9 @@ export default function SidebarNav({ currentPath, userRole = "admin" }: SidebarN
     );
 
     if (item.subItems && item.subItems.length > 0) {
-        // Parent of sub-items. This is a SidebarMenuButton.
-        // It should act like a link.
         return (
             <SidebarMenuItem key={`${item.label}-${index}-group`}>
-                <Link href={item.href} legacyBehavior={false} asChild>
+                <Link href={item.href} asChild>
                     <SidebarMenuButton
                         isActive={isActive}
                         tooltip={state === "collapsed" ? item.label : undefined}
@@ -138,13 +135,10 @@ export default function SidebarNav({ currentPath, userRole = "admin" }: SidebarN
         );
     }
 
-    // Regular item (SidebarMenuButton) or a sub-item (SidebarMenuSubButton)
     if (isSubItem) {
-        // This is a SidebarMenuSubButton, which renders <a> by default.
-        // Use legacyBehavior with Link.
         return (
             <SidebarMenuItem key={`${item.label}-${index}`}>
-                <Link href={item.href} passHref legacyBehavior>
+                <Link href={item.href} asChild>
                     <SidebarMenuSubButton
                         isActive={isActive}
                         tooltip={state === "collapsed" ? item.label : undefined}
@@ -156,11 +150,9 @@ export default function SidebarNav({ currentPath, userRole = "admin" }: SidebarN
             </SidebarMenuItem>
         );
     } else {
-        // This is a regular SidebarMenuButton, renders <button> by default.
-        // Link asChild makes it <a>.
         return (
             <SidebarMenuItem key={`${item.label}-${index}`}>
-                <Link href={item.href} legacyBehavior={false} asChild>
+                <Link href={item.href} asChild>
                     <SidebarMenuButton
                         isActive={isActive}
                         tooltip={state === "collapsed" ? item.label : undefined}
@@ -214,7 +206,7 @@ export default function SidebarNav({ currentPath, userRole = "admin" }: SidebarN
             </SidebarMenuButton>
         </SidebarMenuItem>
         <SidebarMenuItem>
-            <Link href="/help" passHref legacyBehavior={false} asChild>
+            <Link href="/help" asChild>
                 <SidebarMenuButton tooltip={state === "collapsed" ? "Ajuda e Suporte" : undefined} isActive={currentPath.startsWith("/help")}>
                     <HelpCircle />
                     <span className="group-data-[collapsible=icon]:hidden">Ajuda e Suporte</span>
@@ -225,4 +217,3 @@ export default function SidebarNav({ currentPath, userRole = "admin" }: SidebarN
     </div>
   );
 }
-

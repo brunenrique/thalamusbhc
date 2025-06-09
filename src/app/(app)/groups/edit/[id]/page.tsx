@@ -3,9 +3,9 @@
 
 import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import GroupForm from "@/components/groups/group-form";
+import GroupForm from "@/components/forms/group-form";
 import { mockTherapeuticGroups } from "@/app/(app)/groups/page"; // Import mock data for groups
-import type { GroupFormValues } from "@/components/groups/group-form"; // Assuming type export
+import type { GroupFormValues } from "@/components/forms/group-form"; // Assuming type export
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Users, Edit, FileWarning } from "lucide-react";

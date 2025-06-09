@@ -1,5 +1,5 @@
 
-import AppointmentForm from "@/components/schedule/appointment-form";
+import AppointmentForm from "@/components/forms/appointment-form";
 import { CalendarCog } from "lucide-react";
 import { mockAppointments } from "@/components/schedule/appointment-calendar"; // Importando mock data se necessário ou defina aqui
 
@@ -47,4 +47,3 @@ export default function EditAppointmentPage({ params }: { params: { id: string }
     </div>
   );
 }
-

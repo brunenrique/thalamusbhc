@@ -1,7 +1,7 @@
 
 "use client";
 
-import CaseFormulationModelForm from "@/components/tools/case-formulation-model-form";
+import CaseFormulationModelForm from "@/components/forms/case-formulation-model-form";
 import { Network, PlusCircle } from "lucide-react";
 
 export default function NewCaseFormulationModelPage() {

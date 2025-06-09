@@ -1,4 +1,5 @@
-import LoginForm from "@/components/auth/login-form";
+
+import LoginForm from "@/components/forms/auth/login-form";
 import { Brain } from "lucide-react";
 import Link from "next/link";
 

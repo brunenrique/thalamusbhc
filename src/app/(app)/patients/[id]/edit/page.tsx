@@ -4,7 +4,7 @@ import dynamic from "next/dynamic";
 import { UserCog } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
-const PatientForm = dynamic(() => import("@/components/patients/patient-form"), {
+const PatientForm = dynamic(() => import("@/components/forms/patient-form"), {
   loading: () => (
      <div className="space-y-6">
       <Skeleton className="h-8 w-1/3" />

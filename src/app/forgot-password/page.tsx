@@ -1,4 +1,5 @@
-import ForgotPasswordForm from "@/components/auth/forgot-password-form";
+
+import ForgotPasswordForm from "@/components/forms/auth/forgot-password-form";
 import { Brain } from "lucide-react";
 import Link from "next/link";
 

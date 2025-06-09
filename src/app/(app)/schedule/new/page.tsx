@@ -1,5 +1,5 @@
 
-import AppointmentForm from "@/components/schedule/appointment-form";
+import AppointmentForm from "@/components/forms/appointment-form";
 import { CalendarPlus } from "lucide-react";
 
 export default function NewAppointmentPage() {

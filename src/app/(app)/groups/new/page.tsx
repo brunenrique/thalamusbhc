@@ -1,7 +1,7 @@
 
 "use client";
 
-import GroupForm from "@/components/groups/group-form";
+import GroupForm from "@/components/forms/group-form";
 import { Users as UsersIcon } from "lucide-react"; // Renamed to avoid conflict with page name
 
 export default function NewGroupPage() {

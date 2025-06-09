@@ -1,7 +1,7 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Settings as SettingsIcon, UserCog, Clock, Palette, BellDot, Briefcase, SlidersHorizontal } from "lucide-react";
-import SettingsForm from "@/components/settings/settings-form";
+import SettingsForm from "@/components/forms/settings-form";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function SettingsPage() {

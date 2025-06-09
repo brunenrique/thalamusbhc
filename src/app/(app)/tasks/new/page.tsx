@@ -1,5 +1,5 @@
 
-import TaskForm from "@/components/tasks/task-form";
+import TaskForm from "@/components/forms/task-form";
 import { CheckSquare } from "lucide-react";
 
 export default function NewTaskPage() {

@@ -3,7 +3,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import TemplateEditor from "@/components/templates/template-editor";
+import TemplateEditor from "@/components/forms/template-editor";
 import { mockTemplates } from "@/app/(app)/templates/page"; // Import mock data
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";

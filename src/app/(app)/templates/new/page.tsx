@@ -1,7 +1,7 @@
 
 "use client";
 
-import TemplateEditor from "@/components/templates/template-editor";
+import TemplateEditor from "@/components/forms/template-editor";
 import { FilePlus2 } from "lucide-react";
 
 export default function NewSessionNoteTemplatePage() {

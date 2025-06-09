@@ -1,7 +1,7 @@
 
 "use client";
 
-import TaskForm from "@/components/tasks/task-form";
+import TaskForm from "@/components/forms/task-form";
 import type { Task } from "@/types";
 import { getTaskById } from "@/services/taskService"; // Importar o serviço
 import { Edit } from "lucide-react";

@@ -130,6 +130,7 @@ export default function SidebarNav({ currentPath, userRole = "admin" }: SidebarN
             <SidebarMenuItem key={`${item.label}-${index}-group`}>
             <Link href={item.href} passHref asChild>
                 <ButtonComponent
+                  asChild // Added asChild here
                   isActive={isActive && !visibleSubItems.some(sub => currentPath.startsWith(sub.href))} 
                   tooltip={state === "collapsed" ? item.label : undefined}
                   className={isSubItem ? "text-xs" : ""}
@@ -168,6 +169,7 @@ export default function SidebarNav({ currentPath, userRole = "admin" }: SidebarN
       <SidebarMenuItem key={`${item.label}-${index}`}>
         <Link href={item.href} passHref asChild>
           <ButtonComponent
+            asChild // Added asChild here
             isActive={isActive}
             tooltip={state === "collapsed" ? item.label : undefined}
             className={isSubItem ? "text-xs" : ""}
@@ -247,7 +249,7 @@ export default function SidebarNav({ currentPath, userRole = "admin" }: SidebarN
         </SidebarMenuItem>
         <SidebarMenuItem>
             <Link href="/help" passHref asChild>
-                <SidebarMenuButton tooltip={state === "collapsed" ? "Ajuda e Suporte" : undefined} isActive={currentPath.startsWith("/help")}>
+                <SidebarMenuButton asChild tooltip={state === "collapsed" ? "Ajuda e Suporte" : undefined} isActive={currentPath.startsWith("/help")}>
                     <HelpCircle />
                     <span className="group-data-[collapsible=icon]:hidden">Ajuda e Suporte</span>
                 </SidebarMenuButton>

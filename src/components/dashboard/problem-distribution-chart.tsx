@@ -1,6 +1,7 @@
 
 "use client"
 
+import React from "react"; // Added React import
 import { Pie, PieChart, ResponsiveContainer, Cell } from "recharts"
 import {
   ChartConfig,
@@ -108,3 +109,4 @@ export function ProblemDistributionChart() {
     </ChartContainer>
   )
 }
+

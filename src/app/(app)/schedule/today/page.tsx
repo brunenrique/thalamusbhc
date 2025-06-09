@@ -7,7 +7,8 @@ import { CalendarDays, PlusCircle, ChevronLeft, ChevronRight, ListFilter, Downlo
 import Link from "next/link";
 import AppointmentCalendar, { type AppointmentsByDate, getInitialMockAppointments } from "@/components/schedule/appointment-calendar";
 import TaskItem from '@/components/tasks/task-item';
-import { mockTasksData, type Task } from '@/app/(app)/tasks/page';
+import { getTasksForDate } from '@/services/taskService'; // Importar o serviço
+import type { Task } from '@/types'; // Importar o tipo Task
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,10 +22,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar"; 
 import { Label } from '@/components/ui/label';
-import { format, getDay, startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachDayOfInterval, isWithinInterval, parse, isEqual, startOfDay } from 'date-fns';
+import { format, getDay, startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachDayOfInterval, isWithinInterval, parse } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { generateICS } from '@/lib/ics-generator';
 import { useToast } from '@/hooks/use-toast';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const mockPsychologists = [
   { id: "psy1", name: "Dr. Silva" },
@@ -47,7 +49,7 @@ const appointmentStatuses = [
 
 export default function TodaySchedulePage() {
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [currentView, setCurrentView] = useState<"Month" | "Week" | "Day">("Day"); // Default to Day view
+  const [currentView, setCurrentView] = useState<"Month" | "Week" | "Day">("Day"); 
   const [appointmentsData, setAppointmentsData] = useState<AppointmentsByDate>(() => getInitialMockAppointments());
   const { toast } = useToast();
 
@@ -57,6 +59,30 @@ export default function TodaySchedulePage() {
     dateFrom: undefined as Date | undefined,
     dateTo: undefined as Date | undefined,
   });
+
+  const [tasksForCurrentDate, setTasksForCurrentDate] = useState<Task[]>([]);
+  const [isLoadingTasks, setIsLoadingTasks] = useState(true);
+
+  useEffect(() => {
+    async function fetchTasksForDate() {
+      setIsLoadingTasks(true);
+      try {
+        const tasks = await getTasksForDate(currentDate);
+        setTasksForCurrentDate(tasks);
+      } catch (error) {
+        console.error("Erro ao buscar tarefas para a data:", error);
+        toast({
+          title: "Erro ao Carregar Tarefas",
+          description: "Não foi possível buscar as tarefas para hoje.",
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoadingTasks(false);
+      }
+    }
+    fetchTasksForDate();
+  }, [currentDate, toast]);
+
 
   const handleFilterChange = (filterName: keyof typeof filters, value: any) => {
     setFilters(prev => ({ ...prev, [filterName]: value }));
@@ -105,7 +131,7 @@ export default function TodaySchedulePage() {
                 appointmentsToExport[dayKey] = appointmentsData[dayKey];
             }
         });
-    } else { // Month view
+    } else { 
         const monthSt = startOfMonth(currentDate);
         const monthEn = endOfMonth(currentDate);
          dateKeys.forEach(dateKey => {
@@ -150,17 +176,6 @@ export default function TodaySchedulePage() {
     setAppointmentsData(updatedAppointments);
   }, []);
 
-  const tasksForCurrentDate = useMemo(() => {
-    return mockTasksData.filter(task => {
-      // Ensure task.dueDate and currentDate are valid dates for comparison
-      try {
-        const taskDueDate = parse(task.dueDate, 'yyyy-MM-dd', new Date());
-        return isEqual(startOfDay(taskDueDate), startOfDay(currentDate));
-      } catch (e) {
-        return false;
-      }
-    });
-  }, [currentDate]);
 
   return (
     <div className="space-y-6 flex flex-col h-[calc(100vh-var(--header-height,4rem)-2rem)]">
@@ -300,17 +315,23 @@ export default function TodaySchedulePage() {
         />
       </div>
       
-      {/* Tasks for the day */}
       <Card className="shadow-sm">
         <CardHeader>
           <CardTitle className="font-headline flex items-center">
             <CheckSquare className="mr-2 h-5 w-5 text-primary"/>
             Tarefas para {format(currentDate, "P", { locale: ptBR })}
             </CardTitle>
-          <CardDescription>Tarefas com vencimento hoje.</CardDescription>
+          <CardDescription>Tarefas com vencimento hoje ({isLoadingTasks ? '...' : tasksForCurrentDate.length}).</CardDescription>
         </CardHeader>
         <CardContent>
-          {tasksForCurrentDate.length > 0 ? (
+          {isLoadingTasks ? (
+            Array.from({ length: 2 }).map((_, index) => (
+                <div key={index} className="p-3 border rounded-md bg-secondary/30 mb-2">
+                    <Skeleton className="h-5 w-3/4 mb-1" />
+                    <Skeleton className="h-3 w-1/2" />
+                </div>
+            ))
+          ) : tasksForCurrentDate.length > 0 ? (
             <div className="space-y-3">
               {tasksForCurrentDate.map(task => (
                 <TaskItem key={task.id} task={task} />

@@ -2,12 +2,13 @@
 "use client";
 
 import TaskForm from "@/components/tasks/task-form";
-import { mockTasksData, type Task } from "@/app/(app)/tasks/page"; // Importando mock data e tipo
+import type { Task } from "@/types";
+import { getTaskById } from "@/services/taskService"; // Importar o serviço
 import { Edit } from "lucide-react";
 import { useParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardFooter, CardTitle } from "@/components/ui/card"; // Added CardFooter
 
 export default function EditTaskPage() {
   const params = useParams();
@@ -17,16 +18,26 @@ export default function EditTaskPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (taskId) {
-      // Simulação de busca de dados
-      const task = mockTasksData.find(t => t.id === taskId);
-      if (task) {
-        setTaskToEdit(task);
-      } else {
-        setError("Tarefa não encontrada.");
+    async function fetchTask() {
+      if (taskId) {
+        setLoading(true);
+        setError(null);
+        try {
+          const task = await getTaskById(taskId);
+          if (task) {
+            setTaskToEdit(task);
+          } else {
+            setError("Tarefa não encontrada.");
+          }
+        } catch (err) {
+          console.error("Erro ao buscar tarefa:", err);
+          setError("Falha ao carregar a tarefa. Tente novamente.");
+        } finally {
+          setLoading(false);
+        }
       }
-      setLoading(false);
     }
+    fetchTask();
   }, [taskId]);
 
   if (loading) {
@@ -73,7 +84,7 @@ export default function EditTaskPage() {
   }
 
   if (!taskToEdit) {
-     return ( // Fallback caso taskToEdit ainda seja undefined após o loading (pouco provável com a lógica atual)
+     return (
       <div className="space-y-6 text-center py-10">
         <h1 className="text-xl font-semibold">Tarefa não encontrada.</h1>
       </div>
@@ -82,7 +93,6 @@ export default function EditTaskPage() {
 
   return (
     <div className="space-y-6">
-      {/* O cabeçalho da página agora é tratado pelo TaskForm */}
       <TaskForm initialData={taskToEdit} isEditMode={true} />
     </div>
   );

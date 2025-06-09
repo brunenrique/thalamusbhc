@@ -1,6 +1,6 @@
 
 "use client";
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -21,25 +21,19 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { Label } from '@/components/ui/label';
-import { format, isEqual, startOfDay } from 'date-fns';
+import { format, isEqual, startOfDay, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import type { Task, TaskStatus, TaskPriority } from "@/types"; // Updated import
+import type { Task, TaskStatus, TaskPriority } from "@/types";
+import { getTasks } from '@/services/taskService'; // Importar o serviço
+import { Skeleton } from '@/components/ui/skeleton';
 
-export const mockTasksData: Task[] = [ // Added Task[] type here for clarity
-  { id: "task1", title: "Acompanhar Alice W.", description: "Ligar para Alice para verificar seu progresso e agendar próxima consulta.", dueDate: "2024-07-25", assignedTo: "Dr. Silva", status: "Pendente", priority: "Alta", patientId: "1" },
-  { id: "task2", title: "Preparar relatório de avaliação para Bob B.", description: "Compilar os resultados da avaliação GAD-7 e BDI para Bob.", dueDate: "2024-07-22", assignedTo: "Secretaria", status: "Em Progresso", priority: "Média", patientId: "2" },
-  { id: "task3", title: "Revisar entrada de novo paciente - Charlie B.", description: "Verificar todos os documentos e informações de Charlie.", dueDate: "2024-07-20", assignedTo: "Dra. Jones", status: "Concluída", priority: "Alta", patientId: "3" },
-  { id: "task4", title: "Enviar lembrete para Diana P. para avaliação", description: "Diana precisa completar a PCL-5 até o final da semana.", dueDate: "2024-07-28", assignedTo: "Secretaria", status: "Pendente", priority: "Baixa", patientId: "4" },
-  { id: "task5", title: "Atualizar documento de políticas da clínica", description: "Incorporar novas diretrizes de teleatendimento.", dueDate: "2024-08-01", assignedTo: "Admin", status: "Pendente", priority: "Média" },
-];
-
-const taskStatusOptions: {value: TaskStatus | "All", label: string}[] = [ // Ensure TaskStatus is used correctly
+const taskStatusOptions: {value: TaskStatus | "All", label: string}[] = [
     {value: "All", label: "Todos os Status"},
     {value: "Pendente", label: "Pendente"},
     {value: "Em Progresso", label: "Em Progresso"},
     {value: "Concluída", label: "Concluída"},
 ];
-const taskPriorityOptions: {value: TaskPriority | "All", label: string}[] = [ // Ensure TaskPriority is used correctly
+const taskPriorityOptions: {value: TaskPriority | "All", label: string}[] = [
     {value: "All", label: "Todas as Prioridades"},
     {value: "Alta", label: "Alta"},
     {value: "Média", label: "Média"},
@@ -47,10 +41,12 @@ const taskPriorityOptions: {value: TaskPriority | "All", label: string}[] = [ //
 ];
 
 export default function TasksPage() {
+  const [allTasks, setAllTasks] = useState<Task[]>([]);
+  const [isLoadingTasks, setIsLoadingTasks] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [filters, setFilters] = useState<{
-    status: TaskStatus | "All"; // Use imported type
-    priority: TaskPriority | "All"; // Use imported type
+    status: TaskStatus | "All";
+    priority: TaskPriority | "All";
     assignedTo: string;
     dueDate?: Date;
   }>({
@@ -59,6 +55,22 @@ export default function TasksPage() {
     assignedTo: "Todos",
     dueDate: undefined,
   });
+
+  useEffect(() => {
+    async function fetchTasks() {
+      setIsLoadingTasks(true);
+      try {
+        const tasks = await getTasks();
+        setAllTasks(tasks);
+      } catch (error) {
+        console.error("Erro ao buscar tarefas:", error);
+        // Tratar erro, talvez com um toast
+      } finally {
+        setIsLoadingTasks(false);
+      }
+    }
+    fetchTasks();
+  }, []);
 
   const handleFilterChange = (filterName: keyof typeof filters, value: any) => {
     setFilters(prev => ({ ...prev, [filterName]: value }));
@@ -75,26 +87,65 @@ export default function TasksPage() {
   }
 
   const uniqueAssignees = useMemo(() => {
-    const assignees = new Set(mockTasksData.map(task => task.assignedTo));
+    if (isLoadingTasks) return ["Todos"];
+    const assignees = new Set(allTasks.map(task => task.assignedTo));
     return ["Todos", ...Array.from(assignees)];
-  }, []);
+  }, [allTasks, isLoadingTasks]);
 
   const filteredTasks = useMemo(() => {
-    return mockTasksData.filter(task => {
+    if (isLoadingTasks) return [];
+    return allTasks.filter(task => {
       const matchesSearch = task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                            (task.patientId && `paciente:${task.patientId}`.includes(searchTerm.toLowerCase())) ||
+                            (task.patientId && `paciente:${task.patientId}`.toLowerCase().includes(searchTerm.toLowerCase())) ||
                             task.assignedTo.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesStatus = filters.status === "All" || task.status === filters.status;
       const matchesPriority = filters.priority === "All" || task.priority === filters.priority;
       const matchesAssignee = filters.assignedTo === "Todos" || task.assignedTo === filters.assignedTo;
-      const matchesDueDate = !filters.dueDate || isEqual(startOfDay(new Date(task.dueDate)), startOfDay(filters.dueDate));
       
-      return matchesSearch && matchesStatus && matchesPriority && matchesAssignee && matchesDueDate;
+      let taskDueDateValid = false;
+      try {
+          taskDueDateValid = !filters.dueDate || isEqual(startOfDay(parseISO(task.dueDate)), startOfDay(filters.dueDate));
+      } catch (e) {
+          // console.error("Data inválida para tarefa:", task.title, task.dueDate); // Debug log removed
+      }
+      
+      return matchesSearch && matchesStatus && matchesPriority && matchesAssignee && taskDueDateValid;
     });
-  }, [searchTerm, filters]);
+  }, [searchTerm, filters, allTasks, isLoadingTasks]);
 
   const pendingTasks = filteredTasks.filter(task => task.status === "Pendente" || task.status === "Em Progresso").sort((a,b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime());
   const completedTasks = filteredTasks.filter(task => task.status === "Concluída").sort((a,b) => new Date(b.dueDate).getTime() - new Date(a.dueDate).getTime());
+
+  const renderTaskItems = (tasks: Task[]) => (
+    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      {tasks.map(task => (
+        <TaskItem key={task.id} task={task} />
+      ))}
+    </div>
+  );
+
+  const renderSkeletons = (count: number = 3) => (
+    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      {Array.from({ length: count }).map((_, index) => (
+        <Card key={index} className="shadow-sm">
+          <CardHeader className="p-4">
+            <div className="flex items-start gap-3">
+              <Skeleton className="h-5 w-5 mt-0.5" />
+              <div className="flex-1">
+                <Skeleton className="h-5 w-3/4" />
+                <Skeleton className="h-3 w-1/2 mt-2" />
+              </div>
+              <Skeleton className="h-6 w-16" />
+            </div>
+          </CardHeader>
+          <CardFooter className="p-3 border-t flex justify-end gap-1.5">
+            <Skeleton className="h-7 w-20" />
+            <Skeleton className="h-7 w-20" />
+          </CardFooter>
+        </Card>
+      ))}
+    </div>
+  );
 
   return (
     <div className="space-y-6">
@@ -190,20 +241,15 @@ export default function TasksPage() {
           <Tabs defaultValue="pending" className="w-full">
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="pending">
-                <AlertTriangle className="mr-2 h-4 w-4" /> Pendentes ({pendingTasks.length})
+                <AlertTriangle className="mr-2 h-4 w-4" /> Pendentes ({isLoadingTasks ? '...' : pendingTasks.length})
               </TabsTrigger>
               <TabsTrigger value="completed">
-                <CheckCircle2 className="mr-2 h-4 w-4" /> Concluídas ({completedTasks.length})
+                <CheckCircle2 className="mr-2 h-4 w-4" /> Concluídas ({isLoadingTasks ? '...' : completedTasks.length})
               </TabsTrigger>
             </TabsList>
             <TabsContent value="pending" className="mt-4">
-              {pendingTasks.length > 0 ? (
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                  {pendingTasks.map(task => (
-                    <TaskItem key={task.id} task={task} />
-                  ))}
-                </div>
-              ) : (
+              {isLoadingTasks ? renderSkeletons() : 
+                pendingTasks.length > 0 ? renderTaskItems(pendingTasks) : (
                 <div className="text-center py-10">
                     <Search className="mx-auto h-12 w-12 text-muted-foreground opacity-50" />
                     <p className="mt-2 text-muted-foreground">Nenhuma tarefa pendente corresponde aos seus filtros.</p>
@@ -214,13 +260,8 @@ export default function TasksPage() {
               )}
             </TabsContent>
             <TabsContent value="completed" className="mt-4">
-              {completedTasks.length > 0 ? (
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                  {completedTasks.map(task => (
-                    <TaskItem key={task.id} task={task} />
-                  ))}
-                </div>
-              ) : (
+              {isLoadingTasks ? renderSkeletons() :
+                completedTasks.length > 0 ? renderTaskItems(completedTasks) : (
                 <div className="text-center py-10">
                     <Search className="mx-auto h-12 w-12 text-muted-foreground opacity-50" />
                     <p className="mt-2 text-muted-foreground">Nenhuma tarefa concluída corresponde aos seus filtros.</p>

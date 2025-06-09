@@ -41,7 +41,7 @@ import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
-// import { generateSessionInsights, type GenerateSessionInsightsOutput } from '@/ai/flows/generate-session-insights';
+import { generateSessionInsights, type GenerateSessionInsightsOutput } from '@/ai/flows/generate-session-insights';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
@@ -140,7 +140,7 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
   const [selectedGlobalResource, setSelectedGlobalResource] = useState<string>("");
   const [resourceShareNotes, setResourceShareNotes] = useState<string>("");
 
-  const [generalPatientInsights, setGeneralPatientInsights] = useState<any | null>(null); // Using 'any' as GenerateSessionInsightsOutput is commented
+  const [generalPatientInsights, setGeneralPatientInsights] = useState<GenerateSessionInsightsOutput | null>(null); 
   const [isLoadingGeneralInsights, setIsLoadingGeneralInsights] = useState(false);
   const [errorGeneralInsights, setErrorGeneralInsights] = useState<string | null>(null);
 
@@ -597,8 +597,6 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
         </TabsContent>
 
         <TabsContent value="progress" className="mt-6">
-             <p>Conteúdo da Aba Progresso Aqui. (Teste)</p>
-            {/*
             <Card>
                 <CardHeader>
                 <CardTitle className="font-headline flex items-center">
@@ -643,7 +641,6 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
                 )}
                 </CardContent>
             </Card>
-            */}
         </TabsContent>
 
 

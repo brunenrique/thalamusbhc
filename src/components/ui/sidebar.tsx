@@ -49,12 +49,12 @@ function useSidebar() {
 }
 
 const SidebarProvider = React.forwardRef<
-  HTMLDivElement,
+  HTMLDivElement, // SidebarProvider always renders a div now
   React.ComponentPropsWithoutRef<"div"> & {
     defaultOpen?: boolean
     open?: boolean
     onOpenChange?: (open: boolean) => void
-    asChild?: boolean;
+    asChild?: boolean; // It accepts asChild to consume it, but won't act on it for its root
   }
 >(
   (
@@ -65,8 +65,8 @@ const SidebarProvider = React.forwardRef<
       className,
       style,
       children,
-      asChild, 
-      ...props 
+      asChild, // Destructure asChild so it's not in `...props`
+      ...props
     },
     ref
   ) => {
@@ -90,8 +90,8 @@ const SidebarProvider = React.forwardRef<
 
     const toggleSidebar = React.useCallback(() => {
       return isMobile
-        ? setOpenMobile((open) => !open)
-        : setOpen((open) => !open)
+        ? setOpenMobile((openMobileState) => !openMobileState)
+        : setOpen((openState) => !openState)
     }, [isMobile, setOpen, setOpenMobile])
 
     React.useEffect(() => {
@@ -123,12 +123,12 @@ const SidebarProvider = React.forwardRef<
       [state, open, setOpen, isMobile, openMobile, setOpenMobile, toggleSidebar]
     )
 
-    const Comp = asChild ? Slot : "div";
-
+    // SidebarProvider will now always render a 'div' as its root.
+    // The 'asChild' prop is destructured and ignored for the root element's type.
     return (
       <SidebarContext.Provider value={contextValue}>
         <TooltipProvider delayDuration={0}>
-          <Comp
+          <div // Always a div
             style={
               {
                 "--sidebar-width": SIDEBAR_WIDTH,
@@ -141,10 +141,10 @@ const SidebarProvider = React.forwardRef<
               className
             )}
             ref={ref}
-            {...props} 
+            {...props} // `asChild` is not in `props` here
           >
             {children}
-          </Comp>
+          </div>
         </TooltipProvider>
       </SidebarContext.Provider>
     )
@@ -153,12 +153,12 @@ const SidebarProvider = React.forwardRef<
 SidebarProvider.displayName = "SidebarProvider"
 
 const Sidebar = React.forwardRef<
-  HTMLElement, 
-  React.ComponentProps<"div"> & { 
+  HTMLElement,
+  React.ComponentProps<"div"> & {
     side?: "left" | "right"
     variant?: "sidebar" | "floating" | "inset"
     collapsible?: "offcanvas" | "icon" | "none"
-    asChild?: boolean; 
+    asChild?: boolean;
   }
 >(
   (
@@ -168,23 +168,23 @@ const Sidebar = React.forwardRef<
       collapsible = "offcanvas",
       className,
       children,
-      asChild, 
-      ...props 
+      asChild, // Destructure asChild
+      ...props // `asChild` is not in `props`
     },
     ref
   ) => {
     const { isMobile, state, openMobile, setOpenMobile } = useSidebar()
-    const Comp = asChild ? Slot : "div"; 
+    const Comp = asChild ? Slot : "div";
 
     if (collapsible === "none") {
       return (
-        <Comp 
+        <Comp
           className={cn(
             "flex h-full w-[--sidebar-width] flex-col bg-sidebar text-sidebar-foreground",
             className
           )}
           ref={ref}
-          {...props} 
+          {...props}
         >
           {children}
         </Comp>
@@ -193,7 +193,7 @@ const Sidebar = React.forwardRef<
 
     if (isMobile) {
       return (
-        <Sheet open={openMobile} onOpenChange={setOpenMobile} {...props}>
+        <Sheet open={openMobile} onOpenChange={setOpenMobile}>
           <SheetContent
             data-sidebar="sidebar"
             data-mobile="true"
@@ -212,19 +212,19 @@ const Sidebar = React.forwardRef<
     }
     
     return (
-      <Comp 
+      <Comp
         ref={ref}
         className={cn(
           "group peer hidden md:block text-sidebar-foreground",
-          className 
+          className
         )}
         data-state={state}
         data-collapsible={state === "collapsed" ? collapsible : ""}
         data-variant={variant}
         data-side={side}
-        {...props} 
+        {...props}
       >
-        <div 
+        <div
           className={cn(
             "duration-200 relative h-svh w-[--sidebar-width] bg-transparent transition-[width] ease-linear",
             "group-data-[collapsible=icon]:w-[--sidebar-width-icon]",
@@ -235,7 +235,7 @@ const Sidebar = React.forwardRef<
               : "group-data-[collapsible=icon]:w-[--sidebar-width-icon]"
           )}
         />
-        <div 
+        <div
           className={cn(
             "duration-200 fixed inset-y-0 z-10 hidden h-svh w-[--sidebar-width] transition-[left,right,width] ease-linear md:flex",
             side === "left"
@@ -246,7 +246,7 @@ const Sidebar = React.forwardRef<
               : "group-data-[collapsible=icon]:w-[--sidebar-width-icon] group-data-[side=left]:border-r group-data-[side=right]:border-l"
           )}
         >
-          <div 
+          <div
             data-sidebar="sidebar"
             className="flex h-full w-full flex-col bg-sidebar group-data-[variant=floating]:rounded-lg group-data-[variant=floating]:border group-data-[variant=floating]:border-sidebar-border group-data-[variant=floating]:shadow"
           >
@@ -315,19 +315,19 @@ const SidebarRail = React.forwardRef<
 SidebarRail.displayName = "SidebarRail"
 
 const SidebarInset = React.forwardRef<
-  HTMLElement, 
-  React.ComponentProps<"main"> & { asChild?: boolean } 
->(({ className, children, asChild, ...props }, ref) => { 
-  const Comp = asChild ? Slot : "main"; 
+  HTMLElement,
+  React.ComponentProps<"main"> & { asChild?: boolean }
+>(({ className, children, asChild, ...props }, ref) => { // asChild destructured
+  const Comp = asChild ? Slot : "main";
   return (
-    <Comp 
+    <Comp
       ref={ref}
       className={cn(
         "relative flex min-h-svh flex-1 flex-col bg-background",
         "peer-data-[variant=inset]:min-h-[calc(100svh-theme(spacing.4))] md:peer-data-[variant=inset]:m-2 md:peer-data-[state=collapsed]:peer-data-[variant=inset]:ml-2 md:peer-data-[variant=inset]:ml-0 md:peer-data-[variant=inset]:rounded-xl md:peer-data-[variant=inset]:shadow",
         className
       )}
-      {...props} 
+      {...props} // asChild is not in props
     >
       {children}
     </Comp>
@@ -355,15 +355,15 @@ SidebarInput.displayName = "SidebarInput"
 
 const SidebarHeader = React.forwardRef<
   HTMLDivElement,
-  React.ComponentProps<"div"> & { asChild?: boolean } 
->(({ className, asChild, ...props }, ref) => { 
+  React.ComponentProps<"div"> & { asChild?: boolean }
+>(({ className, asChild, ...props }, ref) => { // asChild destructured
   const Comp = asChild ? Slot : "div";
   return (
-    <Comp 
+    <Comp
       ref={ref}
       data-sidebar="header"
       className={cn("flex flex-col gap-2 p-2", className)}
-      {...props} 
+      {...props} // asChild is not in props
     />
   )
 })
@@ -371,15 +371,15 @@ SidebarHeader.displayName = "SidebarHeader"
 
 const SidebarFooter = React.forwardRef<
   HTMLDivElement,
-  React.ComponentProps<"div"> & { asChild?: boolean } 
->(({ className, asChild, ...props }, ref) => { 
+  React.ComponentProps<"div"> & { asChild?: boolean }
+>(({ className, asChild, ...props }, ref) => { // asChild destructured
   const Comp = asChild ? Slot : "div";
   return (
-    <Comp 
+    <Comp
       ref={ref}
       data-sidebar="footer"
       className={cn("flex flex-col gap-2 p-2", className)}
-      {...props} 
+      {...props} // asChild is not in props
     />
   )
 })
@@ -402,18 +402,18 @@ SidebarSeparator.displayName = "SidebarSeparator"
 
 const SidebarContent = React.forwardRef<
   HTMLDivElement,
-  React.ComponentProps<"div"> & { asChild?: boolean } 
->(({ className, asChild, ...props }, ref) => { 
+  React.ComponentProps<"div"> & { asChild?: boolean }
+>(({ className, asChild, ...props }, ref) => { // asChild destructured
   const Comp = asChild ? Slot : "div";
   return (
-    <Comp 
+    <Comp
       ref={ref}
       data-sidebar="content"
       className={cn(
         "flex min-h-0 flex-1 flex-col gap-2 overflow-auto group-data-[collapsible=icon]:overflow-hidden",
         className
       )}
-      {...props} 
+      {...props} // asChild is not in props
     />
   )
 })
@@ -421,15 +421,15 @@ SidebarContent.displayName = "SidebarContent"
 
 const SidebarGroup = React.forwardRef<
   HTMLDivElement,
-  React.ComponentProps<"div"> & { asChild?: boolean } 
->(({ className, asChild, ...props }, ref) => { 
+  React.ComponentProps<"div"> & { asChild?: boolean }
+>(({ className, asChild, ...props }, ref) => { // asChild destructured
   const Comp = asChild ? Slot : "div";
   return (
-    <Comp 
+    <Comp
       ref={ref}
       data-sidebar="group"
       className={cn("relative flex w-full min-w-0 flex-col p-2", className)}
-      {...props} 
+      {...props} // asChild is not in props
     />
   )
 })
@@ -439,6 +439,7 @@ const SidebarGroupLabel = React.forwardRef<
   HTMLDivElement,
   React.ComponentProps<"div"> & { asChild?: boolean }
 >(({ className, asChild = false, ...props }, ref) => {
+  const { asChild: _asChild, ...rest } = props; // Ensure asChild is not passed to DOM
   const Comp = asChild ? Slot : "div"
 
   return (
@@ -450,7 +451,7 @@ const SidebarGroupLabel = React.forwardRef<
         "group-data-[collapsible=icon]:-mt-8 group-data-[collapsible=icon]:opacity-0",
         className
       )}
-      {...props}
+      {...rest}
     />
   )
 })
@@ -481,15 +482,15 @@ SidebarGroupAction.displayName = "SidebarGroupAction"
 
 const SidebarGroupContent = React.forwardRef<
   HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement> & { asChild?: boolean } 
->(({ className, asChild, ...props }, ref) => { 
+  React.HTMLAttributes<HTMLDivElement> & { asChild?: boolean }
+>(({ className, asChild, ...props }, ref) => { // asChild destructured
   const Comp = asChild ? Slot : "div";
   return (
-    <Comp 
+    <Comp
       ref={ref}
       data-sidebar="group-content"
       className={cn("w-full text-sm", className)}
-      {...props} 
+      {...props} // asChild is not in props
     />
   )
 })
@@ -497,15 +498,15 @@ SidebarGroupContent.displayName = "SidebarGroupContent"
 
 const SidebarMenu = React.forwardRef<
   HTMLUListElement,
-  React.HTMLAttributes<HTMLUListElement> & { asChild?: boolean } 
->(({ className, asChild, ...props }, ref) => { 
+  React.HTMLAttributes<HTMLUListElement> & { asChild?: boolean }
+>(({ className, asChild, ...props }, ref) => { // asChild destructured
   const Comp = asChild ? Slot : "ul";
   return (
-    <Comp 
+    <Comp
       ref={ref}
       data-sidebar="menu"
       className={cn("flex w-full min-w-0 flex-col gap-1", className)}
-      {...props} 
+      {...props} // asChild is not in props
     />
   )
 })
@@ -513,15 +514,15 @@ SidebarMenu.displayName = "SidebarMenu"
 
 const SidebarMenuItem = React.forwardRef<
   HTMLLIElement,
-  React.HTMLAttributes<HTMLLIElement> & { asChild?: boolean } 
->(({ className, asChild, ...props }, ref) => { 
+  React.HTMLAttributes<HTMLLIElement> & { asChild?: boolean }
+>(({ className, asChild, ...props }, ref) => { // asChild destructured
   const Comp = asChild ? Slot : "li";
   return (
-    <Comp 
+    <Comp
       ref={ref}
       data-sidebar="menu-item"
       className={cn("group/menu-item relative", className)}
-      {...props} 
+      {...props} // asChild is not in props
     />
   )
 })
@@ -558,20 +559,18 @@ interface SidebarMenuButtonProps extends React.ButtonHTMLAttributes<HTMLButtonEl
 const SidebarMenuButton = React.forwardRef<HTMLButtonElement, SidebarMenuButtonProps>(
   (rawProps, ref) => {
     const {
-      asChild: ownAsChildProp, // Renamed to avoid conflict, this is for the button's own composition
+      asChild: ownAsChildProp,
       variant = "default",
       size = "default",
       isActive = false,
       tooltip,
       className,
       children,
-      ...otherParentProps // Props passed from parent, might include an asChild from <Link>
+      ...otherParentProps
     } = rawProps;
 
     const Comp = ownAsChildProp ? Slot : "button";
     
-    // Explicitly remove `asChild` if it came from `otherParentProps` (e.g. from Link)
-    // so it's not spread to the native DOM element if Comp is "button".
     const { asChild: asChildFromParent, ...finalDomProps } = otherParentProps;
 
     const buttonElement = (
@@ -582,7 +581,7 @@ const SidebarMenuButton = React.forwardRef<HTMLButtonElement, SidebarMenuButtonP
         data-size={size}
         data-active={isActive}
         aria-current={isActive ? "page" : undefined}
-        {...finalDomProps} 
+        {...finalDomProps}
       >
         {children}
       </Comp>
@@ -645,11 +644,11 @@ SidebarMenuAction.displayName = "SidebarMenuAction"
 
 const SidebarMenuBadge = React.forwardRef<
   HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement> & { asChild?: boolean } 
->(({ className, asChild, ...props }, ref) => { 
+  React.HTMLAttributes<HTMLDivElement> & { asChild?: boolean }
+>(({ className, asChild, ...props }, ref) => { // asChild destructured
   const Comp = asChild ? Slot : "div";
   return (
-    <Comp 
+    <Comp
       ref={ref}
       data-sidebar="menu-badge"
       className={cn(
@@ -661,7 +660,7 @@ const SidebarMenuBadge = React.forwardRef<
         "group-data-[collapsible=icon]:hidden",
         className
       )}
-      {...props} 
+      {...props} // asChild is not in props
     />
   )
 })
@@ -671,20 +670,20 @@ const SidebarMenuSkeleton = React.forwardRef<
   HTMLDivElement,
   React.ComponentProps<"div"> & {
     showIcon?: boolean
-    asChild?: boolean; 
+    asChild?: boolean;
   }
->(({ className, showIcon = false, asChild, ...props }, ref) => { 
+>(({ className, showIcon = false, asChild, ...props }, ref) => { // asChild destructured
   const Comp = asChild ? Slot : "div";
   const width = React.useMemo(() => {
     return `${Math.floor(Math.random() * 40) + 50}%`
   }, [])
 
   return (
-    <Comp 
+    <Comp
       ref={ref}
       data-sidebar="menu-skeleton"
       className={cn("rounded-md h-8 flex gap-2 px-2 items-center", className)}
-      {...props} 
+      {...props} // asChild is not in props
     >
       {showIcon && (
         <Skeleton
@@ -708,11 +707,11 @@ SidebarMenuSkeleton.displayName = "SidebarMenuSkeleton"
 
 const SidebarMenuSub = React.forwardRef<
   HTMLUListElement,
-  React.HTMLAttributes<HTMLUListElement> & { asChild?: boolean } 
->(({ className, asChild, ...props }, ref) => { 
+  React.HTMLAttributes<HTMLUListElement> & { asChild?: boolean }
+>(({ className, asChild, ...props }, ref) => { // asChild destructured
   const Comp = asChild ? Slot : "ul";
   return (
-    <Comp 
+    <Comp
       ref={ref}
       data-sidebar="menu-sub"
       className={cn(
@@ -720,7 +719,7 @@ const SidebarMenuSub = React.forwardRef<
         "group-data-[collapsible=icon]:hidden",
         className
       )}
-      {...props} 
+      {...props} // asChild is not in props
     />
   )
 })
@@ -728,10 +727,10 @@ SidebarMenuSub.displayName = "SidebarMenuSub"
 
 const SidebarMenuSubItem = React.forwardRef<
   HTMLLIElement,
-  React.HTMLAttributes<HTMLLIElement> & { asChild?: boolean } 
->(({ asChild, ...props }, ref) => { 
+  React.HTMLAttributes<HTMLLIElement> & { asChild?: boolean }
+>(({ asChild, ...props }, ref) => { // asChild destructured
     const Comp = asChild ? Slot : "li";
-    return <Comp ref={ref} {...props} /> 
+    return <Comp ref={ref} {...props} /> // asChild is not in props
 })
 SidebarMenuSubItem.displayName = "SidebarMenuSubItem"
 
@@ -745,17 +744,16 @@ interface SidebarMenuSubButtonProps extends React.AnchorHTMLAttributes<HTMLAncho
 const SidebarMenuSubButton = React.forwardRef<HTMLAnchorElement, SidebarMenuSubButtonProps>(
   (rawProps, ref) => {
     const {
-      asChild: ownAsChildProp, // Renamed to avoid conflict
+      asChild: ownAsChildProp,
       size = "md",
       isActive,
       className,
       children,
-      ...otherParentProps // Props passed from parent, might include an asChild from <Link>
+      ...otherParentProps
     } = rawProps;
 
     const Comp = ownAsChildProp ? Slot : "a";
     
-    // Explicitly remove `asChild` if it came from `otherParentProps` (e.g. from Link)
     const { asChild: asChildFromParent, ...finalDomProps } = otherParentProps;
 
 
@@ -774,7 +772,7 @@ const SidebarMenuSubButton = React.forwardRef<HTMLAnchorElement, SidebarMenuSubB
         data-size={size}
         data-active={isActive}
         aria-current={isActive ? "page" : undefined}
-        {...finalDomProps} 
+        {...finalDomProps}
       >
         {children}
       </Comp>
@@ -809,7 +807,3 @@ export {
   SidebarTrigger,
   useSidebar,
 }
-
-    
-
-    

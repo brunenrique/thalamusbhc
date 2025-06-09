@@ -13,11 +13,11 @@ import { Badge } from "@/components/ui/badge";
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
-const mockWaitingList = [
-  { id: "wl1", name: "Edward Mãos de Tesoura", requestedPsychologist: "Qualquer", requestedPsychologistId: "any", dateAdded: "2024-06-01", priority: "Alta", notes: "Prefere agendamentos pela manhã." },
-  { id: "wl2", name: "Fiona Gallagher", requestedPsychologist: "Dr. Silva", requestedPsychologistId: "psy1", dateAdded: "2024-06-15", priority: "Média", notes: "Precisa de horários à noite." },
-  { id: "wl3", name: "George Jetson", requestedPsychologist: "Dra. Jones", requestedPsychologistId: "psy2", dateAdded: "2024-07-01", priority: "Baixa", notes: "Flexível com horários." },
-  { id: "wl4", name: "Harry Potter", requestedPsychologist: "Qualquer", requestedPsychologistId: "any", dateAdded: "2024-07-10", priority: "Alta", notes: "Encaminhamento urgente." },
+export const mockWaitingList = [
+  { id: "wl1", name: "Edward Mãos de Tesoura", requestedPsychologist: "Qualquer", requestedPsychologistId: "any", dateAdded: "2024-06-01", priority: "Alta" as "Alta" | "Média" | "Baixa", notes: "Prefere agendamentos pela manhã.", contactPhone: "111-222-3333", contactEmail:"edward@example.com" },
+  { id: "wl2", name: "Fiona Gallagher", requestedPsychologist: "Dr. Silva", requestedPsychologistId: "psy1", dateAdded: "2024-06-15", priority: "Média" as "Alta" | "Média" | "Baixa", notes: "Precisa de horários à noite.", contactPhone: "444-555-6666", contactEmail:"fiona@example.com" },
+  { id: "wl3", name: "George Jetson", requestedPsychologist: "Dra. Jones", requestedPsychologistId: "psy2", dateAdded: "2024-07-01", priority: "Baixa" as "Alta" | "Média" | "Baixa", notes: "Flexível com horários.", contactPhone: "777-888-9999", contactEmail:"george@example.com" },
+  { id: "wl4", name: "Harry Potter", requestedPsychologist: "Qualquer", requestedPsychologistId: "any", dateAdded: "2024-07-10", priority: "Alta" as "Alta" | "Média" | "Baixa", notes: "Encaminhamento urgente.", contactPhone: "000-111-2222", contactEmail:"harry@example.com" },
 ];
 
 const priorityLabels: Record<string, string> = {
@@ -96,7 +96,6 @@ export default function WaitingListPage() {
                             </Link>
                           </DropdownMenuItem>
                           <DropdownMenuItem asChild>
-                            {/* Placeholder for edit functionality */}
                             <Link href={`/waiting-list/edit/${item.id}`}>
                                 <Edit className="mr-2 h-4 w-4" />
                                 Editar Entrada

@@ -1,44 +1,71 @@
 
+"use client";
+
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { UserCheck, Users, CheckCircle, ShieldQuestion } from "lucide-react";
+import { Users, CheckCircle, ShieldQuestion } from "lucide-react";
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { collection, doc, getDocs, getFirestore, query, updateDoc, where } from "firebase/firestore";
+import { app } from "@/lib/firebase";
 
-// Mock data - replace with actual data fetching from Firestore
-const mockPendingUsers = [
-  { id: "usr1", name: "Dr. Eleanor Vance", email: "eleanor.vance@example.com", role: "Psychologist", dateRegistered: "2024-07-20", status: "Pendente" },
-  { id: "usr2", name: "Samuel Green", email: "sam.green@example.com", role: "Secretary", dateRegistered: "2024-07-19", status: "Pendente" },
-  { id: "usr3", name: "Dr. Arthur Finch", email: "arthur.finch@example.com", role: "Psychologist", dateRegistered: "2024-07-18", status: "Pendente" },
-];
+interface PendingUser {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  dateRegistered: string;
+  status: string;
+}
 
 export default function UserApprovalsPage() {
-  // TODO: Fetch pending users from Firestore where isApproved === false
-  // TODO: Implement handleApproveUser function to update Firestore
+  const [pendingUsers, setPendingUsers] = useState<PendingUser[]>([]);
 
-  const handleApproveUser = (userId: string) => {
-    console.log(`Aprovando usuário ${userId}...`);
-    // Update Firestore: set isApproved = true for this userId
-    // Re-fetch or update local state
+  useEffect(() => {
+    const fetchPendingUsers = async () => {
+      const db = getFirestore(app);
+      const q = query(collection(db, "users"), where("isApproved", "==", false));
+      const snapshot = await getDocs(q);
+      const users = snapshot.docs.map(docSnap => {
+        const data = docSnap.data() as any;
+        return {
+          id: docSnap.id,
+          name: data.name,
+          email: data.email,
+          role: data.role,
+          dateRegistered: data.dateRegistered?.toDate ? data.dateRegistered.toDate().toISOString() : data.dateRegistered,
+          status: "Pendente",
+        } as PendingUser;
+      });
+      setPendingUsers(users);
+    };
+
+    fetchPendingUsers().catch(err => console.error("Erro ao buscar usuários", err));
+  }, []);
+
+  const handleApproveUser = async (userId: string) => {
+    const db = getFirestore(app);
+    await updateDoc(doc(db, "users", userId), { isApproved: true });
+    setPendingUsers(prev => prev.filter(u => u.id !== userId));
   };
 
   const getRoleBadge = (role: string): "secondary" | "outline" | "default" => {
     if (role === "Psychologist") return "secondary";
-    if (role === "Admin") return "default"; // Or a more distinct color for Admin
+    if (role === "Admin") return "default";
     return "outline";
-  }
-  
+  };
+
   const getRoleLabel = (role: string): string => {
     const roleMap: Record<string, string> = {
-        Psychologist: "Psicólogo(a)",
-        Secretary: "Secretário(a)",
-        Admin: "Administrador(a)"
+      Psychologist: "Psicólogo(a)",
+      Secretary: "Secretário(a)",
+      Admin: "Administrador(a)",
     };
     return roleMap[role] || role;
-  }
-
+  };
 
   return (
     <div className="space-y-6">
@@ -53,7 +80,7 @@ export default function UserApprovalsPage() {
           <CardDescription>Revise e aprove novos usuários solicitando acesso ao PsiGuard.</CardDescription>
         </CardHeader>
         <CardContent>
-          {mockPendingUsers.length > 0 ? (
+          {pendingUsers.length > 0 ? (
             <Table>
               <TableHeader>
                 <TableRow>
@@ -66,7 +93,7 @@ export default function UserApprovalsPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {mockPendingUsers.map(user => (
+                {pendingUsers.map(user => (
                   <TableRow key={user.id}>
                     <TableCell className="font-medium">{user.name}</TableCell>
                     <TableCell>{user.email}</TableCell>
@@ -80,8 +107,8 @@ export default function UserApprovalsPage() {
                       <Badge variant="destructive">{user.status}</Badge>
                     </TableCell>
                     <TableCell className="text-right">
-                      <Button 
-                        size="sm" 
+                      <Button
+                        size="sm"
                         onClick={() => handleApproveUser(user.id)}
                         className="bg-accent hover:bg-accent/90 text-accent-foreground"
                       >
@@ -104,3 +131,4 @@ export default function UserApprovalsPage() {
     </div>
   );
 }
+

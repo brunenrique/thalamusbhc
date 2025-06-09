@@ -28,20 +28,25 @@ import { cn } from "@/lib/utils";
 import { format, set, parse } from "date-fns";
 import { ptBR } from 'date-fns/locale';
 import { useToast } from "@/hooks/use-toast";
+import type { Appointment, AppointmentsByDate } from "./appointment-calendar"; // Import Appointment type
 
 const mockPatients = [
   { id: "1", name: "Alice Wonderland" },
   { id: "2", name: "Bob O Construtor" },
   { id: "3", name: "Charlie Brown" },
-  { id: "wl1", name: "Edward Mãos de Tesoura"}, // From waiting list
+  { id: "wl1", name: "Edward Mãos de Tesoura"}, 
   { id: "wl2", name: "Fiona Gallagher"},
   { id: "wl3", name: "George Jetson"},
   { id: "wl4", name: "Harry Potter"},
+  { id: "apptToday1", name: "Paciente Teste Hoje"},
+  { id: "apptToday2", name: "Diana Prince"},
+  { id: "apptOld1", name: "Old Patient"},
+  { id: "apptFuture1", name: "Future Patient"},
 ];
 const mockPsychologists = [
   { id: "psy1", name: "Dr. Silva" },
   { id: "psy2", name: "Dra. Jones" },
-  { id: "any", name: "Qualquer Psicólogo(a)" }, // Added for waiting list prefill
+  { id: "any", name: "Qualquer Psicólogo(a)" }, 
 ];
 const appointmentTypes = ["Consulta Inicial", "Acompanhamento", "Sessão de Terapia", "Revisão de Avaliação", "Sessão em Grupo"];
 const daysOfWeek = [
@@ -69,12 +74,11 @@ const appointmentFormSchema = z.object({
   recurrenceDaysOfWeek: z.array(z.string()).optional(),
   isBlockTime: z.boolean().default(false),
   blockReason: z.string().optional(),
-  // New field for pre-filling patient name if not in mockPatients list yet
   prefilledPatientName: z.string().optional(), 
 })
 .refine(data => {
     if (data.isBlockTime) return true;
-    if (!data.patientId && !data.prefilledPatientName) return false; // Require patientId or prefilledPatientName if not block time
+    if (!data.patientId && !data.prefilledPatientName) return false; 
     return true;
 }, {
     message: "Paciente é obrigatório a menos que seja um bloqueio de horário.",
@@ -144,7 +148,6 @@ export default function AppointmentForm({ appointmentData }: AppointmentFormProp
     ? parse(prefilledDateParam, "yyyy-MM-dd", new Date()) 
     : (appointmentData?.appointmentDate ? new Date(appointmentData.appointmentDate) : new Date());
   
-  // Find patient ID if name matches, otherwise keep prefilledPatientName
   const foundPatient = mockPatients.find(p => p.name === prefilledPatientNameParam);
   const initialPatientId = appointmentData?.patientId || (foundPatient ? foundPatient.id : "");
   const initialPrefilledPatientName = !foundPatient && prefilledPatientNameParam ? prefilledPatientNameParam : appointmentData?.prefilledPatientName || "";
@@ -188,28 +191,35 @@ export default function AppointmentForm({ appointmentData }: AppointmentFormProp
   async function onSubmit(data: AppointmentFormValues) {
     setIsLoading(true);
     
-    const finalData = {...data};
-    if(data.isBlockTime) {
-      finalData.appointmentType = "Horário Bloqueado";
-      finalData.patientId = "N/A"; 
-      finalData.prefilledPatientName = undefined;
-    }
-    if (!data.isRecurring || data.isBlockTime) { 
-        finalData.recurrenceFrequency = "none";
-        finalData.recurrenceInterval = undefined;
-        finalData.recurrenceEndDate = undefined;
-        finalData.recurrenceDaysOfWeek = [];
-    }
-
-    const patientDisplayName = data.prefilledPatientName || mockPatients.find(p=>p.id === data.patientId)?.name;
+    const finalData: Partial<Appointment> & { appointmentDateFormatted: string, prefilledPatientName?: string } = {
+        id: appointmentData?.id || `appt_${Date.now()}`, // Generate new ID if not editing
+        patient: data.prefilledPatientName || mockPatients.find(p => p.id === data.patientId)?.name || "N/A",
+        psychologistId: data.psychologistId,
+        appointmentDateFormatted: format(data.appointmentDate, "yyyy-MM-dd"),
+        startTime: data.startTime,
+        endTime: data.endTime,
+        type: data.isBlockTime ? "Blocked Slot" : data.appointmentType || "Agendamento",
+        notes: data.notes,
+        status: appointmentData?.id ? (data as Appointment).status : "Scheduled", // Keep status if editing, else "Scheduled"
+        isRecurring: data.isRecurring,
+        // recurrenceFrequency: data.recurrenceFrequency, // These are form specific, not part of Appointment type directly
+        // recurrenceInterval: data.recurrenceInterval,
+        // recurrenceEndDate: data.recurrenceEndDate ? format(data.recurrenceEndDate, "yyyy-MM-dd") : undefined,
+        // recurrenceDaysOfWeek: data.recurrenceDaysOfWeek,
+        isBlockTime: data.isBlockTime,
+        blockReason: data.isBlockTime ? data.blockReason : undefined,
+        prefilledPatientName: data.prefilledPatientName, // Keep for logging/debugging if needed
+    };
 
     console.log("Salvamento de Agendamento Simulado:", JSON.stringify(finalData, null, 2));
+    // Here you would typically update a global state / call API.
+    // For now, we just show a toast and redirect.
     await new Promise((resolve) => setTimeout(resolve, 1000));
     setIsLoading(false);
 
     toast({
-      title: appointmentData?.id ? "Agendamento Atualizado (Simulado)" : (data.isBlockTime ? "Horário Bloqueado (Simulado)" : "Agendamento Criado (Simulado)"),
-      description: `O ${data.isBlockTime ? 'horário' : 'agendamento'} para ${data.isBlockTime ? data.blockReason : patientDisplayName} em ${format(data.appointmentDate, "P", {locale: ptBR})} foi ${appointmentData?.id ? 'atualizado' : 'criado'} com sucesso.`,
+      title: appointmentData?.id ? "Agendamento Atualizado" : (data.isBlockTime ? "Horário Bloqueado" : "Agendamento Criado"),
+      description: `O ${data.isBlockTime ? 'horário' : 'agendamento'} para ${data.isBlockTime ? data.blockReason : finalData.patient} em ${format(data.appointmentDate, "P", {locale: ptBR})} foi ${appointmentData?.id ? 'atualizado' : 'criado'} com sucesso.`,
     });
     router.push("/schedule");
   }

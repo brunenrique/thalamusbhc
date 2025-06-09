@@ -1,10 +1,10 @@
 
 "use client";
-import React, { useState } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
-import { CalendarDays, PlusCircle, ChevronLeft, ChevronRight, ListFilter } from "lucide-react";
+import { CalendarDays, PlusCircle, ChevronLeft, ChevronRight, ListFilter, Download } from "lucide-react";
 import Link from "next/link";
-import AppointmentCalendar from "@/components/schedule/appointment-calendar";
+import AppointmentCalendar, { type AppointmentsByDate, mockAppointments as initialMockAppointments } from "@/components/schedule/appointment-calendar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,8 +22,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar"; 
 import { Label } from '@/components/ui/label';
-import { format, getDay } from 'date-fns';
+import { format, getDay, startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachDayOfInterval, isWithinInterval } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { generateICS } from '@/lib/ics-generator';
+import { useToast } from '@/hooks/use-toast';
 
 const mockPsychologists = [
   { id: "psy1", name: "Dr. Silva" },
@@ -35,8 +37,11 @@ const appointmentStatuses = [
     {value: "All", label: "Todos"},
     {value: "Scheduled", label: "Agendado"},
     {value: "Confirmed", label: "Confirmado"},
-    {value: "Cancelled", label: "Cancelado"},
-    {value: "Completed", label: "Concluído"},
+    {value: "Completed", label: "Realizada"},
+    {value: "CancelledByPatient", label: "Cancelado (Paciente)"},
+    {value: "CancelledByClinic", label: "Cancelado (Clínica)"},
+    {value: "NoShow", label: "Falta"},
+    {value: "Rescheduled", label: "Remarcado"},
     {value: "Blocked", label: "Bloqueado"}
 ];
 
@@ -44,6 +49,8 @@ const appointmentStatuses = [
 export default function SchedulePage() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [currentView, setCurrentView] = useState<"Month" | "Week" | "Day">("Week");
+  const [appointmentsData, setAppointmentsData] = useState<AppointmentsByDate>(initialMockAppointments);
+  const { toast } = useToast();
 
   const [filters, setFilters] = useState({
     psychologistId: "all",
@@ -54,7 +61,6 @@ export default function SchedulePage() {
 
   const handleFilterChange = (filterName: keyof typeof filters, value: any) => {
     setFilters(prev => ({ ...prev, [filterName]: value }));
-    console.log("Filtros atualizados:", { ...filters, [filterName]: value });
   };
   
   const currentMonthYear = format(currentDate, 'MMMM yyyy', { locale: ptBR });
@@ -74,16 +80,79 @@ export default function SchedulePage() {
   const displayDateRange = () => {
     if (currentView === "Month") return currentMonthYear.charAt(0).toUpperCase() + currentMonthYear.slice(1);
     if (currentView === "Week") {
-        const startOfWeekDate = new Date(currentDate);
-        // Adjust for week starting on Monday for ptBR locale if getDay is 0 (Sunday)
-        const offset = getDay(startOfWeekDate) === 0 ? -6 : 1; 
-        startOfWeekDate.setDate(currentDate.getDate() - getDay(currentDate) + offset);
-        const endOfWeekDate = new Date(startOfWeekDate);
-        endOfWeekDate.setDate(startOfWeekDate.getDate() + 6);
+        const startOfWeekDate = startOfWeek(currentDate, { weekStartsOn: 1, locale: ptBR });
+        const endOfWeekDate = endOfWeek(currentDate, { weekStartsOn: 1, locale: ptBR});
         return `${format(startOfWeekDate, "d MMM", {locale: ptBR})} - ${format(endOfWeekDate, "d MMM, yyyy", {locale: ptBR})}`;
     }
     return format(currentDate, "EEEE, d 'de' MMMM 'de' yyyy", { locale: ptBR });
   }
+
+  const handleExportICS = () => {
+    let appointmentsToExport: AppointmentsByDate = {};
+    
+    const dateKeys = Object.keys(appointmentsData);
+
+    if (currentView === "Day") {
+        const dayKey = format(currentDate, "yyyy-MM-dd");
+        if (appointmentsData[dayKey]) {
+            appointmentsToExport[dayKey] = appointmentsData[dayKey];
+        }
+    } else if (currentView === "Week") {
+        const weekSt = startOfWeek(currentDate, { weekStartsOn: 1, locale: ptBR });
+        const weekEn = endOfWeek(currentDate, { weekStartsOn: 1, locale: ptBR });
+        const weekDays = eachDayOfInterval({ start: weekSt, end: weekEn });
+        weekDays.forEach(day => {
+            const dayKey = format(day, "yyyy-MM-dd");
+            if (appointmentsData[dayKey]) {
+                appointmentsToExport[dayKey] = appointmentsData[dayKey];
+            }
+        });
+    } else { // Month view
+        const monthSt = startOfMonth(currentDate);
+        const monthEn = endOfMonth(currentDate);
+         dateKeys.forEach(dateKey => {
+            const apptDate = parse(dateKey, 'yyyy-MM-dd', new Date());
+            if (isWithinInterval(apptDate, { start: monthSt, end: monthEn })) {
+                if (appointmentsData[dateKey]) {
+                    appointmentsToExport[dateKey] = appointmentsData[dateKey];
+                }
+            }
+        });
+    }
+    
+    // Apply filters to the selected view's appointments
+    const finalAppointmentsToExport: AppointmentsByDate = {};
+    for (const dateKey in appointmentsToExport) {
+        finalAppointmentsToExport[dateKey] = (appointmentsToExport[dateKey] || []).filter(appt => {
+            const matchesPsychologist = filters.psychologistId === "all" || appt.psychologistId === filters.psychologistId;
+            const matchesStatus = filters.status === "All" || appt.status === filters.status;
+            return matchesPsychologist && matchesStatus;
+        });
+         if (finalAppointmentsToExport[dateKey].length === 0) {
+            delete finalAppointmentsToExport[dateKey];
+        }
+    }
+
+
+    if (Object.keys(finalAppointmentsToExport).length === 0) {
+      toast({ title: "Nenhum Agendamento", description: "Não há agendamentos para exportar na visualização atual com os filtros aplicados." });
+      return;
+    }
+
+    const icsString = generateICS(finalAppointmentsToExport);
+    const blob = new Blob([icsString], { type: 'text/calendar;charset=utf-8;' });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.setAttribute("download", `psiguard_agenda_${currentView.toLowerCase()}_${format(currentDate, "yyyyMMdd")}.ics`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    toast({ title: "Agenda Exportada", description: "O arquivo .ics foi baixado com sucesso." });
+  };
+  
+  const handleAppointmentsUpdate = (updatedAppointments: AppointmentsByDate) => {
+    setAppointmentsData(updatedAppointments);
+  };
 
 
   return (
@@ -112,6 +181,10 @@ export default function SchedulePage() {
           <Button variant={currentView === "Week" ? "secondary" : "ghost"} size="sm" onClick={() => setCurrentView("Week")}>Semana</Button>
           <Button variant={currentView === "Month" ? "secondary" : "ghost"} size="sm" onClick={() => setCurrentView("Month")}>Mês</Button>
           
+          <Button variant="outline" size="sm" onClick={handleExportICS} title="Exportar visualização atual para .ics">
+            <Download className="mr-0 sm:mr-1 h-4 w-4" /> <span className="hidden sm:inline">Exportar</span>
+          </Button>
+
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="icon" aria-label="Filtrar agendamentos">
@@ -187,9 +260,13 @@ export default function SchedulePage() {
       </div>
 
       <div className="flex-grow overflow-auto border rounded-lg shadow-sm bg-card">
-        <AppointmentCalendar view={currentView} currentDate={currentDate} filters={filters} />
+        <AppointmentCalendar 
+            view={currentView} 
+            currentDate={currentDate} 
+            filters={filters} 
+            onAppointmentsUpdate={handleAppointmentsUpdate}
+        />
       </div>
     </div>
   );
 }
-

@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { Clock, User, PlusCircle, Edit, Trash2, CheckCircle, AlertTriangle, XCircle, CalendarCog, Check, Ban, UserCheck, UserX, RepeatIcon } from 'lucide-react';
-import { format, startOfWeek, endOfWeek, eachDayOfInterval, addDays, subDays, isSameMonth, isSameDay } from 'date-fns';
+import { format, startOfWeek, endOfWeek, eachDayOfInterval, addDays, subDays, isSameMonth, isSameDay, parse } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
@@ -45,55 +45,73 @@ type AppointmentStatus =
 
 export type Appointment = { 
   id: string;
-  time: string; 
+  startTime: string; // HH:mm
+  endTime: string; // HH:mm
   patient: string; 
   type: string;
   psychologistId: string;
   status: AppointmentStatus;
   blockReason?: string;
+  notes?: string; // Added for ICS description
 };
 
-type AppointmentsByDate = Record<string, Appointment[]>;
+export type AppointmentsByDate = Record<string, Appointment[]>; // Date string "yyyy-MM-dd" as key
+
+interface AppointmentCalendarProps {
+  view: "Month" | "Week" | "Day";
+  currentDate: Date;
+  filters: {
+    psychologistId: string;
+    status: string;
+    dateFrom?: Date;
+    dateTo?: Date;
+  };
+  onAppointmentsUpdate?: (appointments: AppointmentsByDate) => void; // Callback for updates
+}
+
 
 const baseMockAppointments: AppointmentsByDate = {
   "2024-08-15": [
-    { id: "appt1", time: "10:00", patient: "Alice Wonderland", type: "Consulta", psychologistId: "psy1", status: "Confirmed" },
-    { id: "appt2", time: "14:00", patient: "Bob O Construtor", type: "Acompanhamento", psychologistId: "psy2", status: "Completed" },
+    { id: "appt1", startTime: "10:00", endTime: "11:00", patient: "Alice Wonderland", type: "Consulta", psychologistId: "psy1", status: "Confirmed", notes: "Sessão inicial com Alice." },
+    { id: "appt2", startTime: "14:00", endTime: "15:00", patient: "Bob O Construtor", type: "Acompanhamento", psychologistId: "psy2", status: "Completed", notes: "Revisão de progresso." },
   ],
   "2024-08-16": [
-    { id: "appt3", time: "09:00", patient: "Autocuidado", type: "Blocked Slot", psychologistId: "psy1", status: "Blocked", blockReason: "Tempo Pessoal" },
+    { id: "appt3", startTime: "09:00", endTime: "10:00", patient: "Autocuidado", type: "Blocked Slot", psychologistId: "psy1", status: "Blocked", blockReason: "Tempo Pessoal" },
   ],
   "2024-08-20": [
-    { id: "appt4", time: "11:00", patient: "Charlie Brown", type: "Sessão de Terapia", psychologistId: "psy1", status: "CancelledByPatient" },
+    { id: "appt4", startTime: "11:00", endTime: "12:00", patient: "Charlie Brown", type: "Sessão de Terapia", psychologistId: "psy1", status: "CancelledByPatient" },
   ],
 };
 
-const getInitialMockAppointments = (): AppointmentsByDate => {
+// Function to dynamically generate mock appointments around the current date
+export const getInitialMockAppointments = (): AppointmentsByDate => {
   const todayStr = format(new Date(), "yyyy-MM-dd");
   const todayAppointments = [
-    { id: "apptToday1", time: "15:00", patient: "Paciente Teste Hoje", type: "Consulta Teste", psychologistId: "psy1", status: "Scheduled" as AppointmentStatus},
-    { id: "apptToday2", time: "17:00", patient: "Diana Prince", type: "Revisão", psychologistId: "psy2", status: "NoShow" as AppointmentStatus}
+    { id: "apptToday1", startTime: "15:00", endTime: "16:00", patient: "Paciente Teste Hoje", type: "Consulta Teste", psychologistId: "psy1", status: "Scheduled" as AppointmentStatus, notes: "Consulta de rotina."},
+    { id: "apptToday2", startTime: "17:00", endTime: "17:30", patient: "Diana Prince", type: "Revisão", psychologistId: "psy2", status: "NoShow" as AppointmentStatus}
   ];
 
-  const initialData = { ...baseMockAppointments };
+  const initialData = { ...baseMockAppointments }; // Shallow copy
+  
+  // Ensure to clone arrays if modifying them
   if (initialData[todayStr]) {
     initialData[todayStr] = [...initialData[todayStr], ...todayAppointments];
   } else {
-    initialData[todayStr] = todayAppointments;
+    initialData[todayStr] = [...todayAppointments];
   }
-  // Add more variety
+
   const aFewDaysAgo = format(subDays(new Date(), 3), "yyyy-MM-dd");
   if (!initialData[aFewDaysAgo]) initialData[aFewDaysAgo] = [];
-  initialData[aFewDaysAgo].push({ id: "apptOld1", time: "10:30", patient: "Old Patient", type: "Follow-up", psychologistId: "psy1", status: "Completed"});
+  initialData[aFewDaysAgo] = [...initialData[aFewDaysAgo], { id: "apptOld1", startTime: "10:30", endTime: "11:30", patient: "Old Patient", type: "Follow-up", psychologistId: "psy1", status: "Completed"}];
 
   const aFewDaysAhead = format(addDays(new Date(), 3), "yyyy-MM-dd");
    if (!initialData[aFewDaysAhead]) initialData[aFewDaysAhead] = [];
-  initialData[aFewDaysAhead].push({ id: "apptFuture1", time: "16:00", patient: "Future Patient", type: "Initial Consultation", psychologistId: "psy2", status: "Confirmed"});
-
-
+  initialData[aFewDaysAhead] = [...initialData[aFewDaysAhead], { id: "apptFuture1", startTime: "16:00", endTime: "17:00", patient: "Future Patient", type: "Initial Consultation", psychologistId: "psy2", status: "Confirmed"}];
+  
   return initialData;
 };
 
+// Keep a reference to the initially generated mock data
 export const mockAppointments = getInitialMockAppointments();
 
 
@@ -113,15 +131,15 @@ const getStatusIcon = (status: AppointmentStatus) => {
 
 const getStatusBadgeVariant = (status: AppointmentStatus): "default" | "secondary" | "destructive" | "outline" => {
     switch (status) {
-        case "Completed": return "default"; // Greenish or positive
+        case "Completed": return "default"; 
         case "Scheduled": return "secondary";
-        case "Confirmed": return "secondary"; // Yellowish
+        case "Confirmed": return "secondary"; 
         case "CancelledByPatient": 
         case "CancelledByClinic": 
         case "NoShow": 
-            return "destructive"; // Reddish
-        case "Blocked": return "outline"; // Neutral
-        case "Rescheduled": return "outline"; // Neutral or Purpleish if we have a variant
+            return "destructive"; 
+        case "Blocked": return "outline"; 
+        case "Rescheduled": return "outline"; 
         default: return "outline";
     }
 };
@@ -141,29 +159,35 @@ const getStatusLabel = (status: AppointmentStatus): string => {
 }
 
 
-export default function AppointmentCalendar({ view, currentDate, filters }: AppointmentCalendarProps) {
+export default function AppointmentCalendar({ view, currentDate, filters, onAppointmentsUpdate }: AppointmentCalendarProps) {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(currentDate);
+  const [currentMockAppointments, setCurrentMockAppointments] = useState<AppointmentsByDate>(getInitialMockAppointments());
   const { toast } = useToast();
+
+  React.useEffect(() => {
+    // If mockAppointments could change globally, refresh state here
+    setCurrentMockAppointments(getInitialMockAppointments());
+  }, []); // Or add dependency if mockAppointments source can change
 
   const filteredAppointments = useMemo(() => {
     const appointmentsResult: AppointmentsByDate = {};
-    const currentMockAppointments = getInitialMockAppointments(); 
     for (const dateKey in currentMockAppointments) { 
-        appointmentsResult[dateKey] = (currentMockAppointments as AppointmentsByDate)[dateKey].filter(appt => {
+        const dateAppointments = currentMockAppointments[dateKey] || [];
+        appointmentsResult[dateKey] = dateAppointments.filter(appt => {
             const matchesPsychologist = filters.psychologistId === "all" || appt.psychologistId === filters.psychologistId;
             const matchesStatus = filters.status === "All" || appt.status === filters.status;
             
-            const apptDateUTC = new Date(dateKey);
+            const apptDateUTC = parse(dateKey, "yyyy-MM-dd", new Date());
             const apptDate = new Date(apptDateUTC.getUTCFullYear(), apptDateUTC.getUTCMonth(), apptDateUTC.getUTCDate());
 
             const matchesDateFrom = !filters.dateFrom || apptDate >= new Date(new Date(filters.dateFrom).setUTCHours(0,0,0,0));
             const matchesDateTo = !filters.dateTo || apptDate <= new Date(new Date(filters.dateTo).setUTCHours(23,59,59,999));
             
             return matchesPsychologist && matchesStatus && matchesDateFrom && matchesDateTo;
-        });
+        }).sort((a, b) => a.startTime.localeCompare(b.startTime)); // Sort by start time
     }
     return appointmentsResult;
-  }, [filters]);
+  }, [filters, currentMockAppointments]);
 
 
   const getAppointmentsForDay = (dayDate: Date): Appointment[] => {
@@ -171,20 +195,36 @@ export default function AppointmentCalendar({ view, currentDate, filters }: Appo
     return filteredAppointments[dateStr] || [];
   };
 
-  const handleDeleteAppointment = (appointmentId: string, appointmentPatient: string, appointmentDate: string) => {
-    console.log(`Excluindo agendamento ${appointmentId} - ${appointmentPatient} em ${appointmentDate} (Simulado)`);
-    // Here you would typically update your state or call an API
+  const handleDeleteAppointment = (appointmentId: string, appointmentPatient: string, dayDate: Date) => {
+    const dateStr = format(dayDate, "yyyy-MM-dd");
+    const updatedAppointmentsForDate = (currentMockAppointments[dateStr] || []).filter(appt => appt.id !== appointmentId);
+    const newMockAppointments = {
+      ...currentMockAppointments,
+      [dateStr]: updatedAppointmentsForDate
+    };
+    setCurrentMockAppointments(newMockAppointments);
+    if(onAppointmentsUpdate) onAppointmentsUpdate(newMockAppointments);
+
     toast({
-      title: "Agendamento Excluído (Simulado)",
+      title: "Agendamento Excluído",
       description: `O agendamento de ${appointmentPatient} foi excluído.`,
     });
   };
 
   const handleUpdateStatus = (appointment: Appointment, newStatus: AppointmentStatus, dayDate: Date) => {
-     console.log(`Atualizando status do agendamento ${appointment.id} para ${newStatus} (Simulado)`);
-    // Here you would typically update your state or call an API
+    const dateStr = format(dayDate, "yyyy-MM-dd");
+    const updatedAppointmentsForDate = (currentMockAppointments[dateStr] || []).map(appt => 
+      appt.id === appointment.id ? { ...appt, status: newStatus } : appt
+    );
+    const newMockAppointments = {
+      ...currentMockAppointments,
+      [dateStr]: updatedAppointmentsForDate
+    };
+    setCurrentMockAppointments(newMockAppointments);
+    if(onAppointmentsUpdate) onAppointmentsUpdate(newMockAppointments);
+    
     toast({
-      title: "Status do Agendamento Atualizado (Simulado)",
+      title: "Status do Agendamento Atualizado",
       description: `Status de ${appointment.patient} em ${format(dayDate, "P", { locale: ptBR })} alterado para ${getStatusLabel(newStatus)}.`,
     });
   };
@@ -201,12 +241,13 @@ export default function AppointmentCalendar({ view, currentDate, filters }: Appo
             "p-2 min-h-[120px] bg-card border-r border-b rounded-none shadow-none hover:bg-secondary/30 transition-colors flex flex-col",
             !isCurrentMonth && "bg-muted/30 text-muted-foreground",
             isSelected && "ring-2 ring-primary ring-inset",
-            isToday && "border-2 border-accent"
+            // isToday && "border-2 border-accent" // Removed to avoid double border effect with selected
+            isToday && !isSelected && "bg-accent/10 border-accent" 
         )}
         onClick={() => setSelectedDate(dayDate)}
       >
         <CardContent className="p-0 h-full flex flex-col flex-grow">
-          <div className={cn("text-sm font-medium text-center rounded-full w-6 h-6 flex items-center justify-center mb-1", 
+          <div className={cn("text-sm font-medium text-center rounded-full w-6 h-6 flex items-center justify-center mb-1 self-start", 
             isSelected ? 'bg-primary text-primary-foreground font-bold' : 'text-foreground', 
             isToday && !isSelected && 'bg-accent text-accent-foreground',
             !isCurrentMonth && 'opacity-60'
@@ -222,15 +263,16 @@ export default function AppointmentCalendar({ view, currentDate, filters }: Appo
                      className="w-full truncate block cursor-pointer py-1 text-xs"
                    >
                     {getStatusIcon(appt.status)}
-                    {appt.time} - {appt.type === "Blocked Slot" ? appt.blockReason : appt.patient}
+                    {appt.startTime} - {appt.type === "Blocked Slot" ? appt.blockReason : appt.patient}
                    </Badge>
                 </PopoverTrigger>
                 <PopoverContent className="w-72 p-3 shadow-lg rounded-lg">
                     <h4 className="font-semibold text-sm mb-0.5">{appt.type === "Blocked Slot" ? `Bloqueado: ${appt.blockReason}` : appt.patient}</h4>
                     <p className="text-xs text-muted-foreground mb-0.5">{appt.type}</p>
-                    <p className="text-xs text-muted-foreground flex items-center mb-0.5"><Clock className="w-3 h-3 mr-1 inline-block"/>{appt.time}</p>
+                    <p className="text-xs text-muted-foreground flex items-center mb-0.5"><Clock className="w-3 h-3 mr-1 inline-block"/>{appt.startTime} - {appt.endTime}</p>
                     <p className="text-xs text-muted-foreground flex items-center mb-2">{getStatusIcon(appt.status)} Status: {getStatusLabel(appt.status)}</p>
-                    {appt.psychologistId && <p className="text-xs text-muted-foreground mb-2">Com: {appt.psychologistId === "psy1" ? "Dr. Silva" : "Dra. Jones"}</p> }
+                    {appt.psychologistId && <p className="text-xs text-muted-foreground mb-2">Com: {mockPsychologists.find(p => p.id === appt.psychologistId)?.name || appt.psychologistId}</p> }
+                    {appt.notes && <p className="text-xs text-muted-foreground mb-2">Notas: {appt.notes}</p>}
                     
                     <div className="flex gap-2 mb-2">
                         <Button size="xs" variant="outline" asChild><Link href={`/schedule/edit/${appt.id}`}><Edit className="mr-1 h-3 w-3"/> Editar</Link></Button>
@@ -242,12 +284,12 @@ export default function AppointmentCalendar({ view, currentDate, filters }: Appo
                             <AlertDialogHeader>
                               <AlertDialogTitle>Confirmar Exclusão</AlertDialogTitle>
                               <AlertDialogDescription>
-                                Tem certeza que deseja excluir o agendamento de {appt.patient} às {appt.time} em {format(dayDate, "P", { locale: ptBR })}? Esta ação não pode ser desfeita.
+                                Tem certeza que deseja excluir o agendamento de {appt.patient} às {appt.startTime} em {format(dayDate, "P", { locale: ptBR })}? Esta ação não pode ser desfeita.
                               </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>
                               <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                              <AlertDialogAction onClick={() => handleDeleteAppointment(appt.id, appt.patient, format(dayDate, "P", { locale: ptBR }))} className="bg-destructive hover:bg-destructive/90">
+                              <AlertDialogAction onClick={() => handleDeleteAppointment(appt.id, appt.patient, dayDate)} className="bg-destructive hover:bg-destructive/90">
                                 Excluir
                               </AlertDialogAction>
                             </AlertDialogFooter>
@@ -297,7 +339,7 @@ export default function AppointmentCalendar({ view, currentDate, filters }: Appo
 
     const days = eachDayOfInterval({ start: monthStart, end: monthEnd });
     const dayNames = Array.from({ length: 7 }, (_, i) => {
-        const dayIndex = (i + 1) % 7; // Adjust for weekStartsOn: 1 (Monday)
+        const dayIndex = (i + 0) % 7; // Monday is 0 if weekStartsOn: 1
         return format(addDays(monthStart, dayIndex), "EEEEEE", { locale: ptBR });
     });
 
@@ -347,4 +389,9 @@ export default function AppointmentCalendar({ view, currentDate, filters }: Appo
   );
 }
 
-    
+// Helper to populate mockPsychologists if not already defined in schedule/appointment-form
+const mockPsychologists = [
+  { id: "psy1", name: "Dr. Silva" },
+  { id: "psy2", name: "Dra. Jones" },
+  { id: "all", name: "Todos os Psicólogos" },
+];

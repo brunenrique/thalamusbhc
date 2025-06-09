@@ -112,60 +112,43 @@ export default function SidebarNav({ currentPath, userRole = "admin" }: SidebarN
             <span className={isSubItem ? "" : "group-data-[collapsible=icon]:hidden"}>{item.label}</span>
         </>
     );
+    
+    const ButtonComponent = isSubItem ? SidebarMenuSubButton : SidebarMenuButton;
 
-    if (item.subItems && item.subItems.length > 0) {
-        // Main item of a dropdown
-        return (
-            <SidebarMenuItem key={`${item.label}-${index}-group`}>
-                <Link href={item.href} asChild>
-                    <SidebarMenuButton
-                        isActive={isActive}
-                        tooltip={state === "collapsed" ? item.label : undefined}
-                        className={isSubItem ? "text-xs" : ""}
-                    >
-                        {buttonContent}
-                    </SidebarMenuButton>
-                </Link>
-                {state === "expanded" && (
-                    <SidebarMenuSub>
-                        {item.subItems.filter(sub => !sub.adminOnly || userRole === "admin").map((subItem, subIndex) => renderNavItem(subItem, subIndex, true))}
-                    </SidebarMenuSub>
-                )}
-            </SidebarMenuItem>
-        );
+    if (item.subItems && item.subItems.length > 0 && state === "expanded") {
+      return (
+        <SidebarMenuItem key={`${item.label}-${index}-group`}>
+          <Link href={item.href} asChild>
+            <ButtonComponent
+              isActive={isActive}
+              tooltip={state === "collapsed" ? item.label : undefined}
+              className={isSubItem ? "text-xs" : ""}
+            >
+              {buttonContent}
+            </ButtonComponent>
+          </Link>
+          <SidebarMenuSub>
+            {item.subItems
+              .filter((sub) => !sub.adminOnly || userRole === "admin")
+              .map((subItem, subIndex) => renderNavItem(subItem, subIndex, true))}
+          </SidebarMenuSub>
+        </SidebarMenuItem>
+      );
     }
-
-    if (isSubItem) { // SidebarMenuSubButton is used, which renders an <a> by default
-        return (
-            <SidebarMenuItem key={`${item.label}-${index}`}>
-                 {/* Use legacyBehavior with SidebarMenuSubButton as it renders an <a> tag itself */}
-                <Link href={item.href} legacyBehavior passHref>
-                    <SidebarMenuSubButton
-                        isActive={isActive}
-                        tooltip={state === "collapsed" ? item.label : undefined}
-                        className="text-xs"
-                        href={item.href} // passHref ensures this is passed
-                    >
-                        {buttonContent}
-                    </SidebarMenuSubButton>
-                </Link>
-            </SidebarMenuItem>
-        );
-    } else { // SidebarMenuButton is used, which renders a <button> that Link asChild turns into <a>
-        return (
-            <SidebarMenuItem key={`${item.label}-${index}`}>
-                <Link href={item.href} asChild>
-                    <SidebarMenuButton
-                        isActive={isActive}
-                        tooltip={state === "collapsed" ? item.label : undefined}
-                        className=""
-                    >
-                        {buttonContent}
-                    </SidebarMenuButton>
-                </Link>
-            </SidebarMenuItem>
-        );
-    }
+    
+    return (
+      <SidebarMenuItem key={`${item.label}-${index}`}>
+        <Link href={item.href} asChild>
+          <ButtonComponent
+            isActive={isActive}
+            tooltip={state === "collapsed" ? item.label : undefined}
+            className={isSubItem ? "text-xs" : ""}
+          >
+            {buttonContent}
+          </ButtonComponent>
+        </Link>
+      </SidebarMenuItem>
+    );
   };
   
   const groupedNavItems = navStructure.reduce((acc, item) => {
@@ -219,4 +202,3 @@ export default function SidebarNav({ currentPath, userRole = "admin" }: SidebarN
     </div>
   );
 }
-

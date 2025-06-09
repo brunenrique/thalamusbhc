@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -543,18 +544,22 @@ const SidebarMenuButton = React.forwardRef<
 >(
   (
     {
-      asChild = false,
+      asChild: isAsChild, // Renamed to avoid conflict and explicitly use
       isActive = false,
       variant = "default",
       size = "default",
       tooltip,
       className,
-      ...props
+      ...props // `asChild` from Link should not be in here if handled correctly
     },
     ref
   ) => {
-    const Comp = asChild ? Slot : "button"
+    const Comp = isAsChild ? Slot : "button"
     const { isMobile, state } = useSidebar()
+
+    // Ensure `asChild` prop is not passed to the DOM element if `Comp` is not `Slot`
+    const finalProps = isAsChild ? props : (({ asChild: _asChild, ...restProps }) => restProps)(props as any);
+
 
     const button = (
       <Comp
@@ -563,7 +568,7 @@ const SidebarMenuButton = React.forwardRef<
         data-size={size}
         data-active={isActive}
         className={cn(sidebarMenuButtonVariants({ variant, size }), className)}
-        {...props}
+        {...finalProps}
       />
     )
 
@@ -600,6 +605,8 @@ const SidebarMenuAction = React.forwardRef<
   }
 >(({ className, asChild = false, showOnHover = false, ...props }, ref) => {
   const Comp = asChild ? Slot : "button"
+   // Ensure `asChild` prop is not passed to the DOM element if `Comp` is not `Slot`
+   const finalProps = asChild ? props : (({ asChild: _asChild, ...restProps }) => restProps)(props as any);
 
   return (
     <Comp
@@ -617,7 +624,7 @@ const SidebarMenuAction = React.forwardRef<
           "group-focus-within/menu-item:opacity-100 group-hover/menu-item:opacity-100 data-[state=open]:opacity-100 peer-data-[active=true]/menu-button:text-sidebar-accent-foreground md:opacity-0",
         className
       )}
-      {...props}
+      {...finalProps}
     />
   )
 })
@@ -625,7 +632,7 @@ SidebarMenuAction.displayName = "SidebarMenuAction"
 
 const SidebarMenuBadge = React.forwardRef<
   HTMLDivElement,
-  React.ComponentProps<"div">
+  React.HTMLAttributes<HTMLDivElement>
 >(({ className, ...props }, ref) => (
   <div
     ref={ref}
@@ -712,8 +719,11 @@ const SidebarMenuSubButton = React.forwardRef<
     size?: "sm" | "md"
     isActive?: boolean
   }
->(({ asChild = false, size = "md", isActive, className, ...props }, ref) => {
-  const Comp = asChild ? Slot : "a"
+>(({ asChild: isAsChild, size = "md", isActive, className, ...props }, ref) => {
+  const Comp = isAsChild ? Slot : "a";
+    // Ensure `asChild` prop is not passed to the DOM element if `Comp` is not `Slot`
+  const finalProps = isAsChild ? props : (({ asChild: _asChild, ...restProps }) => restProps)(props as any);
+
 
   return (
     <Comp
@@ -729,7 +739,7 @@ const SidebarMenuSubButton = React.forwardRef<
         "group-data-[collapsible=icon]:hidden",
         className
       )}
-      {...props}
+      {...finalProps}
     />
   )
 })

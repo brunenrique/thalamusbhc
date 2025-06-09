@@ -129,15 +129,19 @@ export default function SidebarNav({ currentPath, userRole = "admin" }: SidebarN
       if (item.href && item.href !== "#" && visibleSubItems.length > 0) {
          return (
             <SidebarMenuItem key={`${item.label}-${index}-group`}>
-            <Link href={item.href} asChild>
-                <ButtonComponent 
-                  isActive={isActive && !visibleSubItems.some(sub => currentPath.startsWith(sub.href))} 
-                  tooltip={state === "collapsed" ? item.label : undefined}
-                  className={isSubItem ? "text-xs" : ""}
-                >
-                {buttonContent}
-                </ButtonComponent>
-            </Link>
+              <ButtonComponent
+                asChild
+                isActive={
+                  isActive &&
+                  !visibleSubItems.some((sub) =>
+                    currentPath.startsWith(sub.href)
+                  )
+                }
+                tooltip={state === "collapsed" ? item.label : undefined}
+                className={isSubItem ? "text-xs" : ""}
+              >
+                <Link href={item.href}>{buttonContent}</Link>
+              </ButtonComponent>
             <SidebarMenuSub>
                 {visibleSubItems.map((subItem, subIndex) => renderNavItem(subItem, subIndex, true))}
             </SidebarMenuSub>
@@ -181,15 +185,14 @@ export default function SidebarNav({ currentPath, userRole = "admin" }: SidebarN
 
     return (
       <SidebarMenuItem key={`${item.label}-${index}`}>
-        <Link href={item.href} asChild>
-          <ButtonComponent
-            isActive={isActive}
-            tooltip={state === "collapsed" ? item.label : undefined}
-            className={isSubItem ? "text-xs" : ""}
-          >
-            {buttonContent}
-          </ButtonComponent>
-        </Link>
+        <ButtonComponent
+          asChild
+          isActive={isActive}
+          tooltip={state === "collapsed" ? item.label : undefined}
+          className={isSubItem ? "text-xs" : ""}
+        >
+          <Link href={item.href}>{buttonContent}</Link>
+        </ButtonComponent>
       </SidebarMenuItem>
     );
   };
@@ -247,12 +250,16 @@ export default function SidebarNav({ currentPath, userRole = "admin" }: SidebarN
             </SidebarMenuButton>
         </SidebarMenuItem>
         <SidebarMenuItem>
-            <Link href="/help" passHref asChild>
-                <SidebarMenuButton isActive={currentPath.startsWith("/help")} tooltip={state === "collapsed" ? "Ajuda e Suporte" : undefined}>
-                    <HelpCircle />
-                    <span className="group-data-[collapsible=icon]:hidden">Ajuda e Suporte</span>
-                </SidebarMenuButton>
-            </Link>
+            <SidebarMenuButton
+              asChild
+              isActive={currentPath.startsWith("/help")}
+              tooltip={state === "collapsed" ? "Ajuda e Suporte" : undefined}
+            >
+              <Link href="/help" passHref>
+                <HelpCircle />
+                <span className="group-data-[collapsible=icon]:hidden">Ajuda e Suporte</span>
+              </Link>
+            </SidebarMenuButton>
         </SidebarMenuItem>
       </SidebarMenu>
     </div>

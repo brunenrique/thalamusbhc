@@ -146,18 +146,23 @@ export default function AppointmentForm({ appointmentData }: AppointmentFormProp
   
   const initialDate = prefilledDateParam 
     ? parse(prefilledDateParam, "yyyy-MM-dd", new Date()) 
-    : (appointmentData?.appointmentDate ? new Date(appointmentData.appointmentDate) : undefined); // Initialize as undefined
+    : (appointmentData?.appointmentDate ? new Date(appointmentData.appointmentDate) : undefined);
   
   const foundPatient = mockPatients.find(p => p.name === prefilledPatientNameParam);
   const initialPatientId = appointmentData?.patientId || (foundPatient ? foundPatient.id : "");
   const initialPrefilledPatientName = !foundPatient && prefilledPatientNameParam ? prefilledPatientNameParam : appointmentData?.prefilledPatientName || "";
+  
+  const initialPsychologistId =
+    appointmentData?.psychologistId ||
+    prefilledPsychologistIdParam ||
+    'any'; 
 
   const form = useForm<AppointmentFormValues>({
     resolver: zodResolver(appointmentFormSchema),
     defaultValues: {
       patientId: initialPatientId,
       prefilledPatientName: initialPrefilledPatientName,
-      psychologistId: appointmentData?.psychologistId || prefilledPsychologistIdParam || "",
+      psychologistId: initialPsychologistId,
       appointmentDate: initialDate,
       startTime: appointmentData?.startTime || "09:00",
       endTime: appointmentData?.endTime || "10:00",
@@ -175,7 +180,7 @@ export default function AppointmentForm({ appointmentData }: AppointmentFormProp
 
   React.useEffect(() => {
     if (!form.getValues("appointmentDate") && !initialDate) {
-      form.setValue("appointmentDate", new Date()); // Set default date on client-side if not prefilled
+      form.setValue("appointmentDate", new Date()); 
     }
   }, [form, initialDate]);
   
@@ -585,6 +590,3 @@ export default function AppointmentForm({ appointmentData }: AppointmentFormProp
     </Card>
   );
 }
-
-
-    

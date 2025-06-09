@@ -271,6 +271,29 @@ export default function SettingsForm({ section }: SettingsFormProps) {
               ))}
             </CardContent>
           </Card>
+
+          <Separator />
+
+          <Card className="bg-muted/20 p-4">
+            <CardHeader className="p-0 pb-4">
+              <CardTitle className="text-lg">Preferências de Visualização da Agenda</CardTitle>
+              <CardDescription>Escolha quais dias da semana você deseja ver por padrão na sua agenda.</CardDescription>
+            </CardHeader>
+            <CardContent className="p-0 space-y-3">
+              <Label>Dias da Semana a Exibir na Agenda:</Label>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-x-4 gap-y-3">
+                  {daysOfWeekMap.map(day => (
+                      <div key={`view-day-${day.id}`} className="flex items-center space-x-2">
+                          <Checkbox id={`view-day-checkbox-${day.id}`} defaultChecked={true} />
+                          <Label htmlFor={`view-day-checkbox-${day.id}`} className="font-normal">{day.label}</Label>
+                      </div>
+                  ))}
+              </div>
+               <p className="text-xs text-muted-foreground pt-2">
+                Nota: Esta configuração afeta apenas a sua visualização padrão. Você ainda poderá navegar para dias ocultos.
+              </p>
+            </CardContent>
+          </Card>
         </>
       )}
 
@@ -340,3 +363,4 @@ export default function SettingsForm({ section }: SettingsFormProps) {
     </form>
   );
 }
+

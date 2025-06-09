@@ -35,7 +35,7 @@ import { useToast } from '@/hooks/use-toast';
 interface SessionNote {
   id: string;
   date: string;
-  summary: string;
+  summary: string; // TODO: Este campo deve ser criptografado no DB e descriptografado no cliente.
   keywords?: string[];
   themes?: string[];
 }
@@ -63,6 +63,7 @@ function SessionNoteCardComponent({ note, patientName, therapistName = "Psicólo
     setIsLoadingInsights(true);
     setErrorInsights(null);
     try {
+      // TODO: Assegurar que note.summary seja a versão descriptografada se a criptografia estiver ativa.
       // const result = await generateSessionInsights({ sessionNotes: note.summary });
       // setInsights(result);
       // Simulação
@@ -93,6 +94,7 @@ function SessionNoteCardComponent({ note, patientName, therapistName = "Psicólo
     setIsReportDialogVisible(true); 
 
     try {
+      // TODO: Assegurar que note.summary seja a versão descriptografada.
       // const result = await generateReportDraft({
       //   sessionNotes: note.summary,
       //   patientName: patientName,
@@ -133,6 +135,9 @@ function SessionNoteCardComponent({ note, patientName, therapistName = "Psicólo
     setIsGeneratingReport(false); // Reset generation state
   };
 
+  // TODO: Para edição/criação de notas, o conteúdo seria criptografado antes de salvar.
+  // A exclusão também precisaria considerar a gestão de dados criptografados.
+
 
   return (
     <Card className="shadow-sm">
@@ -171,6 +176,7 @@ function SessionNoteCardComponent({ note, patientName, therapistName = "Psicólo
         </div>
       </CardHeader>
       <CardContent>
+        {/* TODO: O `note.summary` exibido aqui deveria ser a versão descriptografada. */}
         <p className="text-sm leading-relaxed whitespace-pre-wrap">{note.summary}</p>
 
         

@@ -79,9 +79,13 @@ const mockPatient = {
   lastSession: "2024-07-15",
   assignedPsychologist: "Dr. Silva",
   address: "Rua Principal, 123, Cidade Alegre, BR",
+  // TODO: Adicionar campos criptografados mockados aqui, ex:
+  // encryptedMedicalHistory: "U2FsdGVkX1+...", // Exemplo de como poderia vir do Firestore
 };
 
 const initialSessionNotes = [
+  // TODO: O summary aqui deveria ser descriptografado no cliente após carregar do Firestore.
+  // No mock, ele está em texto plano. Em uma implementação real, viria criptografado.
   { id: "sn1", date: "2024-07-15", summary: "Sessão focada em mecanismos de enfrentamento para ansiedade. Paciente relata melhora na qualidade do sono após aplicar técnicas de relaxamento que foram ensinadas na sessão anterior. Apresentou-se engajada e participativa. Discutimos a importância da exposição gradual e planejamos pequenos passos para a próxima semana. Tarefa: praticar respiração diafragmática duas vezes ao dia.", keywords: ["ansiedade", "enfrentamento", "sono", "relaxamento", "exposição gradual"], themes: ["gerenciamento de estresse", "técnicas de relaxamento", "TCC"] },
   { id: "sn2", date: "2024-07-08", summary: "Exploramos dinâmicas familiares e padrões de comunicação. Identificamos alguns gatilhos em interações com a mãe que disparam sentimentos de inadequação. Paciente expressou dificuldade em estabelecer limites saudáveis. Trabalhamos role-playing de comunicação assertiva, focando em frases 'Eu sinto...' e pedidos claros. Paciente demonstrou progresso na identificação de pensamentos automáticos negativos relacionados a estas interações.", keywords: ["família", "comunicação", "limites", "assertividade", "pensamentos automáticos"], themes: ["relacionamentos interpessoais", "comunicação assertiva", "dinâmica familiar"] },
 ];
@@ -126,11 +130,16 @@ const mockPatientProgressData: Record<string, Array<{ date: string; score: numbe
 
 
 export default function PatientDetailPage({ params }: { params: { id: string } }) {
-  const patient = mockPatient;
+  const patient = mockPatient; // TODO: Fetch patient data, potentially decrypting sensitive fields
   const router = useRouter();
   const { toast } = useToast();
 
-  const [sessionNotes, setSessionNotes] = useState(initialSessionNotes);
+  // TODO: Se as notas de sessão são carregadas do Firestore e criptografadas,
+  // a descriptografia ocorreria aqui antes de definir o estado.
+  const [sessionNotes, setSessionNotes] = useState(initialSessionNotes.map(note => ({
+    ...note,
+    // summary: decrypt(note.summary, userKey) // Exemplo de como seria
+  })));
   const [assessments, setAssessments] = useState(initialAssessments);
   const [patientResources, setPatientResources] = useState(initialPatientResources);
 
@@ -178,6 +187,7 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
   };
 
   const handleDeletePatient = () => {
+    // TODO: Implementar lógica de exclusão segura, considerando dados criptografados se aplicável.
     toast({
       title: "Paciente Excluído (Simulado)",
       description: `${patient.name} foi excluído(a) permanentemente.`,
@@ -245,9 +255,11 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
     setGeneralPatientInsights(null);
 
     const mostRecentNote = sessionNotes.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0];
+    // TODO: O summary aqui já estaria descriptografado se a criptografia client-side estivesse implementada
+    const summaryForInsights = mostRecentNote.summary;
 
     try {
-      // const result = await generateSessionInsights({ sessionNotes: mostRecentNote.summary });
+      // const result = await generateSessionInsights({ sessionNotes: summaryForInsights });
       // setGeneralPatientInsights(result);
       // Simulação de sucesso
       await new Promise(resolve => setTimeout(resolve, 1500));
@@ -264,7 +276,6 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
     } catch (e) {
       console.error("Falha ao gerar insights gerais:", e);
       setErrorGeneralInsights("Não foi possível gerar os insights gerais do paciente. Por favor, tente novamente.");
-      // Removido: setGeneralPatientInsights para não mostrar dados mockados em caso de erro real.
     } finally {
       setIsLoadingGeneralInsights(false);
     }
@@ -385,6 +396,7 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
               </CardTitle>
               <CardDescription>
                 Gere e visualize insights baseados nas interações e histórico do paciente.
+                 {/* TODO: Adicionar um aviso aqui sobre como os dados sensíveis podem ser usados (ou não) para gerar insights se a criptografia for ponta a ponta. */}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -496,7 +508,9 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
             <CardHeader className="flex flex-row justify-between items-center">
               <div>
                 <CardTitle className="font-headline">Anotações de Sessão</CardTitle>
-                <CardDescription>Registro cronológico das sessões de terapia.</CardDescription>
+                <CardDescription>Registro cronológico das sessões de terapia.
+                 {/* TODO: Adicionar um aviso sobre a criptografia das notas, se aplicável. */}
+                </CardDescription>
               </div>
               <Button variant="outline" className="bg-accent hover:bg-accent/90 text-accent-foreground">
                 <FileText className="mr-2 h-4 w-4" /> Nova Anotação

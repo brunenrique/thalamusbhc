@@ -3,9 +3,19 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Activity, Users, CalendarCheck, BarChart3, ArrowUpRight, DollarSign, Clock, ClipboardList, LineChart, UsersRound, CalendarClock, UserX, FileX2, Repeat } from "lucide-react";
 import Link from "next/link";
-import { OccupancyChart } from '@/components/dashboard/occupancy-chart';
-import { PerformanceChart } from '@/components/dashboard/performance-chart';
+import dynamic from "next/dynamic";
+import { Skeleton } from "@/components/ui/skeleton";
 import { RecentActivityItem } from "@/components/dashboard/recent-activity-item";
+
+const OccupancyChart = dynamic(() => import('@/components/dashboard/occupancy-chart').then(mod => mod.OccupancyChart), {
+  loading: () => <Skeleton className="h-[300px] w-full" />,
+  ssr: false,
+});
+const PerformanceChart = dynamic(() => import('@/components/dashboard/performance-chart').then(mod => mod.PerformanceChart), {
+  loading: () => <Skeleton className="h-[300px] w-full" />,
+  ssr: false,
+});
+
 
 export default function DashboardPage() {
   const upcomingAppointments = [
@@ -49,7 +59,7 @@ export default function DashboardPage() {
             <CardTitle className="font-headline">Ocupação da Agenda</CardTitle>
             <CardDescription>Tendências de ocupação semanal</CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="h-[300px]">
             <OccupancyChart />
           </CardContent>
         </Card>
@@ -58,7 +68,7 @@ export default function DashboardPage() {
             <CardTitle className="font-headline">Desempenho dos Psicólogos</CardTitle>
             <CardDescription>Sessões concluídas por psicólogo</CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="h-[300px]">
             <PerformanceChart />
           </CardContent>
         </Card>

@@ -5,8 +5,18 @@ import { BarChart3, Users, CalendarCheck, TrendingUp, PieChart as PieChartIcon, 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { SessionsTrendChart } from "@/components/dashboard/sessions-trend-chart";
-import { ProblemDistributionChart } from "@/components/dashboard/problem-distribution-chart"; // Assume this will be created
+import dynamic from "next/dynamic";
+import { Skeleton } from "@/components/ui/skeleton";
+
+const SessionsTrendChart = dynamic(() => import("@/components/dashboard/sessions-trend-chart").then(mod => mod.SessionsTrendChart), {
+  loading: () => <Skeleton className="h-[350px] w-full" />,
+  ssr: false
+});
+const ProblemDistributionChart = dynamic(() => import("@/components/dashboard/problem-distribution-chart").then(mod => mod.ProblemDistributionChart), {
+  loading: () => <Skeleton className="h-[350px] w-full" />,
+  ssr: false
+});
+
 
 const mockOverallStats = {
   activePatients: 123,

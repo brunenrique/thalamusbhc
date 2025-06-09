@@ -2,7 +2,8 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { BarChartBig, CalendarRange, Filter, Users, Download } from "lucide-react";
-import { OccupancyChart } from "@/components/dashboard/occupancy-chart";
+import dynamic from "next/dynamic";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
   TableBody,
@@ -14,6 +15,11 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+
+const OccupancyChart = dynamic(() => import("@/components/dashboard/occupancy-chart").then(mod => mod.OccupancyChart), {
+  loading: () => <Skeleton className="h-[350px] w-full" />,
+  ssr: false
+});
 
 const mockOccupancyData = [
   { day: "Segunda", date: "2024-07-22", psychologist: "Dr. Silva", totalSlots: 8, bookedSlots: 6, blockedSlots: 1, occupancy: "75%" },

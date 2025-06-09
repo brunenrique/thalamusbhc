@@ -1,6 +1,22 @@
 
-import PatientForm from "@/components/patients/patient-form";
+"use client";
+import dynamic from "next/dynamic";
 import { UserPlus } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
+
+const PatientForm = dynamic(() => import("@/components/patients/patient-form"), {
+  loading: () => (
+    <div className="space-y-6">
+      <Skeleton className="h-8 w-1/3" />
+      <div className="space-y-2"><Skeleton className="h-4 w-1/4" /><Skeleton className="h-10 w-full" /></div>
+      <div className="space-y-2"><Skeleton className="h-4 w-1/4" /><Skeleton className="h-10 w-full" /></div>
+      <div className="space-y-2"><Skeleton className="h-4 w-1/4" /><Skeleton className="h-20 w-full" /></div>
+      <div className="flex justify-end"><Skeleton className="h-10 w-24" /></div>
+    </div>
+  ),
+  ssr: false,
+});
+
 
 export default function NewPatientPage() {
   return (

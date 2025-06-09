@@ -14,9 +14,47 @@ import { ptBR } from 'date-fns/locale';
 
 // Mock data for therapeutic groups
 export const mockTherapeuticGroups = [
-  { id: "grp1", name: "Grupo de Apoio à Ansiedade", psychologist: "Dr. Silva", membersCount: 8, schedule: "Terças, 18:00 - 19:30", nextSession: "2024-08-06T18:00:00Z" },
-  { id: "grp2", name: "Habilidades Sociais para Adolescentes", psychologist: "Dra. Jones", membersCount: 6, schedule: "Quintas, 16:00 - 17:00", nextSession: "2024-08-08T16:00:00Z" },
-  { id: "grp3", name: "Grupo de Luto e Perdas", psychologist: "Dr. Silva", membersCount: 5, schedule: "Segundas, 10:00 - 11:30", nextSession: "2024-08-05T10:00:00Z" },
+  { 
+    id: "grp1", 
+    name: "Grupo de Apoio à Ansiedade", 
+    psychologist: "Dr. Silva", 
+    psychologistId: "psy1",
+    membersCount: 8, 
+    schedule: "Terças, 18:00 - 19:30", 
+    nextSession: "2024-08-06T18:00:00Z",
+    description: "Um grupo focado em fornecer apoio mútuo e estratégias de enfrentamento para indivíduos que lidam com ansiedade. As sessões incluem discussões, técnicas de relaxamento e compartilhamento de experiências.",
+    participants: [
+      { id: "1", name: "Alice Wonderland" },
+      { id: "2", name: "Bob O Construtor" },
+    ],
+    meetingAgenda: "Sessão 1: Apresentações e estabelecimento de metas.\nSessão 2: Entendendo a ansiedade.\nSessão 3: Técnicas de respiração e relaxamento."
+  },
+  { 
+    id: "grp2", 
+    name: "Habilidades Sociais para Adolescentes", 
+    psychologist: "Dra. Jones", 
+    psychologistId: "psy2",
+    membersCount: 6, 
+    schedule: "Quintas, 16:00 - 17:00", 
+    nextSession: "2024-08-08T16:00:00Z",
+    description: "Este grupo ajuda adolescentes a desenvolver e praticar habilidades sociais essenciais em um ambiente seguro e de apoio. Foco em comunicação, assertividade e resolução de conflitos.",
+    participants: [
+      { id: "3", name: "Charlie Brown" },
+    ],
+    meetingAgenda: "Módulo 1: Comunicação eficaz.\nMódulo 2: Entendendo sinais não verbais.\nMódulo 3: Fazendo e mantendo amigos."
+  },
+  { 
+    id: "grp3", 
+    name: "Grupo de Luto e Perdas", 
+    psychologist: "Dr. Silva", 
+    psychologistId: "psy1",
+    membersCount: 5, 
+    schedule: "Segundas, 10:00 - 11:30", 
+    nextSession: "2024-08-05T10:00:00Z",
+    description: "Um espaço para processar o luto e encontrar apoio após a perda de um ente querido. O grupo oferece um ambiente de compreensão e ferramentas para lidar com a dor.",
+    participants: [],
+    meetingAgenda: "Introdução ao processo de luto.\nCompartilhando memórias.\nEncontrando significado e seguindo em frente."
+  },
 ];
 
 export default function TherapeuticGroupsPage() {
@@ -65,7 +103,11 @@ export default function TherapeuticGroupsPage() {
                 <TableBody>
                   {mockTherapeuticGroups.map(group => (
                     <TableRow key={group.id}>
-                      <TableCell className="font-medium">{group.name}</TableCell>
+                      <TableCell className="font-medium">
+                        <Link href={`/groups/${group.id}`} className="hover:underline text-accent">
+                          {group.name}
+                        </Link>
+                      </TableCell>
                       <TableCell>{group.psychologist}</TableCell>
                       <TableCell className="text-center">
                         <Badge variant="secondary">{group.membersCount}</Badge>

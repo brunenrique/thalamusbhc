@@ -12,6 +12,7 @@ import SessionNoteCard from "@/components/patients/session-note-card";
 import ResourceCard from "@/components/resources/resource-card";
 import AssessmentCard from "@/components/assessments/assessment-card";
 import InfoItem from "@/components/patients/info-item";
+import { mockPatients, type MockPatient } from "@/mocks/patients";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -152,9 +153,26 @@ const mockPatientTasks: PatientTask[] = [
 
 
 export default function PatientDetailPage({ params }: { params: { id: string } }) {
-  const patient = mockPatient; 
+  const patient: MockPatient | undefined = useMemo(
+    () => mockPatients.find(p => p.id === params.id),
+    [params.id]
+  );
   const router = useRouter();
   const { toast } = useToast();
+
+  if (!patient) {
+    return (
+      <div className="space-y-6 text-center py-10">
+        <UsersIconLucide className="mx-auto h-16 w-16 text-destructive" />
+        <h1 className="text-3xl font-headline font-bold text-destructive">
+          Paciente não encontrado
+        </h1>
+        <Button variant="outline" asChild>
+          <Link href="/patients">Voltar para Pacientes</Link>
+        </Button>
+      </div>
+    );
+  }
 
   const [sessionNotes, setSessionNotes] = useState(initialSessionNotes);
   const [assessments, setAssessments] = useState(initialAssessments);
@@ -301,6 +319,9 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
 
   return (
     <div className="space-y-6">
+      <Button variant="outline" asChild>
+        <Link href="/patients">← Voltar para Pacientes</Link>
+      </Button>
       <Card className="shadow-sm overflow-hidden">
         <CardHeader className="bg-muted/30 p-6">
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">

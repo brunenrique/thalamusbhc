@@ -9,13 +9,15 @@ beforeAll(async () => {
   testEnv = await initializeTestEnvironment({
     projectId: 'demo-project',
     firestore: {
+      host: '127.0.0.1',
+      port: 8082,
       rules: readFileSync('firestore.rules', 'utf8'),
     },
   });
 });
 
 afterAll(async () => {
-  await testEnv.cleanup();
+  if (testEnv) await testEnv.cleanup();
 });
 
 function getAuthedDb(auth: { sub: string; role: string }): Firestore {

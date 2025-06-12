@@ -1,20 +1,36 @@
 "use client";
 
-import type { GenerateSessionInsightsInput, GenerateSessionInsightsOutput } from "@/ai/flows/generate-session-insights";
-import type { GenerateReportDraftInput, GenerateReportDraftOutput } from "@/ai/flows/generate-report-draft-flow";
-import type { GenerateSessionNoteTemplateInput, GenerateSessionNoteTemplateOutput } from "@/ai/flows/generate-session-note-template";
+import type {
+  GenerateSessionInsightsInput,
+  GenerateSessionInsightsOutput,
+} from "@/ai/flows/generate-session-insights";
+import type {
+  GenerateReportDraftInput,
+  GenerateReportDraftOutput,
+} from "@/ai/flows/generate-report-draft-flow";
+import type {
+  GenerateSessionNoteTemplateInput,
+  GenerateSessionNoteTemplateOutput,
+} from "@/ai/flows/generate-session-note-template";
 
 async function requestAI<T>(url: string, body: unknown): Promise<T> {
-  const res = await fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
-  });
-  if (!res.ok) {
-    const message = await res.text();
-    throw new Error(message || "Erro na requisição AI");
+  try {
+    const res = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) {
+      const message = await res.text();
+      throw new Error(message || "Erro na requisição AI");
+    }
+    return res.json() as Promise<T>;
+  } catch (e) {
+    console.error("Erro na comunicação com o serviço de IA:", e);
+    throw new Error(
+      "Não foi possível conectar ao serviço de IA. Verifique sua conexão e tente novamente.",
+    );
   }
-  return res.json() as Promise<T>;
 }
 
 export async function generateSessionInsights(

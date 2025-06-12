@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
-import { adminDb } from '@/lib/firebaseAdmin';
+import { firestoreAdmin } from '@/lib/firebaseAdmin';
 
 const AppointmentSchema = z.object({
   appointmentDate: z.string(),
@@ -18,7 +18,7 @@ export async function POST(req: Request) {
     const body = await req.json();
     const data = AppointmentSchema.parse(body);
 
-    const qSnapshot = await adminDb
+    const qSnapshot = await firestoreAdmin
       .collection('appointments')
       .where('psychologistId', '==', data.psychologistId)
       .where('appointmentDate', '==', data.appointmentDate)
@@ -39,7 +39,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Schedule conflict' }, { status: 409 });
     }
 
-    const docRef = await adminDb.collection('appointments').add({
+    const docRef = await firestoreAdmin.collection('appointments').add({
       ...data,
       status: 'Scheduled',
     });

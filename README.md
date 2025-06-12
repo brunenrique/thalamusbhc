@@ -55,13 +55,13 @@ This project uses environment variables for configuration, especially for Fireba
     *   May include other public keys for Google services like `NEXT_PUBLIC_GAS_PRONTUARIO_URL` or Google OAuth credentials if used directly on the client.
 
 *   **Server-Side Firebase Admin SDK Configuration (Secret)**:
-    *   These variables are **NOT** prefixed with `NEXT_PUBLIC_` (e.g., `FIREBASE_ADMIN_PROJECT_ID`, `FIREBASE_ADMIN_CLIENT_EMAIL`, `FIREBASE_ADMIN_PRIVATE_KEY`).
+*   These variables are **NOT** prefixed with `NEXT_PUBLIC_` (e.g., `FIREBASE_PROJECT_ID`, `FIREBASE_CLIENT_EMAIL`, `FIREBASE_PRIVATE_KEY`).
     *   These are highly sensitive credentials used to initialize the Firebase Admin SDK on the server-side (e.g., in API routes, server components, or Genkit flows running in a Node.js environment).
     *   **CRITICAL**: These variables must be kept secret and should never be exposed to the client-side/browser.
     *   You can generate a new private key (which contains these values) in your Firebase project settings under "Service accounts". When copying the private key, ensure to format it correctly for a single-line environment variable (replace newlines `\n` with `\\n`).
     *   The `src/lib/firebaseAdmin.ts` file uses these variables to interact with Firebase services with admin privileges.
 
-**Important Security Note**: Always ensure that variables containing sensitive information (like `FIREBASE_ADMIN_PRIVATE_KEY`) are *never* prefixed with `NEXT_PUBLIC_` and are only used in server-side code.
+**Important Security Note**: Always ensure that variables containing sensitive information (like `FIREBASE_PRIVATE_KEY`) are *never* prefixed with `NEXT_PUBLIC_` and are only used in server-side code.
 =======
 ## Deploy
 
@@ -102,8 +102,8 @@ For a full blueprint of the application, see [docs/blueprint.md](docs/blueprint.
 1.  Vá para o dashboard do seu projeto no Vercel.
 2.  Navegue até a aba "Settings" (Configurações).
 3.  No menu lateral, clique em "Environment Variables" (Variáveis de Ambiente).
-4.  Adicione cada variável de ambiente necessária (tanto as `NEXT_PUBLIC_` quanto as de Admin SDK como `FIREBASE_ADMIN_PRIVATE_KEY`, etc.) conforme definido no seu `env.example` ou `.env.local`.
-    *   Para a `FIREBASE_ADMIN_PRIVATE_KEY`, que é uma chave multi-linha, você precisará formatá-la para uma única linha no Vercel, substituindo os caracteres de nova linha `\n` literais por `\\n`.
+4.  Adicione cada variável de ambiente necessária (tanto as `NEXT_PUBLIC_` quanto as de Admin SDK como `FIREBASE_PRIVATE_KEY`, etc.) conforme definido no seu `env.example` ou `.env.local`.
+    *   Para a `FIREBASE_PRIVATE_KEY`, que é uma chave multi-linha, você precisará formatá-la para uma única linha no Vercel, substituindo os caracteres de nova linha `\n` literais por `\\n`.
 5.  Escolha os ambientes (Produção, Pré-visualização, Desenvolvimento) onde cada variável deve estar disponível. Variáveis de Admin SDK (secretas) geralmente são necessárias em todos os ambientes para que as funções de backend funcionem.
 
 ### Comandos de Build

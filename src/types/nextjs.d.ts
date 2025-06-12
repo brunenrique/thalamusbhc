@@ -1,7 +1,7 @@
 import 'next'
 
 declare module 'next' {
-  interface ExperimentalConfig {
+  interface NextConfig {
     allowedDevOrigins?: string[]
   }
 }

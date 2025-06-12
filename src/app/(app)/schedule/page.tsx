@@ -25,6 +25,12 @@ import { format, getDay, startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachD
 import { ptBR } from 'date-fns/locale';
 import { generateICS } from '@/services/ics-generator';
 import { useToast } from '@/hooks/use-toast';
+import {
+  getAuthUrl,
+  listUpcomingEvents,
+  hasTokens,
+  clearTokens,
+} from '@/services/googleCalendar';
 
 const mockPsychologists = [
   { id: "psy1", name: "Dr. Silva" },
@@ -165,6 +171,33 @@ export default function SchedulePage() {
     setAppointmentsData(updatedAppointments);
   }, []);
 
+  const psychId = "psy1"; // exemplo de usuário
+  const [authorized, setAuthorized] = useState(false);
+
+  useEffect(() => {
+    setAuthorized(hasTokens(psychId));
+  }, []);
+
+  const handleSyncGoogle = async () => {
+    try {
+      const events = await listUpcomingEvents(psychId);
+      toast({ title: "Sincronização completa", description: `${events.length} eventos carregados.` });
+    } catch (e) {
+      toast({ title: "Erro", description: "Falha ao sincronizar com o Google Calendar." });
+    }
+  };
+
+  const handleManageOAuth = () => {
+    if (authorized) {
+      clearTokens(psychId);
+      setAuthorized(false);
+      toast({ title: "Tokens removidos" });
+    } else {
+      const url = getAuthUrl(psychId);
+      window.open(url, "_blank");
+    }
+  };
+
 
   return (
     <div className="space-y-6 flex flex-col h-[calc(100vh-var(--header-height,4rem)-2rem)]">
@@ -287,11 +320,13 @@ export default function SchedulePage() {
 
                 </DropdownMenuGroup>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem>
+              <DropdownMenuItem>
                       <Button className="w-full" size="sm" onClick={() => { /* console.log("Aplicando filtros:", filters) */ }}>Aplicar Filtros</Button>
                   </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
+            <Button variant="outline" size="sm" onClick={handleSyncGoogle}>Sincronizar</Button>
+            <Button variant="outline" size="sm" onClick={handleManageOAuth}>{authorized ? 'Desconectar Google' : 'Conectar Google'}</Button>
           </div>
         </div>
       </div>

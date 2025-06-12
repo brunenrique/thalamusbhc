@@ -1,6 +1,7 @@
 import { initializeTestEnvironment, assertSucceeds } from '@firebase/rules-unit-testing';
 import { readFileSync } from 'fs';
 import { Firestore } from 'firebase/firestore';
+import fetch from 'node-fetch';
 
 let testEnv: Awaited<ReturnType<typeof initializeTestEnvironment>>;
 

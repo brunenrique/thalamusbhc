@@ -19,11 +19,7 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  allowedDevOrigins: [
-    'http://localhost:9002',
-    'http://localhost:6000',
-    '6000-firebase-studio-1749420368814.cluster-kc2r6y3mtba5mswcmol45orivs.cloudworkstations.dev',
-  ],
+  allowedDevOrigins: true, // Set to true to allow any origin in development
 };
 
 export default nextConfig;

@@ -45,6 +45,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import dynamic from "next/dynamic";
+import { gerarProntuario } from "@/services/prontuarioService";
 
 const PatientProgressChart = dynamic(() => import("@/components/patients/patient-progress-chart"), {
   loading: () => (
@@ -305,6 +306,30 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
       setIsLoadingGeneralInsights(false);
     }
   }, [sessionNotes, toast]);
+
+  const handleGenerateProntuario = useCallback(async () => {
+    if (sessionNotes.length === 0) {
+      toast({
+        title: "Sem Anotações",
+        description: "Adicione anotações para gerar o prontuário.",
+        variant: "default",
+      });
+      return;
+    }
+    try {
+      await gerarProntuario(patient.id, sessionNotes);
+      toast({
+        title: "Prontuário Gerado",
+        description: "Documento criado via Google Apps Script.",
+      });
+    } catch (e: any) {
+      toast({
+        title: "Erro ao Gerar Prontuário",
+        description: e.message || "Não foi possível gerar o prontuário.",
+        variant: "destructive",
+      });
+    }
+  }, [sessionNotes, patient.id, toast]);
 
 
   const formattedDob = useMemo(() => patient.dob ? format(new Date(patient.dob), "P", { locale: ptBR }) : "N/A", [patient.dob]);
@@ -600,9 +625,14 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
             <CardTitle className="font-headline flex items-center"><MessageSquare className="mr-2 h-5 w-5 text-primary"/> Anotações de Sessão</CardTitle>
             <CardDescription>Registro cronológico das sessões de terapia.</CardDescription>
           </div>
-          <Button variant="outline" className="bg-accent hover:bg-accent/90 text-accent-foreground">
-            <FileText className="mr-2 h-4 w-4" /> Nova Anotação
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={handleGenerateProntuario} className="bg-accent hover:bg-accent/90 text-accent-foreground">
+              <UploadCloud className="mr-2 h-4 w-4" /> Gerar Prontuário
+            </Button>
+            <Button variant="outline" className="bg-accent hover:bg-accent/90 text-accent-foreground">
+              <FileText className="mr-2 h-4 w-4" /> Nova Anotação
+            </Button>
+          </div>
         </CardHeader>
         <CardContent className="space-y-4">
           {sessionNotes.map(note => (

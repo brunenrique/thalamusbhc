@@ -204,41 +204,59 @@ export default function AppointmentForm({ appointmentData }: AppointmentFormProp
   async function onSubmit(data: AppointmentFormValues) {
     setIsLoading(true);
 
-    const finalData: Partial<Appointment> & { appointmentDateFormatted: string; prefilledPatientName?: string } = {
-        id: appointmentData?.id || `appt_${Date.now()}`,
-        patient: data.prefilledPatientName || mockPatients.find(p => p.id === data.patientId)?.name || "N/A",
-        psychologistId: data.psychologistId,
-        appointmentDateFormatted: format(data.appointmentDate, "yyyy-MM-dd"),
-        startTime: data.startTime,
-        endTime: data.endTime,
-        type: data.isBlockTime ? "Blocked Slot" : data.appointmentType || "Agendamento",
-        notes: data.notes,
-        status: appointmentData?.id ? (appointmentData as Appointment).status : "Scheduled",
-        prefilledPatientName: data.prefilledPatientName,
+    const payload = {
+      patient: data.prefilledPatientName ||
+        mockPatients.find(p => p.id === data.patientId)?.name || "N/A",
+      psychologistId: data.psychologistId,
+      appointmentDate: format(data.appointmentDate, "yyyy-MM-dd"),
+      startTime: data.startTime,
+      endTime: data.endTime,
+      type: data.isBlockTime ? "Blocked Slot" : data.appointmentType || "Agendamento",
+      notes: data.notes,
+      isBlockTime: data.isBlockTime,
     };
 
-    const { appointments, addAppointment } = useAppointmentStore.getState();
-    const dateKey = finalData.appointmentDateFormatted;
+    const { addAppointment } = useAppointmentStore.getState();
+    const dateKey = payload.appointmentDate;
 
-    if (hasScheduleConflict(appointments, dateKey, finalData.startTime!, finalData.endTime!, finalData.psychologistId!, data.isBlockTime)) {
-      toast({
-        title: "Conflito de Horário",
-        description: "Já existe um agendamento para este psicólogo nesse intervalo.",
-        variant: "destructive",
+    try {
+      const res = await fetch("/api/createAppointment", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
       });
+
+      if (res.status === 409) {
+        toast({
+          title: "Conflito de Horário",
+          description: "Já existe um agendamento para este psicólogo nesse intervalo.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (!res.ok) {
+        toast({
+          title: "Erro",
+          description: "Falha ao criar agendamento.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const { id } = await res.json();
+      addAppointment(dateKey, { id, status: "Scheduled", ...payload } as Appointment);
+      toast({
+        title: data.isBlockTime ? "Horário Bloqueado" : "Agendamento Criado",
+        description: `O ${data.isBlockTime ? 'horário' : 'agendamento'} para ${data.isBlockTime ? data.blockReason : payload.patient} em ${format(data.appointmentDate, "P", {locale: ptBR})} foi criado com sucesso.`,
+      });
+      router.push("/schedule");
+    } catch (e) {
+      console.error(e);
+      toast({ title: "Erro", description: "Falha inesperada.", variant: "destructive" });
+    } finally {
       setIsLoading(false);
-      return;
     }
-
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    addAppointment(dateKey, finalData as Appointment);
-    setIsLoading(false);
-
-    toast({
-      title: appointmentData?.id ? "Agendamento Atualizado" : (data.isBlockTime ? "Horário Bloqueado" : "Agendamento Criado"),
-      description: `O ${data.isBlockTime ? 'horário' : 'agendamento'} para ${data.isBlockTime ? data.blockReason : finalData.patient} em ${format(data.appointmentDate, "P", {locale: ptBR})} foi ${appointmentData?.id ? 'atualizado' : 'criado'} com sucesso.`,
-    });
-    router.push("/schedule");
   }
 
   return (

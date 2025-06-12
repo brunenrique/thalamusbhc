@@ -1,7 +1,10 @@
-import type {Metadata} from 'next';
+"use client";
+
+import type { Metadata } from 'next';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 import usePageView from "@/hooks/use-page-view";
+import useSessionTimeout from "@/hooks/use-session-timeout";
 
 export const metadata: Metadata = {
   title: 'PsiGuard - Plataforma de Bem-Estar Mental',
@@ -13,6 +16,8 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  usePageView();
+  useSessionTimeout();
   return (
     <html lang="pt-BR" suppressHydrationWarning>
       <head>

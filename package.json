@@ -7,6 +7,7 @@
     "genkit:dev": "genkit start -- tsx src/ai/dev.ts",
     "genkit:watch": "genkit start -- tsx --watch src/ai/dev.ts",
     "build": "next build",
+    "dev:force": "lsof -ti:9002 | xargs kill -9 || true && sleep 2 && next dev --turbopack -p 9003",
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit"
@@ -42,6 +43,7 @@
     "dotenv": "^16.5.0",
     "firebase": "^11.8.1",
     "genkit": "^1.8.0",
+    "googleapis": "^130.0.0",
     "lucide-react": "^0.475.0",
     "next": "15.3.3",
     "patch-package": "^8.0.0",
@@ -53,7 +55,8 @@
     "tailwind-merge": "^3.0.1",
     "tailwindcss-animate": "^1.0.7",
     "zod": "^3.24.2",
-    "zustand": "^4.5.4"
+    "zustand": "^4.5.4",
+    "firebase-admin": "^13.4.0"
   },
   "devDependencies": {
     "@firebase/rules-unit-testing": "^4.0.1",

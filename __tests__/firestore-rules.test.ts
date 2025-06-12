@@ -22,7 +22,7 @@ function getAuthedDb(auth: { sub: string; role: string }): Firestore {
 }
 
 test('admin user can read other user profile', async () => {
-  const auth = { sub: 'user-id', role: 'admin' };
+  const auth = { sub: 'user-id', role: 'Admin' };
   const db = getAuthedDb(auth);
   await assertSucceeds(db.doc('users/otherUser').get());
 });

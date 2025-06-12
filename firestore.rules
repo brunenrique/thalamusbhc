@@ -3,6 +3,29 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function hasRole(roleName) {
+      return isSignedIn() && request.auth.token.role == roleName;
+    }
+
+    function isAdmin() {
+      return hasRole('Admin');
+    }
+
+    function isPsychologist() {
+      return hasRole('Psychologist');
+    }
+
+    function isSecretary() {
+      return hasRole('Secretary');
+    }
+
+    function isStaff() {
+      return isAdmin() || isPsychologist() || isSecretary();
+    }
     // Allow public read access to a specific document
     // (e.g., a public profile)
     // match /users/{userId} {
@@ -18,11 +41,12 @@ service cloud.firestore {
     // Rules for user documents, allowing users to manage their own data
     // and admins to manage all user data.
     match /users/{userId} {
-      allow read: if request.auth != null; // All authenticated users can read user profiles (e.g., for listing assignees)
-      allow write: if request.auth.uid == userId; // Users can write to their own document
-      // allow create: if request.auth.uid == userId; // Covered by write for simplicity for now
-      // Admin access (assuming an 'admin' custom claim or role field in user's doc)
-      // allow read, write: if get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'Admin';
+      allow read: if isStaff();
+      allow write: if request.auth.uid == userId || isAdmin();
+    }
+
+    match /patients/{patientId} {
+      allow read, write: if isAdmin() || isPsychologist();
     }
 
     // Chat messages

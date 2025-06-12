@@ -19,7 +19,10 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  experimental: {}
+  experimental: {
+    // Allow development from the default dev server origin
+    allowedDevOrigins: ['http://localhost:9002'],
+  }
 }; 
 
 export default nextConfig;

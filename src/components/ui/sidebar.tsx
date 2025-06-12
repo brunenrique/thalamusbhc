@@ -462,7 +462,8 @@ const SidebarGroupAction = React.forwardRef<
   React.ComponentProps<"button"> & { asChild?: boolean }
 >(({ className, asChild = false, ...props }, ref) => {
   const Comp = asChild ? Slot : "button"
-   const finalProps = asChild ? props : (({ asChild: _asChild, ...restProps }) => restProps)(props as any);
+  const { asChild: _asChild, ...restProps } = props
+  const finalProps = asChild ? props : restProps
 
   return (
     <Comp
@@ -616,10 +617,11 @@ const SidebarMenuAction = React.forwardRef<
   React.ComponentProps<"button"> & {
     asChild?: boolean
     showOnHover?: boolean
-  }
+  } 
 >(({ className, asChild = false, showOnHover = false, ...props }, ref) => {
   const Comp = asChild ? Slot : "button"
-   const finalProps = asChild ? props : (({ asChild: _asChild, ...restProps }) => restProps)(props as any);
+  const { asChild: _asChild, ...restProps } = props
+  const finalProps = asChild ? props : restProps
 
   return (
     <Comp

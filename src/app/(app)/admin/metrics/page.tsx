@@ -1,7 +1,7 @@
 
 "use client";
 
-import { BarChart3, Users, CalendarCheck, Clock, LineChart as LineChartIcon, UsersRound } from "lucide-react";
+import { BarChart3, Users, CalendarCheck, Clock } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import StatsCard from "@/components/dashboard/stats-card";
 import dynamic from "next/dynamic";
@@ -23,13 +23,6 @@ const mockAdminMetrics = {
   avgSessionDuration: 52, // minutes
 };
 
-// Mock data for sessions per week (can reuse structure of SessionsTrendChart)
-const sessionsPerWeekData = [
-  { month: "Semana 1", sessions: 120 },
-  { month: "Semana 2", sessions: 135 },
-  { month: "Semana 3", sessions: 110 },
-  { month: "Semana 4", sessions: 140 },
-];
 
 // Mock data for sessions per psychologist
 const sessionsPerPsychologistData = [

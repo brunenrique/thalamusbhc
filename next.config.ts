@@ -19,7 +19,7 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  allowedDevOrigins: true, // Set to true to allow any origin in development
+  allowedDevOrigins: ['https://9003-firebase-studio-1749490048431.cluster-duylic2g3fbzerqpzxxbw6helm.cloudworkstations.dev'],
 };
 
 export default nextConfig;

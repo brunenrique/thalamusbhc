@@ -11,7 +11,7 @@ import PatientTimeline from "@/components/patients/patient-timeline";
 import SessionNoteCard from "@/components/patients/session-note-card";
 import ResourceCard from "@/components/resources/resource-card";
 import AssessmentCard from "@/components/assessments/assessment-card";
-import InfoItem from "@/components/patients/info-item";
+import InfoDisplay from "@/components/ui/info-display";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -422,10 +422,10 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
           <CardTitle className="font-headline flex items-center"><Users2 className="mr-2 h-5 w-5 text-primary"/> Visão Geral do Paciente</CardTitle>
         </CardHeader>
         <CardContent className="grid md:grid-cols-2 gap-4">
-          <InfoItem icon={<CalendarDays className="text-accent" />} label="Próximo Agendamento" value={formattedNextAppointment} />
-          <InfoItem icon={<Clock className="text-accent" />} label="Última Sessão" value={formattedLastSession} />
-          <InfoItem icon={<UsersIconLucide className="text-accent h-5 w-5" />} label="Psicólogo(a) Responsável" value={patient.assignedPsychologist} />
-          <InfoItem icon={<HomeIconLucide className="text-accent h-5 w-5" />} label="Endereço" value={patient.address} className="md:col-span-2"/>
+          <InfoDisplay icon={CalendarDays} label="Próximo Agendamento" value={formattedNextAppointment} />
+          <InfoDisplay icon={Clock} label="Última Sessão" value={formattedLastSession} />
+          <InfoDisplay icon={UsersIconLucide} label="Psicólogo(a) Responsável" value={patient.assignedPsychologist} />
+          <InfoDisplay icon={HomeIconLucide} label="Endereço" value={patient.address} className="md:col-span-2" />
         </CardContent>
       </Card>
 

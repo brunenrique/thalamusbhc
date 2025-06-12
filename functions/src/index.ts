@@ -59,3 +59,10 @@ export const scheduleReminders = functions.pubsub
       })
     );
   });
+
+export const onCreateUser = functions.auth.user().onCreate(async user => {
+  const email = user.email || '';
+  const role = email.endsWith('@psiguard.app') ? 'Admin' : 'Psychologist';
+
+  await admin.auth().setCustomUserClaims(user.uid, { role });
+});

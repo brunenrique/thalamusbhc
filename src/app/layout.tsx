@@ -1,6 +1,7 @@
 import type {Metadata} from 'next';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
+import usePageView from "@/hooks/use-page-view";
 
 export const metadata: Metadata = {
   title: 'PsiGuard - Plataforma de Bem-Estar Mental',

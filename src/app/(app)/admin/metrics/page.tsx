@@ -6,6 +6,9 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import StatsCard from "@/components/dashboard/stats-card";
 import dynamic from "next/dynamic";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+import { checkUserRole } from "@/services/authRole";
 
 const SessionsTrendChart = dynamic(() => import("@/components/dashboard/sessions-trend-chart").then(mod => mod.SessionsTrendChart), {
   loading: () => <Skeleton className="h-[350px] w-full" />,
@@ -33,6 +36,14 @@ const sessionsPerPsychologistData = [
 
 
 export default function AdminMetricsPage() {
+  const router = useRouter();
+
+  useEffect(() => {
+    checkUserRole('Admin').then((ok) => {
+      if (!ok) router.replace('/');
+    });
+  }, [router]);
+
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-2">

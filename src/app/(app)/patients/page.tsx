@@ -1,3 +1,5 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -5,8 +7,19 @@ import { UserPlus, Search, Filter, Users } from "lucide-react";
 import Link from "next/link";
 import PatientListItem from "@/components/patients/patient-list-item";
 import { mockPatients } from "@/mocks/patients";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+import { checkUserRole } from "@/services/authRole";
 
 export default function PatientsPage() {
+  const router = useRouter();
+
+  useEffect(() => {
+    checkUserRole(['Admin', 'Psychologist', 'Secretary']).then((ok) => {
+      if (!ok) router.replace('/');
+    });
+  }, [router]);
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">

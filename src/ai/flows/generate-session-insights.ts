@@ -1,5 +1,4 @@
-
-'use server';
+"use server";
 
 /**
  * @fileOverview Generates session insights from session notes using AI.
@@ -9,36 +8,70 @@
  * - GenerateSessionInsightsOutput - The return type for the generateSessionInsights function.
  */
 
-import {ai} from '@/ai/genkit';
-import {z} from 'genkit';
+import { ai } from "@/ai/genkit";
+import { z } from "genkit";
 
-const GenerateSessionInsightsInputSchema = z.object({
-  sessionNotes: z
+export const GenerateSessionInsightsInputSchema = z.object({
+  sessionNotes: z.string().describe("The session notes to analyze."),
+  patientHistorySummary: z
     .string()
-    .describe('The session notes to analyze.'),
-  patientHistorySummary: z.string().optional().describe('A brief summary of the patient relevant history and previous inventory results.'),
+    .optional()
+    .describe(
+      "A brief summary of the patient relevant history and previous inventory results.",
+    ),
 });
-export type GenerateSessionInsightsInput = z.infer<typeof GenerateSessionInsightsInputSchema>;
+export type GenerateSessionInsightsInput = z.infer<
+  typeof GenerateSessionInsightsInputSchema
+>;
 
-const GenerateSessionInsightsOutputSchema = z.object({
-  keywords: z.array(z.string()).describe('Keywords identified in the session notes.'),
-  themes: z.array(z.string()).describe('Themes identified in the session notes.'),
-  symptomEvolution: z.string().describe('Description of symptom evolution based on the notes.'),
-  suggestiveInsights: z.string().describe('Suggestive insights to improve understanding of patient progress.'),
-  therapeuticMilestones: z.array(z.string()).optional().describe('Identified significant therapeutic milestones or breakthroughs in the session.'),
-  inventoryComparisonInsights: z.string().optional().describe('Analysis comparing current session notes with past inventory responses and history to show evolution.'),
-  potentialRiskAlerts: z.array(z.string()).optional().describe('Subtle alerts based on language patterns or metric decline indicating potential risks (e.g., increased anxiety, depressive thoughts).'),
+export const GenerateSessionInsightsOutputSchema = z.object({
+  keywords: z
+    .array(z.string())
+    .describe("Keywords identified in the session notes."),
+  themes: z
+    .array(z.string())
+    .describe("Themes identified in the session notes."),
+  symptomEvolution: z
+    .string()
+    .describe("Description of symptom evolution based on the notes."),
+  suggestiveInsights: z
+    .string()
+    .describe(
+      "Suggestive insights to improve understanding of patient progress.",
+    ),
+  therapeuticMilestones: z
+    .array(z.string())
+    .optional()
+    .describe(
+      "Identified significant therapeutic milestones or breakthroughs in the session.",
+    ),
+  inventoryComparisonInsights: z
+    .string()
+    .optional()
+    .describe(
+      "Analysis comparing current session notes with past inventory responses and history to show evolution.",
+    ),
+  potentialRiskAlerts: z
+    .array(z.string())
+    .optional()
+    .describe(
+      "Subtle alerts based on language patterns or metric decline indicating potential risks (e.g., increased anxiety, depressive thoughts).",
+    ),
 });
-export type GenerateSessionInsightsOutput = z.infer<typeof GenerateSessionInsightsOutputSchema>;
+export type GenerateSessionInsightsOutput = z.infer<
+  typeof GenerateSessionInsightsOutputSchema
+>;
 
-export async function generateSessionInsights(input: GenerateSessionInsightsInput): Promise<GenerateSessionInsightsOutput> {
+export async function generateSessionInsights(
+  input: GenerateSessionInsightsInput,
+): Promise<GenerateSessionInsightsOutput> {
   return generateSessionInsightsFlow(input);
 }
 
 const prompt = ai.definePrompt({
-  name: 'generateSessionInsightsPrompt',
-  input: {schema: GenerateSessionInsightsInputSchema},
-  output: {schema: GenerateSessionInsightsOutputSchema},
+  name: "generateSessionInsightsPrompt",
+  input: { schema: GenerateSessionInsightsInputSchema },
+  output: { schema: GenerateSessionInsightsOutputSchema },
   prompt: `You are an AI assistant for psychologists. Analyze the following session notes to identify key themes, symptom evolution, provide suggestive insights, and flag important observations.
 
 Session Notes:
@@ -62,13 +95,12 @@ Output should be in JSON format. Return:
 
 const generateSessionInsightsFlow = ai.defineFlow(
   {
-    name: 'generateSessionInsightsFlow',
+    name: "generateSessionInsightsFlow",
     inputSchema: GenerateSessionInsightsInputSchema,
     outputSchema: GenerateSessionInsightsOutputSchema,
   },
-  async input => {
-    const {output} = await prompt(input);
+  async (input) => {
+    const { output } = await prompt(input);
     return output!;
-  }
+  },
 );
-

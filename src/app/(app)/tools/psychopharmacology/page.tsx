@@ -132,7 +132,7 @@ export default function PsychopharmacologyPage() {
           ) : (
              <div className="text-center py-10 text-muted-foreground">
                 <Pill className="mx-auto h-12 w-12" />
-                <p className="mt-2">Nenhum medicamento encontrado para "{searchTerm}".</p>
+                <p className="mt-2">Nenhum medicamento encontrado para &quot;{searchTerm}&quot;.</p>
                 <p className="text-xs">Tente refinar seus termos de busca.</p>
              </div>
            )}

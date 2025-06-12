@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { FileText, PlusCircle, Search, Filter, Edit, Trash2, Copy, Brain } from "lucide-react";
 import Link from "next/link";
-import TemplateEditor from "@/components/templates/template-editor";
+import TemplateEditor from "@/components/forms/template-editor";
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
@@ -53,7 +53,7 @@ export default function TemplatesPage() {
                   <CardHeader>
                     <div className="flex justify-between items-start">
                         <CardTitle className="font-headline text-lg">{template.name}</CardTitle>
-                        <Brain className="h-5 w-5 text-accent" title="Assistido por IA"/>
+                        <Brain className="h-5 w-5 text-accent" />
                     </div>
                     <CardDescription className="text-xs line-clamp-2">{template.description}</CardDescription>
                   </CardHeader>

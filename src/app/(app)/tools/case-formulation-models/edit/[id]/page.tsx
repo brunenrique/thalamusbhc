@@ -23,7 +23,7 @@ export default function EditCaseFormulationModelPage() {
 
   useEffect(() => {
     if (templateId) {
-      const foundTemplate = mockCaseFormulationTemplates.find(t => t.id === templateId);
+      const foundTemplate = mockCaseFormulationTemplates.find((t: CaseFormulationTemplate) => t.id === templateId);
       if (foundTemplate) {
         setTemplateData(foundTemplate);
       } else {

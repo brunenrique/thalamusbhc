@@ -45,13 +45,13 @@ export default function UserApprovalsPage() {
 
     const unsubscribe: Unsubscribe = onSnapshot(q, (snapshot) => {
       const users = snapshot.docs.map(docSnap => {
-        const data = docSnap.data() as any;
+        const data = docSnap.data() as Record<string, unknown>;
         return {
           id: docSnap.id,
           name: data.name || "Nome não informado",
           email: data.email,
           role: data.role || "Função não definida",
-          dateRegistered: data.dateRegistered?.toDate ? data.dateRegistered.toDate().toISOString() : new Date().toISOString(),
+          dateRegistered: (data as any).dateRegistered?.toDate ? (data as any).dateRegistered.toDate().toISOString() : new Date().toISOString(),
           status: "Pendente",
         } as PendingUser;
       });

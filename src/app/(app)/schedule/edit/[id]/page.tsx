@@ -1,7 +1,6 @@
 
 import AppointmentForm from "@/components/forms/appointment-form";
 import { CalendarCog } from "lucide-react";
-import { mockAppointments } from "@/components/schedule/appointment-calendar"; // Importando mock data se necessário ou defina aqui
 
 // Mock data for an existing appointment - replace with actual data fetching in a real app
 // Supondo que mockAppointments é um array de objetos Appointment

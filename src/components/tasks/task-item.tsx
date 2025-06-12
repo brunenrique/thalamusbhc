@@ -120,14 +120,14 @@ function TaskItemComponent({ task }: TaskItemProps) {
       )}
 
       <CardFooter className="p-3 border-t flex justify-end gap-1.5">
-          <Button variant="outline" size="xs" asChild>
+          <Button variant="outline" size="sm" asChild>
             <Link href={`/tasks/edit/${task.id}`}>
               <Edit className="mr-1.5 h-3.5 w-3.5" /> Editar
             </Link>
           </Button>
           <AlertDialog>
             <AlertDialogTrigger asChild>
-              <Button variant="outline" size="xs" className="text-destructive hover:text-destructive hover:border-destructive/50">
+              <Button variant="outline" size="sm" className="text-destructive hover:text-destructive hover:border-destructive/50">
                 <Trash2 className="mr-1.5 h-3.5 w-3.5" /> Excluir
               </Button>
             </AlertDialogTrigger>
@@ -135,7 +135,7 @@ function TaskItemComponent({ task }: TaskItemProps) {
                 <AlertDialogHeader>
                 <AlertDialogTitle>Excluir Tarefa?</AlertDialogTitle>
                 <AlertDialogDescription>
-                    Tem certeza que deseja excluir a tarefa "{task.title}"? Esta ação não pode ser desfeita.
+                    Tem certeza que deseja excluir a tarefa &quot;{task.title}&quot;? Esta ação não pode ser desfeita.
                 </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>

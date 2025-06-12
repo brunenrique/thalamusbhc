@@ -45,8 +45,8 @@ service cloud.firestore {
       allow write: if request.auth.uid == userId || isAdmin();
     }
 
-    match /patients/{patientId} {
-      allow read, write: if isAdmin() || isPsychologist();
+    match /patients/{id} {
+      allow read, write: if request.auth != null && request.auth.uid == resource.data.ownerId;
     }
 
     // Chat messages

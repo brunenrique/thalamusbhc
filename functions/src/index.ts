@@ -66,3 +66,9 @@ export const onCreateUser = functions.auth.user().onCreate(async user => {
 
   await admin.auth().setCustomUserClaims(user.uid, { role });
 });
+
+export const setUserRole = functions.auth.user().onCreate(async user => {
+  const snap = await db.collection('users').doc(user.uid).get();
+  const role = snap.exists && snap.data()?.role ? snap.data()!.role : 'Psychologist';
+  await admin.auth().setCustomUserClaims(user.uid, { role });
+});

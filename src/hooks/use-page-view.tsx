@@ -8,7 +8,7 @@ declare global {
   }
 }
 
-export function usePageView() {
+export default function usePageView() {
   const router = useRouter();
 
   useEffect(() => {

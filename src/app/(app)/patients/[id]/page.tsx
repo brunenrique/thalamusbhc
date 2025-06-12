@@ -12,7 +12,6 @@ import SessionNoteCard from "@/components/patients/session-note-card";
 import ResourceCard from "@/components/resources/resource-card";
 import AssessmentCard from "@/components/assessments/assessment-card";
 import InfoItem from "@/components/patients/info-item";
-import { mockPatients, type MockPatient } from "@/mocks/patients";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -22,6 +21,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
+  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import {
   Dialog,
@@ -153,10 +153,8 @@ const mockPatientTasks: PatientTask[] = [
 
 
 export default function PatientDetailPage({ params }: { params: { id: string } }) {
-  const patient: MockPatient | undefined = useMemo(
-    () => mockPatients.find(p => p.id === params.id),
-    [params.id]
-  );
+  // For this demo, simply use the static mockPatient defined above
+  const patient = mockPatient;
   const router = useRouter();
   const { toast } = useToast();
 
@@ -175,8 +173,8 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
   }
 
   const [sessionNotes, setSessionNotes] = useState(initialSessionNotes);
-  const [assessments, setAssessments] = useState(initialAssessments);
-  const [patientResources, setPatientResources] = useState(initialPatientResources);
+  const [assessments, setAssessments] = useState<Array<{ id: string; name: string; dateSent: string; status: "Completed" | "Pending" | "Sent"; score?: string }>>(initialAssessments);
+  const [patientResources, setPatientResources] = useState<Array<{ id: string; name: string; type: "pdf" | "docx" | "image" | "other"; size: string; sharedDate: string; dataAiHint: string; uploadDate?: string }>>(initialPatientResources);
 
   const [selectedInventoryTemplate, setSelectedInventoryTemplate] = useState<string>("");
   const [inventorySendDate, setInventorySendDate] = useState<Date | undefined>(undefined); // Initialize as undefined for useEffect

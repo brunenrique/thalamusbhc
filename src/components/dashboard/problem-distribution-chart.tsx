@@ -11,7 +11,7 @@ import {
   ChartLegend,
   ChartLegendContent,
 } from "@/components/ui/chart"
-import { Label } from "@/components/ui/label";
+import { Label } from "recharts";
 
 const chartData = [
   { problem: "Ansiedade", count: 275, fill: "var(--color-anxiety)" },

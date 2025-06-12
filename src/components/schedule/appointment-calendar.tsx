@@ -252,10 +252,10 @@ function AppointmentCalendarComponent({ view, currentDate, filters, onAppointmen
                     {appt.psychologistId && <p className="text-xs text-muted-foreground mb-2">Com: {mockPsychologists.find(p => p.id === appt.psychologistId)?.name || appt.psychologistId}</p> }
                     {appt.notes && <p className="text-xs text-muted-foreground mb-2">Notas: {appt.notes}</p>}
                     <div className="flex gap-2 mb-2">
-                        <Button size="xs" variant="outline" asChild><Link href={`/schedule/edit/${appt.id}`}><Edit className="mr-1 h-3 w-3"/> Editar</Link></Button>
+                        <Button size="sm" variant="outline" asChild><Link href={`/schedule/edit/${appt.id}`}><Edit className="mr-1 h-3 w-3"/> Editar</Link></Button>
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
-                            <Button size="xs" variant="destructive" className="bg-destructive/90 hover:bg-destructive text-destructive-foreground"><Trash2 className="mr-1 h-3 w-3"/> Excluir</Button>
+                            <Button size="sm" variant="destructive" className="bg-destructive/90 hover:bg-destructive text-destructive-foreground"><Trash2 className="mr-1 h-3 w-3"/> Excluir</Button>
                           </AlertDialogTrigger>
                           <AlertDialogContent>
                             <AlertDialogHeader><AlertDialogTitle>Confirmar Exclusão</AlertDialogTitle>
@@ -270,7 +270,7 @@ function AppointmentCalendarComponent({ view, currentDate, filters, onAppointmen
                     </div>
                     {appt.type !== "Blocked Slot" && (
                       <DropdownMenu>
-                        <DropdownMenuTrigger asChild><Button size="xs" variant="outline" className="w-full"><Check className="mr-1 h-3 w-3" /> Marcar Status</Button></DropdownMenuTrigger>
+                        <DropdownMenuTrigger asChild><Button size="sm" variant="outline" className="w-full"><Check className="mr-1 h-3 w-3" /> Marcar Status</Button></DropdownMenuTrigger>
                         <DropdownMenuContent className="w-56">
                           <DropdownMenuLabel>Atualizar Status</DropdownMenuLabel><DropdownMenuSeparator />
                           {(["Scheduled", "Confirmed", "Completed", "NoShow", "Rescheduled", "CancelledByPatient", "CancelledByClinic"] as AppointmentStatus[]).map(statusOpt => (

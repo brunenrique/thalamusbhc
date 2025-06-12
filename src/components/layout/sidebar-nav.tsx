@@ -137,7 +137,7 @@ export default function SidebarNav({ currentPath, userRole = "admin" }: SidebarN
                     currentPath.startsWith(sub.href)
                   )
                 }
-                tooltip={state === "collapsed" ? item.label : undefined}
+                tooltip={(state as string) === "collapsed" ? item.label : undefined}
                 className={isSubItem ? "text-xs" : ""}
               >
                 <Link href={item.href}>{buttonContent}</Link>
@@ -153,9 +153,9 @@ export default function SidebarNav({ currentPath, userRole = "admin" }: SidebarN
             <SidebarMenuItem key={`${item.label}-${index}-group`}>
                  <ButtonComponent
                     isActive={isActive} 
-                    tooltip={state === "collapsed" ? item.label : undefined}
+                    tooltip={(state as string) === "collapsed" ? item.label : undefined}
                     className={isSubItem ? "text-xs" : ""}
-                    onClick={(e: React.MouseEvent<HTMLButtonElement>) => { if (!item.href || item.href === "#") e.preventDefault(); }} 
+                    onClick={(e: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => { if (!item.href || item.href === "#") e.preventDefault(); }}
                  >
                     {buttonContent}
                  </ButtonComponent>
@@ -174,7 +174,7 @@ export default function SidebarNav({ currentPath, userRole = "admin" }: SidebarN
                     isActive={isActive}
                     tooltip={state === "collapsed" ? item.label : undefined}
                     className={isSubItem ? "text-xs" : ""}
-                    onClick={(e: React.MouseEvent<HTMLButtonElement>) => e.preventDefault()} 
+                    onClick={(e: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => e.preventDefault()}
                     aria-disabled="true" 
                  >
                 {buttonContent}

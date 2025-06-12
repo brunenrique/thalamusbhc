@@ -23,7 +23,7 @@ const mockPatientToEdit = {
   name: "Alice Wonderland",
   email: "alice@example.com",
   phone: "555-1234",
-  dob: "1990-05-15", // ISO string format for Date constructor
+  dob: new Date("1990-05-15"), // Use actual Date to satisfy form types
   address: "Rua Principal, 123, Cidade Alegre, BR",
   // avatarUrl: "https://placehold.co/150x150/D0BFFF/4F3A76?text=AW",
   // dataAiHint: "female avatar"

@@ -49,7 +49,7 @@ if (process.env.NODE_ENV === 'development') {
 
     // Firestore Emulator
     connectFirestoreEmulator(db, 'localhost', 8080);
-    console.info('Firestore Emulator connected to localhost:8080');
+    console.info('Firestore Emulator connected to localhost:8081');
 
     // Storage Emulator
     connectStorageEmulator(storage, 'localhost', 9199);

@@ -25,8 +25,9 @@ import {
   BarChartBig, 
   Users2 as GroupsIcon,
   Network,
-  LineChart 
+  LineChart
 } from "lucide-react";
+import { APP_ROUTES } from "@/lib/routes";
 import {
   SidebarMenu,
   SidebarMenuItem,
@@ -49,43 +50,43 @@ interface NavItem {
 }
 
 const navStructure: NavItem[] = [
-  { href: "/dashboard", label: "Painel", icon: LayoutDashboard, group: "Visão Geral" },
-  { href: "/schedule", label: "Agenda", icon: CalendarDays, group: "Visão Geral" },
+  { href: APP_ROUTES.dashboard, label: "Painel", icon: LayoutDashboard, group: "Visão Geral" },
+  { href: APP_ROUTES.schedule, label: "Agenda", icon: CalendarDays, group: "Visão Geral" },
   
-  { href: "/patients", label: "Pacientes", icon: Users, group: "Gestão de Pacientes" },
-  { href: "/groups", label: "Grupos Terapêuticos", icon: GroupsIcon, group: "Gestão de Pacientes"},
-  { href: "/waiting-list", label: "Lista de Espera", icon: ListChecks, group: "Gestão de Pacientes" },
-  { href: "/templates", label: "Modelos Inteligentes", icon: FileText, group: "Gestão de Pacientes" },
+  { href: APP_ROUTES.patients, label: "Pacientes", icon: Users, group: "Gestão de Pacientes" },
+  { href: APP_ROUTES.groups, label: "Grupos Terapêuticos", icon: GroupsIcon, group: "Gestão de Pacientes"},
+  { href: APP_ROUTES.waitingList, label: "Lista de Espera", icon: ListChecks, group: "Gestão de Pacientes" },
+  { href: APP_ROUTES.templates, label: "Modelos Inteligentes", icon: FileText, group: "Gestão de Pacientes" },
   
-  { href: "/tasks", label: "Tarefas", icon: CheckSquare, group: "Operações da Clínica" },
-  { href: "/resources", label: "Recursos da Clínica", icon: FolderArchive, group: "Operações da Clínica" },
+  { href: APP_ROUTES.tasks, label: "Tarefas", icon: CheckSquare, group: "Operações da Clínica" },
+  { href: APP_ROUTES.resources, label: "Recursos da Clínica", icon: FolderArchive, group: "Operações da Clínica" },
   { 
-    href: "/analytics", label: "Análises", icon: BarChartBig, group: "Operações da Clínica",
+    href: APP_ROUTES.analytics, label: "Análises", icon: BarChartBig, group: "Operações da Clínica",
     subItems: [
-      { href: "/analytics/clinic-occupancy", label: "Ocupação da Clínica", icon: BarChartBig },
+      { href: APP_ROUTES.analyticsClinicOccupancy, label: "Ocupação da Clínica", icon: BarChartBig },
     ]
   },
 
   { 
-    href: "/tools", label: "Ferramentas Clínicas", icon: Wrench, group: "Utilidades",
+    href: APP_ROUTES.tools, label: "Ferramentas Clínicas", icon: Wrench, group: "Utilidades",
     subItems: [
-      { href: "/tools/psychopharmacology", label: "Psicofarmacologia", icon: BookOpen },
-      { href: "/tools/knowledge-base", label: "Base de Conhecimento", icon: BrainCog },
-      { href: "/tools/case-formulation-models", label: "Modelos de Formulação", icon: Network },
-      { href: "/inventories-scales", label: "Inventários e Escalas", icon: ClipboardList },
+      { href: APP_ROUTES.toolsPsychopharmacology, label: "Psicofarmacologia", icon: BookOpen },
+      { href: APP_ROUTES.toolsKnowledgeBase, label: "Base de Conhecimento", icon: BrainCog },
+      { href: APP_ROUTES.toolsCaseFormulationModels, label: "Modelos de Formulação", icon: Network },
+      { href: APP_ROUTES.inventoriesScales, label: "Inventários e Escalas", icon: ClipboardList },
     ]
   },
   
   { 
     href: "#", label: "Ferramentas Admin", icon: Settings, adminOnly: true, group: "Administração", 
     subItems: [
-        { href: "/user-approvals", label: "Aprovação de Usuários", icon: ShieldQuestion, adminOnly: true },
-        { href: "/tools/backup", label: "Backup de Dados", icon: DataBackupIcon, adminOnly: true },
-        { href: "/tools/audit-trail", label: "Trilha de Auditoria", icon: HistoryIcon, adminOnly: true }, 
-        { href: "/admin/metrics", label: "Métricas da Clínica", icon: LineChart, adminOnly: true },
+        { href: APP_ROUTES.userApprovals, label: "Aprovação de Usuários", icon: ShieldQuestion, adminOnly: true },
+        { href: APP_ROUTES.toolsBackup, label: "Backup de Dados", icon: DataBackupIcon, adminOnly: true },
+        { href: APP_ROUTES.toolsAuditTrail, label: "Trilha de Auditoria", icon: HistoryIcon, adminOnly: true }, 
+        { href: APP_ROUTES.adminMetrics, label: "Métricas da Clínica", icon: LineChart, adminOnly: true },
     ]
   },
-  { href: "/settings", label: "Configurações", icon: Settings, group: "Configuração" },
+  { href: APP_ROUTES.settings, label: "Configurações", icon: Settings, group: "Configuração" },
 ];
 
 

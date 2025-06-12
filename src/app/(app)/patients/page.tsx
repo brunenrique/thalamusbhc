@@ -10,6 +10,8 @@ import { mockPatients } from "@/mocks/patients";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { checkUserRole } from "@/services/authRole";
+import EmptyState from "@/components/ui/empty-state";
+import { APP_ROUTES } from "@/lib/routes";
 
 export default function PatientsPage() {
   const router = useRouter();
@@ -51,23 +53,23 @@ export default function PatientsPage() {
         <CardContent>
           {mockPatients.length > 0 ? (
             <div className="space-y-4">
-              {mockPatients.map(patient => (
+              {mockPatients.map((patient) => (
                 <PatientListItem key={patient.id} patient={patient} />
               ))}
             </div>
           ) : (
-            <div className="text-center py-10">
-              <Users className="mx-auto h-12 w-12 text-muted-foreground" />
-              <h3 className="mt-2 text-sm font-medium text-foreground">Nenhum paciente encontrado</h3>
-              <p className="mt-1 text-sm text-muted-foreground">Comece adicionando um novo paciente.</p>
-              <div className="mt-6">
+            <EmptyState
+              icon={<Users className="mx-auto h-12 w-12 text-muted-foreground" />}
+              title="Nenhum paciente encontrado"
+              description="Comece adicionando um novo paciente."
+              action={
                 <Button asChild className="bg-accent hover:bg-accent/90 text-accent-foreground">
-                  <Link href="/patients/new">
+                  <Link href={APP_ROUTES.newPatient}>
                     <UserPlus className="mr-2 h-4 w-4" /> Adicionar Novo Paciente
                   </Link>
                 </Button>
-              </div>
-            </div>
+              }
+            />
           )}
         </CardContent>
       </Card>

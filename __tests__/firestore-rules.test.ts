@@ -26,3 +26,18 @@ test('admin user can read other user profile', async () => {
   const db = getAuthedDb(auth);
   await assertSucceeds(db.doc('users/otherUser').get());
 });
+
+test('authenticated user can create assessment', async () => {
+  const auth = { sub: 'therapist1', role: 'psychologist' };
+  const db = getAuthedDb(auth);
+  await assertSucceeds(
+    db.doc('assessments/testAssessment').set({
+      patientId: 'patient1',
+      assignedBy: auth.sub,
+      templateId: 'tpl1',
+      templateName: 'Demo',
+      status: 'assigned',
+      createdAt: '2024-01-01T00:00:00Z'
+    })
+  );
+});

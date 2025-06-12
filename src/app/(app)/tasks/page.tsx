@@ -40,16 +40,18 @@ const taskPriorityOptions: {value: TaskPriority | "All", label: string}[] = [
     {value: "Baixa", label: "Baixa"},
 ];
 
+type TaskFilters = {
+  status: TaskStatus | "All";
+  priority: TaskPriority | "All";
+  assignedTo: string;
+  dueDate?: Date;
+};
+
 export default function TasksPage() {
   const [allTasks, setAllTasks] = useState<Task[]>([]);
   const [isLoadingTasks, setIsLoadingTasks] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [filters, setFilters] = useState<{
-    status: TaskStatus | "All";
-    priority: TaskPriority | "All";
-    assignedTo: string;
-    dueDate?: Date;
-  }>({
+  const [filters, setFilters] = useState<TaskFilters>({
     status: "All",
     priority: "All",
     assignedTo: "Todos",
@@ -72,7 +74,10 @@ export default function TasksPage() {
     fetchTasks();
   }, []);
 
-  const handleFilterChange = (filterName: keyof typeof filters, value: any) => {
+  const handleFilterChange = <K extends keyof TaskFilters>(
+    filterName: K,
+    value: TaskFilters[K]
+  ) => {
     setFilters(prev => ({ ...prev, [filterName]: value }));
   };
 

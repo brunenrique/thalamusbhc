@@ -42,7 +42,16 @@ const appointmentStatuses = [
     {value: "NoShow", label: "Falta"},
     {value: "Rescheduled", label: "Remarcado"},
     {value: "Blocked", label: "Bloqueado"}
-];
+] as const;
+
+type AppointmentStatusFilter = typeof appointmentStatuses[number]["value"];
+
+type ScheduleFilters = {
+  psychologistId: string;
+  status: AppointmentStatusFilter;
+  dateFrom: Date | undefined;
+  dateTo: Date | undefined;
+};
 
 
 export default function SchedulePage() {
@@ -51,14 +60,17 @@ export default function SchedulePage() {
   const [appointmentsData, setAppointmentsData] = useState<AppointmentsByDate>(() => getInitialMockAppointments());
   const { toast } = useToast();
 
-  const [filters, setFilters] = useState({
+  const [filters, setFilters] = useState<ScheduleFilters>({
     psychologistId: "all",
     status: "All",
-    dateFrom: undefined as Date | undefined,
-    dateTo: undefined as Date | undefined,
+    dateFrom: undefined,
+    dateTo: undefined,
   });
 
-  const handleFilterChange = (filterName: keyof typeof filters, value: any) => {
+  const handleFilterChange = <K extends keyof ScheduleFilters>(
+    filterName: K,
+    value: ScheduleFilters[K]
+  ) => {
     setFilters(prev => ({ ...prev, [filterName]: value }));
   };
   

@@ -44,7 +44,6 @@ This project uses environment variables for configuration, especially for Fireba
 2.  **Fill in the values in `.env.local`**:
     Open `.env.local` and replace the placeholder values with your actual Firebase project credentials and other necessary API keys.
 
-<<<<<<< HEAD
 ### Types of Environment Variables:
 
 *   **Client-Side Firebase Configuration (Public)**:
@@ -62,7 +61,6 @@ This project uses environment variables for configuration, especially for Fireba
     *   The `src/lib/firebaseAdmin.ts` file uses these variables to interact with Firebase services with admin privileges.
 
 **Important Security Note**: Always ensure that variables containing sensitive information (like `FIREBASE_PRIVATE_KEY`) are *never* prefixed with `NEXT_PUBLIC_` and are only used in server-side code.
-=======
 ## Deploy
 
 ### Configurar variáveis no Vercel
@@ -90,8 +88,6 @@ firebase deploy --only hosting,firestore
 ### Logs e Rollback
 
 No Firebase Console, acesse **Functions > Logs** para acompanhar a execução das funções ou realizar rollback de deploys. No Vercel, os logs ficam na aba **Deployments**.
-
->>>>>>> cabadaa852a9d1de2311138c6069698b5b6fd2d6
 
 For a full blueprint of the application, see [docs/blueprint.md](docs/blueprint.md).
 

@@ -53,8 +53,8 @@ if (process.env.NODE_ENV === 'development') {
     console.info('Auth Emulator connected to http://localhost:9099');
 
     // Firestore Emulator
-    connectFirestoreEmulator(db, 'localhost', 8080);
-    console.info('Firestore Emulator connected to localhost:8080');
+    connectFirestoreEmulator(db, '127.0.0.1', 8081);
+    console.info('Firestore Emulator connected to 127.0.0.1:8081');
 
     // Storage Emulator
     connectStorageEmulator(storage, 'localhost', 9199);

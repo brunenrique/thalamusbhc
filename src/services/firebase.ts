@@ -3,6 +3,7 @@ import { initializeApp, getApps, getApp, type FirebaseApp } from 'firebase/app';
 import { getAuth, connectAuthEmulator, type Auth } from 'firebase/auth';
 import { getFirestore, connectFirestoreEmulator, type Firestore } from 'firebase/firestore';
 import { getStorage, connectStorageEmulator, type FirebaseStorage } from 'firebase/storage';
+import { getMessaging, type Messaging } from 'firebase/messaging';
 // Para Functions, se for usar diretamente no cliente no futuro:
 // import { getFunctions, connectFunctionsEmulator, type Functions } from 'firebase/functions';
 
@@ -38,6 +39,10 @@ const app: FirebaseApp = !getApps().length ? initializeApp(firebaseConfig) : get
 const auth: Auth = getAuth(app);
 const db: Firestore = getFirestore(app);
 const storage: FirebaseStorage = getStorage(app);
+let messaging: Messaging | null = null;
+if (typeof window !== 'undefined') {
+  messaging = getMessaging(app);
+}
 // const functions: Functions = getFunctions(app); // Descomente se for usar Functions no cliente
 
 if (process.env.NODE_ENV === 'development') {
@@ -64,5 +69,5 @@ if (process.env.NODE_ENV === 'development') {
   }
 }
 
-export { app, auth, db, storage }; // Adicionar 'functions' aqui se for usá-las globalmente
+export { app, auth, db, storage, messaging }; // Adicionar 'functions' aqui se for usá-las globalmente
     

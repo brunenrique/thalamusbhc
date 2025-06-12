@@ -63,6 +63,18 @@ service cloud.firestore {
       // allow update, delete: if request.auth.uid == resource.data.senderId; // Example: only sender can delete/update
     }
 
+    // Assessments
+    // Documents representing an evaluation assigned to a patient.
+    match /assessments/{assessmentId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null &&
+                      request.resource.data.patientId is string &&
+                      request.resource.data.assignedBy is string &&
+                      request.resource.data.status in ['assigned', 'in-progress', 'completed'];
+      allow update: if request.auth != null;
+      allow delete: if request.auth != null && request.auth.token.role == 'Admin';
+    }
+
     // Catch-all for any other paths - explicitly deny to be safe
     match /{document=**} {
       allow read, write: if false;

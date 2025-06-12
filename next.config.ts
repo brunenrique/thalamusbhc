@@ -24,14 +24,11 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  experimental: {
-    allowedDevOrigins: [
-      'http://localhost:9002',
-      'http://localhost:6000',
-      '6000-firebase-studio-1749420368814.cluster-kc2r6y3mtba5mswcmol45orivs.cloudworkstations.dev',
-    ],
-  },
-
+  allowedDevOrigins: [
+    'http://localhost:9002',
+    'http://localhost:6000',
+    '6000-firebase-studio-1749420368814.cluster-kc2r6y3mtba5mswcmol45orivs.cloudworkstations.dev',
+  ],
 };
 
 export default bundleAnalyzer(nextConfig);

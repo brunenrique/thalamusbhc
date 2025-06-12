@@ -106,7 +106,7 @@ export default function GroupDetailPage({ params }: { params: { id: string } }) 
                     <AlertDialogHeader>
                     <AlertDialogTitle>Excluir Grupo Permanentemente?</AlertDialogTitle>
                     <AlertDialogDescription>
-                        Esta ação não pode ser desfeita. Todos os dados associados ao grupo "{group.name}" serão removidos. Tem certeza?
+                        Esta ação não pode ser desfeita. Todos os dados associados ao grupo &quot;{group.name}&quot; serão removidos. Tem certeza?
                     </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>

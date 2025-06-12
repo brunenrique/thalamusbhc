@@ -135,7 +135,7 @@ function TaskItemComponent({ task }: TaskItemProps) {
                 <AlertDialogHeader>
                 <AlertDialogTitle>Excluir Tarefa?</AlertDialogTitle>
                 <AlertDialogDescription>
-                    Tem certeza que deseja excluir a tarefa "{task.title}"? Esta ação não pode ser desfeita.
+                    Tem certeza que deseja excluir a tarefa &quot;{task.title}&quot;? Esta ação não pode ser desfeita.
                 </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>

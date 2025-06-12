@@ -32,7 +32,7 @@ export default function EditGroupPage() {
           description: `Descrição para ${foundGroup.name}`, // Placeholder
           psychologistId: foundGroup.psychologist === "Dr. Silva" ? "psy1" : "psy2", // Placeholder
           patientIds: [], // Placeholder, needs actual patient IDs related to group
-          dayOfWeek: foundGroup.schedule.split(',')[0].toLowerCase() as any, // Placeholder
+          dayOfWeek: foundGroup.schedule.split(',')[0].toLowerCase() as GroupFormValues["dayOfWeek"], // Placeholder
           startTime: foundGroup.schedule.split(',')[1]?.trim().split(' - ')[0] || "00:00", // Placeholder
           endTime: foundGroup.schedule.split(',')[1]?.trim().split(' - ')[1] || "01:00", // Placeholder
         });

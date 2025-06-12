@@ -2,6 +2,7 @@
 "use client";
 
 import React from "react";
+import useAuth from "@/hooks/use-auth";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -20,6 +21,8 @@ import Link from "next/link";
 
 export default function AppHeader() {
   // const { setTheme, theme } = useTheme(); // Uncomment if using next-themes
+
+  const { user } = useAuth();
 
   // Placeholder for theme toggling if next-themes is not used.
   const [currentTheme, setCurrentTheme] = React.useState('light');
@@ -57,7 +60,7 @@ export default function AppHeader() {
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon" className="rounded-full" aria-label="Menu do usuário">
               <Avatar className="h-8 w-8">
-                <AvatarImage src="https://placehold.co/100x100.png" alt="Usuário" data-ai-hint="user avatar" />
+                <AvatarImage src={user.avatarUrl || "https://placehold.co/100x100.png"} alt={user.displayName || "Usuário"} data-ai-hint="user avatar" />
                 <AvatarFallback>
                   <UserCircle className="h-6 w-6" />
                 </AvatarFallback>
@@ -65,7 +68,7 @@ export default function AppHeader() {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">
-            <DropdownMenuLabel>Minha Conta</DropdownMenuLabel>
+            <DropdownMenuLabel>Minha Conta{user.displayName ? ` - ${user.displayName}` : ''}</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild>
               <Link href="/profile">

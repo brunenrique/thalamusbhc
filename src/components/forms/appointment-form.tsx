@@ -28,7 +28,9 @@ import { cn } from "@/shared/utils";
 import { format, parse } from "date-fns";
 import { ptBR } from 'date-fns/locale';
 import { useToast } from "@/hooks/use-toast";
-import type { Appointment } from "@/components/schedule/appointment-calendar"; 
+import type { Appointment } from "@/types/appointment";
+import { useAppointmentStore } from "@/stores/appointmentStore";
+import { hasScheduleConflict } from "@/services/appointmentService";
 
 const mockPatients = [
   { id: "1", name: "Alice Wonderland" },
@@ -201,8 +203,8 @@ export default function AppointmentForm({ appointmentData }: AppointmentFormProp
 
   async function onSubmit(data: AppointmentFormValues) {
     setIsLoading(true);
-    
-    const finalData: Partial<Appointment> & { appointmentDateFormatted: string, prefilledPatientName?: string } = {
+
+    const finalData: Partial<Appointment> & { appointmentDateFormatted: string; prefilledPatientName?: string } = {
         id: appointmentData?.id || `appt_${Date.now()}`,
         patient: data.prefilledPatientName || mockPatients.find(p => p.id === data.patientId)?.name || "N/A",
         psychologistId: data.psychologistId,
@@ -217,8 +219,21 @@ export default function AppointmentForm({ appointmentData }: AppointmentFormProp
         prefilledPatientName: data.prefilledPatientName,
     };
 
-    
+    const { appointments, addAppointment } = useAppointmentStore.getState();
+    const dateKey = finalData.appointmentDateFormatted;
+
+    if (hasScheduleConflict(appointments, dateKey, finalData.startTime!, finalData.endTime!, finalData.psychologistId!, data.isBlockTime)) {
+      toast({
+        title: "Conflito de Horário",
+        description: "Já existe um agendamento para este psicólogo nesse intervalo.",
+        variant: "destructive",
+      });
+      setIsLoading(false);
+      return;
+    }
+
     await new Promise((resolve) => setTimeout(resolve, 1000));
+    addAppointment(dateKey, finalData as Appointment);
     setIsLoading(false);
 
     toast({

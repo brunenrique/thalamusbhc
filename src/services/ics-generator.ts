@@ -1,5 +1,5 @@
 
-import { type Appointment, type AppointmentsByDate } from '@/components/schedule/appointment-calendar';
+import { type Appointment, type AppointmentsByDate } from '@/types/appointment';
 import { format } from 'date-fns';
 import { toDate } from 'date-fns-tz';
 

@@ -130,9 +130,29 @@ export default function BackupPage() {
     return <AlertTriangle className="mr-1.5 h-3.5 w-3.5 text-red-500" />;
   }
 
+  const [simpleLoading, setSimpleLoading] = useState(false);
 
   return (
     <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle className="font-headline">Backup de Dados</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <p>Mantenha uma cópia segura das informações da clínica realizando backups periódicos.</p>
+          <Button
+            onClick={() => {
+              setSimpleLoading(true);
+              setTimeout(() => setSimpleLoading(false), 2000);
+            }}
+            disabled={simpleLoading}
+            className="w-full h-12 text-base"
+          >
+            {simpleLoading && <PlayCircle className="mr-2 h-4 w-4 animate-spin" />}
+            Iniciar Novo Backup
+          </Button>
+        </CardContent>
+      </Card>
       <div className="flex items-center gap-2">
         <Archive className="h-7 w-7 text-primary" />
         <h1 className="text-3xl font-headline font-bold">Backup e Restauração de Dados</h1>

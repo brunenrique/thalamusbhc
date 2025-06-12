@@ -33,7 +33,7 @@ export interface CaseFormulationTemplate {
   lastUpdated: string;
 }
 
-const mockCaseFormulationTemplates: CaseFormulationTemplate[] = [
+export const mockCaseFormulationTemplates: CaseFormulationTemplate[] = [
   { id: "cfm1", name: "TCC - Beck (Padrão)", category: "TCC", description: "Modelo padrão baseado nos princípios de Aaron Beck.", structurePrompt: "Situação:\nPensamentos Automáticos:\nEmoções:\Sentimentos Fisiológicos:\nComportamentos:\nCrenças Subjacentes/Regras:\nCrenças Centrais:", lastUpdated: "2024-07-20" },
   { id: "cfm2", name: "Análise Funcional (ACT)", category: "ACT", description: "Modelo para análise funcional dentro da Terapia de Aceitação e Compromisso.", structurePrompt: "Comportamento Problema:\nContexto (Antecedentes):\nFunção do Comportamento (Consequências Imediatas e de Longo Prazo):\nValores Relevantes:\nAções Comprometidas Alternativas:", lastUpdated: "2024-07-15" },
   { id: "cfm3", name: "Formulação de Caso DBT", category: "DBT", description: "Modelo para formulação de caso em Terapia Comportamental Dialética.", structurePrompt: "Diagnóstico e Sintomas Primários:\nComportamentos Disfuncionais Alvo:\nFatores Predisponentes (Biossociais):\nEventos Precipitantes:\nFatores de Manutenção:\nMetas de Tratamento (Hierarquia DBT):", lastUpdated: "2024-07-10" },
@@ -104,7 +104,7 @@ export default function CaseFormulationModelsPage() {
                   <CardHeader>
                     <div className="flex justify-between items-start">
                         <CardTitle className="font-headline text-lg">{template.name}</CardTitle>
-                        <Brain className="h-5 w-5 text-accent flex-shrink-0" title="Pode ser usado com IA"/>
+                        <Brain className="h-5 w-5 text-accent flex-shrink-0" />
                     </div>
                     <Badge variant="secondary" className="w-fit mt-1">{template.category}</Badge>
                     <CardDescription className="text-xs mt-1 line-clamp-2 h-8">{template.description || "Sem descrição."}</CardDescription>

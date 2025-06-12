@@ -211,9 +211,7 @@ export default function AppointmentForm({ appointmentData }: AppointmentFormProp
         endTime: data.endTime,
         type: data.isBlockTime ? "Blocked Slot" : data.appointmentType || "Agendamento",
         notes: data.notes,
-        status: appointmentData?.id ? (data as Appointment).status : "Scheduled", 
-        isBlockTime: data.isBlockTime,
-        blockReason: data.isBlockTime ? data.blockReason : undefined,
+        status: appointmentData?.id ? (appointmentData as Appointment).status : "Scheduled",
         prefilledPatientName: data.prefilledPatientName,
     };
 

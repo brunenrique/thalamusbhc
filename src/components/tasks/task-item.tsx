@@ -120,14 +120,14 @@ function TaskItemComponent({ task }: TaskItemProps) {
       )}
 
       <CardFooter className="p-3 border-t flex justify-end gap-1.5">
-          <Button variant="outline" size="xs" asChild>
+          <Button variant="outline" size="sm" asChild>
             <Link href={`/tasks/edit/${task.id}`}>
               <Edit className="mr-1.5 h-3.5 w-3.5" /> Editar
             </Link>
           </Button>
           <AlertDialog>
             <AlertDialogTrigger asChild>
-              <Button variant="outline" size="xs" className="text-destructive hover:text-destructive hover:border-destructive/50">
+              <Button variant="outline" size="sm" className="text-destructive hover:text-destructive hover:border-destructive/50">
                 <Trash2 className="mr-1.5 h-3.5 w-3.5" /> Excluir
               </Button>
             </AlertDialogTrigger>

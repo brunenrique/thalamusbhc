@@ -3,7 +3,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { CheckSquare, PlusCircle, Search, Filter, CalendarClock, UserCog, AlertTriangle, CheckCircle2, CalendarIcon } from "lucide-react";
 import Link from "next/link";
 import TaskItem from "@/components/tasks/task-item";

@@ -9,3 +9,10 @@ if (typeof global.fetch === 'undefined') {
   global.Request = fetchModule.Request;
   global.Response = fetchModule.Response;
 }
+
+// Polyfill setImmediate for environments where it's not available
+if (typeof global.setImmediate === 'undefined') {
+  global.setImmediate = (fn: (...args: any[]) => void, ...args: any[]) => {
+    return setTimeout(fn, 0, ...args);
+  };
+}

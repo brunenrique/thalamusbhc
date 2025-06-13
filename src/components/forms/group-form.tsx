@@ -1,4 +1,3 @@
-
 "use client";
 
 import * as React from "react";
@@ -117,7 +116,7 @@ export default function GroupForm({ initialData, groupId }: GroupFormProps) {
   return (
     <Card className="shadow-lg">
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)}>
+        <form role="form" onSubmit={form.handleSubmit(onSubmit)}>
           <CardHeader>
             <CardTitle className="font-headline">
               {groupId ? "Editar Detalhes do Grupo" : "Novo Grupo Terapêutico"}

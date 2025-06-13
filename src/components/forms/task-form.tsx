@@ -1,4 +1,3 @@
-
 "use client";
 
 import * as React from "react";
@@ -106,7 +105,7 @@ export default function TaskForm({ initialData, isEditMode = false }: TaskFormPr
   return (
     <Card className="shadow-lg">
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)}>
+        <form role="form" onSubmit={form.handleSubmit(onSubmit)}>
           <CardHeader>
             <CardTitle className="font-headline flex items-center">
               {isEditMode ? <Edit className="mr-2 h-6 w-6 text-primary" /> : <CheckSquare className="mr-2 h-6 w-6 text-primary" />}

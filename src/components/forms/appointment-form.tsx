@@ -1,4 +1,3 @@
-
 "use client";
 
 import * as React from "react";
@@ -262,7 +261,7 @@ export default function AppointmentForm({ appointmentData }: AppointmentFormProp
   return (
     <Card className="shadow-lg">
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)}>
+        <form role="form" onSubmit={form.handleSubmit(onSubmit)}>
           <CardHeader>
             <CardTitle className="font-headline">
               {appointmentData?.id ? "Editar Agendamento" : (isBlockTime ? "Bloquear Horário" : "Novo Agendamento")}

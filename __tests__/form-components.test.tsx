@@ -31,7 +31,7 @@ describe("Form Components", () => {
 
   it("renders TemplateEditor without crashing", () => {
     render(<TemplateEditor />);
-    expect(screen.getByText(/template/i)).toBeInTheDocument();
+    expect(screen.getByRole("form")).toBeInTheDocument();
   });
 
   it("renders CaseFormulationModelForm without crashing", () => {

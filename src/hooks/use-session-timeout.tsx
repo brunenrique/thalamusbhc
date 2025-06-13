@@ -1,31 +1,54 @@
 "use client";
 
-import { useEffect, useRef } from 'react';
-import { signOut } from 'firebase/auth';
-import { useRouter } from 'next/navigation';
-import { auth } from '@/services/firebase';
+import { useEffect, useRef, useCallback } from "react";
 
-const TIMEOUT = 30 * 60 * 1000; // 30 minutes
+/**
+ * Tempo de inatividade em milissegundos (15 minutos).
+ */
+const TIMEOUT = 15 * 60 * 1000;
 
-export default function useSessionTimeout() {
-  const router = useRouter();
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
+/**
+ * Hook que dispara `onTimeout` quando o usuário fica inativo por um período.
+ *
+ * @param onTimeout Função chamada após o tempo de inatividade expirar.
+ */
+export default function useSessionTimeout(onTimeout: () => void) {
+  /**
+   * Referência para o ID do timer. É usada para limpar o timeout
+   * sempre que uma nova atividade é detectada.
+   */
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  /**
+   * Reinicia o timer de inatividade. Quando o tempo definido em
+   * `TIMEOUT` se esgota sem detectar eventos de atividade, a função
+   * `onTimeout` é executada.
+   */
+  const resetTimer = useCallback(() => {
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+    }
+    timerRef.current = setTimeout(() => {
+      onTimeout();
+    }, TIMEOUT);
+  }, [onTimeout]);
 
   useEffect(() => {
-    const reset = () => {
-      if (timerRef.current) clearTimeout(timerRef.current);
-      timerRef.current = setTimeout(async () => {
-        await signOut(auth);
-        router.push('/login');
-      }, TIMEOUT);
-    };
+    // Inicia o timer na montagem do componente.
+    resetTimer();
 
-    reset();
-    const events = ['mousemove', 'keydown', 'click'];
-    events.forEach(e => window.addEventListener(e, reset));
+    // Eventos que indicam atividade do usuário.
+    const events = ["mousemove", "keydown", "scroll"] as const;
+
+    // Para cada evento de atividade, o timer é reiniciado.
+    events.forEach((event) => window.addEventListener(event, resetTimer));
+
     return () => {
-      events.forEach(e => window.removeEventListener(e, reset));
-      if (timerRef.current) clearTimeout(timerRef.current);
+      // Remove os event listeners ao desmontar e limpa o timer.
+      events.forEach((event) => window.removeEventListener(event, resetTimer));
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+      }
     };
-  }, [router]);
+  }, [resetTimer]);
 }

@@ -4,6 +4,9 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 import usePageView from "@/hooks/use-page-view";
 import useSessionTimeout from "@/hooks/use-session-timeout";
+import { signOut } from "firebase/auth";
+import { auth } from "@/services/firebase";
+import { useRouter } from "next/navigation";
 
 
 export default function RootLayout({
@@ -12,7 +15,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   usePageView();
-  useSessionTimeout();
+  const router = useRouter();
+  useSessionTimeout(async () => {
+    await signOut(auth);
+    router.push("/login");
+  });
   return (
     <html lang="pt-BR" suppressHydrationWarning>
       <head>

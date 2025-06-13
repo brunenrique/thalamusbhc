@@ -3,7 +3,8 @@
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { CalendarDays, PlusCircle, ChevronLeft, ChevronRight, ListFilter, Download, CheckSquare } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { CalendarDays, PlusCircle, ChevronLeft, ChevronRight, ListFilter, Download, CheckSquare, Clock, UserCheck, CheckCircle, AlertTriangle, Ban, UserX, Repeat as RepeatIcon } from "lucide-react";
 import Link from "next/link";
 import AppointmentCalendar, { type AppointmentsByDate, getInitialMockAppointments } from "@/components/schedule/appointment-calendar";
 import TaskItem from '@/components/tasks/task-item';
@@ -55,6 +56,43 @@ type ScheduleFilters = {
   dateTo: Date | undefined;
 };
 
+const getStatusIcon = (status: AppointmentStatusFilter) => {
+  switch (status) {
+    case "Scheduled":
+      return <Clock className="w-3 h-3 mr-1 inline-block" />;
+    case "Confirmed":
+      return <UserCheck className="w-3 h-3 mr-1 inline-block" />;
+    case "Completed":
+      return <CheckCircle className="w-3 h-3 mr-1 inline-block" />;
+    case "CancelledByPatient":
+    case "NoShow":
+      return <UserX className="w-3 h-3 mr-1 inline-block" />;
+    case "CancelledByClinic":
+      return <Ban className="w-3 h-3 mr-1 inline-block" />;
+    case "Blocked":
+      return <AlertTriangle className="w-3 h-3 mr-1 inline-block" />;
+    case "Rescheduled":
+      return <RepeatIcon className="w-3 h-3 mr-1 inline-block" />;
+    default:
+      return <Clock className="w-3 h-3 mr-1 inline-block" />;
+  }
+};
+
+const getStatusLabel = (status: AppointmentStatusFilter): string => {
+  const labels: Record<AppointmentStatusFilter, string> = {
+    All: "Todos",
+    Scheduled: "Agendado",
+    Confirmed: "Confirmado",
+    Completed: "Realizada",
+    CancelledByPatient: "Cancelado (Paciente)",
+    CancelledByClinic: "Cancelado (Clínica)",
+    NoShow: "Falta",
+    Rescheduled: "Remarcado",
+    Blocked: "Bloqueado",
+  };
+  return labels[status] || status;
+};
+
 
 export default function TodaySchedulePage() {
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -71,6 +109,13 @@ export default function TodaySchedulePage() {
 
   const [tasksForCurrentDate, setTasksForCurrentDate] = useState<Task[]>([]);
   const [isLoadingTasks, setIsLoadingTasks] = useState(true);
+
+  const todayAppointments = useMemo(() => {
+    const todayKey = format(currentDate, 'yyyy-MM-dd');
+    return (appointmentsData[todayKey] || []).sort((a, b) =>
+      a.startTime.localeCompare(b.startTime)
+    );
+  }, [appointmentsData, currentDate]);
 
   useEffect(() => {
     async function fetchTasksForDate() {
@@ -323,10 +368,37 @@ export default function TodaySchedulePage() {
             view={currentView} 
             currentDate={currentDate} 
             filters={filters} 
-            onAppointmentsUpdate={handleAppointmentsUpdate}
+        onAppointmentsUpdate={handleAppointmentsUpdate}
         />
       </div>
-      
+
+      <Card className="shadow-sm">
+        <CardHeader>
+          <CardTitle className="font-headline flex items-center">
+            <CalendarDays className="mr-2 h-5 w-5 text-primary" />
+            Agendamentos de {format(currentDate, "P", { locale: ptBR })}
+          </CardTitle>
+          <CardDescription>{todayAppointments.length} agendamento(s) para hoje.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-2">
+          {todayAppointments.length === 0 && (
+            <p className="text-muted-foreground">Nenhum agendamento para hoje.</p>
+          )}
+          {todayAppointments.map((appt) => (
+            <div key={appt.id} className="p-3 border rounded-md flex items-center justify-between">
+              <div>
+                <p className="font-medium">{appt.patient}</p>
+                <p className="text-sm text-muted-foreground">{appt.startTime}</p>
+              </div>
+              <Badge variant="outline" className="capitalize flex items-center">
+                {getStatusIcon(appt.status)}
+                {getStatusLabel(appt.status as AppointmentStatusFilter)}
+              </Badge>
+            </div>
+          ))}
+        </CardContent>
+      </Card>
+
       <Card className="shadow-sm">
         <CardHeader>
           <CardTitle className="font-headline flex items-center">

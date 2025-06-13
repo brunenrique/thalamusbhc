@@ -1,0 +1,19 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    function isAdmin() {
+      return request.auth.token.role == 'Admin';
+    }
+    function isPsychologist() {
+      return request.auth.token.role == 'Psychologist';
+    }
+    match /patient_files/{patientId}/{fileName} {
+      function isAssignedToPatient(patientId) {
+        return request.auth.token.assignedPatients != null &&
+          request.auth.token.assignedPatients.hasAny([patientId]);
+      }
+      allow read, write: if request.auth != null &&
+        (isAdmin() || (isPsychologist() && isAssignedToPatient(patientId)));
+    }
+  }
+}

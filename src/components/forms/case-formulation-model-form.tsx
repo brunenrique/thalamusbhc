@@ -1,4 +1,3 @@
-
 "use client";
 
 import * as React from "react";
@@ -95,7 +94,7 @@ export default function CaseFormulationModelForm({ initialData, templateId }: Ca
   return (
     <Card className="shadow-lg">
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)}>
+        <form role="form" onSubmit={form.handleSubmit(onSubmit)}>
           <CardHeader>
             <CardTitle className="font-headline">
               {templateId ? "Editar Modelo de Formulação" : "Novo Modelo de Formulação"}

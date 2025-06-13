@@ -6,20 +6,30 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { UserPlus, Search, Filter, Users } from "lucide-react";
 import Link from "next/link";
 import PatientListItem from "@/components/patients/patient-list-item";
-import { mockPatients } from "@/mocks/patients";
+import { mockPatients, type MockPatient } from "@/mocks/patients";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { checkUserRole } from "@/services/authRole";
 import EmptyState from "@/components/ui/empty-state";
+import PatientListItemSkeleton from "@/components/patients/patient-list-item-skeleton";
 import { APP_ROUTES } from "@/lib/routes";
 
 export default function PatientsPage() {
   const router = useRouter();
+  const [patients, setPatients] = useState<MockPatient[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    checkUserRole(['Admin', 'Psychologist', 'Secretary']).then((ok) => {
-      if (!ok) router.replace('/');
+    checkUserRole(["Admin", "Psychologist", "Secretary"]).then((ok) => {
+      if (!ok) router.replace("/");
     });
+
+    const timer = setTimeout(() => {
+      setPatients(mockPatients);
+      setLoading(false);
+    }, 600);
+
+    return () => clearTimeout(timer);
   }, [router]);
 
   return (
@@ -51,9 +61,15 @@ export default function PatientsPage() {
           </div>
         </CardHeader>
         <CardContent>
-          {mockPatients.length > 0 ? (
+          {loading ? (
             <div className="space-y-4">
-              {mockPatients.map((patient) => (
+              {Array.from({ length: 3 }).map((_, idx) => (
+                <PatientListItemSkeleton key={idx} />
+              ))}
+            </div>
+          ) : patients.length > 0 ? (
+            <div className="space-y-4">
+              {patients.map((patient) => (
                 <PatientListItem key={patient.id} patient={patient} />
               ))}
             </div>

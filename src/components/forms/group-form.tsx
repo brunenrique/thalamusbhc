@@ -3,7 +3,6 @@
 import * as React from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import * as z from "zod";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
@@ -22,6 +21,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Save, Users, CalendarDays, Clock } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { groupSchema } from "@/schemas/groupSchema";
 
 // Mock data - ideally fetch from services or context
 const mockPatientsForSelect = [
@@ -48,30 +48,7 @@ const daysOfWeekOptions = [
   { id: "sunday", label: "Domingo" },
 ];
 
-const groupFormSchema = z.object({
-  name: z.string().min(3, { message: "O nome do grupo deve ter pelo menos 3 caracteres." }),
-  description: z.string().optional(),
-  psychologistId: z.string().min(1, { message: "Por favor, selecione um psicólogo responsável." }),
-  patientIds: z.array(z.string()).min(1, { message: "Selecione pelo menos um paciente." }),
-  dayOfWeek: z.enum(["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"], {
-    required_error: "Por favor, selecione o dia da semana para o grupo.",
-  }),
-  startTime: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, { message: "Formato de hora inválido (HH:mm)." }),
-  endTime: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, { message: "Formato de hora inválido (HH:mm)." }),
-}).refine(data => {
-    if (!data.startTime || !data.endTime) return true;
-    const [startHour, startMinute] = data.startTime.split(':').map(Number);
-    const [endHour, endMinute] = data.endTime.split(':').map(Number);
-    if (endHour < startHour || (endHour === startHour && endMinute <= startMinute)) {
-        return false;
-    }
-    return true;
-}, {
-    message: "A hora final deve ser após a hora inicial.",
-    path: ["endTime"],
-});
-
-export type GroupFormValues = z.infer<typeof groupFormSchema>;
+export type GroupFormValues = z.infer<typeof groupSchema>;
 
 interface GroupFormProps {
   initialData?: GroupFormValues;
@@ -84,7 +61,7 @@ export default function GroupForm({ initialData, groupId }: GroupFormProps) {
   const [isLoading, setIsLoading] = React.useState(false);
 
   const form = useForm<GroupFormValues>({
-    resolver: zodResolver(groupFormSchema),
+    resolver: zodResolver(groupSchema),
     defaultValues: initialData || {
       name: "",
       description: "",

@@ -15,8 +15,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Search, Bell, UserCircle, Settings, LogOut, Moon, Sun } from "lucide-react";
+import { Search, Bell, UserCircle, Settings, LogOut } from "lucide-react";
 import Link from "next/link";
+import ThemeToggle from "@/components/ui/theme-toggle";
 // import { useTheme } from "next-themes"; // Assuming next-themes is installed for theme toggling
 
 export default function AppHeader() {
@@ -24,13 +25,6 @@ export default function AppHeader() {
 
   const { user } = useAuth();
 
-  // Placeholder for theme toggling if next-themes is not used.
-  const [currentTheme, setCurrentTheme] = React.useState('light');
-  const toggleTheme = () => {
-    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-    setCurrentTheme(newTheme);
-    document.documentElement.classList.toggle('dark', newTheme === 'dark');
-  };
 
 
   return (
@@ -48,9 +42,7 @@ export default function AppHeader() {
         </form> */}
       </div>
       <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" onClick={toggleTheme} aria-label={currentTheme === 'light' ? "Ativar tema escuro" : "Ativar tema claro"}>
-          {currentTheme === 'light' ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
-        </Button>
+        <ThemeToggle />
         <Button variant="ghost" size="icon" asChild aria-label="Ver notificações">
           <Link href="/notifications">
             <Bell className="h-5 w-5" />

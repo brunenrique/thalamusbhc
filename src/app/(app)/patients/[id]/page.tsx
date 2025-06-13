@@ -5,6 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Mail, Phone, CalendarDays, Edit, FileText, Brain, CheckCircle, Clock, MessageSquare, Trash2, Users as UsersIconLucide, Home as HomeIconLucide, Share2, UploadCloud, Calendar as CalendarIconShad, Lightbulb, Tag, BarChart3 as BarChart3Icon, ShieldAlert as ShieldAlertIcon, CheckCircle as CheckCircleIcon, TrendingUp, BookOpen, Activity, Users2, ClipboardList, Target, ListChecks, PlusCircle, Archive } from "lucide-react";
+import CopyButton from "@/components/ui/copy-button";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import PatientTimeline from "@/components/patients/patient-timeline";
@@ -357,8 +358,14 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
             <div className="flex-1">
               <h1 className="text-3xl font-headline font-bold">{patient.name}</h1>
               <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground mt-1">
-                <span className="flex items-center"><Mail className="mr-1.5 h-4 w-4" /> {patient.email}</span>
-                <span className="flex items-center"><Phone className="mr-1.5 h-4 w-4" /> {patient.phone}</span>
+                <span className="flex items-center">
+                  <Mail className="mr-1.5 h-4 w-4" /> {patient.email}
+                  <CopyButton value={patient.email} className="ml-1" />
+                </span>
+                <span className="flex items-center">
+                  <Phone className="mr-1.5 h-4 w-4" /> {patient.phone}
+                  <CopyButton value={patient.phone} className="ml-1" />
+                </span>
                 <span className="flex items-center"><CalendarDays className="mr-1.5 h-4 w-4" /> Nasc: {formattedDob}</span>
               </div>
             </div>

@@ -24,6 +24,8 @@ const mockAdminMetrics = {
   totalPatients: 157,
   sessionsThisMonth: 523,
   avgSessionDuration: 52, // minutes
+  totalPsychologists: 8,
+  openTasks: 34,
 };
 
 
@@ -55,10 +57,32 @@ export default function AdminMetricsPage() {
       </CardDescription>
 
       {/* General Clinic KPIs */}
-      <div className="grid gap-4 md:grid-cols-3">
-        <StatsCard title="Total de Pacientes Ativos" value={mockAdminMetrics.totalPatients.toString()} icon={<Users className="text-primary" />} />
-        <StatsCard title="Sessões Realizadas (Este Mês)" value={mockAdminMetrics.sessionsThisMonth.toString()} icon={<CalendarCheck className="text-primary" />} />
-        <StatsCard title="Duração Média da Sessão" value={`${mockAdminMetrics.avgSessionDuration} min`} icon={<Clock className="text-primary" />} />
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
+        <StatsCard
+          title="Total de Pacientes Ativos"
+          value={mockAdminMetrics.totalPatients.toString()}
+          icon={<Users className="text-primary" />}
+        />
+        <StatsCard
+          title="Sessões Realizadas (Este Mês)"
+          value={mockAdminMetrics.sessionsThisMonth.toString()}
+          icon={<CalendarCheck className="text-primary" />}
+        />
+        <StatsCard
+          title="Psicólogos Ativos"
+          value={mockAdminMetrics.totalPsychologists.toString()}
+          icon={<Users className="text-primary" />}
+        />
+        <StatsCard
+          title="Tarefas Abertas"
+          value={mockAdminMetrics.openTasks.toString()}
+          icon={<Clock className="text-primary" />}
+        />
+        <StatsCard
+          title="Duração Média da Sessão"
+          value={`${mockAdminMetrics.avgSessionDuration} min`}
+          icon={<Clock className="text-primary" />}
+        />
       </div>
 
       {/* Charts Section */}

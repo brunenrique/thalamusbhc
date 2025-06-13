@@ -33,14 +33,24 @@ export const dateNotesSchema = z.object({
 
 export type DateNotesFormValues = z.infer<typeof dateNotesSchema>;
 
-export default function DateNotesForm() {
+interface DateNotesFormProps {
+  defaultDateTime?: Date;
+}
+
+export default function DateNotesForm({ defaultDateTime }: DateNotesFormProps) {
   const form = useForm<DateNotesFormValues>({
     resolver: zodResolver(dateNotesSchema),
     defaultValues: {
-      dateTime: new Date(),
+      dateTime: defaultDateTime ?? new Date(),
       notes: "",
     },
   });
+
+  React.useEffect(() => {
+    if (defaultDateTime) {
+      form.setValue("dateTime", defaultDateTime);
+    }
+  }, [defaultDateTime, form]);
 
   function onSubmit(data: DateNotesFormValues) {
     console.log("Form submitted", data);

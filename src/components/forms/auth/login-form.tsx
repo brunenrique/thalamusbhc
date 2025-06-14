@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import Link from "next/link";
-import { signInWithEmailAndPassword } from 'firebase/auth'; 
+import { signInWithEmailAndPassword } from 'firebase/auth';
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -52,9 +52,31 @@ export default function LoginForm() {
       // Em caso de login bem-sucedido:
       router.push("/dashboard");
     } catch (error: any) {
+      let errorMessage = "Ocorreu um erro desconhecido. Tente novamente.";
+      switch (error.code) {
+        case 'auth/user-not-found':
+        case 'auth/wrong-password':
+        case 'auth/invalid-credential': // This code is often used by Firebase for both user-not-found and wrong-password
+          errorMessage = 'E-mail ou senha inválidos. Verifique suas credenciais.';
+          break;
+        case 'auth/invalid-email':
+          errorMessage = 'O formato do e-mail é inválido.';
+          break;
+        case 'auth/user-disabled':
+          errorMessage = 'Esta conta de usuário foi desabilitada.';
+          break;
+        case 'auth/too-many-requests':
+          errorMessage = 'Muitas tentativas de login malsucedidas. Tente novamente mais tarde.';
+          break;
+        case 'auth/network-request-failed':
+          errorMessage = 'Erro de rede. Verifique sua conexão com a internet.';
+          break;
+        default:
+          errorMessage = error.message || errorMessage;
+      }
       toast({
         title: "Erro ao fazer login",
-        description: error.message || "Ocorreu um erro desconhecido.",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {

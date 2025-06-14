@@ -1,4 +1,3 @@
-
 "use client";
 
 import React from "react";
@@ -63,8 +62,8 @@ function DetailedOccupancyTableComponent({ data }: DetailedOccupancyTableProps) 
           </TableRow>
         </TableHeader>
         <TableBody>
-          {data.map((item, index) => (
-            <TableRow key={index}>
+          {data.map((item) => (
+            <TableRow key={item.date + '-' + item.psychologist}>
               <TableCell className="font-medium">{item.day}</TableCell>
               <TableCell>{format(new Date(item.date), "P", { locale: ptBR })}</TableCell>
               <TableCell>{item.psychologist}</TableCell>

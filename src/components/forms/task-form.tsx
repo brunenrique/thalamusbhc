@@ -84,9 +84,13 @@ export default function TaskForm({ initialData, isEditMode = false }: TaskFormPr
 
   async function onSubmit(data: TaskFormValues) {
     setIsLoading(true);
+    const sanitizedData = {
+      ...data,
+      patientId: data.patientId === 'none' ? undefined : data.patientId,
+    };
     const dataToSave = {
       ...initialData, // Spread initialData first to retain 'id' if editing
-      ...data,
+      ...sanitizedData,
       dueDate: format(data.dueDate, "yyyy-MM-dd"), // Format date to string for saving
     };
 
@@ -245,7 +249,7 @@ export default function TaskForm({ initialData, isEditMode = false }: TaskFormPr
                       <SelectTrigger><SelectValue placeholder="Selecione um paciente (se aplicável)" /></SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem key="none" value="">Nenhum</SelectItem>
+                      <SelectItem key="none" value="none">Nenhum</SelectItem>
                       {mockPatientsForSelect.map(patient => (<SelectItem key={patient.id} value={patient.id}>{patient.name}</SelectItem>))}
                     </SelectContent>
                   </Select>

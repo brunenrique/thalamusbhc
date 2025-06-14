@@ -5,6 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import Link from "next/link";
+import { signInWithEmailAndPassword } from "firebase/auth";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -18,9 +19,15 @@ import {
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
+<<<<<<< HEAD
 import { useRouter } from "next/navigation";
 import { signInWithEmailAndPassword } from 'firebase/auth'; // Importar a função
 import { auth } from '@/services/firebase'; // Importar a instância auth
+=======
+import { useRouter } from "next/navigation"; 
+import { auth } from "@/services/firebase";
+import { useToast } from "@/hooks/use-toast";
+>>>>>>> 599e20965a2e6695bb2332eb3ee74d461a0e1307
 
 const loginSchema = z.object({
   email: z.string().email({ message: "Por favor, insira um endereço de e-mail válido." }),
@@ -33,6 +40,7 @@ type LoginFormValues = z.infer<typeof loginSchema>;
 export default function LoginForm() {
   const router = useRouter();
   const [isLoading, setIsLoading] = React.useState(false);
+  const { toast } = useToast();
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -46,6 +54,7 @@ export default function LoginForm() {
   async function onSubmit(data: LoginFormValues) {
     setIsLoading(true);
     try {
+<<<<<<< HEAD
       // Chama a função de login do Firebase Auth
       await signInWithEmailAndPassword(auth, data.email, data.password);
 
@@ -57,6 +66,17 @@ export default function LoginForm() {
       // Aqui você pode adicionar lógica para mostrar uma mensagem de erro para o usuário
       // Por exemplo, usando um toast ou definindo um estado de erro
       alert("Erro ao fazer login. Verifique suas credenciais. " + error.message); // Exemplo simples
+=======
+      await signInWithEmailAndPassword(auth, data.email, data.password);
+      // Em caso de login bem-sucedido:
+      router.push("/dashboard");
+    } catch (error: any) {
+      toast({
+        title: "Erro ao fazer login",
+        description: error.message || "Ocorreu um erro desconhecido.",
+        variant: "destructive",
+      });
+>>>>>>> 599e20965a2e6695bb2332eb3ee74d461a0e1307
     } finally {
       setIsLoading(false);
     }

@@ -1,6 +1,6 @@
 "use client";
 import { collection, addDoc, updateDoc, doc, getDocs, query, where } from 'firebase/firestore';
-import { db } from './firebase';
+import { db } from '@/lib/firebase'; // Alterado de @/services/firebase
 import { FIRESTORE_COLLECTIONS } from '@/lib/firestore-collections';
 import type { Assessment } from '@/types/assessment';
 

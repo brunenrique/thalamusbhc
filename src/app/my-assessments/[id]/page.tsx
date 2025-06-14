@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { submitAssessmentResponses } from '@/services/assessmentService';
 import { doc, getDoc } from 'firebase/firestore';
-import { db } from '@/services/firebase';
+import { db } from '@/lib/firebase'; // Alterado de @/services/firebase
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';

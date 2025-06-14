@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle } from '@/components/ui/dialog';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
-import { db } from '@/services/firebase';
+import { db } from '@/lib/firebase'; // Alterado de @/services/firebase
 import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 
 interface ConsentModalProps {

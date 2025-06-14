@@ -1,4 +1,4 @@
-import { messaging, db } from './firebase';
+import { messaging, db } from '@/lib/firebase'; // Alterado de @/services/firebase
 import { getToken } from 'firebase/messaging';
 import { doc, setDoc, serverTimestamp, collection, query, orderBy, onSnapshot, Unsubscribe } from 'firebase/firestore';
 

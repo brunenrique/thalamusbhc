@@ -1,6 +1,6 @@
 'use client';
 
-import { auth } from './firebase';
+import { auth } from '@/lib/firebase'; // Alterado de @/services/firebase
 import { getIdTokenResult } from 'firebase/auth';
 
 export type UserRole = 'Admin' | 'Psychologist' | 'Secretary';

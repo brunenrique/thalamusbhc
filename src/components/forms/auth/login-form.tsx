@@ -20,7 +20,7 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { useRouter } from "next/navigation";
-import { auth } from "@/services/firebase";
+import { auth } from "@/lib/firebase";
 import { useToast } from "@/hooks/use-toast";
 
 const loginSchema = z.object({

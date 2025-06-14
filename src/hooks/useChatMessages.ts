@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { db } from '@/services/firebase';
+import { db } from '@/lib/firebase'; // Alterado de @/services/firebase
 import { collection, query, orderBy, limit, onSnapshot, Timestamp, DocumentData, QueryDocumentSnapshot } from 'firebase/firestore';
 import { useChatStore } from '@/stores/chatStore';
 

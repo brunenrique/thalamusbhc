@@ -18,7 +18,7 @@ import { usePathname } from 'next/navigation';
 import ChatFloatingButton from '@/components/chat/ChatFloatingButton';
 import ChatWindow from '@/components/chat/ChatWindow';
 import { useChatStore } from '@/stores/chatStore';
-import { auth } from '@/services/firebase'; 
+import { auth } from '@/lib/firebase'; // Alterado de @/services/firebase
 import { onAuthStateChanged } from 'firebase/auth'; 
 
 interface AppLayoutProps {

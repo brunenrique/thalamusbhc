@@ -3,22 +3,24 @@ import { initializeApp, getApps, getApp, type FirebaseApp } from 'firebase/app';
 import { getAuth, connectAuthEmulator, type Auth } from 'firebase/auth';
 import { getFirestore, connectFirestoreEmulator, type Firestore } from 'firebase/firestore';
 import { getStorage, connectStorageEmulator, type FirebaseStorage } from 'firebase/storage';
+import { getMessaging, type Messaging } from 'firebase/messaging';
 // Para Functions, se for usar diretamente no cliente no futuro:
 // import { getFunctions, connectFunctionsEmulator, type Functions } from 'firebase/functions';
 
 let firebaseConfig;
 const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
+const inDevelopment = process.env.NODE_ENV === 'development';
+const emulatorHost = process.env.NEXT_PUBLIC_FIREBASE_EMULATOR_HOST || '127.0.0.1';
 
-if (process.env.NODE_ENV === 'development') {
+if (inDevelopment) {
   // Configuração para desenvolvimento, priorizando o uso de emuladores.
-  // Usamos placeholders para a maioria das chaves, mas tentamos usar o projectId real se disponível.
   firebaseConfig = {
-    apiKey: "AIzaSyXXXXXXXXXXXXXXXXXXXXXXXXXXX_placeholder", // Placeholder API Key
+    apiKey: "AIzaSyXXXXXXXXXXXXXXXXXXXXXXXXXXX_placeholder", 
     authDomain: `${projectId || 'demo-psiguard'}.firebaseapp.com`,
-    projectId: projectId || "demo-psiguard", // Use o Project ID real se configurado, ou um placeholder
+    projectId: projectId || "demo-psiguard", 
     storageBucket: `${projectId || 'demo-psiguard'}.appspot.com`,
-    messagingSenderId: "000000000000_placeholder", // Placeholder
-    appId: "1:000000000000:web:placeholderxxxxxxxxxxxxxx", // Placeholder
+    messagingSenderId: "000000000000_placeholder", 
+    appId: "1:000000000000:web:placeholderxxxxxxxxxxxxxx", 
   };
   console.info('Development mode: Initializing Firebase with placeholder config before connecting to emulators.');
 } else {
@@ -38,31 +40,28 @@ const app: FirebaseApp = !getApps().length ? initializeApp(firebaseConfig) : get
 const auth: Auth = getAuth(app);
 const db: Firestore = getFirestore(app);
 const storage: FirebaseStorage = getStorage(app);
-// const functions: Functions = getFunctions(app); // Descomente se for usar Functions no cliente
+let messaging: Messaging | null = null;
+if (typeof window !== 'undefined') {
+  messaging = getMessaging(app);
+}
+// const functions: Functions = getFunctions(app); 
 
-if (process.env.NODE_ENV === 'development') {
-  console.info('Development mode: Attempting to connect to Firebase Emulators...');
+if (inDevelopment) {
+  console.info(`Development mode: Attempting to connect to Firebase Emulators at host: ${emulatorHost}...`);
   try {
-    // Auth Emulator
-    connectAuthEmulator(auth, 'http://localhost:9099', { disableWarnings: true });
-    console.info('Auth Emulator connected to http://localhost:9099');
+    connectAuthEmulator(auth, `http://${emulatorHost}:9099`, { disableWarnings: true });
+    console.info(`Auth Emulator connected to http://${emulatorHost}:9099`);
 
-    // Firestore Emulator
-    connectFirestoreEmulator(db, 'localhost', 8080);
-    console.info('Firestore Emulator connected to localhost:8081');
+    connectFirestoreEmulator(db, emulatorHost, 8083);
+    console.info(`Firestore Emulator connected to ${emulatorHost}:8083`);
 
-    // Storage Emulator
-    connectStorageEmulator(storage, 'localhost', 9199);
-    console.info('Storage Emulator connected to localhost:9199');
-
-    // Functions Emulator (se necessário)
-    // connectFunctionsEmulator(functions, 'localhost', 5001);
-    // console.info('Functions Emulator connected to localhost:5001');
+    connectStorageEmulator(storage, emulatorHost, 9199);
+    console.info(`Storage Emulator connected to ${emulatorHost}:9199`);
     
   } catch (error) {
     console.error('Error connecting to Firebase Emulators:', error);
   }
 }
 
-export { app, auth, db, storage }; // Adicionar 'functions' aqui se for usá-las globalmente
+export { app, auth, db, storage, messaging }; 
     

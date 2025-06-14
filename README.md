@@ -13,53 +13,102 @@ Plataforma web para gestão de clínicas de psicologia, com agenda integrada, pr
 
 ## Configuração do Ambiente
 
-1. Instale as dependências:
-   ```bash
-   npm install
-   ```
-2. Copie o arquivo de exemplo de variáveis de ambiente:
-   ```bash
-   cp env.example .env.local
-   ```
-   Preencha `.env.local` com as credenciais do seu projeto Firebase e demais chaves necessárias.
-3. Inicie o servidor de desenvolvimento:
-   ```bash
-   npm run dev
-   ```
-   O aplicativo ficará disponível em `http://localhost:9002`.
+1.  **Clone o repositório:**
+    ```bash
+    git clone https://github.com/seu-usuario/psiguard.git
+    cd psiguard
+    ```
+2.  **Instale as dependências:**
+    ```bash
+    npm install
+    ```
+3.  **Configure as Variáveis de Ambiente:**
+    *   Copie o arquivo de exemplo: `cp env.example .env.local`
+    *   Preencha o arquivo `.env.local` com as credenciais do seu projeto Firebase e outras chaves necessárias. Veja a seção "Variáveis de Ambiente" abaixo para detalhes.
+4.  **Inicie os Emuladores Firebase (em um terminal separado):**
+    *   É altamente recomendado usar os emuladores do Firebase para desenvolvimento local.
+    *   Se esta é a primeira vez, configure os emuladores: `firebase init emulators` (selecione Auth, Firestore, Storage, Functions).
+    *   Inicie os emuladores: `firebase emulators:start`
+    *   Verifique se os emuladores estão rodando nas portas corretas (Auth: 9099, Firestore: 8083, Storage: 9199, UI: 4003). O arquivo `firebase.json` está configurado para usar `host: "0.0.0.0"` para os emuladores, o que é recomendado para ambientes de desenvolvimento como Cloud Workstations ou Docker.
+5.  **Inicie o Servidor de Desenvolvimento Next.js (em outro terminal):**
+    ```bash
+    npm run dev
+    ```
+    O aplicativo ficará disponível em `http://localhost:9002` (ou a porta especificada no seu `package.json`).
 
 ### Comandos úteis
 
-- `npm run dev` &mdash; inicia o servidor Next.js em modo desenvolvimento
-- `npm run genkit:dev` &mdash; executa os fluxos de IA em modo de desenvolvimento
-- `npm run typecheck` &mdash; verifica os tipos TypeScript
-- `npm run lint` &mdash; executa o ESLint
-- `npm test` &mdash; roda a suíte de testes com os emuladores Firebase
-- `npm run build` &mdash; gera o build de produção
+- `npm run dev` &mdash; inicia o servidor Next.js em modo desenvolvimento (geralmente com Turbopack).
+- `npm run genkit:dev` &mdash; executa os fluxos de IA em modo de desenvolvimento.
+- `npm run typecheck` &mdash; verifica os tipos TypeScript.
+- `npm run lint` &mdash; executa o ESLint.
+- `npm test` &mdash; roda a suíte de testes (pode precisar dos emuladores Firebase em execução).
+- `npm run build` &mdash; gera o build de produção.
 
 ## Variáveis de Ambiente
 
-O projeto utiliza variáveis para configurar serviços do Firebase e integrações externas. Consulte `env.example` para ver todas as chaves disponíveis.
+O projeto utiliza variáveis de ambiente para configurar os serviços do Firebase e outras integrações. O arquivo `env.example` serve como um template. Crie um arquivo `.env.local` (que não deve ser commitado) e preencha-o com seus valores.
 
-- **Variáveis `NEXT_PUBLIC_*`** são expostas ao navegador e contêm a configuração do Firebase Web SDK e outras chaves públicas.
-- **Variáveis sem esse prefixo** (como `FIREBASE_PRIVATE_KEY`) são sigilosas e usadas apenas no backend. Nunca as exponha no cliente.
+### Variáveis do Firebase Client SDK (Públicas)
+
+Estas variáveis são prefixadas com `NEXT_PUBLIC_` e são seguras para serem expostas no navegador. Elas são usadas para inicializar o Firebase SDK no lado do cliente.
+
+-   `NEXT_PUBLIC_FIREBASE_API_KEY`: Sua chave de API web do Firebase.
+-   `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN`: `your-project-id.firebaseapp.com`
+-   `NEXT_PUBLIC_FIREBASE_PROJECT_ID`: O ID do seu projeto Firebase.
+-   `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET`: `your-project-id.appspot.com`
+-   `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID`: ID do remetente para Cloud Messaging.
+-   `NEXT_PUBLIC_FIREBASE_APP_ID`: ID do seu aplicativo web Firebase.
+-   `NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID` (Opcional): Para Google Analytics.
+
+Você pode encontrar esses valores nas configurações do seu projeto Firebase:
+*Vá para o [Console do Firebase](https://console.firebase.google.com/) -> Seu Projeto -> Configurações do Projeto (ícone de engrenagem) -> Geral -> Seus apps -> SDK setup and configuration (selecione "Config").*
+
+### Variáveis do Firebase Admin SDK (Secretas - Lado do Servidor)
+
+Estas variáveis são usadas para inicializar o Firebase Admin SDK no backend (ex: em Cloud Functions ou rotas de API Next.js). **NUNCA as exponha no código do cliente ou com o prefixo `NEXT_PUBLIC_`.** Em produção, configure-as diretamente no seu ambiente de hospedagem (ex: Vercel Environment Variables, Google Cloud Run secrets). Para desenvolvimento local com funções de servidor, elas podem estar no `.env.local`.
+
+-   `FIREBASE_PROJECT_ID`: O ID do seu projeto Firebase.
+-   `FIREBASE_CLIENT_EMAIL`: O email da conta de serviço do Firebase Admin SDK.
+-   `FIREBASE_PRIVATE_KEY`: A chave privada da conta de serviço.
+
+Para obter `FIREBASE_CLIENT_EMAIL` e `FIREBASE_PRIVATE_KEY`:
+*No Console do Firebase -> Seu Projeto -> Configurações do Projeto -> Contas de serviço -> Gerar nova chave privada (isso fará o download de um arquivo JSON). O `client_email` e `private_key` estão neste arquivo.*
+*Ao adicionar `FIREBASE_PRIVATE_KEY` ao seu arquivo `.env` ou variável de ambiente, certifique-se de formatar corretamente as quebras de linha (geralmente substituindo `\n` literais por novas linhas reais, ou envolvendo a chave em aspas duplas se o seu sistema `.env` suportar).*
+
+### Variáveis de Configuração do Emulador (Desenvolvimento)
+
+-   `NEXT_PUBLIC_FIREBASE_EMULATOR_HOST`: Define o host que o SDK do Firebase do lado do cliente usará para se conectar aos emuladores.
+    *   Para desenvolvimento local padrão ou dentro de contêineres onde os emuladores estão acessíveis via `127.0.0.1` (especialmente se os emuladores em `firebase.json` estiverem configurados para `host: "0.0.0.0"`), o valor `127.0.0.1` é geralmente correto.
+    *   Se você estiver acessando seu ambiente de desenvolvimento (ex: Cloud Workstation) por um IP ou nome de host específico e os emuladores estiverem expostos nesse endereço, ajuste conforme necessário.
+
+### Outras Variáveis
+
+-   `NEXT_PUBLIC_GAS_PRONTUARIO_URL`: URL do script Google Apps Script para geração de prontuários.
+-   `NEXT_PUBLIC_GOOGLE_CLIENT_ID`, `NEXT_PUBLIC_GOOGLE_CLIENT_SECRET`, `NEXT_PUBLIC_GOOGLE_REDIRECT_URI`: Para integração com o Google Calendar (opcional).
+
+## Importante sobre Segurança
+
+*   **NUNCA** comite seu arquivo `.env.local` ou qualquer arquivo contendo chaves privadas ou credenciais sensíveis para o seu repositório Git.
+*   As variáveis `NEXT_PUBLIC_` são visíveis no navegador. Não coloque segredos nelas.
+*   As credenciais do Firebase Admin SDK (`FIREBASE_CLIENT_EMAIL`, `FIREBASE_PRIVATE_KEY`) concedem acesso total ao seu projeto Firebase e devem ser mantidas em segredo absoluto, apenas no lado do servidor.
 
 ## Deploy
 
 ### Vercel
 
-1. Configure no painel da Vercel todas as variáveis listadas em `env.example`.
-2. Cada push na branch principal aciona um deploy automático.
+1.  Configure no painel da Vercel todas as variáveis de ambiente listadas em `env.example` (incluindo as secretas).
+2.  Cada push na branch principal aciona um deploy automático.
 
-### Firebase
+### Firebase (Para Firestore Rules, Hosting estático se usado, e Functions)
 
-- Para publicar as regras e o hosting:
-  ```bash
-  firebase deploy --only hosting,firestore
-  ```
-- Para fazer deploy das Cloud Functions:
-  ```bash
-  firebase deploy --only functions
-  ```
+-   Para publicar as regras e o hosting:
+    ```bash
+    firebase deploy --only hosting,firestore
+    ```
+-   Para fazer deploy das Cloud Functions (se você tiver funções na pasta `functions` gerenciadas pelo Firebase CLI):
+    ```bash
+    firebase deploy --only functions
+    ```
 
 Consulte [docs/blueprint.md](docs/blueprint.md) para uma visão geral das funcionalidades planejadas.

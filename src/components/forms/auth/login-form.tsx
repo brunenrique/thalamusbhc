@@ -1,3 +1,4 @@
+
 "use client";
 
 import * as React from "react";
@@ -5,8 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import Link from "next/link";
-import { signInWithEmailAndPassword } from "firebase/auth";
-
+import { signInWithEmailAndPassword } from 'firebase/auth';
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -19,15 +19,9 @@ import {
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
-<<<<<<< HEAD
 import { useRouter } from "next/navigation";
-import { signInWithEmailAndPassword } from 'firebase/auth'; // Importar a função
-import { auth } from '@/services/firebase'; // Importar a instância auth
-=======
-import { useRouter } from "next/navigation"; 
 import { auth } from "@/services/firebase";
 import { useToast } from "@/hooks/use-toast";
->>>>>>> 599e20965a2e6695bb2332eb3ee74d461a0e1307
 
 const loginSchema = z.object({
   email: z.string().email({ message: "Por favor, insira um endereço de e-mail válido." }),
@@ -54,29 +48,37 @@ export default function LoginForm() {
   async function onSubmit(data: LoginFormValues) {
     setIsLoading(true);
     try {
-<<<<<<< HEAD
-      // Chama a função de login do Firebase Auth
-      await signInWithEmailAndPassword(auth, data.email, data.password);
-
-      // Se o login for bem-sucedido, redireciona
-      router.push("/dashboard");
-
-    } catch (error: any) {
-      console.error("Erro ao fazer login:", error);
-      // Aqui você pode adicionar lógica para mostrar uma mensagem de erro para o usuário
-      // Por exemplo, usando um toast ou definindo um estado de erro
-      alert("Erro ao fazer login. Verifique suas credenciais. " + error.message); // Exemplo simples
-=======
       await signInWithEmailAndPassword(auth, data.email, data.password);
       // Em caso de login bem-sucedido:
       router.push("/dashboard");
     } catch (error: any) {
+      let errorMessage = "Ocorreu um erro desconhecido. Tente novamente.";
+      switch (error.code) {
+        case 'auth/user-not-found':
+        case 'auth/wrong-password':
+        case 'auth/invalid-credential': // This code is often used by Firebase for both user-not-found and wrong-password
+          errorMessage = 'E-mail ou senha inválidos. Verifique suas credenciais.';
+          break;
+        case 'auth/invalid-email':
+          errorMessage = 'O formato do e-mail é inválido.';
+          break;
+        case 'auth/user-disabled':
+          errorMessage = 'Esta conta de usuário foi desabilitada.';
+          break;
+        case 'auth/too-many-requests':
+          errorMessage = 'Muitas tentativas de login malsucedidas. Tente novamente mais tarde.';
+          break;
+        case 'auth/network-request-failed':
+          errorMessage = 'Erro de rede. Verifique sua conexão com a internet.';
+          break;
+        default:
+          errorMessage = error.message || errorMessage;
+      }
       toast({
         title: "Erro ao fazer login",
-        description: error.message || "Ocorreu um erro desconhecido.",
+        description: errorMessage,
         variant: "destructive",
       });
->>>>>>> 599e20965a2e6695bb2332eb3ee74d461a0e1307
     } finally {
       setIsLoading(false);
     }

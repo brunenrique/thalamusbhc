@@ -1,5 +1,5 @@
-
 {
+  "parser": "@typescript-eslint/parser",
   "parserOptions": {
     "ecmaVersion": 2020,
     "sourceType": "module",
@@ -13,9 +13,9 @@
     "es6": true
   },
   "settings": {
-    "local-rules": { // Adicionado uma quebra de linha e indentação para clareza
+    "local-rules": {
       "rulesDirectories": "./eslint-rules"
-    }, // Adicionado uma vírgula aqui
+    },
     "react": {
       "version": "detect"
     }
@@ -25,14 +25,16 @@
     "react-hooks",
     "jsx-a11y",
     "@next/next",
-    "local-rules"
+    "local-rules",
+    "@typescript-eslint"
   ],
   "extends": [
     "eslint:recommended",
     "plugin:react/recommended",
     "plugin:react-hooks/recommended",
     "plugin:jsx-a11y/recommended",
-    "plugin:@next/next/recommended"
+    "plugin:@next/next/recommended",
+    "plugin:@typescript-eslint/recommended"
   ],
   "rules": {
     "react/react-in-jsx-scope": "off",

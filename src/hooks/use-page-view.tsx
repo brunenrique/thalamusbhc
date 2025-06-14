@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useRouter } from 'next/router';
+import { usePathname } from 'next/navigation';
 import { AnalyticsEvent } from '@/types/analytics';
 
 // Extend the Window interface to include gtag
@@ -10,13 +10,13 @@ declare global {
 }
 
 export default function usePageView(eventName: AnalyticsEvent = AnalyticsEvent.PAGE_VIEW) {
-  const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
     if (typeof window !== 'undefined' && typeof window.gtag === 'function') {
       window.gtag('event', eventName, {
-        page_path: router.pathname,
+        page_path: pathname,
       });
     }
-  }, [router.pathname, eventName]);
+  }, [pathname, eventName]);
 }

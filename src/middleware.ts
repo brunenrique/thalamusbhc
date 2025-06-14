@@ -21,5 +21,8 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!api|_next/).*)'],
+  matcher: [
+    // Aplica o middleware em todas as rotas, exceto as públicas
+    '/((?!api|_next/|login|signup|forgot-password|public).*)',
+  ],
 };

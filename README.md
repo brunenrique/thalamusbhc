@@ -23,7 +23,7 @@ Plataforma web para gestão de clínicas de psicologia, com agenda integrada, pr
     npm install
     ```
 3.  **Configure as Variáveis de Ambiente:**
-    *   Copie o arquivo de exemplo: `cp env.example .env.local`
+    *   Crie o arquivo `.env.local` na raiz do projeto. Você pode copiar de `env.example` se ele existir: `cp env.example .env.local` (caso o `env.example` não esteja presente, crie `.env.local` manualmente).
     *   Preencha o arquivo `.env.local` com as credenciais do seu projeto Firebase e outras chaves necessárias. Veja a seção "Variáveis de Ambiente" abaixo para detalhes.
 4.  **Inicie os Emuladores Firebase (em um terminal separado):**
     *   É altamente recomendado usar os emuladores do Firebase para desenvolvimento local.
@@ -34,7 +34,7 @@ Plataforma web para gestão de clínicas de psicologia, com agenda integrada, pr
     ```bash
     npm run dev
     ```
-    O aplicativo ficará disponível em `http://localhost:9002` (ou a porta especificada no seu `package.json`).
+    O aplicativo ficará disponível em `http://localhost:9003` (ou a porta especificada no seu `package.json`).
 
 ### Comandos úteis
 
@@ -47,7 +47,7 @@ Plataforma web para gestão de clínicas de psicologia, com agenda integrada, pr
 
 ## Variáveis de Ambiente
 
-O projeto utiliza variáveis de ambiente para configurar os serviços do Firebase e outras integrações. O arquivo `env.example` serve como um template. Crie um arquivo `.env.local` (que não deve ser commitado) e preencha-o com seus valores.
+O projeto utiliza variáveis de ambiente para configurar os serviços do Firebase e outras integrações. O arquivo `env.example` (se existir no seu projeto, ou crie um `.env.local` baseado nas instruções abaixo) serve como um template. Crie um arquivo `.env.local` (que não deve ser commitado) e preencha-o com seus valores.
 
 ### Variáveis do Firebase Client SDK (Públicas)
 
@@ -68,7 +68,7 @@ Você pode encontrar esses valores nas configurações do seu projeto Firebase:
 
 Estas variáveis são usadas para inicializar o Firebase Admin SDK no backend (ex: em Cloud Functions ou rotas de API Next.js). **NUNCA as exponha no código do cliente ou com o prefixo `NEXT_PUBLIC_`.** Em produção, configure-as diretamente no seu ambiente de hospedagem (ex: Vercel Environment Variables, Google Cloud Run secrets). Para desenvolvimento local com funções de servidor, elas podem estar no `.env.local`.
 
--   `FIREBASE_PROJECT_ID`: O ID do seu projeto Firebase.
+-   `FIREBASE_PROJECT_ID`: O ID do seu projeto Firebase. (Pode ser o mesmo que `NEXT_PUBLIC_FIREBASE_PROJECT_ID`).
 -   `FIREBASE_CLIENT_EMAIL`: O email da conta de serviço do Firebase Admin SDK.
 -   `FIREBASE_PRIVATE_KEY`: A chave privada da conta de serviço.
 
@@ -86,6 +86,7 @@ Para obter `FIREBASE_CLIENT_EMAIL` e `FIREBASE_PRIVATE_KEY`:
 
 -   `NEXT_PUBLIC_GAS_PRONTUARIO_URL`: URL do script Google Apps Script para geração de prontuários.
 -   `NEXT_PUBLIC_GOOGLE_CLIENT_ID`, `NEXT_PUBLIC_GOOGLE_CLIENT_SECRET`, `NEXT_PUBLIC_GOOGLE_REDIRECT_URI`: Para integração com o Google Calendar (opcional).
+-   `NEXT_PUBLIC_FIREBASE_VAPID_KEY`: Chave VAPID para Firebase Cloud Messaging (Web Push). Encontrada no Console do Firebase -> Configurações do Projeto -> Cloud Messaging -> Web configuration -> Web Push certificates.
 
 ## Importante sobre Segurança
 

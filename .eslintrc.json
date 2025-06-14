@@ -41,7 +41,6 @@
     "react/prop-types": "off",
     "react/no-unknown-property": ["error"],
     "@next/next/no-html-link-for-pages": "warn",
-    "@next/next/link-passhref": "error",
     "no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }],
     "no-console": ["warn", { "allow": ["warn", "error", "info"] }],
     "jsx-a11y/anchor-is-valid": ["warn", {

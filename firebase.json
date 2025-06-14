@@ -3,13 +3,30 @@
     "rules": "firestore.rules"
   },
   "emulators": {
+<<<<<<< HEAD
     "auth": {
       "host": "0.0.0.0",
+=======
+    "hub": {
+      "host": "127.0.0.1",
+      "port": 4400
+    },
+    "logging": {
+      "host": "127.0.0.1",
+      "port": 4500
+    },
+    "auth": {
+      "host": "127.0.0.1",
+>>>>>>> 731a6deae030cc2271c80801fe11da2887722254
       "port": 9099
     },
     "firestore": {
       "host": "0.0.0.0",
       "port": 8083
+    },
+    "storage": {
+      "host": "127.0.0.1",
+      "port": 9199
     },
     "ui": {
       "host": "0.0.0.0",

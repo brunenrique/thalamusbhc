@@ -21,6 +21,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription }
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 import { CalendarIcon, Save, CheckSquare, Edit } from "lucide-react";
 import { cn } from "@/shared/utils";
 import { format } from "date-fns";
@@ -187,7 +188,7 @@ export default function TaskForm({ initialData, isEditMode = false }: TaskFormPr
                         <SelectTrigger><SelectValue placeholder="Selecione um responsável" /></SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {mockAssignees.map(assignee => <SelectItem key={assignee} value={assignee}>{assignee}</SelectItem>)}
+                        {mockAssignees.map(assignee => (<SelectItem key={assignee} value={assignee}>{assignee}</SelectItem>))}
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -207,7 +208,7 @@ export default function TaskForm({ initialData, isEditMode = false }: TaskFormPr
                         <SelectTrigger><SelectValue placeholder="Selecione a prioridade" /></SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {mockPriorities.map(priority => <SelectItem key={priority} value={priority}>{priority}</SelectItem>)}
+                        {mockPriorities.map(priority => (<SelectItem key={priority} value={priority}>{priority}</SelectItem>))}
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -225,7 +226,7 @@ export default function TaskForm({ initialData, isEditMode = false }: TaskFormPr
                         <SelectTrigger><SelectValue placeholder="Selecione o status" /></SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {mockStatuses.map(status => <SelectItem key={status} value={status}>{status}</SelectItem>)}
+                        {mockStatuses.map(status => (<SelectItem key={status} value={status}>{status}</SelectItem>))}
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -239,13 +240,13 @@ export default function TaskForm({ initialData, isEditMode = false }: TaskFormPr
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Paciente Relacionado (Opcional)</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select onValueChange={field.onChange} defaultValue={field.value ?? ""}>
                     <FormControl>
                       <SelectTrigger><SelectValue placeholder="Selecione um paciente (se aplicável)" /></SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="">Nenhum</SelectItem>
-                      {mockPatientsForSelect.map(patient => <SelectItem key={patient.id} value={patient.id}>{patient.name}</SelectItem>)}
+                      <SelectItem key="none" value="">Nenhum</SelectItem>
+                      {mockPatientsForSelect.map(patient => (<SelectItem key={patient.id} value={patient.id}>{patient.name}</SelectItem>))}
                     </SelectContent>
                   </Select>
                   <FormMessage />

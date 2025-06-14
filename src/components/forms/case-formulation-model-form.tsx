@@ -124,16 +124,19 @@ export default function CaseFormulationModelForm({ initialData, templateId }: Ca
                 render={({ field }) => (
                     <FormItem>
                     <FormLabel>Categoria *</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select onValueChange={field.onChange} defaultValue={field.value || ''}>
                         <FormControl>
                         <SelectTrigger>
                             <SelectValue placeholder="Selecione uma categoria" />
                         </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                        {formulationCategories.map(cat => (
-                            <SelectItem key={cat} value={cat}>{cat}</SelectItem>
-                        ))}
+                        {formulationCategories.map(cat => {
+                          const value = cat || '';
+                          return (
+                            <SelectItem key={cat} value={value}>{cat}</SelectItem>
+                          )
+                        })}
                         </SelectContent>
                     </Select>
                     <FormMessage />
@@ -177,7 +180,11 @@ export default function CaseFormulationModelForm({ initialData, templateId }: Ca
                   <FormLabel className="flex items-center"><Brain className="mr-2 h-4 w-4 text-accent" /> Estrutura / Prompt para IA *</FormLabel>
                   <FormControl>
                     <Textarea 
-                      placeholder="Descreva os componentes chave, perguntas ou estrutura que a IA deve usar para analisar uma sessão com este modelo. Ex:\n1. Situação Desencadeadora:\n2. Pensamentos Automáticos:\n3. Emoções Associadas:\n4. Comportamentos Resultantes:" 
+                      placeholder="Descreva os componentes chave, perguntas ou estrutura que a IA deve usar para analisar uma sessão com este modelo. Ex:
+1. Situação Desencadeadora:
+2. Pensamentos Automáticos:
+3. Emoções Associadas:
+4. Comportamentos Resultantes:" 
                       {...field} 
                       rows={10} 
                       className="min-h-[200px] font-mono text-sm"

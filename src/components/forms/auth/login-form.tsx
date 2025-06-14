@@ -1,4 +1,3 @@
-
 "use client";
 
 import * as React from "react";
@@ -19,7 +18,9 @@ import {
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import { useRouter } from "next/navigation"; 
+import { useRouter } from "next/navigation";
+import { signInWithEmailAndPassword } from 'firebase/auth'; // Importar a função
+import { auth } from '@/services/firebase'; // Importar a instância auth
 
 const loginSchema = z.object({
   email: z.string().email({ message: "Por favor, insira um endereço de e-mail válido." }),
@@ -44,12 +45,21 @@ export default function LoginForm() {
 
   async function onSubmit(data: LoginFormValues) {
     setIsLoading(true);
-    // Simula chamada de API
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    
-    setIsLoading(false);
-    // Em caso de login bem-sucedido:
-    router.push("/dashboard");
+    try {
+      // Chama a função de login do Firebase Auth
+      await signInWithEmailAndPassword(auth, data.email, data.password);
+
+      // Se o login for bem-sucedido, redireciona
+      router.push("/dashboard");
+
+    } catch (error: any) {
+      console.error("Erro ao fazer login:", error);
+      // Aqui você pode adicionar lógica para mostrar uma mensagem de erro para o usuário
+      // Por exemplo, usando um toast ou definindo um estado de erro
+      alert("Erro ao fazer login. Verifique suas credenciais. " + error.message); // Exemplo simples
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   return (

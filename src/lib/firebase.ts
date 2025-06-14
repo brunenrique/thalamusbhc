@@ -48,26 +48,28 @@ if (typeof window !== 'undefined') {
 if (process.env.NODE_ENV === 'development') {
   console.info('Development mode: Attempting to connect to Firebase Emulators...');
   try {
+    const host = process.env.NEXT_PUBLIC_FIREBASE_EMULATOR_HOST || '127.0.0.1';
+    
     // Auth Emulator
-    connectAuthEmulator(auth, 'http://127.0.0.1:9099', { disableWarnings: true });
-    console.info('Auth Emulator connected to http://127.0.0.1:9099');
+    connectAuthEmulator(auth, `http://${host}:9099`, { disableWarnings: true });
+    console.info(`Auth Emulator connected to http://${host}:9099`);
 
     // Firestore Emulator
-    connectFirestoreEmulator(db, '127.0.0.1', 8082);
-    console.info('Firestore Emulator connected to 127.0.0.1:8082');
+    connectFirestoreEmulator(db, host, 8083); // CORRIGIDO PARA PORTA 8083
+    console.info(`Firestore Emulator connected to ${host}:8083`); // MENSAGEM CORRIGIDA
 
     // Storage Emulator
-    connectStorageEmulator(storage, '127.0.0.1', 9199);
-    console.info('Storage Emulator connected to 127.0.0.1:9199');
+    connectStorageEmulator(storage, host, 9199);
+    console.info(`Storage Emulator connected to ${host}:9199`);
 
     // Functions Emulator (se necessário)
-    // connectFunctionsEmulator(functions, 'localhost', 5001);
-    // console.info('Functions Emulator connected to localhost:5001');
+    // connectFunctionsEmulator(functions, host, 5001);
+    // console.info(`Functions Emulator connected to ${host}:5001`);
     
   } catch (error) {
     console.error('Error connecting to Firebase Emulators:', error);
   }
 }
 
-export { app, auth, db, storage, messaging }; // Adicionar 'functions' aqui se for usá-las globalmente
+export { app, auth, db, storage, messaging };
     

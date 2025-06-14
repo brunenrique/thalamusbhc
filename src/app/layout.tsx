@@ -6,7 +6,7 @@ import { Toaster } from "@/components/ui/toaster";
 import usePageView from "@/hooks/use-page-view";
 import useSessionTimeout from "@/hooks/use-session-timeout";
 import { signOut } from "firebase/auth";
-import { auth } from "@/lib/firebase"; // Caminho corrigido
+import { auth } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
 
 const headLinks = [

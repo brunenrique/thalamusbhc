@@ -31,7 +31,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useToast } from "@/hooks/use-toast";
 import type { Appointment, AppointmentsByDate, AppointmentStatus } from "@/types/appointment";
-import InfoDisplay from '@/components/ui/info-display'; // For better popover content
+import InfoDisplay from '@/components/ui/info-display';
 
 const mockPsychologists = [
   { id: "psy1", name: "Dr. Silva" },
@@ -87,7 +87,7 @@ const getStatusStyles = (status: AppointmentStatus): string => {
         case "NoShow":
             return "bg-destructive/10 text-destructive-foreground hover:bg-destructive/20 border-l-4 border-destructive";
         case "Rescheduled":
-            return "bg-yellow-400/15 text-yellow-700 dark:text-yellow-300 hover:bg-yellow-400/25 border-l-4 border-yellow-500";
+            return "bg-yellow-500/15 text-yellow-700 dark:text-yellow-300 dark:bg-yellow-700/25 hover:bg-yellow-500/25 dark:hover:bg-yellow-700/35 border-l-4 border-yellow-500";
         default:
             return "bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 border-l-4 border-slate-300";
     }
@@ -197,7 +197,7 @@ function AppointmentCalendarComponent({ view, currentDate, filters, onAppointmen
       <Card 
         key={cellKey} 
         className={cn(
-            "p-2 min-h-[120px] bg-card border-r border-b rounded-none shadow-none hover:bg-secondary/20 transition-colors flex flex-col group relative", // Added group relative for add button
+            "p-2 min-h-[120px] bg-card border-r border-b rounded-none shadow-none hover:bg-secondary/20 transition-colors flex flex-col group relative",
             !isCurrentMonth && "bg-muted/30 text-muted-foreground/70",
             isSelected && "ring-2 ring-accent ring-inset",
             isToday && !isSelected && "bg-accent/5 border-accent/30" 
@@ -218,13 +218,13 @@ function AppointmentCalendarComponent({ view, currentDate, filters, onAppointmen
                 <PopoverTrigger asChild>
                   <div
                     className={cn(
-                      "w-full p-1.5 rounded cursor-pointer text-[0.7rem] shadow-sm transition-all leading-tight",
+                      "w-full p-1.5 rounded cursor-pointer shadow-sm transition-all leading-tight",
                       "flex items-center gap-1.5",
                       getStatusStyles(appt.status)
                     )}
                   >
                     {getStatusIcon(appt.status)}
-                    <div className="flex-grow truncate">
+                    <div className="flex-grow truncate text-xs">
                       <span className="font-semibold">{appt.startTime}</span>
                       <span className="ml-1">
                         {appt.type === "Blocked Slot" ? `Bloqueio: ${appt.blockReason || 'Motivo não especificado'}` : appt.patient}
@@ -282,7 +282,7 @@ function AppointmentCalendarComponent({ view, currentDate, filters, onAppointmen
               </Popover>
             ))}
           </div>
-           <Button variant="ghost" size="icon" className="absolute bottom-1 right-1 h-7 w-7 opacity-0 group-hover:opacity-60 hover:!opacity-100 focus:opacity-100 transition-opacity" asChild>
+           <Button variant="ghost" size="icon" className="absolute bottom-1 right-1 h-7 w-7 opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity" asChild>
               <Link href={`/schedule/new?date=${format(dayDate, "yyyy-MM-dd")}`}><PlusCircle className="h-5 w-5" /><span className="sr-only">Adicionar agendamento</span></Link>
             </Button>
         </CardContent>

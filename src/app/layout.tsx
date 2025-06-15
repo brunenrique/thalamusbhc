@@ -25,6 +25,7 @@ export default function RootLayout({
   const router = useRouter();
   useSessionTimeout(async () => {
     await signOut(auth);
+    await fetch('/api/logout', { method: 'POST' });
     router.push("/login");
   });
   return (

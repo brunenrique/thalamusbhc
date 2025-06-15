@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import Link from "next/link";
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import { signInWithEmailAndPassword, getIdToken, setPersistence, browserLocalPersistence, browserSessionPersistence } from 'firebase/auth';
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -48,8 +48,21 @@ export default function LoginForm() {
   async function onSubmit(data: LoginFormValues) {
     setIsLoading(true);
     try {
-      await signInWithEmailAndPassword(auth, data.email, data.password);
-      // Em caso de login bem-sucedido:
+      await setPersistence(
+        auth,
+        data.rememberMe ? browserLocalPersistence : browserSessionPersistence
+      );
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        data.email,
+        data.password
+      );
+      const idToken = await getIdToken(userCredential.user);
+      await fetch("/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ idToken }),
+      });
       router.push("/dashboard");
     } catch (error) {
       console.error("DEBUG: Erro detalhado do Firebase Auth:", error);

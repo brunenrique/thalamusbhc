@@ -59,12 +59,32 @@ type ScheduleFilters = {
   dateTo: Date | undefined;
 };
 
+// Mock: Simula a busca das configurações de dias de trabalho do usuário/clínica
+// Em um app real, isso viria do backend ou de um estado global (Zustand, Context)
+const getMockUserWorkingDays = (): string[] => {
+  // Exemplo: profissional trabalha de segunda a sexta
+  return ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
+  // Exemplo: profissional trabalha Seg, Qua, Sex
+  // return ['monday', 'wednesday', 'friday'];
+  // Exemplo: profissional trabalha todos os dias (menos provável, mas para teste)
+  // return ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+};
+
 
 export default function SchedulePage() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [currentView, setCurrentView] = useState<"Month" | "Week" | "Day">("Week");
   const [appointmentsData, setAppointmentsData] = useState<AppointmentsByDate>(() => getInitialMockAppointments());
   const { toast } = useToast();
+  const [configuredWorkingDays, setConfiguredWorkingDays] = useState<string[]>([]);
+
+
+  useEffect(() => {
+    // Simula o carregamento das configurações de dias de trabalho
+    const userWorkingDays = getMockUserWorkingDays();
+    setConfiguredWorkingDays(userWorkingDays);
+  }, []);
+
 
   const [filters, setFilters] = useState<ScheduleFilters>({
     psychologistId: "all",
@@ -344,11 +364,10 @@ export default function SchedulePage() {
             view={currentView} 
             currentDate={currentDate} 
             filters={filters} 
+            workingDaysOfWeek={configuredWorkingDays}
             onAppointmentsUpdate={handleAppointmentsUpdate}
         />
       </div>
     </div>
   );
 }
-
-    

@@ -24,15 +24,17 @@ const timezones = [
   { value: "Europe/Lisbon", label: "Horário de Lisboa (GMT+0/GMT+1)" },
 ];
 
+// Consistent day mapping: id for logic, label for display
 const daysOfWeekMap = [
+  { id: "sunday", label: "Domingo", defaultChecked: false, defaultStartTime: "10:00", defaultEndTime: "14:00" },
   { id: "monday", label: "Segunda-feira", defaultChecked: true, defaultStartTime: "09:00", defaultEndTime: "18:00" },
   { id: "tuesday", label: "Terça-feira", defaultChecked: true, defaultStartTime: "09:00", defaultEndTime: "18:00" },
   { id: "wednesday", label: "Quarta-feira", defaultChecked: true, defaultStartTime: "09:00", defaultEndTime: "18:00" },
   { id: "thursday", label: "Quinta-feira", defaultChecked: true, defaultStartTime: "09:00", defaultEndTime: "18:00" },
   { id: "friday", label: "Sexta-feira", defaultChecked: true, defaultStartTime: "09:00", defaultEndTime: "18:00" },
   { id: "saturday", label: "Sábado", defaultChecked: false, defaultStartTime: "10:00", defaultEndTime: "14:00" },
-  { id: "sunday", label: "Domingo", defaultChecked: false, defaultStartTime: "10:00", defaultEndTime: "14:00" },
 ];
+
 
 const reminderOptions = [
   { value: "none", label: "Nenhum" },
@@ -58,6 +60,8 @@ export default function SettingsForm({ section }: SettingsFormProps) {
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    // In a real app, you would persist these settings
+    console.info("Configurações de trabalho salvas (simulado):", workingDays);
     toast({
       title: "Configurações Salvas (Simulado)",
       description: `As configurações de ${section.charAt(0).toUpperCase() + section.slice(1)} foram atualizadas.`,
@@ -70,7 +74,7 @@ export default function SettingsForm({ section }: SettingsFormProps) {
         <>
           <div className="space-y-2">
             <Label htmlFor="clinicName">Nome da Clínica</Label>
-            <Input id="clinicName" defaultValue="PsiGuard Clínica de Bem-Estar" />
+            <Input id="clinicName" defaultValue="Thalamus Clínica de Bem-Estar" />
           </div>
           <div className="space-y-2">
             <Label htmlFor="clinicAddress">Endereço da Clínica</Label>
@@ -91,14 +95,16 @@ export default function SettingsForm({ section }: SettingsFormProps) {
           </div>
           <div className="space-y-3">
             <Label>Dias Úteis da Clínica (Geral)</Label>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                {daysOfWeekMap.map(day => (
-                    <div key={`clinic-workday-${day.id}`} className="flex items-center space-x-2">
-                        <Checkbox id={`clinic-workday-${day.id}`} defaultChecked={day.id !== 'saturday' && day.id !== 'sunday'} />
-                        <Label htmlFor={`clinic-workday-${day.id}`} className="font-normal">{day.label}</Label>
-                    </div>
-                ))}
-            </div>
+            <Card className="p-3 bg-muted/20">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                  {daysOfWeekMap.map(day => (
+                      <div key={`clinic-workday-${day.id}`} className="flex items-center space-x-2">
+                          <Checkbox id={`clinic-workday-${day.id}`} defaultChecked={day.defaultChecked} />
+                          <Label htmlFor={`clinic-workday-${day.id}`} className="font-normal">{day.label}</Label>
+                      </div>
+                  ))}
+              </div>
+            </Card>
           </div>
           <div className="flex items-center space-x-2">
             <Switch id="enableOnlineBooking" defaultChecked />
@@ -111,11 +117,11 @@ export default function SettingsForm({ section }: SettingsFormProps) {
         <>
           <div className="space-y-2">
             <Label htmlFor="fullName">Nome Completo</Label>
-            <Input id="fullName" defaultValue="Dr(a). Carlos Silva" />
+            <Input id="fullName" defaultValue="Dr(a). Alex Silva" />
           </div>
           <div className="space-y-2">
             <Label htmlFor="email">Endereço de Email</Label>
-            <Input id="email" type="email" defaultValue="carlos.silva@psiguard.app" />
+            <Input id="email" type="email" defaultValue="alex.silva@thalamus.app" />
           </div>
           <Button variant="outline" type="button">Alterar Senha</Button>
         </>
@@ -241,7 +247,7 @@ export default function SettingsForm({ section }: SettingsFormProps) {
           <Card className="bg-muted/20 p-4">
             <CardHeader className="p-0 pb-4">
               <CardTitle className="text-lg">Minha Disponibilidade Semanal Padrão</CardTitle>
-              <CardDescription>Defina seus dias e horários de trabalho. Isso será usado como base para novos agendamentos e pode ser sobrescrito por bloqueios específicos.</CardDescription>
+              <CardDescription>Defina seus dias e horários de trabalho. Isso determinará quais dias são visíveis e ativos na sua agenda.</CardDescription>
             </CardHeader>
             <CardContent className="p-0 space-y-4">
               {daysOfWeekMap.map((day) => (
@@ -271,29 +277,8 @@ export default function SettingsForm({ section }: SettingsFormProps) {
               ))}
             </CardContent>
           </Card>
-
           <Separator />
-
-          <Card className="bg-muted/20 p-4">
-            <CardHeader className="p-0 pb-4">
-              <CardTitle className="text-lg">Preferências de Visualização da Agenda</CardTitle>
-              <CardDescription>Escolha quais dias da semana você deseja ver por padrão na sua agenda.</CardDescription>
-            </CardHeader>
-            <CardContent className="p-0 space-y-3">
-              <Label>Dias da Semana a Exibir na Agenda:</Label>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-x-4 gap-y-3">
-                  {daysOfWeekMap.map(day => (
-                      <div key={`view-day-${day.id}`} className="flex items-center space-x-2">
-                          <Checkbox id={`view-day-checkbox-${day.id}`} defaultChecked={true} />
-                          <Label htmlFor={`view-day-checkbox-${day.id}`} className="font-normal">{day.label}</Label>
-                      </div>
-                  ))}
-              </div>
-               <p className="text-xs text-muted-foreground pt-2">
-                Nota: Esta configuração afeta apenas a sua visualização padrão. Você ainda poderá navegar para dias ocultos.
-              </p>
-            </CardContent>
-          </Card>
+          {/* Seção "Preferências de Visualização da Agenda" removida */}
         </>
       )}
 

@@ -5,8 +5,8 @@ import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
-import { Clock, User, PlusCircle, Edit, Trash2, CheckCircle, AlertTriangle, XCircle, Check, Ban, UserCheck, UserX, RepeatIcon, GripVertical } from 'lucide-react';
-import { format, startOfWeek, endOfWeek, eachDayOfInterval, addDays, subDays, isSameMonth, isSameDay, parse } from 'date-fns';
+import { Clock, User, PlusCircle, Edit, Trash2, CheckCircle, AlertTriangle, XCircle, Check, Ban, UserCheck, UserX, RepeatIcon, GripVertical, CalendarX2 } from 'lucide-react';
+import { format, startOfWeek, endOfWeek, eachDayOfInterval, addDays, subDays, isSameMonth, isSameDay, parse, getDay } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import Link from 'next/link';
 import { cn } from "@/shared/utils";
@@ -121,6 +121,13 @@ const getStatusLabel = (status: AppointmentStatus): string => {
     return labels[status] || status;
 }
 
+// Helper to map date-fns getDay (0=Sun, 1=Mon) to string IDs ('sunday', 'monday')
+const getDayIdFromDate = (date: Date): string => {
+  const dayIndex = getDay(date);
+  const ids = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+  return ids[dayIndex];
+};
+
 interface AppointmentCalendarProps {
   view: "Month" | "Week" | "Day";
   currentDate: Date;
@@ -130,10 +137,14 @@ interface AppointmentCalendarProps {
     dateFrom?: Date;
     dateTo?: Date;
   };
+  workingDaysOfWeek?: string[]; // e.g., ['monday', 'tuesday', 'wednesday', 'thursday', 'friday']
   onAppointmentsUpdate?: (appointments: AppointmentsByDate) => void;
 }
 
-function AppointmentCalendarComponent({ view, currentDate, filters, onAppointmentsUpdate }: AppointmentCalendarProps) {
+const defaultWorkingDays = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
+
+
+function AppointmentCalendarComponent({ view, currentDate, filters, workingDaysOfWeek = defaultWorkingDays, onAppointmentsUpdate }: AppointmentCalendarProps) {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(currentDate);
   const [appointmentsState, setAppointmentsState] = useState<AppointmentsByDate>(() => getInitialMockAppointments());
   const { toast } = useToast();
@@ -192,130 +203,183 @@ function AppointmentCalendarComponent({ view, currentDate, filters, onAppointmen
     const dayAppointments = getAppointmentsForDay(dayDate);
     const isSelected = selectedDate && isSameDay(dayDate, selectedDate);
     const isToday = isSameDay(dayDate, new Date());
+    const dayId = getDayIdFromDate(dayDate);
+    const isWorkingDay = workingDaysOfWeek.includes(dayId);
+
+    if (view === "Day" && !isWorkingDay) {
+       return (
+         <Card 
+            key={cellKey} 
+            className="p-2 min-h-[120px] bg-muted/50 border-r border-b rounded-none shadow-none flex flex-col items-center justify-center text-center group relative"
+        >
+            <CardContent className="p-0 h-full flex flex-col flex-grow items-center justify-center">
+                <CalendarX2 className="w-12 h-12 text-muted-foreground mb-2" />
+                <p className="font-semibold text-muted-foreground">Dia não trabalhado</p>
+                <p className="text-xs text-muted-foreground">{format(dayDate, "EEEE", { locale: ptBR })}</p>
+            </CardContent>
+         </Card>
+       );
+    }
+
 
     return (
       <Card 
         key={cellKey} 
         className={cn(
-            "p-2 min-h-[120px] bg-card border-r border-b rounded-none shadow-none hover:bg-secondary/20 transition-colors flex flex-col group relative",
-            !isCurrentMonth && "bg-muted/30 text-muted-foreground/70",
-            isSelected && "ring-2 ring-accent ring-inset",
-            isToday && !isSelected && "bg-accent/5 border-accent/30" 
+            "p-2 min-h-[120px] border-r border-b rounded-none shadow-none hover:bg-secondary/20 transition-colors flex flex-col group relative",
+            !isCurrentMonth && view === "Month" && "bg-muted/30 text-muted-foreground/50 pointer-events-none", // More muted for non-month days
+            !isWorkingDay && view === "Month" && "bg-muted/40 text-muted-foreground/60 pointer-events-none", // Muted for non-working days in month view
+            isWorkingDay && !isCurrentMonth && view === "Month" && "bg-muted/20 text-muted-foreground/70", // Non-month working days less interactive
+            isSelected && isWorkingDay && "ring-2 ring-accent ring-inset",
+            isToday && isWorkingDay && !isSelected && "bg-accent/5 border-accent/30",
+            !isWorkingDay && view !== "Day" && "opacity-60" // General opacity for non-working days in multi-day views
         )}
-        onClick={() => setSelectedDate(dayDate)}
+        onClick={() => isWorkingDay && setSelectedDate(dayDate)}
       >
         <CardContent className="p-0 h-full flex flex-col flex-grow">
           <div className={cn("text-sm font-medium text-center rounded-full w-6 h-6 flex items-center justify-center mb-1 self-start", 
-            isSelected ? 'bg-accent text-accent-foreground font-bold' : 'text-foreground', 
-            isToday && !isSelected && 'bg-accent/60 text-accent-foreground',
-            !isCurrentMonth && 'opacity-50'
+            isSelected && isWorkingDay ? 'bg-accent text-accent-foreground font-bold' : 'text-foreground', 
+            isToday && isWorkingDay && !isSelected && 'bg-accent/60 text-accent-foreground',
+            (!isCurrentMonth || !isWorkingDay) && view === "Month" && 'opacity-50'
           )}>
             {format(dayDate, "d")}
           </div>
-          <div className="mt-1 space-y-1 text-xs overflow-y-auto flex-grow">
-            {dayAppointments.map((appt) => (
-              <Popover key={appt.id}>
-                <PopoverTrigger asChild>
-                  <div
-                    className={cn(
-                      "w-full p-1.5 rounded cursor-pointer shadow-sm transition-all leading-tight",
-                      "flex items-center gap-1.5 text-xs", 
-                      getStatusStyles(appt.status)
-                    )}
-                  >
-                    {getStatusIcon(appt.status)}
-                    <div className="flex-grow truncate">
-                      <span className="font-semibold">{appt.startTime}</span>
-                      <span className="ml-1">
-                        {appt.type === "Blocked Slot" ? `Bloqueio: ${appt.blockReason || 'Motivo não especificado'}` : appt.patient}
-                      </span>
-                      {filters.psychologistId === "all" && appt.psychologistId && appt.type !== "Blocked Slot" && (
-                        <span className="text-[0.65rem] opacity-80 ml-0.5">
-                          ({mockPsychologists.find(p => p.id === appt.psychologistId)?.name.match(/\b(\w)/g)?.join('') || '??'})
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </PopoverTrigger>
-                <PopoverContent className="w-72 p-0 shadow-xl rounded-lg border bg-popover">
-                    <div className="p-4 space-y-2">
-                        <h4 className="font-headline text-md">{appt.type === "Blocked Slot" ? `Horário Bloqueado: ${appt.blockReason}` : appt.patient}</h4>
-                        <InfoDisplay label="Tipo" value={appt.type} icon={GripVertical} className="p-0 bg-transparent"/>
-                        <InfoDisplay label="Horário" value={`${appt.startTime} - ${appt.endTime}`} icon={Clock} className="p-0 bg-transparent"/>
-                        <InfoDisplay label="Status" value={getStatusLabel(appt.status)} icon={() => getStatusIcon(appt.status, "w-4 h-4 mr-1")} className="p-0 bg-transparent"/>
-                        {appt.psychologistId && <InfoDisplay label="Com" value={mockPsychologists.find(p => p.id === appt.psychologistId)?.name || appt.psychologistId} icon={User} className="p-0 bg-transparent"/> }
-                        {appt.notes && <InfoDisplay label="Notas" value={appt.notes} icon={Edit} className="p-0 bg-transparent"/>}
-                    </div>
-                    <div className="flex flex-col gap-1.5 p-3 border-t bg-muted/30 rounded-b-lg">
-                        <div className="flex gap-2 w-full">
-                            <Button size="sm" variant="outline" asChild className="flex-1"><Link href={`/schedule/edit/${appt.id}`}><Edit className="mr-1.5 h-3.5 w-3.5"/> Editar</Link></Button>
-                            <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                                <Button size="sm" variant="destructive" className="flex-1 bg-destructive/90 hover:bg-destructive text-destructive-foreground"><Trash2 className="mr-1.5 h-3.5 w-3.5"/> Excluir</Button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                                <AlertDialogHeader><AlertDialogTitle>Confirmar Exclusão</AlertDialogTitle>
-                                <AlertDialogDescription>Tem certeza que deseja excluir o agendamento de {appt.patient} às {appt.startTime} em {format(dayDate, "P", { locale: ptBR })}? Esta ação não pode ser desfeita.</AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                <AlertDialogAction onClick={() => handleDeleteAppointment(appt.id, appt.patient || "Bloqueio", dayDate)} className="bg-destructive hover:bg-destructive/90">Excluir</AlertDialogAction>
-                                </AlertDialogFooter>
-                            </AlertDialogContent>
-                            </AlertDialog>
-                        </div>
-                        {appt.type !== "Blocked Slot" && (
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild><Button size="sm" variant="outline" className="w-full"><Check className="mr-1.5 h-3.5 w-3.5" /> Marcar Status</Button></DropdownMenuTrigger>
-                            <DropdownMenuContent className="w-56">
-                            <DropdownMenuLabel>Atualizar Status</DropdownMenuLabel><DropdownMenuSeparator />
-                            {(["Scheduled", "Confirmed", "Completed", "NoShow", "Rescheduled", "CancelledByPatient", "CancelledByClinic"] as AppointmentStatus[]).map(statusOpt => (
-                                <DropdownMenuItem key={statusOpt} onClick={() => handleUpdateStatus(appt, statusOpt, dayDate)} disabled={appt.status === statusOpt}>
-                                {getStatusIcon(statusOpt, "w-4 h-4 mr-2")} {getStatusLabel(statusOpt)}
-                                </DropdownMenuItem>
-                            ))}
-                            </DropdownMenuContent>
-                        </DropdownMenu>
+          {isWorkingDay ? (
+            <>
+              <div className="mt-1 space-y-1 text-xs overflow-y-auto flex-grow">
+                {dayAppointments.map((appt) => (
+                  <Popover key={appt.id}>
+                    <PopoverTrigger asChild>
+                      <div
+                        className={cn(
+                          "w-full p-1.5 rounded cursor-pointer shadow-sm transition-all leading-tight",
+                          "flex items-center gap-1.5 text-xs", 
+                          getStatusStyles(appt.status)
                         )}
-                    </div>
-                </PopoverContent>
-              </Popover>
-            ))}
-          </div>
-           <Button variant="ghost" size="icon" className="absolute bottom-1 right-1 h-7 w-7 opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity" asChild>
-              <Link href={`/schedule/new?date=${format(dayDate, "yyyy-MM-dd")}`}><PlusCircle className="h-5 w-5" /><span className="sr-only">Adicionar agendamento</span></Link>
-            </Button>
+                      >
+                        {getStatusIcon(appt.status)}
+                        <div className="flex-grow truncate">
+                          <span className="font-semibold">{appt.startTime}</span>
+                          <span className="ml-1">
+                            {appt.type === "Blocked Slot" ? `Bloqueio: ${appt.blockReason || 'Motivo não especificado'}` : appt.patient}
+                          </span>
+                          {filters.psychologistId === "all" && appt.psychologistId && appt.type !== "Blocked Slot" && (
+                            <span className="text-[0.65rem] opacity-80 ml-0.5">
+                              ({mockPsychologists.find(p => p.id === appt.psychologistId)?.name.match(/\b(\w)/g)?.join('') || '??'})
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-72 p-0 shadow-xl rounded-lg border bg-popover">
+                        <div className="p-4 space-y-2">
+                            <h4 className="font-headline text-md">{appt.type === "Blocked Slot" ? `Horário Bloqueado: ${appt.blockReason}` : appt.patient}</h4>
+                            <InfoDisplay label="Tipo" value={appt.type} icon={GripVertical} className="p-0 bg-transparent"/>
+                            <InfoDisplay label="Horário" value={`${appt.startTime} - ${appt.endTime}`} icon={Clock} className="p-0 bg-transparent"/>
+                            <InfoDisplay label="Status" value={getStatusLabel(appt.status)} icon={() => getStatusIcon(appt.status, "w-4 h-4 mr-1")} className="p-0 bg-transparent"/>
+                            {appt.psychologistId && <InfoDisplay label="Com" value={mockPsychologists.find(p => p.id === appt.psychologistId)?.name || appt.psychologistId} icon={User} className="p-0 bg-transparent"/> }
+                            {appt.notes && <InfoDisplay label="Notas" value={appt.notes} icon={Edit} className="p-0 bg-transparent"/>}
+                        </div>
+                        <div className="flex flex-col gap-1.5 p-3 border-t bg-muted/30 rounded-b-lg">
+                            <div className="flex gap-2 w-full">
+                                <Button size="sm" variant="outline" asChild className="flex-1"><Link href={`/schedule/edit/${appt.id}`}><Edit className="mr-1.5 h-3.5 w-3.5"/> Editar</Link></Button>
+                                <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                    <Button size="sm" variant="destructive" className="flex-1 bg-destructive/90 hover:bg-destructive text-destructive-foreground"><Trash2 className="mr-1.5 h-3.5 w-3.5"/> Excluir</Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                    <AlertDialogHeader><AlertDialogTitle>Confirmar Exclusão</AlertDialogTitle>
+                                    <AlertDialogDescription>Tem certeza que deseja excluir o agendamento de {appt.patient} às {appt.startTime} em {format(dayDate, "P", { locale: ptBR })}? Esta ação não pode ser desfeita.</AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                    <AlertDialogAction onClick={() => handleDeleteAppointment(appt.id, appt.patient || "Bloqueio", dayDate)} className="bg-destructive hover:bg-destructive/90">Excluir</AlertDialogAction>
+                                    </AlertDialogFooter>
+                                </AlertDialogContent>
+                                </AlertDialog>
+                            </div>
+                            {appt.type !== "Blocked Slot" && (
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild><Button size="sm" variant="outline" className="w-full"><Check className="mr-1.5 h-3.5 w-3.5" /> Marcar Status</Button></DropdownMenuTrigger>
+                                <DropdownMenuContent className="w-56">
+                                <DropdownMenuLabel>Atualizar Status</DropdownMenuLabel><DropdownMenuSeparator />
+                                {(["Scheduled", "Confirmed", "Completed", "NoShow", "Rescheduled", "CancelledByPatient", "CancelledByClinic"] as AppointmentStatus[]).map(statusOpt => (
+                                    <DropdownMenuItem key={statusOpt} onClick={() => handleUpdateStatus(appt, statusOpt, dayDate)} disabled={appt.status === statusOpt}>
+                                    {getStatusIcon(statusOpt, "w-4 h-4 mr-2")} {getStatusLabel(statusOpt)}
+                                    </DropdownMenuItem>
+                                ))}
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                            )}
+                        </div>
+                    </PopoverContent>
+                  </Popover>
+                ))}
+              </div>
+              <Button variant="ghost" size="icon" className="absolute bottom-1 right-1 h-7 w-7 opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity" asChild>
+                <Link href={`/schedule/new?date=${format(dayDate, "yyyy-MM-dd")}`}><PlusCircle className="h-5 w-5" /><span className="sr-only">Adicionar agendamento</span></Link>
+              </Button>
+            </>
+          ) : (
+            <div className="mt-1 text-xs text-muted-foreground/70 flex items-center justify-center h-full">
+              {/* Não mostrar nada em dias não trabalhados na visualização de mês/semana, a não ser que seja o dia principal */}
+            </div>
+          )}
         </CardContent>
       </Card>
     );
-  }, [getAppointmentsForDay, selectedDate, filters.psychologistId, handleDeleteAppointment, handleUpdateStatus]); 
+  }, [getAppointmentsForDay, selectedDate, filters.psychologistId, handleDeleteAppointment, handleUpdateStatus, workingDaysOfWeek, view, currentDate]); 
 
   const renderMonthView = useCallback(() => {
     const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
-    const monthStart = startOfWeek(firstDayOfMonth, { locale: ptBR, weekStartsOn: 1 });
+    const monthStart = startOfWeek(firstDayOfMonth, { locale: ptBR, weekStartsOn: 1 }); // Segunda-feira
     const lastDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
-    const monthEnd = endOfWeek(lastDayOfMonth, { locale: ptBR, weekStartsOn: 1 });
-    const days = eachDayOfInterval({ start: monthStart, end: monthEnd });
-    const dayNames = Array.from({ length: 7 }, (_, i) => format(addDays(monthStart, i), "EEEEEE", { locale: ptBR }));
+    const monthEnd = endOfWeek(lastDayOfMonth, { locale: ptBR, weekStartsOn: 1 }); // Domingo
+    
+    const daysInGrid = eachDayOfInterval({ start: monthStart, end: monthEnd });
+    
+    const dayNames = Array.from({ length: 7 }, (_, i) => {
+        // Para ter Seg a Dom, e weekStartsOn: 1 (Monday) no startOfWeek
+        let dayIndex = (i + 1) % 7; // 1 (Mon) ... 6 (Sat), 0 (Sun)
+        if (dayIndex === 0) dayIndex = 6; // move Sun to end
+        else dayIndex = dayIndex - 1; // shift others
+        
+        const tempDate = addDays(startOfWeek(new Date(), { weekStartsOn: 1}), i); // any Monday
+        return format(tempDate, "EEEEEE", { locale: ptBR });
+    });
+
 
     return (
         <div className="grid grid-cols-7 gap-px bg-border border-l border-t flex-grow">
             {dayNames.map(dayName => (<div key={dayName} className="py-0.5 text-center text-xs font-medium text-muted-foreground bg-card border-r border-b capitalize">{dayName}</div>))}
-            {days.map((day, index) => renderDayCell(day, isSameMonth(day, currentDate), index))}
+            {daysInGrid.map((day, index) => renderDayCell(day, isSameMonth(day, currentDate), index))}
         </div>
     );
   }, [currentDate, renderDayCell]);
 
   const renderWeekView = useCallback(() => {
-    const weekStart = startOfWeek(currentDate, { weekStartsOn: 1, locale: ptBR }); 
-    const days = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
+    const weekStartActual = startOfWeek(currentDate, { weekStartsOn: 1, locale: ptBR }); 
+    const allWeekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStartActual, i));
+    
+    const displayedWeekDays = allWeekDays.filter(day => workingDaysOfWeek.includes(getDayIdFromDate(day)));
+
+    if (displayedWeekDays.length === 0) {
+      return (
+        <div className="flex flex-col items-center justify-center h-full text-muted-foreground p-4">
+          <CalendarX2 className="w-16 h-16 mb-4" />
+          <p className="text-lg font-semibold">Nenhum dia de trabalho configurado para esta semana.</p>
+          <p className="text-sm">Ajuste os dias de trabalho nas configurações da agenda.</p>
+        </div>
+      );
+    }
+    
     return (
-         <div className="grid grid-cols-7 gap-px bg-border border-l border-t flex-grow">
-            {days.map(day => (<div key={day.toString()} className="py-0.5 text-center text-xs font-medium text-muted-foreground bg-card border-r border-b capitalize">{format(day, "EEE d", { locale: ptBR })}</div>))}
-            {days.map((day, index) => renderDayCell(day, true, `week-${index}`))}
+         <div className={cn("grid gap-px bg-border border-l border-t flex-grow", `grid-cols-${displayedWeekDays.length}`)}>
+            {displayedWeekDays.map(day => (<div key={`header-${day.toString()}`} className="py-0.5 text-center text-xs font-medium text-muted-foreground bg-card border-r border-b capitalize">{format(day, "EEE d", { locale: ptBR })}</div>))}
+            {displayedWeekDays.map((day, index) => renderDayCell(day, true, `week-${index}`))}
         </div>
     );
-  }, [currentDate, renderDayCell]);
+  }, [currentDate, renderDayCell, workingDaysOfWeek]);
 
   const renderDayView = useCallback(() => {
      return (
@@ -337,4 +401,3 @@ function AppointmentCalendarComponent({ view, currentDate, filters, onAppointmen
 
 const AppointmentCalendar = React.memo(AppointmentCalendarComponent);
 export default AppointmentCalendar;
-

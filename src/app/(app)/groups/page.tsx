@@ -12,6 +12,7 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import type { GroupResource } from '@/app/(app)/groups/[id]/page'; // Import GroupResource type
 
 // Mock data for therapeutic groups
 export const mockTherapeuticGroups = [
@@ -31,7 +32,11 @@ export const mockTherapeuticGroups = [
       { id: "1", name: "Alice Wonderland", avatarUrl: "https://placehold.co/100x100/D0BFFF/4F3A76?text=AW", dataAiHint: "female avatar" },
       { id: "2", name: "Bob O Construtor", avatarUrl: "https://placehold.co/100x100/70C1B3/FFFFFF?text=BC", dataAiHint: "male builder" },
     ],
-    meetingAgenda: "Sessão 1: Apresentações e estabelecimento de metas do grupo.\nSessão 2: Entendendo os mecanismos da ansiedade e identificando gatilhos pessoais.\nSessão 3: Introdução a técnicas de respiração e relaxamento muscular progressivo.\nSessão 4: Estratégias de reestruturação cognitiva para pensamentos ansiogênicos.\nSessão 5: Exposição gradual e dessensibilização sistemática (discussão e planejamento)."
+    meetingAgenda: "Sessão 1: Apresentações e estabelecimento de metas do grupo.\nSessão 2: Entendendo os mecanismos da ansiedade e identificando gatilhos pessoais.\nSessão 3: Introdução a técnicas de respiração e relaxamento muscular progressivo.\nSessão 4: Estratégias de reestruturação cognitiva para pensamentos ansiogênicos.\nSessão 5: Exposição gradual e dessensibilização sistemática (discussão e planejamento).",
+    resources: [
+      { id: "grp1res1", name: "Folha de Exercício: Roda da Vida", type: "pdf", uploadDate: "2024-07-20", description: "Atividade para autoavaliação das áreas da vida.", dataAiHint: "documento exercício" },
+      { id: "grp1res2", name: "Áudio: Meditação Guiada para Ansiedade (5 min)", type: "link", url: "#", uploadDate: "2024-07-21", description: "Link para meditação no YouTube/SoundCloud.", dataAiHint: "áudio meditação" }
+    ] as GroupResource[],
   },
   {
     id: "grp2",
@@ -49,7 +54,10 @@ export const mockTherapeuticGroups = [
       { id: "3", name: "Charlie Brown", avatarUrl: "https://placehold.co/100x100/FCEEAC/E6B325?text=CB", dataAiHint: "boy character" },
       { id: "4", name: "Diana Prince", avatarUrl: "https://placehold.co/100x100/E6B325/FFFFFF?text=DP", dataAiHint: "female hero" },
     ],
-    meetingAgenda: "Encontro 1: Quebra-gelo e comunicação verbal básica (escuta ativa, iniciar conversas).\nEncontro 2: Comunicação não-verbal (linguagem corporal, contato visual).\nEncontro 3: Assertividade vs. Agressividade vs. Passividade.\nEncontro 4: Lidando com feedback e críticas.\nEncontro 5: Resolução de conflitos interpessoais."
+    meetingAgenda: "Encontro 1: Quebra-gelo e comunicação verbal básica (escuta ativa, iniciar conversas).\nEncontro 2: Comunicação não-verbal (linguagem corporal, contato visual).\nEncontro 3: Assertividade vs. Agressividade vs. Passividade.\nEncontro 4: Lidando com feedback e críticas.\nEncontro 5: Resolução de conflitos interpessoais.",
+    resources: [
+      { id: "grp2res1", name: "Cartões de Cenários Sociais", type: "pdf", uploadDate: "2024-07-18", description: "Situações para role-playing.", dataAiHint: "documento cartões" }
+    ] as GroupResource[],
   },
   {
     id: "grp3",
@@ -63,8 +71,9 @@ export const mockTherapeuticGroups = [
     endTime: "11:30",
     nextSession: "2024-08-05T10:00:00Z",
     description: "Um espaço para processar o luto e encontrar apoio após a perda de um ente querido. O grupo oferece um ambiente de compreensão e ferramentas para lidar com a dor.",
-    participants: [], // Initially no participants for this group
-    meetingAgenda: "Semana 1: Introdução ao processo de luto e compartilhamento de histórias.\nSemana 2: Validando emoções e lidando com a saudade.\nSemana 3: Rituais de despedida e ressignificação.\nSemana 4: Encontrando novo sentido e reconstruindo o futuro."
+    participants: [], 
+    meetingAgenda: "Semana 1: Introdução ao processo de luto e compartilhamento de histórias.\nSemana 2: Validando emoções e lidando com a saudade.\nSemana 3: Rituais de despedida e ressignificação.\nSemana 4: Encontrando novo sentido e reconstruindo o futuro.",
+    resources: [] as GroupResource[],
   },
 ];
 

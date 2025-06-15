@@ -1,3 +1,4 @@
+
 "use client";
 
 import * as React from "react";
@@ -16,6 +17,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Save } from "lucide-react";
 
 /**
  * Schema for the DateNotesForm
@@ -54,6 +56,7 @@ export default function DateNotesForm({ defaultDateTime }: DateNotesFormProps) {
 
   function onSubmit(data: DateNotesFormValues) {
     console.log("Form submitted", data);
+    // TODO: Add toast notification for success/failure
   }
 
   return (
@@ -102,7 +105,10 @@ export default function DateNotesForm({ defaultDateTime }: DateNotesFormProps) {
           )}
         />
 
-        <Button type="submit">Salvar</Button>
+        <Button type="submit" className="bg-accent hover:bg-accent/90 text-accent-foreground">
+          <Save className="mr-2 h-4 w-4" />
+          Salvar
+        </Button>
       </form>
     </Form>
   );

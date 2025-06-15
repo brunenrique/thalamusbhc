@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useForm } from "react-hook-form";
@@ -7,6 +8,7 @@ import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import { CalendarPlus } from "lucide-react";
 
 export const scheduleSchema = z.object({
   dateTime: z.coerce.date().refine((d) => d >= new Date(), {
@@ -28,6 +30,7 @@ export default function ScheduleForm() {
 
   const onSubmit = (data: ScheduleFormValues) => {
     console.log("submit", data);
+    // TODO: Add toast notification
   };
 
   return (
@@ -59,7 +62,8 @@ export default function ScheduleForm() {
             </FormItem>
           )}
         />
-        <Button type="submit" className="bg-accent text-accent-foreground">
+        <Button type="submit" className="bg-accent hover:bg-accent/90 text-accent-foreground">
+          <CalendarPlus className="mr-2 h-4 w-4" />
           Agendar
         </Button>
       </form>

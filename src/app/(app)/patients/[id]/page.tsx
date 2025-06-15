@@ -663,7 +663,7 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
-                    <DialogTitle>Atribuir Inventário/Escala a {patient.name}</DialogTitle>
+                    <DialogTitle className="font-headline">Atribuir Inventário/Escala a {patient.name}</DialogTitle>
                     <DialogDescription>
                         Selecione um modelo e uma data de envio.
                     </DialogDescription>
@@ -714,7 +714,7 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
                 </div>
                 <DialogFooter>
                   <Button type="button" variant="outline" onClick={() => {/* Close logic or use DialogClose */}}>Cancelar</Button>
-                  <Button type="button" onClick={handleAssignInventory} disabled={!selectedInventoryTemplate || !inventorySendDate}>Atribuir</Button>
+                  <Button type="button" onClick={handleAssignInventory} disabled={!selectedInventoryTemplate || !inventorySendDate} className="bg-accent hover:bg-accent/90 text-accent-foreground">Atribuir</Button>
                 </DialogFooter>
             </DialogContent>
         </Dialog>
@@ -795,7 +795,7 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
             </DialogTrigger>
             <DialogContent className="sm:max-w-md">
                 <DialogHeader>
-                    <DialogTitle>Compartilhar Recurso com {patient.name}</DialogTitle>
+                    <DialogTitle className="font-headline">Compartilhar Recurso com {patient.name}</DialogTitle>
                     <DialogDescription>
                         Selecione um recurso da biblioteca da clínica para compartilhar com este paciente.
                     </DialogDescription>
@@ -827,7 +827,7 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
                 </div>
                 <DialogFooter>
                   <Button type="button" variant="outline" onClick={() => {/* Close logic or use DialogClose */}}>Cancelar</Button>
-                  <Button type="button" onClick={handleShareResource} disabled={!selectedGlobalResource}>Compartilhar</Button>
+                  <Button type="button" onClick={handleShareResource} disabled={!selectedGlobalResource} className="bg-accent hover:bg-accent/90 text-accent-foreground">Compartilhar</Button>
                 </DialogFooter>
             </DialogContent>
           </Dialog>

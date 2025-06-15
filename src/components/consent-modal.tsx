@@ -1,10 +1,11 @@
+
 "use client";
 
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle } from '@/components/ui/dialog';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
-import { db } from '@/lib/firebase'; // Alterado de @/services/firebase
+import { db } from '@/lib/firebase';
 import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 
 interface ConsentModalProps {
@@ -25,14 +26,14 @@ export default function ConsentModal({ uid }: ConsentModalProps) {
     <Dialog open={open}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>Consentimento</DialogTitle>
+          <DialogTitle className="font-headline">Consentimento</DialogTitle>
         </DialogHeader>
         <div className="space-x-2 flex items-center py-4">
           <Checkbox id="consent" checked={checked} onCheckedChange={(v) => setChecked(!!v)} />
           <label htmlFor="consent" className="text-sm">Aceito política de privacidade</label>
         </div>
         <DialogFooter>
-          <Button onClick={handleConfirm} disabled={!checked} className="bg-accent text-accent-foreground">
+          <Button onClick={handleConfirm} disabled={!checked} className="bg-accent hover:bg-accent/90 text-accent-foreground">
             Confirmar
           </Button>
         </DialogFooter>

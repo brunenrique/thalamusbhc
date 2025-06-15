@@ -219,7 +219,7 @@ function AppointmentCalendarComponent({ view, currentDate, filters, onAppointmen
                   <div
                     className={cn(
                       "w-full p-1.5 rounded cursor-pointer shadow-sm transition-all leading-tight",
-                      "flex items-center gap-1.5 text-xs", // Applied text-xs here
+                      "flex items-center gap-1.5 text-xs", 
                       getStatusStyles(appt.status)
                     )}
                   >
@@ -300,7 +300,7 @@ function AppointmentCalendarComponent({ view, currentDate, filters, onAppointmen
 
     return (
         <div className="grid grid-cols-7 gap-px bg-border border-l border-t flex-grow">
-            {dayNames.map(dayName => (<div key={dayName} className="py-1 text-center text-xs font-medium text-muted-foreground bg-card border-r border-b capitalize">{dayName}</div>))}
+            {dayNames.map(dayName => (<div key={dayName} className="py-0.5 text-center text-xs font-medium text-muted-foreground bg-card border-r border-b capitalize">{dayName}</div>))}
             {days.map((day, index) => renderDayCell(day, isSameMonth(day, currentDate), index))}
         </div>
     );
@@ -311,7 +311,7 @@ function AppointmentCalendarComponent({ view, currentDate, filters, onAppointmen
     const days = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
     return (
          <div className="grid grid-cols-7 gap-px bg-border border-l border-t flex-grow">
-            {days.map(day => (<div key={day.toString()} className="py-1 text-center text-xs font-medium text-muted-foreground bg-card border-r border-b capitalize">{format(day, "EEE d", { locale: ptBR })}</div>))}
+            {days.map(day => (<div key={day.toString()} className="py-0.5 text-center text-xs font-medium text-muted-foreground bg-card border-r border-b capitalize">{format(day, "EEE d", { locale: ptBR })}</div>))}
             {days.map((day, index) => renderDayCell(day, true, `week-${index}`))}
         </div>
     );
@@ -320,7 +320,7 @@ function AppointmentCalendarComponent({ view, currentDate, filters, onAppointmen
   const renderDayView = useCallback(() => {
      return (
          <div className="flex flex-col gap-px bg-border border-l border-t flex-grow">
-            <div className="py-1 text-center text-xs font-medium text-muted-foreground bg-card border-r border-b capitalize">{format(currentDate, "EEEE, d 'de' MMMM", { locale: ptBR })}</div>
+            <div className="py-0.5 text-center text-xs font-medium text-muted-foreground bg-card border-r border-b capitalize">{format(currentDate, "EEEE, d 'de' MMMM", { locale: ptBR })}</div>
             {renderDayCell(currentDate, true, "day-view")}
         </div>
     );

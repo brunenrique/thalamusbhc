@@ -5,7 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Mail, Phone, CalendarDays, Edit, FileText, Brain, CheckCircle, Clock, MessageSquare, Trash2, Users as UsersIconLucide, Home as HomeIconLucide, Share2, UploadCloud, Calendar as CalendarIconShad, Lightbulb, Tag, BarChart3 as BarChart3Icon, ShieldAlert as ShieldAlertIcon, CheckCircle as CheckCircleIcon, TrendingUp, BookOpen, Activity, Users2, ClipboardList, Target, ListChecks, PlusCircle, Archive, AlertTriangle, History as HistoryIcon, Bot, Image as ImageIcon, Save, CalendarCheck, FileArchive, Eye, Pencil } from "lucide-react";
+import { Mail, Phone, CalendarDays, Edit, FileText, Brain, CheckCircle, Clock, MessageSquare, Trash2, Users as UsersIconLucide, Home as HomeIconLucide, Share2, UploadCloud, Calendar as CalendarIconShad, Lightbulb, Tag, BarChart3 as BarChart3Icon, ShieldAlert as ShieldAlertIcon, CheckCircle as CheckCircleIcon, TrendingUp, BookOpen, Activity, Users2, ClipboardList, Target, ListChecks, PlusCircle, Archive, AlertTriangle, History as HistoryIcon, Bot, Image as ImageIcon, Save, CalendarCheck, FileArchive, Eye, Pencil, FilePlus2 } from "lucide-react";
 import CopyButton from "@/components/ui/copy-button";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation"; 
@@ -163,10 +163,25 @@ interface PsychologicalDocument {
   lastModified?: string; // ISO date string
 }
 
-const mockPsychologicalDocuments: PsychologicalDocument[] = [
+const mockPsychologicalDocumentsList: PsychologicalDocument[] = [
   { id: "doc1", name: "Laudo Psicológico Inicial - Alice W.", type: "Laudo", creationDate: "2024-07-05", lastModified: "2024-07-08" },
   { id: "doc2", name: "Atestado de Comparecimento - Alice W.", type: "Atestado", creationDate: "2024-07-15" },
   { id: "doc3", name: "Relatório de Avaliação BDI - Alice W.", type: "Relatório de Avaliação", creationDate: "2024-07-12", lastModified: "2024-07-12"},
+];
+
+interface DocumentTemplate {
+  id: string;
+  name: string;
+  type: PsychologicalDocument["type"];
+}
+
+const mockDocumentTemplates: DocumentTemplate[] = [
+  { id: "tpl_laudo_inicial", name: "Laudo Psicológico Inicial (Padrão)", type: "Laudo" },
+  { id: "tpl_atestado_comp", name: "Atestado de Comparecimento", type: "Atestado" },
+  { id: "tpl_declaracao_acomp", name: "Declaração de Acompanhamento Psicológico", type: "Declaração" },
+  { id: "tpl_rel_bdi", name: "Relatório de Resultados - BDI", type: "Relatório de Avaliação" },
+  { id: "tpl_rel_gad7", name: "Relatório de Resultados - GAD-7", type: "Relatório de Avaliação" },
+  { id: "tpl_outro", name: "Outro Documento (Personalizado)", type: "Outro" },
 ];
 
 
@@ -194,7 +209,7 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
   const [sessionNotes, setSessionNotes] = useState(initialSessionNotes);
   const [assessments, setAssessments] = useState<Array<{ id: string; name: string; dateSent: string; status: "Completed" | "Pending" | "Sent"; score?: string }>>(initialAssessments);
   const [patientResources, setPatientResources] = useState<Array<{ id: string; name: string; type: "pdf" | "docx" | "image" | "other"; size: string; sharedDate: string; dataAiHint: string; uploadDate?: string }>>(initialPatientResources);
-  const [psychologicalDocuments, setPsychologicalDocuments] = useState<PsychologicalDocument[]>(mockPsychologicalDocuments);
+  const [psychologicalDocuments, setPsychologicalDocuments] = useState<PsychologicalDocument[]>(mockPsychologicalDocumentsList);
 
 
   const [selectedInventoryTemplate, setSelectedInventoryTemplate] = useState<string>("");
@@ -211,6 +226,9 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
   const [selectedGlobalResource, setSelectedGlobalResource] = useState<string>("");
   const [caseStudyNotes, setCaseStudyNotes] = useState<string>("");
   const [nextSessionsPlan, setNextSessionsPlan] = useState<string>("");
+
+  const [isCreateDocumentDialogOpen, setIsCreateDocumentDialogOpen] = useState(false);
+  const [selectedDocumentTemplateId, setSelectedDocumentTemplateId] = useState<string>("");
 
 
   useEffect(() => {
@@ -366,6 +384,34 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
       description: "O planejamento para as próximas sessões foi salvo.",
     });
   }, [nextSessionsPlan, toast]);
+
+  const handleCreateDocument = useCallback(() => {
+    if (!selectedDocumentTemplateId) {
+      toast({ title: "Erro", description: "Por favor, selecione um modelo de documento.", variant: "destructive" });
+      return;
+    }
+    const template = mockDocumentTemplates.find(t => t.id === selectedDocumentTemplateId);
+    if (!template) {
+      toast({ title: "Erro", description: "Modelo de documento não encontrado.", variant: "destructive" });
+      return;
+    }
+
+    const newDocument: PsychologicalDocument = {
+      id: `doc_${Date.now()}`,
+      name: `${template.name} - ${patient.name}`,
+      type: template.type,
+      creationDate: new Date().toISOString(),
+      lastModified: new Date().toISOString(),
+    };
+
+    setPsychologicalDocuments(prev => [newDocument, ...prev].sort((a,b) => new Date(b.creationDate).getTime() - new Date(a.creationDate).getTime()));
+    toast({
+      title: "Documento Criado (Simulado)",
+      description: `O documento "${newDocument.name}" foi criado para ${patient.name}.`,
+    });
+    setIsCreateDocumentDialogOpen(false);
+    setSelectedDocumentTemplateId("");
+  }, [selectedDocumentTemplateId, patient.name, toast]);
 
 
   const formattedDob = useMemo(() => patient.dob ? format(new Date(patient.dob), "P", { locale: ptBR }) : "N/A", [patient.dob]);
@@ -842,7 +888,7 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
                               <p className="text-sm text-muted-foreground whitespace-pre-wrap">{generalPatientInsights.inventoryComparisonInsights}</p>
                           </div>
                       )}
-                      <div>
+                       <div>
                         <h4 className="text-sm font-semibold flex items-center mb-1"><Lightbulb className="mr-2 h-4 w-4 text-muted-foreground" /> Sugestões e Observações da IA:</h4>
                         <p className="text-sm text-muted-foreground whitespace-pre-wrap">{generalPatientInsights.suggestiveInsights}</p>
                       </div>
@@ -906,9 +952,38 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
                 <CardTitle className="font-headline flex items-center"><FileArchive className="mr-2 h-5 w-5 text-primary"/> Documentos Psicológicos</CardTitle>
                 <CardDescription>Laudos, atestados, declarações e outros documentos do paciente.</CardDescription>
               </div>
-              <Button className="bg-accent hover:bg-accent/90 text-accent-foreground">
-                <PlusCircle className="mr-2 h-4 w-4" /> Criar Novo Documento
-              </Button>
+              <Dialog open={isCreateDocumentDialogOpen} onOpenChange={setIsCreateDocumentDialogOpen}>
+                <DialogTrigger asChild>
+                    <Button className="bg-accent hover:bg-accent/90 text-accent-foreground" onClick={() => setSelectedDocumentTemplateId("")}>
+                        <FilePlus2 className="mr-2 h-4 w-4" /> Criar Novo Documento
+                    </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                        <DialogTitle className="font-headline">Criar Documento para {patient.name}</DialogTitle>
+                        <DialogDescription>Selecione um modelo para iniciar a criação do documento.</DialogDescription>
+                    </DialogHeader>
+                    <div className="grid gap-4 py-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="document-template-select">Modelo de Documento *</Label>
+                            <Select value={selectedDocumentTemplateId} onValueChange={setSelectedDocumentTemplateId}>
+                                <SelectTrigger id="document-template-select"><SelectValue placeholder="Selecione um modelo" /></SelectTrigger>
+                                <SelectContent>
+                                {mockDocumentTemplates.map(template => (
+                                    <SelectItem key={template.id} value={template.id}>{template.name} ({template.type})</SelectItem>
+                                ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                    </div>
+                    <DialogFooter>
+                      <Button type="button" variant="outline" onClick={() => setIsCreateDocumentDialogOpen(false)}>Cancelar</Button>
+                      <Button type="button" onClick={handleCreateDocument} disabled={!selectedDocumentTemplateId} className="bg-accent hover:bg-accent/90 text-accent-foreground">
+                        Criar Documento
+                      </Button>
+                    </DialogFooter>
+                </DialogContent>
+              </Dialog>
             </CardHeader>
             <CardContent className="space-y-3">
               {psychologicalDocuments.length > 0 ? (

@@ -289,7 +289,9 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
     const summaryForInsights = mostRecentNote.summary;
 
     try {
+      // Simulação de chamada de API
       await new Promise(resolve => setTimeout(resolve, 1500));
+      // Simulação de resultado
       setGeneralPatientInsights({
         keywords: mostRecentNote.keywords || ["Tópico 1", "Tópico 2"],
         themes: mostRecentNote.themes || ["Tema A", "Tema B"],
@@ -301,7 +303,7 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
       });
       toast({ title: "Insights Gerais Gerados (Simulado)", description: "Insights do paciente foram gerados com base na última anotação de sessão." });
     } catch (e) {
-      
+      console.error("Erro ao gerar insights do paciente:", e);
       setErrorGeneralInsights("Não foi possível gerar os insights gerais do paciente. Por favor, tente novamente.");
     } finally {
       setIsLoadingGeneralInsights(false);
@@ -444,7 +446,7 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
             </CardTitle>
             <CardDescription>Acompanhe as metas definidas para o tratamento do paciente.</CardDescription>
           </div>
-          <Button variant="outline" className="bg-accent hover:bg-accent/90 text-accent-foreground">
+          <Button className="bg-accent hover:bg-accent/90 text-accent-foreground">
             <PlusCircle className="mr-2 h-4 w-4" /> Adicionar Meta
           </Button>
         </CardHeader>
@@ -475,7 +477,7 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
             </CardTitle>
             <CardDescription>Exercícios, tarefas e planos propostos ao paciente.</CardDescription>
           </div>
-          <Button variant="outline" className="bg-accent hover:bg-accent/90 text-accent-foreground">
+          <Button className="bg-accent hover:bg-accent/90 text-accent-foreground">
             <PlusCircle className="mr-2 h-4 w-4" /> Adicionar Tarefa/Exercício
           </Button>
         </CardHeader>
@@ -633,10 +635,10 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
             <CardDescription>Registro cronológico das sessões de terapia.</CardDescription>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" onClick={handleGenerateProntuario} className="bg-accent hover:bg-accent/90 text-accent-foreground">
+            <Button onClick={handleGenerateProntuario} className="bg-accent hover:bg-accent/90 text-accent-foreground">
               <UploadCloud className="mr-2 h-4 w-4" /> Gerar Prontuário
             </Button>
-            <Button variant="outline" className="bg-accent hover:bg-accent/90 text-accent-foreground">
+            <Button className="bg-accent hover:bg-accent/90 text-accent-foreground">
               <FileText className="mr-2 h-4 w-4" /> Nova Anotação
             </Button>
           </div>
@@ -657,7 +659,7 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
           </div>
           <Dialog>
             <DialogTrigger asChild>
-                <Button variant="outline" className="bg-accent hover:bg-accent/90 text-accent-foreground">
+                <Button className="bg-accent hover:bg-accent/90 text-accent-foreground">
                     <CheckCircle className="mr-2 h-4 w-4" /> Atribuir Inventário/Escala
                 </Button>
             </DialogTrigger>
@@ -789,7 +791,7 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
           </div>
           <Dialog>
             <DialogTrigger asChild>
-               <Button variant="outline" className="bg-accent hover:bg-accent/90 text-accent-foreground">
+               <Button className="bg-accent hover:bg-accent/90 text-accent-foreground">
                 <Share2 className="mr-2 h-4 w-4" /> Compartilhar Novo Recurso
                </Button>
             </DialogTrigger>

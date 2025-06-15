@@ -6,6 +6,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsi
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { ChartConfig, ChartContainer, ChartTooltip as RechartsChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
+import { CardHeader, CardTitle, CardDescription, Card } from '@/components/ui/card'; // Added Card imports
 
 interface ProgressDataPoint {
   date: Date;
@@ -17,7 +18,7 @@ interface PatientProgressChartProps {
   instrumentName: string;
 }
 
-const chartConfig = (instrumentName: string): ChartConfig => ({ // Added explicit return type for chartConfig
+const chartConfig = (instrumentName: string): ChartConfig => ({
   score: {
     label: instrumentName,
     color: "hsl(var(--chart-1))",
@@ -38,6 +39,14 @@ function PatientProgressChartComponent({ data, instrumentName }: PatientProgress
   const config = React.useMemo(() => chartConfig(instrumentName), [instrumentName]);
 
   return (
+    // Removed Card wrapper from here as it's part of the parent page.
+    // If this component were to be used standalone with a Card, it would be:
+    // <Card>
+    //   <CardHeader>
+    //     <CardTitle className="font-headline">Progresso: {instrumentName}</CardTitle>
+    //     <CardDescription>Evolução das pontuações ao longo do tempo.</CardDescription>
+    //   </CardHeader>
+    //   <CardContent className="h-[300px] p-0"> {/* Adjust height as needed */}
     <ChartContainer config={config} className="min-h-[200px] w-full h-full">
       <ResponsiveContainer width="100%" height="100%">
         <LineChart
@@ -97,6 +106,8 @@ function PatientProgressChartComponent({ data, instrumentName }: PatientProgress
         </LineChart>
       </ResponsiveContainer>
     </ChartContainer>
+    //   </CardContent>
+    // </Card>
   );
 }
 

@@ -88,11 +88,11 @@ export default function BackupPage() {
     return () => clearInterval(progressInterval);
   }, [currentBackupStatus, toast]);
 
-  const handleStartManualBackup = () => {
+  const handleStartNewBackup = () => {
     if (isManualBackupRunning) return;
     setIsManualBackupRunning(true);
     setCurrentBackupStatus("Em Progresso");
-    toast({ title: "Backup Manual Iniciado", description: "O processo de backup manual foi iniciado." });
+    toast({ title: "Novo Backup Iniciado", description: "O processo de backup foi iniciado." });
   };
   
   const handleSimulateDownload = (backup: BackupHistoryEntry) => {
@@ -130,25 +130,21 @@ export default function BackupPage() {
     return <AlertTriangle className="mr-1.5 h-3.5 w-3.5 text-red-500" />;
   }
 
-  const [simpleLoading, setSimpleLoading] = useState(false);
 
   return (
     <div className="space-y-6">
-      <Card>
+      <Card className="shadow-sm">
         <CardHeader>
           <CardTitle className="font-headline">Backup de Dados</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <p>Mantenha uma cópia segura das informações da clínica realizando backups periódicos.</p>
           <Button
-            onClick={() => {
-              setSimpleLoading(true);
-              setTimeout(() => setSimpleLoading(false), 2000);
-            }}
-            disabled={simpleLoading}
-            className="w-full h-12 text-base"
+            onClick={handleStartNewBackup}
+            disabled={isManualBackupRunning || currentBackupStatus === "Em Progresso"}
+            className="w-full h-12 text-base bg-accent hover:bg-accent/90 text-accent-foreground"
           >
-            {simpleLoading && <PlayCircle className="mr-2 h-4 w-4 animate-spin" />}
+            {(isManualBackupRunning || currentBackupStatus === "Em Progresso") && <PlayCircle className="mr-2 h-4 w-4 animate-spin" />}
             Iniciar Novo Backup
           </Button>
         </CardContent>
@@ -183,8 +179,8 @@ export default function BackupPage() {
               </div>
             )}
             <div className="flex flex-wrap gap-2 pt-2">
-              <Button onClick={handleStartManualBackup} className="bg-accent hover:bg-accent/90 text-accent-foreground" disabled={isManualBackupRunning || currentBackupStatus === "Em Progresso"}>
-                <DownloadCloud className="mr-2 h-4 w-4" /> Iniciar Backup Manual
+              <Button onClick={handleStartNewBackup} className="bg-accent hover:bg-accent/90 text-accent-foreground" disabled={isManualBackupRunning || currentBackupStatus === "Em Progresso"}>
+                <DownloadCloud className="mr-2 h-4 w-4" /> Iniciar Backup Manual Adicional
               </Button>
               <Button variant="outline" onClick={handleSettingsClick}>
                 <Settings2 className="mr-2 h-4 w-4" /> Configurações

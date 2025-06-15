@@ -28,7 +28,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"; // Removed DialogClose as it's not directly used for control here
+} from "@/components/ui/dialog";
 import { Textarea } from '../ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 
@@ -226,7 +226,7 @@ function SessionNoteCardComponent({ note, patientName, therapistName = "Psicólo
       <Dialog open={isReportDialogVisible} onOpenChange={setIsReportDialogVisible}>
         <DialogContent className="sm:max-w-2xl">
           <DialogHeader>
-            <DialogTitle>Rascunho: {currentReportType}</DialogTitle>
+            <DialogTitle className="font-headline">Rascunho: {currentReportType}</DialogTitle>
             <DialogDescription>
               Revise o rascunho gerado pela IA. Você pode copiar e colar em seu editor de preferência.
             </DialogDescription>

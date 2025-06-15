@@ -130,6 +130,7 @@ export default function LoginForm() {
                 <FormItem className="flex flex-row items-start space-x-3 space-y-0">
                   <FormControl>
                     <Checkbox
+                      aria-label="Lembrar-me"
                       checked={field.value}
                       onCheckedChange={field.onChange}
                     />

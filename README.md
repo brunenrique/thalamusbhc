@@ -24,8 +24,12 @@ Plataforma web para gestão de clínicas de psicologia, com agenda integrada, pr
     npm install
     ```
 3.  **Configure as Variáveis de Ambiente:**
-    *   Crie o arquivo `.env.local` na raiz do projeto. Você pode copiar de `env.example` se ele existir: `cp env.example .env.local` (caso o `env.example` não esteja presente, crie `.env.local` manualmente).
-    *   Preencha o arquivo `.env.local` com as credenciais do seu projeto Firebase e outras chaves necessárias. Veja a seção "Variáveis de Ambiente" abaixo para detalhes.
+    *   Copie o arquivo `env.example` (na raiz do projeto) para um novo arquivo chamado `.env.local`:
+        ```bash
+        cp env.example .env.local
+        ```
+        (O arquivo `.env.local` é ignorado pelo Git e é onde suas chaves reais devem ser armazenadas localmente.)
+    *   Preencha o arquivo `.env.local` com as credenciais do seu projeto Firebase e outras chaves necessárias. Veja a seção "Variáveis de Ambiente" abaixo para detalhes sobre cada variável.
 4.  **Inicie os Emuladores Firebase (em um terminal separado):**
     *   É altamente recomendado usar os emuladores do Firebase para desenvolvimento local.
     *   Se esta é a primeira vez, configure os emuladores: `firebase init emulators` (selecione Auth, Firestore, Storage, Functions).
@@ -35,31 +39,31 @@ Plataforma web para gestão de clínicas de psicologia, com agenda integrada, pr
     ```bash
     npm run dev
     ```
-    O aplicativo ficará disponível em `http://localhost:9003` (ou a porta especificada no seu `package.json`).
+    O aplicativo ficará disponível em `http://localhost:9003`.
 
 ### Comandos úteis
 
 - `npm run dev` &mdash; inicia o servidor Next.js em modo desenvolvimento na porta `9003` (geralmente com Turbopack).
 - `npm run genkit:dev` &mdash; executa os fluxos de IA em modo de desenvolvimento.
-- `npm run genkit:dev` &mdash; verifica os tipos TypeScript.
+- `npm run typecheck` &mdash; verifica os tipos TypeScript.
 - `npm run lint` &mdash; executa o ESLint.
 - `npm test` &mdash; roda a suíte de testes (pode precisar dos emuladores Firebase em execução).
 - `npm run build` &mdash; gera o build de produção.
 
 ## Variáveis de Ambiente
 
-O projeto utiliza variáveis de ambiente para configurar os serviços do Firebase e outras integrações. O arquivo `env.example` (se existir no seu projeto, ou crie um `.env.local` baseado nas instruções abaixo) serve como um template. Crie um arquivo `.env.local` (que não deve ser commitado) e preencha-o com seus valores.
+O projeto utiliza variáveis de ambiente para configurar os serviços do Firebase e outras integrações. O arquivo `env.example` serve como um template. Crie um arquivo `.env.local` (que não deve ser commitado) copiando `env.example` e preencha-o com seus valores.
 
 ### Variáveis do Firebase Client SDK (Públicas)
 
-Estas variáveis são prefixadas com `NEXT_PUBLIC_` e são seguras para serem expostas no navegador. Elas são usadas para inicializar o Firebase SDK no lado do cliente.
+Estas variáveis são prefixadas com `NEXT_PUBLIC_` e são seguras para serem expostas no navegador. Elas são usadas para inicializar o Firebase SDK no lado do cliente. Os valores de exemplo fornecidos abaixo devem ser substituídos pelos seus próprios.
 
--   `NEXT_PUBLIC_FIREBASE_API_KEY`: Sua chave de API web do Firebase.
--   `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN`: `your-project-id.firebaseapp.com`
--   `NEXT_PUBLIC_FIREBASE_PROJECT_ID`: O ID do seu projeto Firebase.
--   `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET`: `your-project-id.appspot.com`
--   `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID`: ID do remetente para Cloud Messaging.
--   `NEXT_PUBLIC_FIREBASE_APP_ID`: ID do seu aplicativo web Firebase.
+-   `NEXT_PUBLIC_FIREBASE_API_KEY`: Sua chave de API web do Firebase. (Ex: `AIzaSyDxuqfMWrLWD30JfBQfpyiHnG0ardssEpM`)
+-   `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN`: `psiguard.firebaseapp.com` (Substitua 'psiguard' pelo ID do seu projeto se for diferente)
+-   `NEXT_PUBLIC_FIREBASE_PROJECT_ID`: `psiguard` (Substitua pelo ID do seu projeto Firebase)
+-   `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET`: `psiguard.appspot.com` (Substitua 'psiguard' pelo ID do seu projeto se for diferente)
+-   `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID`: ID do remetente para Cloud Messaging. (Ex: `180993889183`)
+-   `NEXT_PUBLIC_FIREBASE_APP_ID`: ID do seu aplicativo web Firebase. (Ex: `1:180993889183:web:ee0c3bca0b4830d024a3aa`)
 -   `NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID` (Opcional): Para Google Analytics.
 
 Você pode encontrar esses valores nas configurações do seu projeto Firebase:
@@ -67,20 +71,20 @@ Você pode encontrar esses valores nas configurações do seu projeto Firebase:
 
 ### Variáveis do Firebase Admin SDK (Secretas - Lado do Servidor)
 
-Estas variáveis são usadas para inicializar o Firebase Admin SDK no backend (ex: em Cloud Functions ou rotas de API Next.js). **NUNCA as exponha no código do cliente ou com o prefixo `NEXT_PUBLIC_`.** Em produção, configure-as diretamente no seu ambiente de hospedagem (ex: Vercel Environment Variables, Google Cloud Run secrets). Para desenvolvimento local com funções de servidor, elas podem estar no `.env.local`.
+Estas variáveis são usadas para inicializar o Firebase Admin SDK no backend (ex: em Cloud Functions ou rotas de API Next.js). **NUNCA as exponha no código do cliente ou com o prefixo `NEXT_PUBLIC_`.** Em produção, configure-as diretamente no seu ambiente de hospedagem (ex: Vercel Environment Variables, Google Cloud Run secrets). Para desenvolvimento local com funções de servidor, elas devem estar no `.env.local`.
 
--   `FIREBASE_PROJECT_ID`: O ID do seu projeto Firebase. (Pode ser o mesmo que `NEXT_PUBLIC_FIREBASE_PROJECT_ID`).
+-   `FIREBASE_PROJECT_ID`: O ID do seu projeto Firebase. (Deve ser o mesmo que `NEXT_PUBLIC_FIREBASE_PROJECT_ID`).
 -   `FIREBASE_CLIENT_EMAIL`: O email da conta de serviço do Firebase Admin SDK.
 -   `FIREBASE_PRIVATE_KEY`: A chave privada da conta de serviço.
 
 Para obter `FIREBASE_CLIENT_EMAIL` e `FIREBASE_PRIVATE_KEY`:
 *No Console do Firebase -> Seu Projeto -> Configurações do Projeto -> Contas de serviço -> Gerar nova chave privada (isso fará o download de um arquivo JSON). O `client_email` e `private_key` estão neste arquivo.*
-*Ao adicionar `FIREBASE_PRIVATE_KEY` ao seu arquivo `.env` ou variável de ambiente, certifique-se de formatar corretamente as quebras de linha (geralmente substituindo `\n` literais por novas linhas reais, ou envolvendo a chave em aspas duplas se o seu sistema `.env` suportar).*
+*Ao adicionar `FIREBASE_PRIVATE_KEY` ao seu arquivo `.env.local` ou variável de ambiente, certifique-se de formatar corretamente as quebras de linha (geralmente substituindo `\n` literais por novas linhas reais, ou envolvendo a chave em aspas duplas se o seu sistema `.env` suportar).*
 
 ### Variáveis de Configuração do Emulador (Desenvolvimento)
 
 -   `NEXT_PUBLIC_FIREBASE_EMULATOR_HOST`: Define o host que o SDK do Firebase do lado do cliente usará para se conectar aos emuladores.
-    *   Para desenvolvimento local padrão ou dentro de contêineres onde os emuladores estão acessíveis via `localhost` ou `127.0.0.1` (especialmente se os emuladores em `firebase.json` estiverem configurados para `host: "0.0.0.0"`), o valor `localhost` é geralmente recomendado como ponto de partida. Se `localhost` não funcionar, `127.0.0.1` pode ser tentado.
+    *   Para desenvolvimento local padrão ou dentro de contêineres onde os emuladores estão acessíveis via `localhost` ou `127.0.0.1` (especialmente se os emuladores em `firebase.json` estiverem configurados para `host: "0.0.0.0"`), o valor `localhost` é geralmente recomendado. Se `localhost` não funcionar, `127.0.0.1` pode ser tentado. O valor padrão no `env.example` é `localhost`.
     *   Se você estiver acessando seu ambiente de desenvolvimento (ex: Cloud Workstation) por um IP ou nome de host específico e os emuladores estiverem expostos nesse endereço, ajuste conforme necessário.
 
 ### Outras Variáveis
@@ -91,7 +95,7 @@ Para obter `FIREBASE_CLIENT_EMAIL` e `FIREBASE_PRIVATE_KEY`:
 
 ## Importante sobre Segurança
 
-*   **NUNCA** comite seu arquivo `.env.local` ou qualquer arquivo contendo chaves privadas ou credenciais sensíveis para o seu repositório Git.
+*   **NUNCA** comite seu arquivo `.env.local` ou qualquer arquivo contendo chaves privadas ou credenciais sensíveis para o seu repositório Git. O arquivo `.env.local` já deve estar no `.gitignore` padrão de projetos Next.js.
 *   As variáveis `NEXT_PUBLIC_` são visíveis no navegador. Não coloque segredos nelas.
 *   As credenciais do Firebase Admin SDK (`FIREBASE_CLIENT_EMAIL`, `FIREBASE_PRIVATE_KEY`) concedem acesso total ao seu projeto Firebase e devem ser mantidas em segredo absoluto, apenas no lado do servidor.
 
@@ -114,4 +118,3 @@ Para obter `FIREBASE_CLIENT_EMAIL` e `FIREBASE_PRIVATE_KEY`:
     ```
 
 Consulte [docs/blueprint.md](docs/blueprint.md) para uma visão geral das funcionalidades planejadas.
-

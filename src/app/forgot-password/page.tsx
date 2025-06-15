@@ -10,7 +10,7 @@ export default function ForgotPasswordPage() {
         <div className="flex flex-col items-center space-y-2 text-center">
           <Link href="/" className="flex items-center gap-2 mb-4">
             <Brain className="w-10 h-10 text-primary" />
-            <h1 className="text-4xl font-headline font-bold text-primary">PsiGuard</h1>
+            <h1 className="text-4xl font-headline font-bold text-primary">Thalamus</h1>
           </Link>
           <h2 className="text-2xl font-headline font-semibold tracking-tight text-foreground">
             Esqueceu sua Senha?

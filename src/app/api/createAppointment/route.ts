@@ -46,7 +46,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ id: docRef.id });
   } catch (e) {
-    console.error('createAppointment error', e);
+    
     return NextResponse.json({ error: 'Internal error' }, { status: 500 });
   }
 }

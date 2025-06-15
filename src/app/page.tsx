@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Brain, ShieldCheck, Users } from "lucide-react";
 import Link from "next/link";
-import { APP_ROUTES } from "@/lib/routes"; // Import APP_ROUTES
+import { APP_ROUTES } from "@/lib/routes";
 
 export default function LandingPage() {
   return (
@@ -12,10 +12,9 @@ export default function LandingPage() {
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-2">
             <Brain className="w-8 h-8 text-primary" />
-            <h1 className="text-3xl font-headline font-bold text-primary">PsiGuard</h1>
+            <h1 className="text-3xl font-headline font-bold text-primary">Thalamus</h1>
           </div>
           <nav>
-            {/* Links de Login/Cadastro podem ser reativados depois */}
             <Button asChild className="ml-2">
               <Link href={APP_ROUTES.dashboard}>Acessar Painel</Link>
             </Button>
@@ -28,7 +27,7 @@ export default function LandingPage() {
           Capacitando Profissionais de Saúde Mental
         </h2>
         <p className="text-xl text-muted-foreground max-w-2xl mb-10">
-          PsiGuard oferece uma plataforma segura, intuitiva e aprimorada por IA para gerenciar seu consultório de psicologia, para que você possa focar no que mais importa: seus pacientes.
+          Thalamus oferece uma plataforma segura, intuitiva e aprimorada por IA para gerenciar seu consultório de psicologia, para que você possa focar no que mais importa: seus pacientes.
         </p>
         <Button size="lg" asChild className="bg-accent hover:bg-accent/90 text-accent-foreground">
           <Link href={APP_ROUTES.dashboard}>Comece Agora</Link>
@@ -59,7 +58,7 @@ export default function LandingPage() {
       </section>
 
       <footer className="py-8 text-center text-muted-foreground">
-        <p>&copy; {new Date().getFullYear()} PsiGuard. Todos os direitos reservados.</p>
+        <p>&copy; {new Date().getFullYear()} Thalamus. Todos os direitos reservados.</p>
       </footer>
     </div>
   );

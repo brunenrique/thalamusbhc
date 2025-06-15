@@ -1,5 +1,5 @@
 
-# PsiGuard
+# Thalamus
 
 Plataforma web para gestão de clínicas de psicologia, com agenda integrada, prontuários seguros e funcionalidades auxiliadas por IA. O projeto é baseado em **Next.js** e **Firebase**, utilizando **TypeScript** e **Tailwind CSS** no frontend e **Cloud Functions** no backend. Fluxos de IA são implementados com **Genkit** e Google AI.
 
@@ -16,8 +16,8 @@ Plataforma web para gestão de clínicas de psicologia, com agenda integrada, pr
 
 1.  **Clone o repositório:**
     ```bash
-    git clone https://github.com/seu-usuario/psiguard.git
-    cd psiguard
+    git clone https://github.com/seu-usuario/thalamus.git
+    cd thalamus
     ```
 2.  **Instale as dependências:**
     ```bash
@@ -33,8 +33,8 @@ Plataforma web para gestão de clínicas de psicologia, com agenda integrada, pr
 4.  **Inicie os Emuladores Firebase (em um terminal separado):**
     *   É altamente recomendado usar os emuladores do Firebase para desenvolvimento local.
     *   Se esta é a primeira vez, configure os emuladores: `firebase init emulators` (selecione Firestore, Storage, Functions. Autenticação pode ser omitida por enquanto).
-    *   Inicie os emuladores: `firebase emulators:start`
-    *   Verifique se os emuladores estão rodando nas portas corretas (Firestore: 8083, Storage: 9199, UI: 4003). O arquivo `firebase.json` está configurado para usar `host: "0.0.0.0"` para os emuladores, o que é recomendado para ambientes de desenvolvimento como Cloud Workstations ou Docker.
+    *   Inicie os emuladores: `firebase emulators:start --project=demo-project`
+    *   Verifique se os emuladores estão rodando nas portas corretas (Auth: 9099, Firestore: 8083, Storage: 9199, UI: 4003). O arquivo `firebase.json` está configurado para usar `host: "0.0.0.0"` para os emuladores.
 5.  **Inicie o Servidor de Desenvolvimento Next.js (em outro terminal):**
     ```bash
     npm run dev
@@ -59,9 +59,9 @@ O projeto utiliza variáveis de ambiente para configurar os serviços do Firebas
 Estas variáveis são prefixadas com `NEXT_PUBLIC_` e são seguras para serem expostas no navegador. Elas são usadas para inicializar o Firebase SDK no lado do cliente. Os valores de exemplo fornecidos abaixo devem ser substituídos pelos seus próprios.
 
 -   `NEXT_PUBLIC_FIREBASE_API_KEY`: Sua chave de API web do Firebase. (Ex: `AIzaSyDxuqfMWrLWD30JfBQfpyiHnG0ardssEpM`)
--   `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN`: `psiguard.firebaseapp.com` (Substitua 'psiguard' pelo ID do seu projeto se for diferente)
--   `NEXT_PUBLIC_FIREBASE_PROJECT_ID`: `psiguard` (Substitua pelo ID do seu projeto Firebase)
--   `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET`: `psiguard.appspot.com` (Substitua 'psiguard' pelo ID do seu projeto se for diferente)
+-   `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN`: `your-project-id.firebaseapp.com` (Substitua 'your-project-id' pelo ID do seu projeto)
+-   `NEXT_PUBLIC_FIREBASE_PROJECT_ID`: `your-project-id` (Substitua pelo ID do seu projeto Firebase)
+-   `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET`: `your-project-id.appspot.com` (Substitua 'your-project-id' pelo ID do seu projeto)
 -   `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID`: ID do remetente para Cloud Messaging. (Ex: `180993889183`)
 -   `NEXT_PUBLIC_FIREBASE_APP_ID`: ID do seu aplicativo web Firebase. (Ex: `1:180993889183:web:ee0c3bca0b4830d024a3aa`)
 -   `NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID` (Opcional): Para Google Analytics.
@@ -74,7 +74,7 @@ Você pode encontrar esses valores nas configurações do seu projeto Firebase:
 Estas variáveis são usadas para inicializar o Firebase Admin SDK no backend (ex: em Cloud Functions ou rotas de API Next.js). **NUNCA as exponha no código do cliente ou com o prefixo `NEXT_PUBLIC_`.** Em produção, configure-as diretamente no seu ambiente de hospedagem (ex: Vercel Environment Variables, Google Cloud Run secrets). Para desenvolvimento local com funções de servidor, elas devem estar no `.env.local`.
 
 -   `FIREBASE_PROJECT_ID`: O ID do seu projeto Firebase. (Deve ser o mesmo que `NEXT_PUBLIC_FIREBASE_PROJECT_ID`).
--   `FIREBASE_CLIENT_EMAIL`: O email da conta de serviço do Firebase Admin SDK. (Necessário para algumas operações do Admin SDK, como backups).
+-   `FIREBASE_CLIENT_EMAIL`: O email da conta de serviço do Firebase Admin SDK. (Necessário para algumas operações do Admin SDK).
 -   `FIREBASE_PRIVATE_KEY`: A chave privada da conta de serviço. (Necessário para algumas operações do Admin SDK).
 
 Para obter `FIREBASE_CLIENT_EMAIL` e `FIREBASE_PRIVATE_KEY`:
@@ -84,7 +84,7 @@ Para obter `FIREBASE_CLIENT_EMAIL` e `FIREBASE_PRIVATE_KEY`:
 ### Variáveis de Configuração do Emulador (Desenvolvimento)
 
 -   `NEXT_PUBLIC_FIREBASE_EMULATOR_HOST`: Define o host que o SDK do Firebase do lado do cliente usará para se conectar aos emuladores.
-    *   Para desenvolvimento local padrão ou dentro de contêineres onde os emuladores estão acessíveis via `localhost` ou `127.0.0.1` (especialmente se os emuladores em `firebase.json` estiverem configurados para `host: "0.0.0.0"`), o valor `localhost` é geralmente recomendado. Se `localhost` não funcionar, `127.0.0.1` pode ser tentado. O valor padrão no `env.example` é `localhost`.
+    *   Para desenvolvimento local padrão, o valor `localhost` é geralmente recomendado. Se `localhost` não funcionar, `127.0.0.1` pode ser tentado. O valor padrão no `env.example` é `localhost`.
     *   Se você estiver acessando seu ambiente de desenvolvimento (ex: Cloud Workstation) por um IP ou nome de host específico e os emuladores estiverem expostos nesse endereço, ajuste conforme necessário.
 
 ### Outras Variáveis

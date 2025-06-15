@@ -18,7 +18,7 @@ import { usePathname } from 'next/navigation';
 import ChatFloatingButton from '@/components/chat/ChatFloatingButton';
 import ChatWindow from '@/components/chat/ChatWindow';
 import { useChatStore } from '@/stores/chatStore';
-import { auth } from '@/lib/firebase'; // Alterado de @/services/firebase
+import { auth } from '@/lib/firebase';
 import { onAuthStateChanged } from 'firebase/auth'; 
 
 interface AppLayoutProps {
@@ -44,24 +44,21 @@ export default function AppLayout({ children }: AppLayoutProps) {
     }
   }, []);
 
-  // Listen for Firebase auth state changes
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
         setCurrentUser({
           uid: user.uid,
-          displayName: user.displayName || "Usuário Anônimo", // Fallback name
+          displayName: user.displayName || "Usuário Anônimo", 
           avatarUrl: user.photoURL,
         });
       } else {
         setCurrentUser({ uid: null, displayName: null, avatarUrl: null });
       }
     });
-    return () => unsubscribe(); // Cleanup subscription on unmount
+    return () => unsubscribe(); 
   }, [setCurrentUser]);
   
-  // For local development/testing if Firebase auth is not fully setup
-  // This will run once after the initial auth check.
   useEffect(() => {
     if (process.env.NODE_ENV === 'development' && !auth.currentUser && !currentUser?.uid) {
       setCurrentUser({
@@ -78,8 +75,8 @@ export default function AppLayout({ children }: AppLayoutProps) {
       <Sidebar collapsible="icon" variant="sidebar" side="left">
         <SidebarHeader className="p-4">
           <Link href="/dashboard" className="flex items-center gap-2 group-data-[collapsible=icon]:justify-center">
-            <Brain className="w-8 h-8 text-primary" />
-            <span className="font-headline text-2xl font-bold text-primary group-data-[collapsible=icon]:hidden">PsiGuard</span>
+            <Brain className="w-8 h-8 text-sidebar-primary" />
+            <span className="font-headline text-2xl font-bold text-sidebar-primary group-data-[collapsible=icon]:hidden">Thalamus</span>
           </Link>
         </SidebarHeader>
         <SidebarContent>
@@ -94,7 +91,6 @@ export default function AppLayout({ children }: AppLayoutProps) {
         <main className="flex-1 p-4 md:p-6 lg:p-8 overflow-auto">
           {children}
         </main>
-        {/* Chat Components */}
         <ChatFloatingButton />
         <ChatWindow />
       </SidebarInset>

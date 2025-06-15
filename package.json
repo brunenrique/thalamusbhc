@@ -1,5 +1,6 @@
 {
-  "name": "nextn",
+  "name": "thalamus",
+  "description": "Plataforma web para gestão de clínicas de psicologia, com agenda integrada, prontuários seguros e funcionalidades auxiliadas por IA.",
   "version": "0.1.0",
   "private": true,
   "scripts": {

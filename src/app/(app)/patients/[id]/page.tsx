@@ -5,7 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Mail, Phone, CalendarDays, Edit, FileText, Brain, CheckCircle, Clock, MessageSquare, Trash2, Users as UsersIconLucide, Home as HomeIconLucide, Share2, UploadCloud, Calendar as CalendarIconShad, Lightbulb, Tag, BarChart3 as BarChart3Icon, ShieldAlert as ShieldAlertIcon, CheckCircle as CheckCircleIcon, TrendingUp, BookOpen, Activity, Users2, ClipboardList, Target, ListChecks, PlusCircle, Archive, AlertTriangle, History as HistoryIcon, Bot, Image as ImageIcon, Save } from "lucide-react";
+import { Mail, Phone, CalendarDays, Edit, FileText, Brain, CheckCircle, Clock, MessageSquare, Trash2, Users as UsersIconLucide, Home as HomeIconLucide, Share2, UploadCloud, Calendar as CalendarIconShad, Lightbulb, Tag, BarChart3 as BarChart3Icon, ShieldAlert as ShieldAlertIcon, CheckCircle as CheckCircleIcon, TrendingUp, BookOpen, Activity, Users2, ClipboardList, Target, ListChecks, PlusCircle, Archive, AlertTriangle, History as HistoryIcon, Bot, Image as ImageIcon, Save, CalendarCheck } from "lucide-react";
 import CopyButton from "@/components/ui/copy-button";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation"; // Added useSearchParams
@@ -194,6 +194,7 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
   const [isLoadingProgressChart, setIsLoadingProgressChart] = useState(false);
   const [selectedGlobalResource, setSelectedGlobalResource] = useState<string>("");
   const [caseStudyNotes, setCaseStudyNotes] = useState<string>("");
+  const [nextSessionsPlan, setNextSessionsPlan] = useState<string>("");
 
 
   useEffect(() => {
@@ -343,6 +344,14 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
       description: "Suas anotações do estudo de caso foram salvas com sucesso.",
     });
   }, [caseStudyNotes, toast]);
+
+  const handleSaveNextSessionsPlan = useCallback(() => {
+    console.log("Salvando planejamento das próximas sessões:", nextSessionsPlan);
+    toast({
+      title: "Planejamento Salvo (Simulado)",
+      description: "O planejamento para as próximas sessões foi salvo.",
+    });
+  }, [nextSessionsPlan, toast]);
 
 
   const formattedDob = useMemo(() => patient.dob ? format(new Date(patient.dob), "P", { locale: ptBR }) : "N/A", [patient.dob]);
@@ -649,6 +658,31 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
                   )) : <p className="text-muted-foreground text-sm">Nenhuma meta terapêutica definida.</p>}
                 </CardContent>
             </Card>
+
+            <Card className="shadow-sm">
+                <CardHeader className="flex flex-row justify-between items-center">
+                  <div>
+                    <CardTitle className="font-headline flex items-center">
+                      <CalendarCheck className="mr-2 h-5 w-5 text-primary" />
+                       Planejamento das Próximas Sessões
+                    </CardTitle>
+                    <CardDescription>Defina os focos, temas e atividades para as futuras sessões.</CardDescription>
+                  </div>
+                  <Button onClick={handleSaveNextSessionsPlan} className="bg-accent hover:bg-accent/90 text-accent-foreground">
+                      <Save className="mr-2 h-4 w-4" /> Salvar Planejamento
+                  </Button>
+                </CardHeader>
+                <CardContent>
+                  <Textarea
+                      placeholder="Ex:&#10;Sessão 1 (DD/MM): Focar em técnicas de relaxamento e respiração. Introduzir psicoeducação sobre ansiedade.&#10;Sessão 2 (DD/MM): Revisar tarefa de casa. Iniciar identificação de pensamentos automáticos.&#10;Sessão 3 (DD/MM): Aprofundar em reestruturação cognitiva. Praticar com exemplos do paciente."
+                      rows={8}
+                      className="min-h-[150px]"
+                      value={nextSessionsPlan}
+                      onChange={(e) => setNextSessionsPlan(e.target.value)}
+                  />
+                </CardContent>
+            </Card>
+
             <Card className="shadow-sm">
                 <CardHeader className="flex flex-row justify-between items-center">
                    <div>

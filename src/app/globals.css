@@ -8,82 +8,84 @@ body {
 
 @layer base {
   :root {
-    --background: 220 20% 97%; /* Very light cool gray */
-    --foreground: 220 15% 25%; /* Dark cool gray/charcoal for text */
+    --background: 45 30% 97%; /* Very light, slightly warm off-white/beige */
+    --foreground: 30 15% 25%; /* Dark, desaturated warm brown/charcoal */
     --card: 0 0% 100%; /* White */
-    --card-foreground: 220 15% 20%; /* Slightly darker for card text for emphasis */
+    --card-foreground: 30 15% 20%; /* Slightly darker for card text */
     --popover: 0 0% 100%;
-    --popover-foreground: 220 15% 20%;
-    --primary: 260 70% 70%; /* Lavender */
-    --primary-foreground: 260 20% 15%; /* Dark purple for text on primary */
-    --secondary: 220 15% 90%; /* Lighter cool gray */
-    --secondary-foreground: 220 15% 25%; /* Dark cool gray for text on secondary */
-    --muted: 220 15% 90%; /* Same as secondary for muted backgrounds */
-    --muted-foreground: 220 10% 45%; /* Medium cool gray for muted text */
-    --accent: 175 55% 50%; /* Calm Teal */
+    --popover-foreground: 30 15% 20%;
+    --primary: 120 25% 60%; /* Muted Sage Green */
+    --primary-foreground: 120 25% 15%; /* Dark Green for text on primary */
+    --secondary: 45 20% 92%; /* Lighter warm beige/gray */
+    --secondary-foreground: 30 15% 25%; /* Dark warm brown/charcoal for text on secondary */
+    --muted: 45 20% 92%; /* Same as secondary for muted backgrounds */
+    --muted-foreground: 30 10% 45%; /* Medium warm brown/gray for muted text */
+    --accent: 90 35% 50%; /* Earthy Olive Green */
     --accent-foreground: 0 0% 100%; /* White for text on accent */
-    --destructive: 0 75% 55%; /* Clear Red */
+    --destructive: 0 70% 55%; /* Clear Red (similar to before, for universal warning) */
     --destructive-foreground: 0 0% 98%; /* Light text for destructive */
-    --border: 220 15% 85%; /* Subtle cool gray border */
-    --input: 220 15% 88%; /* Slightly lighter border for inputs */
-    --ring: 175 55% 50%; /* Accent Teal for rings */
+    --border: 45 20% 88%; /* Subtle warm beige/gray border */
+    --input: 45 20% 90%; /* Slightly lighter border for inputs */
+    --ring: hsl(var(--primary)); /* Sage Green for rings */
     --radius: 0.5rem;
 
     /* Chart Colors */
-    --chart-1: hsl(var(--accent)); /* Teal */
-    --chart-2: hsl(var(--primary)); /* Lavender */
-    --chart-3: 195 50% 60%; /* A lighter, complementary blue-green */
-    --chart-4: 280 60% 75%; /* A lighter, complementary purple */
-    --chart-5: 220 10% 65%; /* Neutral cool gray for charts */
+    --chart-1: hsl(var(--accent)); /* Earthy Olive Green */
+    --chart-2: hsl(var(--primary)); /* Muted Sage Green */
+    --chart-3: 30 40% 60%; /* Muted Terracotta/Brown */
+    --chart-4: 150 30% 70%; /* Lighter, complementary green */
+    --chart-5: 45 15% 65%; /* Neutral warm gray for charts */
 
-    /* Sidebar specific vars (Dark Sidebar Theme) */
-    --sidebar-background: 220 10% 12%; /* Dark, slightly blueish gray */
-    --sidebar-foreground: 220 15% 75%; /* Light gray text */
-    --sidebar-primary: hsl(var(--primary)); /* Lavender for logo text */
-    --sidebar-primary-foreground: 0 0% 100%; /* White (assuming logo text is on dark bg or is the icon itself) */
-    --sidebar-accent: hsl(var(--accent)); /* Teal for active/hover menu items */
-    --sidebar-accent-foreground: hsl(var(--accent-foreground)); /* White text on teal */
-    --sidebar-border: 220 10% 20%; /* Subtle border for dark sidebar */
-    --sidebar-ring: hsl(var(--accent)); /* Teal for focus rings within sidebar */
+    /* Sidebar specific vars (Light Sidebar Theme) */
+    --sidebar-background: 45 25% 94%; /* Slightly darker light beige */
+    --sidebar-foreground: 30 15% 30%; /* Dark warm brown/gray text */
+    --sidebar-primary: hsl(var(--primary)); /* Sage Green for logo */
+    --sidebar-primary-foreground: 120 25% 15%; /* Dark Green */
+    --sidebar-accent: hsl(var(--accent)); /* Earthy Olive Green for active/hover */
+    --sidebar-accent-foreground: hsl(var(--accent-foreground)); /* White text on accent */
+    --sidebar-border: 45 20% 85%; /* Subtle border for light sidebar */
+    --sidebar-ring: hsl(var(--accent)); /* Earthy Olive Green for focus rings */
   }
 
   .dark {
-    /* Dark Mode Theme - Inverted for a consistent dark experience */
-    --background: 220 10% 10%; /* Very dark cool gray */
-    --foreground: 220 15% 85%; /* Light gray text */
-    --card: 220 10% 15%; /* Darker card background */
-    --card-foreground: 220 15% 80%;
-    --popover: 220 10% 15%;
-    --popover-foreground: 220 15% 80%;
-    --primary: 260 70% 65%; /* Slightly adjusted Lavender for dark */
-    --primary-foreground: 260 10% 95%;
-    --secondary: 220 10% 20%; /* Darker secondary */
-    --secondary-foreground: 220 15% 80%;
-    --muted: 220 10% 20%;
-    --muted-foreground: 220 10% 55%;
-    --accent: 175 60% 60%; /* Slightly brighter Teal for dark */
-    --accent-foreground: 220 20% 5%; /* Very dark text on brighter teal */
-    --destructive: 0 65% 50%; /* Slightly adjusted Red for dark */
+    /* Dark Mode Theme - Warm Dark Tones */
+    --background: 30 10% 10%; /* Very dark warm brown */
+    --foreground: 45 15% 85%; /* Light beige text */
+    --card: 30 10% 15%; /* Darker card background */
+    --card-foreground: 45 15% 80%;
+    --popover: 30 10% 15%;
+    --popover-foreground: 45 15% 80%;
+    --primary: 120 30% 65%; /* Slightly brighter Sage Green for dark */
+    --primary-foreground: 120 10% 95%;
+    --secondary: 30 10% 20%; /* Darker secondary */
+    --secondary-foreground: 45 15% 80%;
+    --muted: 30 10% 20%;
+    --muted-foreground: 45 10% 55%;
+    --accent: 90 40% 55%; /* Slightly brighter Olive Green for dark */
+    --accent-foreground: 30 20% 5%; /* Very dark text on brighter accent */
+    --destructive: 0 65% 50%; /* Adjusted Red for dark */
     --destructive-foreground: 0 0% 95%;
-    --border: 220 10% 25%;
-    --input: 220 10% 22%;
-    --ring: 175 60% 60%;
+    --border: 30 10% 25%;
+    --input: 30 10% 22%;
+    --ring: hsl(var(--primary));
 
-    /* Chart Colors Dark - can be same or adjusted for dark bg */
+    /* Chart Colors Dark */
     --chart-1: hsl(var(--accent));
     --chart-2: hsl(var(--primary));
-    --chart-3: 195 50% 55%; 
-    --chart-4: 280 60% 70%;
-    --chart-5: 220 10% 50%;
+    --chart-3: 30 40% 55%; 
+    --chart-4: 150 30% 65%;
+    --chart-5: 45 15% 50%;
 
-    /* Sidebar specific vars (Dark Sidebar Theme remains dark, so mostly same or minor adjustments) */
-    --sidebar-background: 220 8% 8%; /* Even darker or distinct dark */
-    --sidebar-foreground: 220 15% 80%;
+    /* Sidebar specific vars (Dark Sidebar Theme - consistent with main dark theme) */
+    /* Option: could keep the light sidebar even in dark mode for a unique look, or make it consistent dark */
+    /* For now, let's make it consistent dark, similar to the main dark theme */
+    --sidebar-background: 30 8% 12%; /* Dark brown, slightly distinct from main dark bg */
+    --sidebar-foreground: 45 15% 80%;
     --sidebar-primary: hsl(var(--primary)); 
     --sidebar-primary-foreground: hsl(var(--primary-foreground)); 
     --sidebar-accent: hsl(var(--accent)); 
     --sidebar-accent-foreground: hsl(var(--accent-foreground)); 
-    --sidebar-border: 220 5% 15%;
+    --sidebar-border: 30 5% 18%;
     --sidebar-ring: hsl(var(--accent));
   }
 }

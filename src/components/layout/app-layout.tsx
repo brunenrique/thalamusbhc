@@ -72,7 +72,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
 
   return (
     <SidebarProvider defaultOpen={defaultOpen} open={defaultOpen} onOpenChange={(open) => setDefaultOpen(open)}>
-      <Sidebar collapsible="icon" variant="sidebar" side="left">
+      <Sidebar collapsible="icon" variant="floating" side="left"> {/* Changed variant to "floating" */}
         <SidebarHeader className="p-4">
           <Link href="/dashboard" className="flex items-center gap-2 group-data-[collapsible=icon]:justify-center">
             <Brain className="w-8 h-8 text-sidebar-primary" />

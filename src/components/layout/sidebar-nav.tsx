@@ -16,13 +16,12 @@ import {
   LucideIcon,
   LogOut,
   HelpCircle,
-  // ShieldQuestion, // Icon for User Approvals, which is removed
-  Wrench, 
-  BookOpen, 
-  BrainCog, 
-  ArchiveIcon as DataBackupIcon, 
-  History as HistoryIcon, 
-  BarChartBig, 
+  Wrench,
+  BookOpen,
+  BrainCog,
+  ArchiveIcon as DataBackupIcon,
+  History as HistoryIcon,
+  BarChartBig,
   Users2 as GroupsIcon,
   Network,
   LineChart
@@ -38,36 +37,37 @@ import {
   SidebarGroupLabel,
   SidebarGroupContent
 } from "@/components/ui/sidebar";
-import { useSidebar } from "@/components/ui/sidebar"; 
+import { useSidebar } from "@/components/ui/sidebar";
+import type { UserRole } from "@/services/authRole"; // Import UserRole type
 
 interface NavItem {
   href: string;
   label: string;
   icon: LucideIcon;
   subItems?: NavItem[];
-  adminOnly?: boolean; 
-  group?: string; 
+  adminOnly?: boolean;
+  group?: string;
 }
 
 const navStructure: NavItem[] = [
   { href: APP_ROUTES.dashboard, label: "Painel", icon: LayoutDashboard, group: "Visão Geral" },
   { href: APP_ROUTES.schedule, label: "Agenda", icon: CalendarDays, group: "Visão Geral" },
-  
+
   { href: APP_ROUTES.patients, label: "Pacientes", icon: Users, group: "Gestão de Pacientes" },
   { href: APP_ROUTES.groups, label: "Grupos Terapêuticos", icon: GroupsIcon, group: "Gestão de Pacientes"},
   { href: APP_ROUTES.waitingList, label: "Lista de Espera", icon: ListChecks, group: "Gestão de Pacientes" },
   { href: APP_ROUTES.templates, label: "Modelos Inteligentes", icon: FileText, group: "Gestão de Pacientes" },
-  
+
   { href: APP_ROUTES.tasks, label: "Tarefas", icon: CheckSquare, group: "Operações da Clínica" },
   { href: APP_ROUTES.resources, label: "Recursos da Clínica", icon: FolderArchive, group: "Operações da Clínica" },
-  { 
+  {
     href: APP_ROUTES.analytics, label: "Análises", icon: BarChartBig, group: "Operações da Clínica",
     subItems: [
       { href: APP_ROUTES.analyticsClinicOccupancy, label: "Ocupação da Clínica", icon: BarChartBig },
     ]
   },
 
-  { 
+  {
     href: APP_ROUTES.tools, label: "Ferramentas Clínicas", icon: Wrench, group: "Utilidades",
     subItems: [
       { href: APP_ROUTES.toolsPsychopharmacology, label: "Psicofarmacologia", icon: BookOpen },
@@ -76,13 +76,12 @@ const navStructure: NavItem[] = [
       { href: APP_ROUTES.inventoriesScales, label: "Inventários e Escalas", icon: ClipboardList },
     ]
   },
-  
-  { 
-    href: "#", label: "Ferramentas Admin", icon: Settings, adminOnly: true, group: "Administração", 
+
+  {
+    href: "#", label: "Ferramentas Admin", icon: Settings, adminOnly: true, group: "Administração",
     subItems: [
-        // { href: APP_ROUTES.userApprovals, label: "Aprovação de Usuários", icon: ShieldQuestion, adminOnly: true }, // User Approvals removed
         { href: APP_ROUTES.toolsBackup, label: "Backup de Dados", icon: DataBackupIcon, adminOnly: true },
-        { href: APP_ROUTES.toolsAuditTrail, label: "Trilha de Auditoria", icon: HistoryIcon, adminOnly: true }, 
+        { href: APP_ROUTES.toolsAuditTrail, label: "Trilha de Auditoria", icon: HistoryIcon, adminOnly: true },
         { href: APP_ROUTES.adminMetrics, label: "Métricas da Clínica", icon: LineChart, adminOnly: true },
     ]
   },
@@ -92,19 +91,19 @@ const navStructure: NavItem[] = [
 
 interface SidebarNavProps {
   currentPath: string;
-  userRole?: "admin" | "psychologist" | "secretary"; 
+  userRole?: UserRole; // Use the imported UserRole type
 }
 
-export default function SidebarNav({ currentPath, userRole = "admin" }: SidebarNavProps) {
-  const { state } = useSidebar(); 
+export default function SidebarNav({ currentPath, userRole = "Admin" }: SidebarNavProps) { // Default to Admin for dev
+  const { state } = useSidebar();
 
   const renderNavItem = (item: NavItem, index: number, isSubItem: boolean = false): JSX.Element | null => {
-    if (item.adminOnly && userRole !== "admin") {
+    if (item.adminOnly && userRole !== "Admin") { // Corrected: Check against "Admin" (capital 'A')
         return null;
     }
 
     const IconComponent = item.icon;
-    const isActive = item.href === "/dashboard" 
+    const isActive = item.href === "/dashboard"
       ? currentPath === item.href
       : (item.href === "/" ? currentPath === "/" : currentPath.startsWith(item.href) && item.href !== "#");
 
@@ -114,7 +113,7 @@ export default function SidebarNav({ currentPath, userRole = "admin" }: SidebarN
             <span className={isSubItem ? "" : "group-data-[collapsible=icon]:hidden"}>{item.label}</span>
         </span>
     );
-    
+
     let ButtonComponent;
     if (isSubItem) {
       ButtonComponent = SidebarMenuSubButton;
@@ -124,8 +123,8 @@ export default function SidebarNav({ currentPath, userRole = "admin" }: SidebarN
 
 
     if (item.subItems && item.subItems.length > 0 && state === "expanded") {
-      const visibleSubItems = item.subItems.filter(sub => !sub.adminOnly || userRole === "admin");
-      if (visibleSubItems.length === 0 && item.adminOnly && userRole !== "admin") return null; 
+      const visibleSubItems = item.subItems.filter(sub => !sub.adminOnly || userRole === "Admin"); // Corrected
+      if (visibleSubItems.length === 0 && item.adminOnly && userRole !== "Admin") return null; // Corrected
 
       if (item.href && item.href !== "#" && visibleSubItems.length > 0) {
          return (
@@ -149,11 +148,11 @@ export default function SidebarNav({ currentPath, userRole = "admin" }: SidebarN
             </SidebarMenuItem>
         );
       }
-       if (visibleSubItems.length > 0) { 
+       if (visibleSubItems.length > 0) {
         return (
             <SidebarMenuItem key={`${item.label}-${index}-group`}>
                  <ButtonComponent
-                    isActive={isActive} 
+                    isActive={isActive}
                     tooltip={(state as string) === "collapsed" ? item.label : undefined}
                     className={isSubItem ? "text-xs" : ""}
                     onClick={(e: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => { if (!item.href || item.href === "#") e.preventDefault(); }}
@@ -167,8 +166,8 @@ export default function SidebarNav({ currentPath, userRole = "admin" }: SidebarN
         );
        }
     }
-    
-    if (!item.href || item.href === "#") { 
+
+    if (!item.href || item.href === "#") {
          return (
             <SidebarMenuItem key={`${item.label}-${index}`}>
                 <ButtonComponent
@@ -176,7 +175,7 @@ export default function SidebarNav({ currentPath, userRole = "admin" }: SidebarN
                     tooltip={state === "collapsed" ? item.label : undefined}
                     className={isSubItem ? "text-xs" : ""}
                     onClick={(e: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => e.preventDefault()}
-                    aria-disabled="true" 
+                    aria-disabled="true"
                  >
                 {buttonContent}
                 </ButtonComponent>
@@ -197,19 +196,19 @@ export default function SidebarNav({ currentPath, userRole = "admin" }: SidebarN
       </SidebarMenuItem>
     );
   };
-  
+
   const groupedNavItems = navStructure.reduce((acc, item) => {
     const groupName = item.group || "Geral";
     if (!acc[groupName]) {
       acc[groupName] = [];
     }
-    if (!item.adminOnly || userRole === "admin") {
+    if (!item.adminOnly || userRole === "Admin") { // Corrected
         if (item.subItems && item.subItems.length > 0) {
-            const visibleSubItems = item.subItems.filter(sub => !sub.adminOnly || userRole === "admin");
-            if (visibleSubItems.length > 0) { 
+            const visibleSubItems = item.subItems.filter(sub => !sub.adminOnly || userRole === "Admin"); // Corrected
+            if (visibleSubItems.length > 0) {
                 acc[groupName].push(item);
-            } else if (item.href && item.href !== "#") { 
-                 acc[groupName].push(item); 
+            } else if (item.href && item.href !== "#") {
+                 acc[groupName].push(item);
             }
         } else {
             acc[groupName].push(item);
@@ -223,15 +222,15 @@ export default function SidebarNav({ currentPath, userRole = "admin" }: SidebarN
     <div className="flex flex-col h-full justify-between">
         <SidebarMenu className="p-2 space-y-0">
             {Object.entries(groupedNavItems).map(([groupName, items]) => {
-                if (items.length === 0) return null; 
+                if (items.length === 0) return null;
 
                 return (
                     <SidebarGroup key={groupName} className="p-0 pt-1">
                         {state === "expanded" && (
                             <SidebarGroupLabel className="mb-0.5 mt-1.5">{groupName}</SidebarGroupLabel>
                         )}
-                        {state === "collapsed" && items.length > 0 && <div className="h-2"/>} 
-                        
+                        {state === "collapsed" && items.length > 0 && <div className="h-2"/>}
+
                         <SidebarGroupContent className="space-y-0.5">
                         {items.map((item, index) => renderNavItem(item, index))}
                         </SidebarGroupContent>
@@ -239,12 +238,12 @@ export default function SidebarNav({ currentPath, userRole = "admin" }: SidebarN
                 );
             })}
         </SidebarMenu>
-      
+
       <SidebarMenu className="mt-auto p-2 border-t border-sidebar-border">
          <SidebarMenuItem>
             <SidebarMenuButton
                 tooltip={state === "collapsed" ? "Sair" : undefined}
-                onClick={() => { /* Logout logic would be here if auth was enabled */ }} 
+                onClick={() => { /* Logout logic would be here if auth was enabled */ }}
             >
                 <LogOut />
                 <span className="group-data-[collapsible=icon]:hidden">Sair</span>

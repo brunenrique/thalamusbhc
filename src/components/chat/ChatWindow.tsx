@@ -45,9 +45,8 @@ export default function ChatWindow() {
           <X className="h-4 w-4" />
         </Button>
       </CardHeader>
-      
+
       <CardContent className="flex-1 p-0 overflow-hidden flex flex-col">
-        {/* Online Users Section (simplified) */}
         <div className="p-2 border-b bg-muted/30">
           <p className="text-xs font-medium text-muted-foreground mb-1.5 px-2">Online:</p>
           <div className="flex gap-2 overflow-x-auto pb-1 px-2">
@@ -62,13 +61,15 @@ export default function ChatWindow() {
             ))}
           </div>
         </div>
-        
+
         <MessageList chatId={currentChatId} />
       </CardContent>
-      
+
       <CardFooter className="p-0 border-t">
         <MessageInput chatId={currentChatId} />
       </CardFooter>
     </Card>
   );
 }
+
+    

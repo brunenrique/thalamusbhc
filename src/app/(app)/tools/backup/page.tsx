@@ -94,7 +94,7 @@ export default function BackupPage() {
     setCurrentBackupStatus("Em Progresso");
     toast({ title: "Novo Backup Iniciado", description: "O processo de backup foi iniciado." });
   };
-  
+
   const handleSimulateDownload = (backup: BackupHistoryEntry) => {
     toast({
       title: "Download Simulado",
@@ -106,10 +106,10 @@ export default function BackupPage() {
     toast({
       title: "Restauração Simulada Iniciada",
       description: `Sistema está sendo restaurado para o ponto de ${format(new Date(backup.timestamp), "P 'às' HH:mm", { locale: ptBR })}.`,
-      variant: "default" 
+      variant: "default"
     });
   };
-  
+
   const handleSettingsClick = () => {
      toast({
         title: "Configurações de Backup",
@@ -123,7 +123,7 @@ export default function BackupPage() {
     if (status === "Em Progresso") return "secondary";
     return "destructive";
   }
-  
+
   const getStatusIcon = (status: BackupStatus) => {
     if (status === "Bem-sucedido") return <CheckCircle className="mr-1.5 h-3.5 w-3.5 text-green-500" />;
     if (status === "Em Progresso") return <PlayCircle className="mr-1.5 h-3.5 w-3.5 text-blue-500 animate-pulse" />;
@@ -133,22 +133,6 @@ export default function BackupPage() {
 
   return (
     <div className="space-y-6">
-      <Card className="shadow-sm">
-        <CardHeader>
-          <CardTitle className="font-headline">Backup de Dados</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <p>Mantenha uma cópia segura das informações da clínica realizando backups periódicos.</p>
-          <Button
-            onClick={handleStartNewBackup}
-            disabled={isManualBackupRunning || currentBackupStatus === "Em Progresso"}
-            className="w-full h-12 text-base bg-accent hover:bg-accent/90 text-accent-foreground"
-          >
-            {(isManualBackupRunning || currentBackupStatus === "Em Progresso") && <PlayCircle className="mr-2 h-4 w-4 animate-spin" />}
-            Iniciar Novo Backup
-          </Button>
-        </CardContent>
-      </Card>
       <div className="flex items-center gap-2">
         <Archive className="h-7 w-7 text-primary" />
         <h1 className="text-3xl font-headline font-bold">Backup e Restauração de Dados</h1>
@@ -164,7 +148,7 @@ export default function BackupPage() {
           </CardHeader>
           <CardContent className="space-y-3">
             <p className="text-sm"><strong>Último Backup Concluído:</strong> {format(lastBackupDate, "P 'às' HH:mm", { locale: ptBR })}</p>
-            <div className="text-sm flex items-center"><strong>Status Atual:</strong> 
+            <div className="text-sm flex items-center"><strong>Status Atual:</strong>
                 <Badge variant={getStatusBadge(currentBackupStatus)} className="ml-2 text-xs">
                     {getStatusIcon(currentBackupStatus)}
                     {currentBackupStatus}
@@ -200,7 +184,7 @@ export default function BackupPage() {
             </p>
              <AlertDialog>
                   <AlertDialogTrigger asChild>
-                     <Button variant="destructive" disabled={backupHistory.filter(b => b.status === "Bem-sucedido").length === 0}> 
+                     <Button variant="destructive" disabled={backupHistory.filter(b => b.status === "Bem-sucedido").length === 0}>
                         <History className="mr-2 h-4 w-4" /> Restaurar do Último Backup Bem-sucedido
                     </Button>
                   </AlertDialogTrigger>
@@ -213,7 +197,7 @@ export default function BackupPage() {
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                       <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                      <AlertDialogAction 
+                      <AlertDialogAction
                         onClick={() => handleSimulateRestore(backupHistory.find(b=>b.status === "Bem-sucedido")!)}
                         className="bg-destructive hover:bg-destructive/90"
                       >
@@ -298,3 +282,5 @@ export default function BackupPage() {
     </div>
   );
 }
+
+    

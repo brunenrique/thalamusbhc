@@ -33,15 +33,12 @@ const patientFormSchema = z.object({
   phone: z.string().optional(),
   dob: z.date().optional(),
   address: z.string().optional(),
-  // TODO: Adicionar campos para informações sensíveis que precisariam de criptografia
-  // medicalHistory: z.string().optional(), // Exemplo
-  // emergencyContact: z.string().optional(), // Exemplo
 });
 
 type PatientFormValues = z.infer<typeof patientFormSchema>;
 
 interface PatientFormProps {
-  patientData?: Partial<PatientFormValues & { id?: string }>; 
+  patientData?: Partial<PatientFormValues & { id?: string }>;
 }
 
 export default function PatientForm({ patientData }: PatientFormProps) {
@@ -57,33 +54,17 @@ export default function PatientForm({ patientData }: PatientFormProps) {
       phone: patientData?.phone || "",
       dob: patientData?.dob ? new Date(patientData.dob) : undefined,
       address: patientData?.address || "",
-      // TODO: Descriptografar dados sensíveis ao carregar para edição
-      // medicalHistory: patientData?.medicalHistory ? decrypt(patientData.medicalHistory) : "",
     },
   });
 
   async function onSubmit(data: PatientFormValues) {
     setIsLoading(true);
-    
-    // TODO: Implementar criptografia do lado do cliente aqui (AES) antes de enviar ao backend.
-    // Exemplo:
-    // const encryptedData = {
-    //   ...data,
-    //   name: data.name, // Nome pode ou não ser criptografado, dependendo da política
-    //   email: data.email, // Email geralmente não é criptografado para permitir login/comunicação
-    //   medicalHistory: data.medicalHistory ? encrypt(data.medicalHistory, userKey) : undefined,
-    //   // ... outros campos sensíveis
-    // };
-    // await savePatientToFirestore(encryptedData);
-
-    
     await new Promise((resolve) => setTimeout(resolve, 1000));
     setIsLoading(false);
     toast({
       title: patientData?.id ? "Paciente Atualizado (Simulado)" : "Paciente Adicionado (Simulado)",
       description: `${data.name} foi ${patientData?.id ? 'atualizado(a)' : 'adicionado(a)'} com sucesso.`,
     });
-    
     router.push(patientData?.id ? `/patients/${patientData.id}` : "/patients");
   }
 
@@ -193,23 +174,6 @@ export default function PatientForm({ patientData }: PatientFormProps) {
                 </FormItem>
               )}
             />
-            {/* TODO: Adicionar aqui campos para dados sensíveis (ex: histórico médico) que seriam criptografados */}
-            {/* Exemplo:
-            <FormField
-              control={form.control}
-              name="medicalHistory"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Histórico Médico Relevante (Dados Sensíveis)</FormLabel>
-                  <FormControl>
-                    <Textarea placeholder="Informações médicas confidenciais..." {...field} rows={4} />
-                  </FormControl>
-                  <FormDescription>Este campo será criptografado.</FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            */}
           </CardContent>
           <CardFooter className="flex justify-end">
             <Button type="submit" className="bg-accent hover:bg-accent/90 text-accent-foreground" disabled={isLoading}>
@@ -222,3 +186,5 @@ export default function PatientForm({ patientData }: PatientFormProps) {
     </Card>
   );
 }
+
+    

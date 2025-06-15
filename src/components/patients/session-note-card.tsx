@@ -43,7 +43,7 @@ interface SessionNote {
 interface SessionNoteCardProps {
   note: SessionNote;
   patientName: string;
-  therapistName?: string; 
+  therapistName?: string;
 }
 
 function SessionNoteCardComponent({ note, patientName, therapistName = "Psicólogo(a) Responsável" }: SessionNoteCardProps) {
@@ -111,9 +111,9 @@ function SessionNoteCardComponent({ note, patientName, therapistName = "Psicólo
       toast({ title: "Rascunho Copiado", description: "O conteúdo do rascunho foi copiado para a área de transferência." });
     }
   }, [reportDraft, toast]);
-  
+
   const closeReportDialog = useCallback(() => {
-    setIsReportDialogVisible(false); 
+    setIsReportDialogVisible(false);
     setReportDraft(null);
     setErrorReport(null);
     setIsGeneratingReport(false);
@@ -249,7 +249,7 @@ function SessionNoteCardComponent({ note, patientName, therapistName = "Psicólo
             {!isGeneratingReport && reportDraft && (
               <Textarea
                 value={reportDraft}
-                readOnly 
+                readOnly
                 rows={15}
                 className="min-h-[300px] bg-muted/50"
               />
@@ -259,7 +259,7 @@ function SessionNoteCardComponent({ note, patientName, therapistName = "Psicólo
             <Button type="button" variant="outline" onClick={closeReportDialog}>
               Fechar
             </Button>
-            <Button type="button" onClick={handleCopyReportDraft} disabled={isGeneratingReport || !reportDraft}>
+            <Button type="button" onClick={handleCopyReportDraft} disabled={isGeneratingReport || !reportDraft} className="bg-accent hover:bg-accent/90 text-accent-foreground">
               Copiar Rascunho
             </Button>
           </DialogFooter>
@@ -271,3 +271,5 @@ function SessionNoteCardComponent({ note, patientName, therapistName = "Psicólo
 
 const SessionNoteCard = React.memo(SessionNoteCardComponent);
 export default SessionNoteCard;
+
+    

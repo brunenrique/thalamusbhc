@@ -4,9 +4,6 @@
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 import usePageView from "@/hooks/use-page-view";
-// import useSessionTimeout from "@/hooks/use-session-timeout"; // Authentication disabled
-// import { signOut } from "firebase/auth"; // Authentication disabled
-// import { auth } from "@/lib/firebase"; // Authentication disabled
 import { useRouter } from "next/navigation";
 
 const headLinks = [
@@ -23,11 +20,6 @@ export default function RootLayout({
 }>) {
   usePageView();
   const router = useRouter();
-  // Session timeout disabled as authentication is removed for now
-  // useSessionTimeout(async () => {
-  //   await signOut(auth);
-  //   router.push("/login");
-  // });
   return (
     <html lang="pt-BR" suppressHydrationWarning>
       <head>
@@ -40,3 +32,5 @@ export default function RootLayout({
     </html>
   );
 }
+
+    

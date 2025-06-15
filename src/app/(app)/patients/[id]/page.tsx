@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Mail, Phone, CalendarDays, Edit, FileText, Brain, CheckCircle, Clock, MessageSquare, Trash2, Users as UsersIconLucide, Home as HomeIconLucide, Share2, UploadCloud, Calendar as CalendarIconShad, Lightbulb, Tag, BarChart3 as BarChart3Icon, ShieldAlert as ShieldAlertIcon, CheckCircle as CheckCircleIcon, TrendingUp, BookOpen, Activity, Users2, ClipboardList, Target, ListChecks, PlusCircle, Archive } from "lucide-react";
 import CopyButton from "@/components/ui/copy-button";
 import Link from "next/link";
@@ -32,7 +33,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"; 
+} from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -41,7 +42,7 @@ import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
-import { generateSessionInsights, type GenerateSessionInsightsOutput } from '@/ai/flows/generate-session-insights'; 
+import { generateSessionInsights, type GenerateSessionInsightsOutput } from '@/ai/flows/generate-session-insights';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
@@ -155,7 +156,6 @@ const mockPatientTasks: PatientTask[] = [
 
 
 export default function PatientDetailPage({ params }: { params: { id: string } }) {
-  // For this demo, simply use the static mockPatient defined above
   const patient = mockPatient;
   const router = useRouter();
   const { toast } = useToast();
@@ -179,10 +179,10 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
   const [patientResources, setPatientResources] = useState<Array<{ id: string; name: string; type: "pdf" | "docx" | "image" | "other"; size: string; sharedDate: string; dataAiHint: string; uploadDate?: string }>>(initialPatientResources);
 
   const [selectedInventoryTemplate, setSelectedInventoryTemplate] = useState<string>("");
-  const [inventorySendDate, setInventorySendDate] = useState<Date | undefined>(undefined); // Initialize as undefined for useEffect
+  const [inventorySendDate, setInventorySendDate] = useState<Date | undefined>(undefined);
   const [resourceShareNotes, setResourceShareNotes] = useState<string>("");
 
-  const [generalPatientInsights, setGeneralPatientInsights] = useState<GenerateSessionInsightsOutput | null>(null); 
+  const [generalPatientInsights, setGeneralPatientInsights] = useState<GenerateSessionInsightsOutput | null>(null);
   const [isLoadingGeneralInsights, setIsLoadingGeneralInsights] = useState(false);
   const [errorGeneralInsights, setErrorGeneralInsights] = useState<string | null>(null);
 
@@ -289,9 +289,7 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
     const summaryForInsights = mostRecentNote.summary;
 
     try {
-      // Simulação de chamada de API
       await new Promise(resolve => setTimeout(resolve, 1500));
-      // Simulação de resultado
       setGeneralPatientInsights({
         keywords: mostRecentNote.keywords || ["Tópico 1", "Tópico 2"],
         themes: mostRecentNote.themes || ["Tema A", "Tema B"],
@@ -438,409 +436,441 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
         </CardContent>
       </Card>
 
-      <Card className="shadow-sm">
-        <CardHeader className="flex flex-row justify-between items-center">
-          <div>
-            <CardTitle className="font-headline flex items-center">
-              <Target className="mr-2 h-5 w-5 text-primary" /> Metas e Alvos Terapêuticos
-            </CardTitle>
-            <CardDescription>Acompanhe as metas definidas para o tratamento do paciente.</CardDescription>
-          </div>
-          <Button className="bg-accent hover:bg-accent/90 text-accent-foreground">
-            <PlusCircle className="mr-2 h-4 w-4" /> Adicionar Meta
-          </Button>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          {mockTherapeuticGoals.length > 0 ? mockTherapeuticGoals.map(goal => (
-            <div key={goal.id} className="p-3 border rounded-md bg-secondary/30 hover:shadow-sm transition-shadow">
-              <div className="flex justify-between items-start">
-                <h4 className="font-medium text-sm">{goal.title}</h4>
-                <Badge 
-                  variant={goal.status === "Alcançado" ? "default" : goal.status === "Em Andamento" ? "secondary" : "outline"}
-                  className={goal.status === "Alcançado" ? "bg-green-100 text-green-700 border-green-300" : ""}
-                >
-                  {goal.status}
-                </Badge>
-              </div>
-              {goal.description && <p className="text-xs text-muted-foreground mt-1">{goal.description}</p>}
-              {goal.targetDate && <p className="text-xs text-muted-foreground mt-1">Data Alvo: {format(new Date(goal.targetDate), "P", { locale: ptBR })}</p>}
-            </div>
-          )) : <p className="text-muted-foreground text-sm">Nenhuma meta terapêutica definida ainda.</p>}
-        </CardContent>
-      </Card>
+      <Tabs defaultValue="notes" className="w-full">
+        <TabsList className="grid w-full grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-7">
+          <TabsTrigger value="notes">Anotações</TabsTrigger>
+          <TabsTrigger value="assessments">Inventários</TabsTrigger>
+          <TabsTrigger value="goals">Metas</TabsTrigger>
+          <TabsTrigger value="actions">Plano de Ação</TabsTrigger>
+          <TabsTrigger value="insights">Insights IA</TabsTrigger>
+          <TabsTrigger value="progress">Progresso</TabsTrigger>
+          <TabsTrigger value="resources">Recursos</TabsTrigger>
+          <TabsTrigger value="timeline">Linha do Tempo</TabsTrigger>
+        </TabsList>
 
-      <Card className="shadow-sm">
-        <CardHeader className="flex flex-row justify-between items-center">
-           <div>
-            <CardTitle className="font-headline flex items-center">
-              <ListChecks className="mr-2 h-5 w-5 text-primary" /> Plano de Ação e Tarefas do Paciente
-            </CardTitle>
-            <CardDescription>Exercícios, tarefas e planos propostos ao paciente.</CardDescription>
-          </div>
-          <Button className="bg-accent hover:bg-accent/90 text-accent-foreground">
-            <PlusCircle className="mr-2 h-4 w-4" /> Adicionar Tarefa/Exercício
-          </Button>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          {mockPatientTasks.filter(task => task.status !== "Sugerido").length > 0 && (
-            <>
-              <h4 className="text-sm font-semibold text-muted-foreground">Atribuídos:</h4>
-              {mockPatientTasks.filter(task => task.status !== "Sugerido").map(task => (
-                <div key={task.id} className="p-3 border rounded-md bg-secondary/30 hover:shadow-sm transition-shadow">
-                  <div className="flex justify-between items-start">
-                    <h5 className="font-medium text-sm">{task.category}: {task.description}</h5>
-                    <Badge 
-                      variant={task.status === "Concluído" ? "default" : task.status === "A Fazer" ? "secondary" : "destructive"}
-                      className={task.status === "Concluído" ? "bg-green-100 text-green-700 border-green-300" : ""}
-                    >
-                      {task.status}
-                    </Badge>
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-1">Proposto em: {format(new Date(task.dateProposed), "P", { locale: ptBR })}</p>
-                </div>
-              ))}
-            </>
-          )}
-          {mockPatientTasks.filter(task => task.status === "Sugerido").length > 0 && (
-            <>
-              <h4 className="text-sm font-semibold text-muted-foreground mt-4">Sugestões de Exercícios Futuros:</h4>
-              {mockPatientTasks.filter(task => task.status === "Sugerido").map(task => (
-                <div key={task.id} className="p-3 border rounded-md bg-blue-500/5 hover:shadow-sm transition-shadow">
-                  <h5 className="font-medium text-sm text-blue-700 dark:text-blue-400">{task.category}: {task.description}</h5>
-                  {task.details && <p className="text-xs text-muted-foreground mt-1">{task.details}</p>}
-                   <Button variant="link" size="sm" className="p-0 h-auto text-xs mt-1">Atribuir este exercício</Button>
-                </div>
-              ))}
-            </>
-          )}
-          {mockPatientTasks.length === 0 && <p className="text-muted-foreground text-sm">Nenhum plano de ação ou tarefa definida.</p>}
-        </CardContent>
-      </Card>
-
-      <Card className="mt-6 shadow-sm">
-        <CardHeader>
-          <CardTitle className="font-headline flex items-center">
-            <Brain className="mr-2 h-5 w-5 text-primary" /> Insights Chave do Paciente
-          </CardTitle>
-          <CardDescription>
-            Gere e visualize insights baseados nas interações e histórico do paciente.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {!generalPatientInsights && !isLoadingGeneralInsights && !errorGeneralInsights && (
-            <Button onClick={handleGenerateGeneralPatientInsights} variant="outline" className="w-full sm:w-auto">
-              <Brain className="mr-2 h-4 w-4" /> Gerar Insights Gerais (Baseado na Última Sessão)
-            </Button>
-          )}
-          {isLoadingGeneralInsights && (
-            <div className="space-y-3 p-4 rounded-md bg-muted/30">
-              <div className="flex items-center space-x-2">
-                <Skeleton className="h-6 w-6 rounded-full" />
-                <Skeleton className="h-4 w-[180px]" />
-              </div>
-              <Skeleton className="h-4 w-full" />
-              <Skeleton className="h-4 w-4/5" />
-              <Skeleton className="h-4 w-3/5" />
-              <Skeleton className="h-8 w-[200px] mt-2" />
-            </div>
-          )}
-          {errorGeneralInsights && !isLoadingGeneralInsights && (
-            <Alert variant="destructive">
-              <AlertTitle>Erro ao Gerar Insights</AlertTitle>
-              <AlertDescription>{errorGeneralInsights}</AlertDescription>
-              <Button onClick={handleGenerateGeneralPatientInsights} variant="outline" size="sm" className="mt-3">
-                Tentar Novamente
-              </Button>
-            </Alert>
-          )}
-          {generalPatientInsights && !isLoadingGeneralInsights && (
-            <div className="space-y-4 pt-2 p-4 rounded-md bg-muted/30">
-              {generalPatientInsights.potentialRiskAlerts && generalPatientInsights.potentialRiskAlerts.length > 0 && (
-                <div>
-                  <h4 className="text-sm font-semibold flex items-center text-destructive mb-1">
-                    <ShieldAlertIcon className="mr-2 h-4 w-4" /> Alertas de Risco Potencial:
-                  </h4>
-                  <div className="flex flex-wrap gap-1">
-                    {generalPatientInsights.potentialRiskAlerts.map((alert: string, idx: number) => (
-                      <Badge key={idx} variant="destructive">{alert}</Badge>
-                    ))}
-                  </div>
-                </div>
-              )}
+        <TabsContent value="notes" className="mt-6">
+          <Card className="shadow-sm">
+            <CardHeader className="flex flex-row justify-between items-center">
               <div>
-                <h4 className="text-sm font-semibold flex items-center mb-1">
-                  <Tag className="mr-2 h-4 w-4 text-muted-foreground" /> Palavras-chave Identificadas:
-                </h4>
-                <div className="flex flex-wrap gap-1">
-                  {generalPatientInsights.keywords.map((kw: string) => <Badge key={kw} variant="secondary">{kw}</Badge>)}
-                </div>
+                <CardTitle className="font-headline flex items-center"><MessageSquare className="mr-2 h-5 w-5 text-primary"/> Anotações de Sessão</CardTitle>
+                <CardDescription>Registro cronológico das sessões de terapia.</CardDescription>
               </div>
-              <div>
-                <h4 className="text-sm font-semibold flex items-center mb-1">
-                  <Lightbulb className="mr-2 h-4 w-4 text-muted-foreground" /> Temas Recorrentes:
-                </h4>
-                <div className="flex flex-wrap gap-1">
-                  {generalPatientInsights.themes.map((theme: string) => <Badge key={theme} variant="outline">{theme}</Badge>)}
-                </div>
-              </div>
-              <div>
-                <h4 className="text-sm font-semibold flex items-center mb-1">
-                  <BarChart3Icon className="mr-2 h-4 w-4 text-muted-foreground" /> Evolução de Sintomas Observada:
-                </h4>
-                <p className="text-sm text-muted-foreground whitespace-pre-wrap">{generalPatientInsights.symptomEvolution}</p>
-              </div>
-              {generalPatientInsights.therapeuticMilestones && generalPatientInsights.therapeuticMilestones.length > 0 && (
-                <div>
-                  <h4 className="text-sm font-semibold flex items-center mb-1">
-                    <CheckCircleIcon className="mr-2 h-4 w-4 text-green-600" /> Marcos Terapêuticos Significativos:
-                  </h4>
-                  <div className="flex flex-wrap gap-1">
-                    {generalPatientInsights.therapeuticMilestones.map((milestone: string, idx: number) => (
-                      <Badge key={idx} variant="default" className="bg-green-100 text-green-700 border-green-300 hover:bg-green-200">{milestone}</Badge>
-                    ))}
-                  </div>
-                </div>
-              )}
-              {generalPatientInsights.inventoryComparisonInsights && (
-                  <div>
-                      <h4 className="text-sm font-semibold flex items-center mb-1">
-                          <BarChart3Icon className="mr-2 h-4 w-4 text-muted-foreground" /> Insights Comparativos (Histórico/Inventários):
-                      </h4>
-                      <p className="text-sm text-muted-foreground whitespace-pre-wrap">{generalPatientInsights.inventoryComparisonInsights}</p>
-                  </div>
-              )}
-              <div>
-                <h4 className="text-sm font-semibold flex items-center mb-1">
-                  <Lightbulb className="mr-2 h-4 w-4 text-muted-foreground" /> Sugestões e Observações da IA:
-                </h4>
-                <p className="text-sm text-muted-foreground whitespace-pre-wrap">{generalPatientInsights.suggestiveInsights}</p>
-              </div>
-              <div className="flex gap-2 mt-3">
-                <Button onClick={() => { setGeneralPatientInsights(null); setErrorGeneralInsights(null); }} variant="outline" size="sm">
-                    Limpar Insights
+              <div className="flex gap-2">
+                <Button onClick={handleGenerateProntuario} className="bg-accent hover:bg-accent/90 text-accent-foreground">
+                  <UploadCloud className="mr-2 h-4 w-4" /> Gerar Prontuário
                 </Button>
-                 <Button onClick={handleGenerateGeneralPatientInsights} variant="outline" size="sm">
-                    <Brain className="mr-2 h-3.5 w-3.5" /> Regenerar Insights
-                </Button>
-              </div>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      <Card className="mt-6 shadow-sm">
-        <CardHeader className="flex flex-row justify-between items-center">
-          <div>
-            <CardTitle className="font-headline flex items-center"><MessageSquare className="mr-2 h-5 w-5 text-primary"/> Anotações de Sessão</CardTitle>
-            <CardDescription>Registro cronológico das sessões de terapia.</CardDescription>
-          </div>
-          <div className="flex gap-2">
-            <Button onClick={handleGenerateProntuario} className="bg-accent hover:bg-accent/90 text-accent-foreground">
-              <UploadCloud className="mr-2 h-4 w-4" /> Gerar Prontuário
-            </Button>
-            <Button className="bg-accent hover:bg-accent/90 text-accent-foreground">
-              <FileText className="mr-2 h-4 w-4" /> Nova Anotação
-            </Button>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {sessionNotes.map(note => (
-            <SessionNoteCard key={note.id} note={note} patientName={patient.name} therapistName={patient.assignedPsychologist} />
-          ))}
-          {sessionNotes.length === 0 && <p className="text-muted-foreground">Nenhuma anotação de sessão registrada ainda.</p>}
-        </CardContent>
-      </Card>
-
-      <Card className="mt-6 shadow-sm">
-        <CardHeader className="flex flex-row justify-between items-center">
-          <div>
-            <CardTitle className="font-headline flex items-center"><ClipboardList className="mr-2 h-5 w-5 text-primary"/> Inventários e Escalas</CardTitle>
-            <CardDescription>Acompanhe e gerencie os instrumentos aplicados ao paciente.</CardDescription>
-          </div>
-          <Dialog>
-            <DialogTrigger asChild>
                 <Button className="bg-accent hover:bg-accent/90 text-accent-foreground">
-                    <CheckCircle className="mr-2 h-4 w-4" /> Atribuir Inventário/Escala
+                  <FileText className="mr-2 h-4 w-4" /> Nova Anotação
                 </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
-                <DialogHeader>
-                    <DialogTitle className="font-headline">Atribuir Inventário/Escala a {patient.name}</DialogTitle>
-                    <DialogDescription>
-                        Selecione um modelo e uma data de envio.
-                    </DialogDescription>
-                </DialogHeader>
-                <div className="grid gap-4 py-4">
-                    <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="inventory-template" className="text-right col-span-1">
-                            Modelo
-                        </Label>
-                        <Select value={selectedInventoryTemplate} onValueChange={setSelectedInventoryTemplate}>
-                            <SelectTrigger id="inventory-template" className="col-span-3">
-                                <SelectValue placeholder="Selecione um modelo" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {mockInventoryTemplates.map(template => (
-                                    <SelectItem key={template.id} value={template.id}>{template.name}</SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    </div>
-                    <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="inventory-date" className="text-right col-span-1">
-                            Data Envio
-                        </Label>
-                         <div className="col-span-3">
-                            <Popover>
-                                <PopoverTrigger asChild>
-                                <Button
-                                    variant={"outline"}
-                                    className="w-full justify-start text-left font-normal"
-                                >
-                                    <CalendarIconShad className="mr-2 h-4 w-4" />
-                                    {inventorySendDate ? format(inventorySendDate, "P", {locale: ptBR}) : <span>Escolha uma data</span>}
-                                </Button>
-                                </PopoverTrigger>
-                                <PopoverContent className="w-auto p-0">
-                                <Calendar
-                                    mode="single"
-                                    selected={inventorySendDate}
-                                    onSelect={setInventorySendDate}
-                                    initialFocus
-                                    locale={ptBR}
-                                />
-                                </PopoverContent>
-                            </Popover>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {sessionNotes.map(note => (
+                <SessionNoteCard key={note.id} note={note} patientName={patient.name} therapistName={patient.assignedPsychologist} />
+              ))}
+              {sessionNotes.length === 0 && <p className="text-muted-foreground">Nenhuma anotação de sessão registrada ainda.</p>}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="assessments" className="mt-6">
+          <Card className="shadow-sm">
+            <CardHeader className="flex flex-row justify-between items-center">
+              <div>
+                <CardTitle className="font-headline flex items-center"><ClipboardList className="mr-2 h-5 w-5 text-primary"/> Inventários e Escalas</CardTitle>
+                <CardDescription>Acompanhe e gerencie os instrumentos aplicados ao paciente.</CardDescription>
+              </div>
+              <Dialog>
+                <DialogTrigger asChild>
+                    <Button className="bg-accent hover:bg-accent/90 text-accent-foreground">
+                        <CheckCircle className="mr-2 h-4 w-4" /> Atribuir Novo
+                    </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                        <DialogTitle className="font-headline">Atribuir Inventário/Escala a {patient.name}</DialogTitle>
+                        <DialogDescription>
+                            Selecione um modelo e uma data de envio.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="grid gap-4 py-4">
+                        <div className="grid grid-cols-4 items-center gap-4">
+                            <Label htmlFor="inventory-template" className="text-right col-span-1">
+                                Modelo
+                            </Label>
+                            <Select value={selectedInventoryTemplate} onValueChange={setSelectedInventoryTemplate}>
+                                <SelectTrigger id="inventory-template" className="col-span-3">
+                                    <SelectValue placeholder="Selecione um modelo" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {mockInventoryTemplates.map(template => (
+                                        <SelectItem key={template.id} value={template.id}>{template.name}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <div className="grid grid-cols-4 items-center gap-4">
+                            <Label htmlFor="inventory-date" className="text-right col-span-1">
+                                Data Envio
+                            </Label>
+                             <div className="col-span-3">
+                                <Popover>
+                                    <PopoverTrigger asChild>
+                                    <Button
+                                        variant={"outline"}
+                                        className="w-full justify-start text-left font-normal"
+                                    >
+                                        <CalendarIconShad className="mr-2 h-4 w-4" />
+                                        {inventorySendDate ? format(inventorySendDate, "P", {locale: ptBR}) : <span>Escolha uma data</span>}
+                                    </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-auto p-0">
+                                    <Calendar
+                                        mode="single"
+                                        selected={inventorySendDate}
+                                        onSelect={setInventorySendDate}
+                                        initialFocus
+                                        locale={ptBR}
+                                    />
+                                    </PopoverContent>
+                                </Popover>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <DialogFooter>
-                  <Button type="button" variant="outline" onClick={() => {/* Close logic or use DialogClose */}}>Cancelar</Button>
-                  <Button type="button" onClick={handleAssignInventory} disabled={!selectedInventoryTemplate || !inventorySendDate} className="bg-accent hover:bg-accent/90 text-accent-foreground">Atribuir</Button>
-                </DialogFooter>
-            </DialogContent>
-        </Dialog>
-        </CardHeader>
-        <CardContent className="grid gap-4 md:grid-cols-2">
-          {assessments.map(assessment => (
-            <AssessmentCard key={assessment.id} assessment={assessment} />
-          ))}
-          {assessments.length === 0 && <p className="text-muted-foreground md:col-span-full">Nenhum inventário/escala atribuído ou concluído.</p>}
-        </CardContent>
-      </Card>
-
-      <Card className="mt-6 shadow-sm">
-        <CardHeader>
-        <CardTitle className="font-headline flex items-center">
-            <TrendingUp className="mr-2 h-5 w-5 text-primary" /> Progresso Terapêutico
-        </CardTitle>
-        <CardDescription>
-            Acompanhe a evolução das pontuações dos instrumentos ao longo do tempo.
-        </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-        <div className="max-w-xs">
-            <Label htmlFor="progressInstrumentSelect">Selecionar Instrumento:</Label>
-            <Select value={selectedProgressInstrument} onValueChange={setSelectedProgressInstrument}>
-            <SelectTrigger id="progressInstrumentSelect">
-                <SelectValue placeholder="Selecione um instrumento" />
-            </SelectTrigger>
-            <SelectContent>
-                {mockAvailableInstrumentsForProgress.map(instrument => (
-                <SelectItem key={instrument.id} value={instrument.id}>
-                    {instrument.name}
-                </SelectItem>
-                ))}
-            </SelectContent>
-            </Select>
-        </div>
-        {isLoadingProgressChart ? (
-            <div className="h-[350px] w-full flex flex-col items-center justify-center bg-muted/30 rounded-lg">
-            <Skeleton className="h-4 w-1/4 mb-2" />
-            <Skeleton className="h-3/4 w-full" />
-            </div>
-        ) : currentProgressData.length > 0 ? (
-            <div className="h-[350px] w-full bg-muted/30 rounded-lg p-4">
-            <PatientProgressChart data={currentProgressData} instrumentName={mockAvailableInstrumentsForProgress.find(i => i.id === selectedProgressInstrument)?.name || ""} />
-            </div>
-        ) : (
-            <div className="text-center py-10 text-muted-foreground">
-            <TrendingUp className="mx-auto h-12 w-12" />
-            <p className="mt-2">Nenhum dado de progresso disponível para o instrumento selecionado.</p>
-            <p className="text-sm">Certifique-se de que há resultados concluídos para este paciente com o instrumento escolhido.</p>
-            </div>
-        )}
-        </CardContent>
-      </Card>
-
-      <Card className="mt-6 shadow-sm">
-        <CardHeader>
-          <CardTitle className="font-headline flex items-center"><Activity className="mr-2 h-5 w-5 text-primary"/> Linha do Tempo do Paciente</CardTitle>
-          <CardDescription>Eventos chave e interações relacionadas ao paciente.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <PatientTimeline patientId={params.id} />
-        </CardContent>
-      </Card>
-
-      <Card className="mt-6 shadow-sm">
-        <CardHeader className="flex flex-row justify-between items-center">
-         <div>
-            <CardTitle className="font-headline flex items-center"><BookOpen className="mr-2 h-5 w-5 text-primary"/> Recursos Compartilhados com {patient.name}</CardTitle>
-            <CardDescription>Documentos e guias compartilhados com este paciente.</CardDescription>
-          </div>
-          <Dialog>
-            <DialogTrigger asChild>
-               <Button className="bg-accent hover:bg-accent/90 text-accent-foreground">
-                <Share2 className="mr-2 h-4 w-4" /> Compartilhar Novo Recurso
-               </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-md">
-                <DialogHeader>
-                    <DialogTitle className="font-headline">Compartilhar Recurso com {patient.name}</DialogTitle>
-                    <DialogDescription>
-                        Selecione um recurso da biblioteca da clínica para compartilhar com este paciente.
-                    </DialogDescription>
-                </DialogHeader>
-                <div className="grid gap-4 py-4">
-                    <div className="space-y-2">
-                        <Label htmlFor="global-resource-select">Recurso da Clínica</Label>
-                        <Select value={selectedGlobalResource} onValueChange={setSelectedGlobalResource}>
-                            <SelectTrigger id="global-resource-select">
-                                <SelectValue placeholder="Selecione um recurso global" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {mockGlobalClinicResources.map(res => (
-                                    <SelectItem key={res.id} value={res.id}>{res.name} ({res.type}, {res.size})</SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
+                    <DialogFooter>
+                      <Button type="button" variant="outline" onClick={() => {/* Close logic or use DialogClose */}}>Cancelar</Button>
+                      <Button type="button" onClick={handleAssignInventory} disabled={!selectedInventoryTemplate || !inventorySendDate} className="bg-accent hover:bg-accent/90 text-accent-foreground">Atribuir</Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+            </CardHeader>
+            <CardContent className="grid gap-4 md:grid-cols-2">
+              {assessments.map(assessment => (
+                <AssessmentCard key={assessment.id} assessment={assessment} />
+              ))}
+              {assessments.length === 0 && <p className="text-muted-foreground md:col-span-full">Nenhum inventário/escala atribuído ou concluído.</p>}
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="goals" className="mt-6">
+            <Card className="shadow-sm">
+                <CardHeader className="flex flex-row justify-between items-center">
+                  <div>
+                    <CardTitle className="font-headline flex items-center">
+                      <Target className="mr-2 h-5 w-5 text-primary" /> Metas e Alvos Terapêuticos
+                    </CardTitle>
+                    <CardDescription>Acompanhe as metas definidas para o tratamento do paciente.</CardDescription>
+                  </div>
+                  <Button className="bg-accent hover:bg-accent/90 text-accent-foreground">
+                    <PlusCircle className="mr-2 h-4 w-4" /> Adicionar Meta
+                  </Button>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {mockTherapeuticGoals.length > 0 ? mockTherapeuticGoals.map(goal => (
+                    <div key={goal.id} className="p-3 border rounded-md bg-secondary/30 hover:shadow-sm transition-shadow">
+                      <div className="flex justify-between items-start">
+                        <h4 className="font-medium text-sm">{goal.title}</h4>
+                        <Badge
+                          variant={goal.status === "Alcançado" ? "default" : goal.status === "Em Andamento" ? "secondary" : "outline"}
+                          className={goal.status === "Alcançado" ? "bg-green-100 text-green-700 border-green-300" : ""}
+                        >
+                          {goal.status}
+                        </Badge>
+                      </div>
+                      {goal.description && <p className="text-xs text-muted-foreground mt-1">{goal.description}</p>}
+                      {goal.targetDate && <p className="text-xs text-muted-foreground mt-1">Data Alvo: {format(new Date(goal.targetDate), "P", { locale: ptBR })}</p>}
                     </div>
-                     <div className="space-y-2">
-                        <Label htmlFor="resource-share-notes">Notas para o Paciente (Opcional)</Label>
-                        <Textarea
-                            id="resource-share-notes"
-                            value={resourceShareNotes}
-                            onChange={(e) => setResourceShareNotes(e.target.value)}
-                            placeholder="Ex: Dê uma olhada neste material antes da nossa próxima sessão."
-                            rows={3}
-                        />
+                  )) : <p className="text-muted-foreground text-sm">Nenhuma meta terapêutica definida ainda.</p>}
+                </CardContent>
+              </Card>
+        </TabsContent>
+        
+        <TabsContent value="actions" className="mt-6">
+             <Card className="shadow-sm">
+                <CardHeader className="flex flex-row justify-between items-center">
+                   <div>
+                    <CardTitle className="font-headline flex items-center">
+                      <ListChecks className="mr-2 h-5 w-5 text-primary" /> Plano de Ação e Tarefas do Paciente
+                    </CardTitle>
+                    <CardDescription>Exercícios, tarefas e planos propostos ao paciente.</CardDescription>
+                  </div>
+                  <Button className="bg-accent hover:bg-accent/90 text-accent-foreground">
+                    <PlusCircle className="mr-2 h-4 w-4" /> Adicionar Tarefa/Exercício
+                  </Button>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {mockPatientTasks.filter(task => task.status !== "Sugerido").length > 0 && (
+                    <>
+                      <h4 className="text-sm font-semibold text-muted-foreground">Atribuídos:</h4>
+                      {mockPatientTasks.filter(task => task.status !== "Sugerido").map(task => (
+                        <div key={task.id} className="p-3 border rounded-md bg-secondary/30 hover:shadow-sm transition-shadow">
+                          <div className="flex justify-between items-start">
+                            <h5 className="font-medium text-sm">{task.category}: {task.description}</h5>
+                            <Badge
+                              variant={task.status === "Concluído" ? "default" : task.status === "A Fazer" ? "secondary" : "destructive"}
+                              className={task.status === "Concluído" ? "bg-green-100 text-green-700 border-green-300" : ""}
+                            >
+                              {task.status}
+                            </Badge>
+                          </div>
+                          <p className="text-xs text-muted-foreground mt-1">Proposto em: {format(new Date(task.dateProposed), "P", { locale: ptBR })}</p>
+                        </div>
+                      ))}
+                    </>
+                  )}
+                  {mockPatientTasks.filter(task => task.status === "Sugerido").length > 0 && (
+                    <>
+                      <h4 className="text-sm font-semibold text-muted-foreground mt-4">Sugestões de Exercícios Futuros:</h4>
+                      {mockPatientTasks.filter(task => task.status === "Sugerido").map(task => (
+                        <div key={task.id} className="p-3 border rounded-md bg-blue-500/5 hover:shadow-sm transition-shadow">
+                          <h5 className="font-medium text-sm text-blue-700 dark:text-blue-400">{task.category}: {task.description}</h5>
+                          {task.details && <p className="text-xs text-muted-foreground mt-1">{task.details}</p>}
+                           <Button variant="link" size="sm" className="p-0 h-auto text-xs mt-1 text-accent hover:text-accent/90">Atribuir este exercício</Button>
+                        </div>
+                      ))}
+                    </>
+                  )}
+                  {mockPatientTasks.length === 0 && <p className="text-muted-foreground text-sm">Nenhum plano de ação ou tarefa definida.</p>}
+                </CardContent>
+              </Card>
+        </TabsContent>
+
+        <TabsContent value="insights" className="mt-6">
+            <Card className="shadow-sm">
+                <CardHeader>
+                  <CardTitle className="font-headline flex items-center">
+                    <Brain className="mr-2 h-5 w-5 text-primary" /> Insights Chave do Paciente
+                  </CardTitle>
+                  <CardDescription>
+                    Gere e visualize insights baseados nas interações e histórico do paciente.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {!generalPatientInsights && !isLoadingGeneralInsights && !errorGeneralInsights && (
+                    <Button onClick={handleGenerateGeneralPatientInsights} variant="outline" className="w-full sm:w-auto">
+                      <Brain className="mr-2 h-4 w-4" /> Gerar Insights Gerais (Baseado na Última Sessão)
+                    </Button>
+                  )}
+                  {isLoadingGeneralInsights && (
+                    <div className="space-y-3 p-4 rounded-md bg-muted/30">
+                      <div className="flex items-center space-x-2">
+                        <Skeleton className="h-6 w-6 rounded-full" />
+                        <Skeleton className="h-4 w-[180px]" />
+                      </div>
+                      <Skeleton className="h-4 w-full" />
+                      <Skeleton className="h-4 w-4/5" />
+                      <Skeleton className="h-4 w-3/5" />
+                      <Skeleton className="h-8 w-[200px] mt-2" />
                     </div>
+                  )}
+                  {errorGeneralInsights && !isLoadingGeneralInsights && (
+                    <Alert variant="destructive">
+                      <AlertTitle>Erro ao Gerar Insights</AlertTitle>
+                      <AlertDescription>{errorGeneralInsights}</AlertDescription>
+                      <Button onClick={handleGenerateGeneralPatientInsights} variant="outline" size="sm" className="mt-3">
+                        Tentar Novamente
+                      </Button>
+                    </Alert>
+                  )}
+                  {generalPatientInsights && !isLoadingGeneralInsights && (
+                    <div className="space-y-4 pt-2 p-4 rounded-md bg-muted/30">
+                      {generalPatientInsights.potentialRiskAlerts && generalPatientInsights.potentialRiskAlerts.length > 0 && (
+                        <div>
+                          <h4 className="text-sm font-semibold flex items-center text-destructive mb-1">
+                            <ShieldAlertIcon className="mr-2 h-4 w-4" /> Alertas de Risco Potencial:
+                          </h4>
+                          <div className="flex flex-wrap gap-1">
+                            {generalPatientInsights.potentialRiskAlerts.map((alert: string, idx: number) => (
+                              <Badge key={idx} variant="destructive">{alert}</Badge>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                      <div>
+                        <h4 className="text-sm font-semibold flex items-center mb-1">
+                          <Tag className="mr-2 h-4 w-4 text-muted-foreground" /> Palavras-chave Identificadas:
+                        </h4>
+                        <div className="flex flex-wrap gap-1">
+                          {generalPatientInsights.keywords.map((kw: string) => <Badge key={kw} variant="secondary">{kw}</Badge>)}
+                        </div>
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-semibold flex items-center mb-1">
+                          <Lightbulb className="mr-2 h-4 w-4 text-muted-foreground" /> Temas Recorrentes:
+                        </h4>
+                        <div className="flex flex-wrap gap-1">
+                          {generalPatientInsights.themes.map((theme: string) => <Badge key={theme} variant="outline">{theme}</Badge>)}
+                        </div>
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-semibold flex items-center mb-1">
+                          <BarChart3Icon className="mr-2 h-4 w-4 text-muted-foreground" /> Evolução de Sintomas Observada:
+                        </h4>
+                        <p className="text-sm text-muted-foreground whitespace-pre-wrap">{generalPatientInsights.symptomEvolution}</p>
+                      </div>
+                      {generalPatientInsights.therapeuticMilestones && generalPatientInsights.therapeuticMilestones.length > 0 && (
+                        <div>
+                          <h4 className="text-sm font-semibold flex items-center mb-1">
+                            <CheckCircleIcon className="mr-2 h-4 w-4 text-green-600" /> Marcos Terapêuticos Significativos:
+                          </h4>
+                          <div className="flex flex-wrap gap-1">
+                            {generalPatientInsights.therapeuticMilestones.map((milestone: string, idx: number) => (
+                              <Badge key={idx} variant="default" className="bg-green-100 text-green-700 border-green-300 hover:bg-green-200">{milestone}</Badge>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                      {generalPatientInsights.inventoryComparisonInsights && (
+                          <div>
+                              <h4 className="text-sm font-semibold flex items-center mb-1">
+                                  <BarChart3Icon className="mr-2 h-4 w-4 text-muted-foreground" /> Insights Comparativos (Histórico/Inventários):
+                              </h4>
+                              <p className="text-sm text-muted-foreground whitespace-pre-wrap">{generalPatientInsights.inventoryComparisonInsights}</p>
+                          </div>
+                      )}
+                      <div>
+                        <h4 className="text-sm font-semibold flex items-center mb-1">
+                          <Lightbulb className="mr-2 h-4 w-4 text-muted-foreground" /> Sugestões e Observações da IA:
+                        </h4>
+                        <p className="text-sm text-muted-foreground whitespace-pre-wrap">{generalPatientInsights.suggestiveInsights}</p>
+                      </div>
+                      <div className="flex gap-2 mt-3">
+                        <Button onClick={() => { setGeneralPatientInsights(null); setErrorGeneralInsights(null); }} variant="outline" size="sm">
+                            Limpar Insights
+                        </Button>
+                         <Button onClick={handleGenerateGeneralPatientInsights} variant="outline" size="sm">
+                            <Brain className="mr-2 h-3.5 w-3.5" /> Regenerar Insights
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+        </TabsContent>
+        
+        <TabsContent value="progress" className="mt-6">
+            <Card className="shadow-sm">
+                <CardHeader>
+                <CardTitle className="font-headline flex items-center">
+                    <TrendingUp className="mr-2 h-5 w-5 text-primary" /> Progresso Terapêutico
+                </CardTitle>
+                <CardDescription>
+                    Acompanhe a evolução das pontuações dos instrumentos ao longo do tempo.
+                </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                <div className="max-w-xs">
+                    <Label htmlFor="progressInstrumentSelect">Selecionar Instrumento:</Label>
+                    <Select value={selectedProgressInstrument} onValueChange={setSelectedProgressInstrument}>
+                    <SelectTrigger id="progressInstrumentSelect">
+                        <SelectValue placeholder="Selecione um instrumento" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {mockAvailableInstrumentsForProgress.map(instrument => (
+                        <SelectItem key={instrument.id} value={instrument.id}>
+                            {instrument.name}
+                        </SelectItem>
+                        ))}
+                    </SelectContent>
+                    </Select>
                 </div>
-                <DialogFooter>
-                  <Button type="button" variant="outline" onClick={() => {/* Close logic or use DialogClose */}}>Cancelar</Button>
-                  <Button type="button" onClick={handleShareResource} disabled={!selectedGlobalResource} className="bg-accent hover:bg-accent/90 text-accent-foreground">Compartilhar</Button>
-                </DialogFooter>
-            </DialogContent>
-          </Dialog>
-        </CardHeader>
-        <CardContent className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {patientResources.map(resource => (
-            <ResourceCard key={resource.id} resource={resource} />
-          ))}
-          {patientResources.length === 0 && <p className="text-muted-foreground md:col-span-full">Nenhum recurso compartilhado com este paciente ainda.</p>}
-        </CardContent>
-      </Card>
+                {isLoadingProgressChart ? (
+                    <div className="h-[350px] w-full flex flex-col items-center justify-center bg-muted/30 rounded-lg">
+                    <Skeleton className="h-4 w-1/4 mb-2" />
+                    <Skeleton className="h-3/4 w-full" />
+                    </div>
+                ) : currentProgressData.length > 0 ? (
+                    <div className="h-[350px] w-full bg-muted/30 rounded-lg p-4">
+                    <PatientProgressChart data={currentProgressData} instrumentName={mockAvailableInstrumentsForProgress.find(i => i.id === selectedProgressInstrument)?.name || ""} />
+                    </div>
+                ) : (
+                    <div className="text-center py-10 text-muted-foreground">
+                    <TrendingUp className="mx-auto h-12 w-12" />
+                    <p className="mt-2">Nenhum dado de progresso disponível para o instrumento selecionado.</p>
+                    <p className="text-sm">Certifique-se de que há resultados concluídos para este paciente com o instrumento escolhido.</p>
+                    </div>
+                )}
+                </CardContent>
+              </Card>
+        </TabsContent>
+        
+        <TabsContent value="resources" className="mt-6">
+          <Card className="shadow-sm">
+            <CardHeader className="flex flex-row justify-between items-center">
+             <div>
+                <CardTitle className="font-headline flex items-center"><BookOpen className="mr-2 h-5 w-5 text-primary"/> Recursos Compartilhados com {patient.name}</CardTitle>
+                <CardDescription>Documentos e guias compartilhados com este paciente.</CardDescription>
+              </div>
+              <Dialog>
+                <DialogTrigger asChild>
+                   <Button className="bg-accent hover:bg-accent/90 text-accent-foreground">
+                    <Share2 className="mr-2 h-4 w-4" /> Compartilhar Novo Recurso
+                   </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                        <DialogTitle className="font-headline">Compartilhar Recurso com {patient.name}</DialogTitle>
+                        <DialogDescription>
+                            Selecione um recurso da biblioteca da clínica para compartilhar com este paciente.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="grid gap-4 py-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="global-resource-select">Recurso da Clínica</Label>
+                            <Select value={selectedGlobalResource} onValueChange={setSelectedGlobalResource}>
+                                <SelectTrigger id="global-resource-select">
+                                    <SelectValue placeholder="Selecione um recurso global" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {mockGlobalClinicResources.map(res => (
+                                        <SelectItem key={res.id} value={res.id}>{res.name} ({res.type}, {res.size})</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                         <div className="space-y-2">
+                            <Label htmlFor="resource-share-notes">Notas para o Paciente (Opcional)</Label>
+                            <Textarea
+                                id="resource-share-notes"
+                                value={resourceShareNotes}
+                                onChange={(e) => setResourceShareNotes(e.target.value)}
+                                placeholder="Ex: Dê uma olhada neste material antes da nossa próxima sessão."
+                                rows={3}
+                            />
+                        </div>
+                    </div>
+                    <DialogFooter>
+                      <Button type="button" variant="outline" onClick={() => {/* Close logic or use DialogClose */}}>Cancelar</Button>
+                      <Button type="button" onClick={handleShareResource} disabled={!selectedGlobalResource} className="bg-accent hover:bg-accent/90 text-accent-foreground">Compartilhar</Button>
+                    </DialogFooter>
+                </DialogContent>
+              </Dialog>
+            </CardHeader>
+            <CardContent className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {patientResources.map(resource => (
+                <ResourceCard key={resource.id} resource={resource} />
+              ))}
+              {patientResources.length === 0 && <p className="text-muted-foreground md:col-span-full">Nenhum recurso compartilhado com este paciente ainda.</p>}
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="timeline" className="mt-6">
+            <Card className="shadow-sm">
+                <CardHeader>
+                  <CardTitle className="font-headline flex items-center"><Activity className="mr-2 h-5 w-5 text-primary"/> Linha do Tempo do Paciente</CardTitle>
+                  <CardDescription>Eventos chave e interações relacionadas ao paciente.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <PatientTimeline patientId={params.id} />
+                </CardContent>
+              </Card>
+        </TabsContent>
+
+      </Tabs>
     </div>
   );
 }
+
+    

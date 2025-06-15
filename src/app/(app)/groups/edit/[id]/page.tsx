@@ -30,9 +30,9 @@ export default function EditGroupPage() {
           description: foundGroup.description || "",
           psychologistId: foundGroup.psychologistId,
           patientIds: foundGroup.participants.map(p => p.id),
-          dayOfWeek: foundGroup.dayOfWeek, // Use o novo campo
-          startTime: foundGroup.startTime, // Use o novo campo
-          endTime: foundGroup.endTime,   // Use o novo campo
+          dayOfWeek: foundGroup.dayOfWeek,
+          startTime: foundGroup.startTime,
+          endTime: foundGroup.endTime,
           meetingAgenda: foundGroup.meetingAgenda || "",
         });
       } else {
@@ -59,6 +59,7 @@ export default function EditGroupPage() {
             <Skeleton className="h-20 w-full" />
             <Skeleton className="h-10 w-full" />
             <Skeleton className="h-10 w-1/2" />
+            <Skeleton className="h-40 w-full" /> {/* For patient selection */}
             <Skeleton className="h-20 w-full" />
             <div className="flex justify-end"><Skeleton className="h-10 w-24" /></div>
           </CardContent>

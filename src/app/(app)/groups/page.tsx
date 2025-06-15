@@ -20,12 +20,12 @@ export const mockTherapeuticGroups = [
     name: "Grupo de Apoio à Ansiedade",
     psychologist: "Dr. Silva",
     psychologistId: "psy1",
-    membersCount: 8,
-    schedule: "Terças, 18:00 - 19:30", // Kept for display, but logic uses new fields
+    membersCount: 8, // This will be dynamically calculated on the detail page based on participants.length
+    schedule: "Terças, 18:00 - 19:30",
     dayOfWeek: "tuesday",
     startTime: "18:00",
     endTime: "19:30",
-    nextSession: "2024-08-06T18:00:00Z", // This could be derived or managed separately
+    nextSession: "2024-08-06T18:00:00Z",
     description: "Um grupo focado em fornecer apoio mútuo e estratégias de enfrentamento para indivíduos que lidam com ansiedade. As sessões incluem discussões, técnicas de relaxamento e compartilhamento de experiências.",
     participants: [
       { id: "1", name: "Alice Wonderland", avatarUrl: "https://placehold.co/100x100/D0BFFF/4F3A76?text=AW", dataAiHint: "female avatar" },
@@ -47,6 +47,7 @@ export const mockTherapeuticGroups = [
     description: "Este grupo ajuda adolescentes a desenvolver e praticar habilidades sociais essenciais em um ambiente seguro e de apoio. Foco em comunicação, assertividade e resolução de conflitos.",
     participants: [
       { id: "3", name: "Charlie Brown", avatarUrl: "https://placehold.co/100x100/FCEEAC/E6B325?text=CB", dataAiHint: "boy character" },
+      { id: "4", name: "Diana Prince", avatarUrl: "https://placehold.co/100x100/E6B325/FFFFFF?text=DP", dataAiHint: "female hero" },
     ],
     meetingAgenda: "Encontro 1: Quebra-gelo e comunicação verbal básica (escuta ativa, iniciar conversas).\nEncontro 2: Comunicação não-verbal (linguagem corporal, contato visual).\nEncontro 3: Assertividade vs. Agressividade vs. Passividade.\nEncontro 4: Lidando com feedback e críticas.\nEncontro 5: Resolução de conflitos interpessoais."
   },
@@ -62,7 +63,7 @@ export const mockTherapeuticGroups = [
     endTime: "11:30",
     nextSession: "2024-08-05T10:00:00Z",
     description: "Um espaço para processar o luto e encontrar apoio após a perda de um ente querido. O grupo oferece um ambiente de compreensão e ferramentas para lidar com a dor.",
-    participants: [],
+    participants: [], // Initially no participants for this group
     meetingAgenda: "Semana 1: Introdução ao processo de luto e compartilhamento de histórias.\nSemana 2: Validando emoções e lidando com a saudade.\nSemana 3: Rituais de despedida e ressignificação.\nSemana 4: Encontrando novo sentido e reconstruindo o futuro."
   },
 ];
@@ -120,9 +121,9 @@ export default function TherapeuticGroupsPage() {
                       </TableCell>
                       <TableCell>{group.psychologist}</TableCell>
                       <TableCell className="text-center">
-                        <Badge variant="secondary">{group.membersCount}</Badge>
+                        <Badge variant="secondary">{group.participants.length}</Badge>
                       </TableCell>
-                      <TableCell>{group.schedule}</TableCell> {/* Mantém o schedule original para display, mas a lógica usará os campos novos */}
+                      <TableCell>{group.schedule}</TableCell>
                       <TableCell>{group.nextSession ? format(new Date(group.nextSession), "P 'às' HH:mm", { locale: ptBR }) : "N/A"}</TableCell>
                       <TableCell className="text-right">
                         <DropdownMenu>

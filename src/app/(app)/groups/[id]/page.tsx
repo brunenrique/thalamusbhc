@@ -37,7 +37,7 @@ interface Group {
   name: string;
   psychologist: string;
   psychologistId: string;
-  membersCount: number;
+  membersCount: number; // This can be derived from participants.length
   schedule: string; // Display string
   dayOfWeek: string; // e.g., "tuesday"
   startTime: string; // e.g., "18:00"

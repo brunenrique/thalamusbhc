@@ -1,3 +1,4 @@
+
 "use client";
 
 import * as React from "react";
@@ -19,9 +20,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Save, Users, CalendarDays, Clock } from "lucide-react";
+import { Save, Users, CalendarDays, Clock, ListChecks } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { groupSchema } from "@/schemas/groupSchema";
+import type { z } from "zod";
 
 // Mock data - ideally fetch from services or context
 const mockPatientsForSelect = [
@@ -70,6 +72,7 @@ export default function GroupForm({ initialData, groupId }: GroupFormProps) {
       dayOfWeek: "monday",
       startTime: "18:00",
       endTime: "19:30",
+      meetingAgenda: "",
     },
   });
 
@@ -83,10 +86,6 @@ export default function GroupForm({ initialData, groupId }: GroupFormProps) {
       title: groupId ? "Grupo Atualizado (Simulado)" : "Grupo Criado (Simulado)",
       description: `O grupo "${data.name}" foi ${groupId ? 'atualizado' : 'criado'} com sucesso. Horário ${data.dayOfWeek} das ${data.startTime} às ${data.endTime}.`,
     });
-    // TODO: Adicionar lógica para realmente bloquear o horário na agenda (mockAppointments).
-    // Esta é uma parte complexa que envolveria atualizar o estado do AppointmentCalendar.
-    // Por enquanto, vamos focar no formulário.
-
     router.push("/groups");
   }
 
@@ -256,6 +255,28 @@ export default function GroupForm({ initialData, groupId }: GroupFormProps) {
                 <FormDescription>Este horário será reservado na agenda do psicólogo responsável.</FormDescription>
             </Card>
 
+            <FormField
+              control={form.control}
+              name="meetingAgenda"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="flex items-center"><ListChecks className="mr-2 h-4 w-4 text-primary" /> Roteiro dos Encontros (Opcional)</FormLabel>
+                  <FormControl>
+                    <Textarea 
+                      placeholder="Descreva o planejamento ou tópicos para as sessões do grupo. Ex: Sessão 1: Apresentações. Sessão 2: Tema X." 
+                      {...field} 
+                      rows={5}
+                      className="min-h-[100px]"
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    Este roteiro ajudará a guiar as sessões do grupo.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
           </CardContent>
           <CardFooter className="flex justify-end">
             <Button type="submit" className="bg-accent hover:bg-accent/90 text-accent-foreground" disabled={isLoading}>
@@ -268,4 +289,3 @@ export default function GroupForm({ initialData, groupId }: GroupFormProps) {
     </Card>
   );
 }
-

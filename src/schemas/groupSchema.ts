@@ -8,4 +8,5 @@ export const groupSchema = z.object({
   dayOfWeek: z.string().min(1, "Selecione o dia da semana para o grupo."),
   startTime: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, "Formato de hora inválido (HH:mm)."),
   endTime: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, "Formato de hora inválido (HH:mm)."),
+  meetingAgenda: z.string().optional(),
 });

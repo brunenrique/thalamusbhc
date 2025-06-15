@@ -4,7 +4,7 @@ import React from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
-import { Users as GroupIcon, User as UserIcon, CalendarDays, Clock, FileText, Edit, Trash2, ArrowLeft, Settings } from "lucide-react";
+import { Users as GroupIcon, User as UserIcon, CalendarDays, Clock, FileText, Edit, Trash2, ArrowLeft, Settings, ListChecks } from "lucide-react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { mockTherapeuticGroups } from "@/app/(app)/groups/page"; // Import mock data
@@ -23,11 +23,12 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
+import { Separator } from "@/components/ui/separator";
 
 interface Participant {
   id: string;
   name: string;
-  avatarUrl?: string; // Optional
+  avatarUrl?: string; 
   dataAiHint?: string;
 }
 
@@ -41,7 +42,7 @@ interface Group {
   nextSession?: string;
   description?: string;
   participants: Participant[];
-  meetingAgenda?: string; // Roteiro dos encontros
+  meetingAgenda?: string; 
 }
 
 const getInitials = (name: string) => {
@@ -71,7 +72,6 @@ export default function GroupDetailPage({ params }: { params: { id: string } }) 
   }
 
   const handleDeleteGroup = () => {
-    // Lógica de exclusão (simulada)
     toast({
       title: "Grupo Excluído (Simulado)",
       description: `O grupo "${group.name}" foi excluído com sucesso.`,
@@ -135,7 +135,7 @@ export default function GroupDetailPage({ params }: { params: { id: string } }) 
         <CardContent className="p-6 grid md:grid-cols-2 gap-x-6 gap-y-4">
           <InfoItem icon={<CalendarDays />} label="Horário Regular" value={group.schedule} />
           <InfoItem icon={<Clock />} label="Próxima Sessão" value={formattedNextSession} />
-          <InfoItem icon={<GroupIcon />} label="Contagem de Membros" value={`${group.membersCount} participante(s)`} />
+          <InfoItem icon={<GroupIcon />} label="Contagem de Membros" value={`${group.participants?.length || 0} participante(s)`} />
         </CardContent>
       </Card>
 
@@ -176,27 +176,40 @@ export default function GroupDetailPage({ params }: { params: { id: string } }) 
 
       <Card className="shadow-sm">
         <CardHeader>
-          <CardTitle className="font-headline flex items-center"><FileText className="mr-2 h-5 w-5 text-primary" /> Descrição e Roteiro</CardTitle>
+          <CardTitle className="font-headline flex items-center"><FileText className="mr-2 h-5 w-5 text-primary" /> Descrição do Grupo</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
-            <h3 className="font-semibold text-md mb-1">Descrição do Grupo:</h3>
             <p className="text-sm text-muted-foreground whitespace-pre-wrap">
               {group.description || "Nenhuma descrição fornecida."}
-            </p>
-          </div>
-          <hr/>
-          <div>
-            <h3 className="font-semibold text-md mb-1">Roteiro/Objetivos dos Encontros:</h3>
-            <p className="text-sm text-muted-foreground whitespace-pre-wrap">
-              {group.meetingAgenda || "Nenhum roteiro de encontros definido."}
             </p>
           </div>
         </CardContent>
          <CardFooter>
             <Button variant="outline" asChild>
                 <Link href={`/groups/edit/${group.id}?tab=details`}>
-                    <Edit className="mr-2 h-4 w-4"/> Editar Descrição/Roteiro
+                    <Edit className="mr-2 h-4 w-4"/> Editar Descrição
+                </Link>
+            </Button>
+        </CardFooter>
+      </Card>
+      
+      <Card className="shadow-sm">
+        <CardHeader>
+          <CardTitle className="font-headline flex items-center"><ListChecks className="mr-2 h-5 w-5 text-primary" /> Roteiro dos Encontros</CardTitle>
+          <CardDescription>Planejamento e tópicos para as sessões do grupo.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="bg-muted/30 p-4 rounded-md">
+            <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+              {group.meetingAgenda || "Nenhum roteiro de encontros definido para este grupo."}
+            </p>
+          </div>
+        </CardContent>
+         <CardFooter>
+            <Button variant="outline" asChild>
+                <Link href={`/groups/edit/${group.id}?tab=agenda`}>
+                    <Edit className="mr-2 h-4 w-4"/> Editar Roteiro
                 </Link>
             </Button>
         </CardFooter>

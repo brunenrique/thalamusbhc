@@ -24,10 +24,10 @@ export const mockTherapeuticGroups = [
     nextSession: "2024-08-06T18:00:00Z",
     description: "Um grupo focado em fornecer apoio mútuo e estratégias de enfrentamento para indivíduos que lidam com ansiedade. As sessões incluem discussões, técnicas de relaxamento e compartilhamento de experiências.",
     participants: [
-      { id: "1", name: "Alice Wonderland" },
-      { id: "2", name: "Bob O Construtor" },
+      { id: "1", name: "Alice Wonderland", avatarUrl: "https://placehold.co/100x100/D0BFFF/4F3A76?text=AW", dataAiHint: "female avatar" },
+      { id: "2", name: "Bob O Construtor", avatarUrl: "https://placehold.co/100x100/70C1B3/FFFFFF?text=BC", dataAiHint: "male builder" },
     ],
-    meetingAgenda: "Sessão 1: Apresentações e estabelecimento de metas.\nSessão 2: Entendendo a ansiedade.\nSessão 3: Técnicas de respiração e relaxamento."
+    meetingAgenda: "Sessão 1: Apresentações e estabelecimento de metas do grupo.\nSessão 2: Entendendo os mecanismos da ansiedade e identificando gatilhos pessoais.\nSessão 3: Introdução a técnicas de respiração e relaxamento muscular progressivo.\nSessão 4: Estratégias de reestruturação cognitiva para pensamentos ansiogênicos.\nSessão 5: Exposição gradual e dessensibilização sistemática (discussão e planejamento)."
   },
   { 
     id: "grp2", 
@@ -39,9 +39,9 @@ export const mockTherapeuticGroups = [
     nextSession: "2024-08-08T16:00:00Z",
     description: "Este grupo ajuda adolescentes a desenvolver e praticar habilidades sociais essenciais em um ambiente seguro e de apoio. Foco em comunicação, assertividade e resolução de conflitos.",
     participants: [
-      { id: "3", name: "Charlie Brown" },
+      { id: "3", name: "Charlie Brown", avatarUrl: "https://placehold.co/100x100/FCEEAC/E6B325?text=CB", dataAiHint: "boy character" },
     ],
-    meetingAgenda: "Módulo 1: Comunicação eficaz.\nMódulo 2: Entendendo sinais não verbais.\nMódulo 3: Fazendo e mantendo amigos."
+    meetingAgenda: "Encontro 1: Quebra-gelo e comunicação verbal básica (escuta ativa, iniciar conversas).\nEncontro 2: Comunicação não-verbal (linguagem corporal, contato visual).\nEncontro 3: Assertividade vs. Agressividade vs. Passividade.\nEncontro 4: Lidando com feedback e críticas.\nEncontro 5: Resolução de conflitos interpessoais."
   },
   { 
     id: "grp3", 
@@ -53,7 +53,7 @@ export const mockTherapeuticGroups = [
     nextSession: "2024-08-05T10:00:00Z",
     description: "Um espaço para processar o luto e encontrar apoio após a perda de um ente querido. O grupo oferece um ambiente de compreensão e ferramentas para lidar com a dor.",
     participants: [],
-    meetingAgenda: "Introdução ao processo de luto.\nCompartilhando memórias.\nEncontrando significado e seguindo em frente."
+    meetingAgenda: "Semana 1: Introdução ao processo de luto e compartilhamento de histórias.\nSemana 2: Validando emoções e lidando com a saudade.\nSemana 3: Rituais de despedida e ressignificação.\nSemana 4: Encontrando novo sentido e reconstruindo o futuro."
   },
 ];
 

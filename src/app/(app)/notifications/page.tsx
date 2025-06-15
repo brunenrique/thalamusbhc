@@ -9,7 +9,7 @@ import Link from "next/link";
 import NotificationItem from "@/components/notifications/notification-item";
 import { useNotifications } from "@/hooks/useNotifications";
 import { registerFcmToken } from "@/services/notificationService";
-import { auth } from "@/services/firebase";
+import { auth } from "@/lib/firebase"; // Caminho corrigido aqui
 
 export default function NotificationsPage() {
   const { notifications } = useNotifications();

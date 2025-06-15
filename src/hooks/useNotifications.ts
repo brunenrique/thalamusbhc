@@ -1,6 +1,7 @@
+
 import { useEffect, useState } from 'react';
 import { listenToNotifications, Notification } from '@/services/notificationService';
-import { auth } from '@/services/firebase';
+import { auth } from '@/lib/firebase';
 
 export function useNotifications(userId?: string) {
   const [notifications, setNotifications] = useState<Notification[]>([]);

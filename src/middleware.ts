@@ -7,9 +7,8 @@ export function middleware(request: NextRequest) {
   return NextResponse.next();
 }
 
+// This config matches all routes.
+// Adjust if specific public/private routes are reintroduced later.
 export const config = {
-  matcher: [
-    // Aplica o middleware em todas as rotas, exceto as públicas
-    '/((?!api|_next/|login|signup|forgot-password|public).*)',
-  ],
+  matcher: '/((?!api|_next/static|_next/image|favicon.ico|public).*)',
 };

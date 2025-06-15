@@ -1,7 +1,9 @@
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Brain, ShieldCheck, Users } from "lucide-react";
 import Link from "next/link";
+import { APP_ROUTES } from "@/lib/routes"; // Import APP_ROUTES
 
 export default function LandingPage() {
   return (
@@ -13,11 +15,9 @@ export default function LandingPage() {
             <h1 className="text-3xl font-headline font-bold text-primary">PsiGuard</h1>
           </div>
           <nav>
-            <Button variant="ghost" asChild>
-              <Link href="/login">Entrar</Link>
-            </Button>
+            {/* Links de Login/Cadastro podem ser reativados depois */}
             <Button asChild className="ml-2">
-              <Link href="/signup">Cadastre-se</Link>
+              <Link href={APP_ROUTES.dashboard}>Acessar Painel</Link>
             </Button>
           </nav>
         </div>
@@ -31,7 +31,7 @@ export default function LandingPage() {
           PsiGuard oferece uma plataforma segura, intuitiva e aprimorada por IA para gerenciar seu consultório de psicologia, para que você possa focar no que mais importa: seus pacientes.
         </p>
         <Button size="lg" asChild className="bg-accent hover:bg-accent/90 text-accent-foreground">
-          <Link href="/dashboard">Comece Agora</Link>
+          <Link href={APP_ROUTES.dashboard}>Comece Agora</Link>
         </Button>
       </main>
 

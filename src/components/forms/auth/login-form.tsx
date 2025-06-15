@@ -20,7 +20,7 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { useRouter } from "next/navigation";
-import { auth } from "@/lib/firebase"; // Caminho corrigido aqui
+import { auth } from "@/lib/firebase";
 import { useToast } from "@/hooks/use-toast";
 
 const loginSchema = z.object({
@@ -48,9 +48,17 @@ export default function LoginForm() {
   async function onSubmit(data: LoginFormValues) {
     setIsLoading(true);
     try {
-      await signInWithEmailAndPassword(auth, data.email, data.password);
-      // Em caso de login bem-sucedido:
+      // Temporarily disable actual Firebase sign-in attempt
+      console.info("Login attempt bypassed for development. Data:", data);
+      toast({
+        title: "Login Desabilitado (Desenvolvimento)",
+        description: "O login real está temporariamente desabilitado. Redirecionando para o dashboard.",
+      });
+      await new Promise(resolve => setTimeout(resolve, 500)); // Simulate delay
       router.push("/dashboard");
+      // Original Firebase call:
+      // await signInWithEmailAndPassword(auth, data.email, data.password);
+      // router.push("/dashboard");
     } catch (error) {
       console.error("DEBUG: Erro detalhado do Firebase Auth:", error);
 

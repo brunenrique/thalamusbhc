@@ -14,12 +14,14 @@ export interface Appointment {
   startTime: string; // HH:mm
   endTime: string; // HH:mm
   patient: string;
-  patientId?: string; // Adicionado para facilitar a navegação
+  patientId?: string;
   type: string;
   psychologistId: string;
   status: AppointmentStatus;
   blockReason?: string;
   notes?: string;
+  isGroupSession?: boolean;
+  groupId?: string;
 }
 
 export type AppointmentsByDate = Record<string, Appointment[]>;

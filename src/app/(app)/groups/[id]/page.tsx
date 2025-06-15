@@ -4,7 +4,7 @@ import React from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
-import { Users as GroupIcon, User as UserIcon, CalendarDays, Clock, FileText, Edit, Trash2, ArrowLeft, Settings, ListChecks } from "lucide-react";
+import { Users as GroupIcon, User as UserIcon, CalendarDays, Clock, FileText, Edit, Trash2, ArrowLeft, Settings, ListChecks, Users2 as UsersIconLucide } from "lucide-react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { mockTherapeuticGroups } from "@/app/(app)/groups/page"; // Import mock data
@@ -28,7 +28,7 @@ import { Separator } from "@/components/ui/separator";
 interface Participant {
   id: string;
   name: string;
-  avatarUrl?: string; 
+  avatarUrl?: string;
   dataAiHint?: string;
 }
 
@@ -38,11 +38,14 @@ interface Group {
   psychologist: string;
   psychologistId: string;
   membersCount: number;
-  schedule: string;
+  schedule: string; // Display string
+  dayOfWeek: string; // e.g., "tuesday"
+  startTime: string; // e.g., "18:00"
+  endTime: string; // e.g., "19:30"
   nextSession?: string;
   description?: string;
   participants: Participant[];
-  meetingAgenda?: string; 
+  meetingAgenda?: string;
 }
 
 const getInitials = (name: string) => {
@@ -50,6 +53,17 @@ const getInitials = (name: string) => {
   if (names.length === 1) return names[0][0]?.toUpperCase() || '';
   return (names[0][0] + (names[names.length - 1][0] || '')).toUpperCase();
 };
+
+const dayOfWeekDisplay: Record<string, string> = {
+  monday: "Segundas",
+  tuesday: "Terças",
+  wednesday: "Quartas",
+  thursday: "Quintas",
+  friday: "Sextas",
+  saturday: "Sábados",
+  sunday: "Domingos",
+};
+
 
 export default function GroupDetailPage({ params }: { params: { id: string } }) {
   const router = useRouter();
@@ -79,10 +93,12 @@ export default function GroupDetailPage({ params }: { params: { id: string } }) 
     });
     router.push("/groups");
   };
-  
-  const formattedNextSession = group.nextSession 
+
+  const formattedNextSession = group.nextSession
     ? format(parseISO(group.nextSession), "PPPp", { locale: ptBR })
     : "Não agendada";
+
+  const displaySchedule = `${dayOfWeekDisplay[group.dayOfWeek] || group.dayOfWeek}, ${group.startTime} - ${group.endTime}`;
 
   return (
     <div className="space-y-6">
@@ -124,7 +140,7 @@ export default function GroupDetailPage({ params }: { params: { id: string } }) 
         <CardHeader className="bg-muted/30 p-6">
           <div className="flex items-center gap-4">
             <div className="p-3 bg-primary/20 rounded-full">
-              <GroupIcon className="h-10 w-10 text-primary" />
+              <UsersIconLucide className="h-10 w-10 text-primary" />
             </div>
             <div>
               <h1 className="text-3xl font-headline font-bold">{group.name}</h1>
@@ -133,8 +149,8 @@ export default function GroupDetailPage({ params }: { params: { id: string } }) 
           </div>
         </CardHeader>
         <CardContent className="p-6 grid md:grid-cols-2 gap-x-6 gap-y-4">
-          <InfoItem icon={<CalendarDays />} label="Horário Regular" value={group.schedule} />
-          <InfoItem icon={<Clock />} label="Próxima Sessão" value={formattedNextSession} />
+          <InfoItem icon={<CalendarDays />} label="Horário Regular" value={displaySchedule} />
+          <InfoItem icon={<Clock />} label="Próxima Sessão (Avulsa/Exemplo)" value={formattedNextSession} />
           <InfoItem icon={<GroupIcon />} label="Contagem de Membros" value={`${group.participants?.length || 0} participante(s)`} />
         </CardContent>
       </Card>
@@ -193,7 +209,7 @@ export default function GroupDetailPage({ params }: { params: { id: string } }) 
             </Button>
         </CardFooter>
       </Card>
-      
+
       <Card className="shadow-sm">
         <CardHeader>
           <CardTitle className="font-headline flex items-center"><ListChecks className="mr-2 h-5 w-5 text-primary" /> Roteiro dos Encontros</CardTitle>

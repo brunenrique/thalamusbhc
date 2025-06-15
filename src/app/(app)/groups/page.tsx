@@ -1,12 +1,13 @@
 
-"use client";
+"use client"; // Ensure this is a client component
 
-import React from 'react';
+import React from 'react'; // Import React if not already imported
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Users, PlusCircle, Search, Filter, MoreHorizontal, Edit, Trash2, CalendarPlus } from "lucide-react";
+import { Users, PlusCircle, Search, Filter, MoreHorizontal, CalendarPlus, Trash2, Edit } from "lucide-react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { format } from 'date-fns';
@@ -14,14 +15,17 @@ import { ptBR } from 'date-fns/locale';
 
 // Mock data for therapeutic groups
 export const mockTherapeuticGroups = [
-  { 
-    id: "grp1", 
-    name: "Grupo de Apoio à Ansiedade", 
-    psychologist: "Dr. Silva", 
+  {
+    id: "grp1",
+    name: "Grupo de Apoio à Ansiedade",
+    psychologist: "Dr. Silva",
     psychologistId: "psy1",
-    membersCount: 8, 
-    schedule: "Terças, 18:00 - 19:30", 
-    nextSession: "2024-08-06T18:00:00Z",
+    membersCount: 8,
+    schedule: "Terças, 18:00 - 19:30", // Kept for display, but logic uses new fields
+    dayOfWeek: "tuesday",
+    startTime: "18:00",
+    endTime: "19:30",
+    nextSession: "2024-08-06T18:00:00Z", // This could be derived or managed separately
     description: "Um grupo focado em fornecer apoio mútuo e estratégias de enfrentamento para indivíduos que lidam com ansiedade. As sessões incluem discussões, técnicas de relaxamento e compartilhamento de experiências.",
     participants: [
       { id: "1", name: "Alice Wonderland", avatarUrl: "https://placehold.co/100x100/D0BFFF/4F3A76?text=AW", dataAiHint: "female avatar" },
@@ -29,13 +33,16 @@ export const mockTherapeuticGroups = [
     ],
     meetingAgenda: "Sessão 1: Apresentações e estabelecimento de metas do grupo.\nSessão 2: Entendendo os mecanismos da ansiedade e identificando gatilhos pessoais.\nSessão 3: Introdução a técnicas de respiração e relaxamento muscular progressivo.\nSessão 4: Estratégias de reestruturação cognitiva para pensamentos ansiogênicos.\nSessão 5: Exposição gradual e dessensibilização sistemática (discussão e planejamento)."
   },
-  { 
-    id: "grp2", 
-    name: "Habilidades Sociais para Adolescentes", 
-    psychologist: "Dra. Jones", 
+  {
+    id: "grp2",
+    name: "Habilidades Sociais para Adolescentes",
+    psychologist: "Dra. Jones",
     psychologistId: "psy2",
-    membersCount: 6, 
-    schedule: "Quintas, 16:00 - 17:00", 
+    membersCount: 6,
+    schedule: "Quintas, 16:00 - 17:00",
+    dayOfWeek: "thursday",
+    startTime: "16:00",
+    endTime: "17:00",
     nextSession: "2024-08-08T16:00:00Z",
     description: "Este grupo ajuda adolescentes a desenvolver e praticar habilidades sociais essenciais em um ambiente seguro e de apoio. Foco em comunicação, assertividade e resolução de conflitos.",
     participants: [
@@ -43,13 +50,16 @@ export const mockTherapeuticGroups = [
     ],
     meetingAgenda: "Encontro 1: Quebra-gelo e comunicação verbal básica (escuta ativa, iniciar conversas).\nEncontro 2: Comunicação não-verbal (linguagem corporal, contato visual).\nEncontro 3: Assertividade vs. Agressividade vs. Passividade.\nEncontro 4: Lidando com feedback e críticas.\nEncontro 5: Resolução de conflitos interpessoais."
   },
-  { 
-    id: "grp3", 
-    name: "Grupo de Luto e Perdas", 
-    psychologist: "Dr. Silva", 
+  {
+    id: "grp3",
+    name: "Grupo de Luto e Perdas",
+    psychologist: "Dr. Silva",
     psychologistId: "psy1",
-    membersCount: 5, 
-    schedule: "Segundas, 10:00 - 11:30", 
+    membersCount: 5,
+    schedule: "Segundas, 10:00 - 11:30",
+    dayOfWeek: "monday",
+    startTime: "10:00",
+    endTime: "11:30",
     nextSession: "2024-08-05T10:00:00Z",
     description: "Um espaço para processar o luto e encontrar apoio após a perda de um ente querido. O grupo oferece um ambiente de compreensão e ferramentas para lidar com a dor.",
     participants: [],
@@ -112,7 +122,7 @@ export default function TherapeuticGroupsPage() {
                       <TableCell className="text-center">
                         <Badge variant="secondary">{group.membersCount}</Badge>
                       </TableCell>
-                      <TableCell>{group.schedule}</TableCell>
+                      <TableCell>{group.schedule}</TableCell> {/* Mantém o schedule original para display, mas a lógica usará os campos novos */}
                       <TableCell>{group.nextSession ? format(new Date(group.nextSession), "P 'às' HH:mm", { locale: ptBR }) : "N/A"}</TableCell>
                       <TableCell className="text-right">
                         <DropdownMenu>

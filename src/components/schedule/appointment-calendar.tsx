@@ -5,8 +5,8 @@ import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
-import { Clock, User, PlusCircle, Edit, Trash2, FileText, CheckCircle, AlertTriangle, XCircle, Check, Ban, UserCheck, UserX, RepeatIcon, GripVertical, CalendarX2 } from 'lucide-react';
-import { format, startOfWeek, endOfWeek, eachDayOfInterval, addDays, subDays, isSameMonth, isSameDay, parse, getDay } from 'date-fns';
+import { Clock, User, PlusCircle, Edit, Trash2, FileText, CheckCircle, AlertTriangle, XCircle, Check, Ban, UserCheck, UserX, RepeatIcon, GripVertical, CalendarX2, Users as UsersIcon } from 'lucide-react';
+import { format, startOfWeek, endOfWeek, eachDayOfInterval, addDays, subDays, isSameMonth, isSameDay, parse, getDay, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import Link from 'next/link';
 import { cn } from "@/shared/utils";
@@ -32,6 +32,9 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import type { Appointment, AppointmentsByDate, AppointmentStatus } from "@/types/appointment";
 import InfoDisplay from '@/components/ui/info-display';
+import { mockTherapeuticGroups } from '@/app/(app)/groups/page'; // Import mock group data
+import type { Group as TherapeuticGroup } from '@/app/(app)/groups/[id]/page'; // Import Group type
+
 
 const mockPsychologists = [
   { id: "psy1", name: "Dr. Silva" },
@@ -73,7 +76,14 @@ export const getInitialMockAppointments = (): AppointmentsByDate => {
   return initialData;
 };
 
-const getStatusStyles = (status: AppointmentStatus): string => {
+const dayOfWeekMapping: Record<string, number> = {
+  sunday: 0, monday: 1, tuesday: 2, wednesday: 3, thursday: 4, friday: 5, saturday: 6,
+};
+
+const getStatusStyles = (status: AppointmentStatus, isGroupSession?: boolean): string => {
+    if (isGroupSession) {
+      return "bg-purple-500/15 text-purple-700 dark:text-purple-300 hover:bg-purple-500/25 border-l-4 border-purple-500";
+    }
     switch (status) {
         case "Scheduled":
         case "Confirmed":
@@ -93,7 +103,10 @@ const getStatusStyles = (status: AppointmentStatus): string => {
     }
 };
 
-const getStatusIcon = (status: AppointmentStatus, className: string = "w-3.5 h-3.5 mr-1.5 inline-block") => {
+const getStatusIcon = (status: AppointmentStatus, className: string = "w-3.5 h-3.5 mr-1.5 inline-block", isGroupSession?: boolean) => {
+    if (isGroupSession) {
+      return <UsersIcon className={cn(className, "text-purple-600/80 dark:text-purple-400/80")} />;
+    }
     switch (status) {
         case "Scheduled": return <Clock className={cn(className, "text-accent-foreground/80")} />;
         case "Confirmed": return <UserCheck className={cn(className, "text-accent-foreground/80")} />;
@@ -147,36 +160,56 @@ function AppointmentCalendarComponent({ view, currentDate, filters, workingDaysO
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(currentDate);
   const [appointmentsState, setAppointmentsState] = useState<AppointmentsByDate>(() => getInitialMockAppointments());
   const { toast } = useToast();
-  
-  useEffect(() => {
-    // Initialize or update based on props
-    // This is simplified; in a real app, you might fetch or sync appointments here
-    setAppointmentsState(getInitialMockAppointments());
-  }, []); // Consider dependencies if appointments can change from outside
 
-  const filteredAppointments = useMemo(() => {
-    const appointmentsResult: AppointmentsByDate = {};
-    for (const dateKey in appointmentsState) { 
-        const dateAppointments = appointmentsState[dateKey] || [];
-        appointmentsResult[dateKey] = dateAppointments.filter(appt => {
-            const matchesPsychologist = filters.psychologistId === "all" || appt.psychologistId === filters.psychologistId;
-            const matchesStatus = filters.status === "All" || appt.status === filters.status;
-            const apptDateUTC = parse(dateKey, "yyyy-MM-dd", new Date()); // Parse as UTC date
-            const apptDate = new Date(apptDateUTC.getUTCFullYear(), apptDateUTC.getUTCMonth(), apptDateUTC.getUTCDate()); // Convert to local date object, maintaining the date parts
-            const matchesDateFrom = !filters.dateFrom || apptDate >= new Date(new Date(filters.dateFrom).setUTCHours(0,0,0,0));
-            const matchesDateTo = !filters.dateTo || apptDate <= new Date(new Date(filters.dateTo).setUTCHours(23,59,59,999));
-            return matchesPsychologist && matchesStatus && matchesDateFrom && matchesDateTo;
-        }).sort((a, b) => a.startTime.localeCompare(b.startTime)); // Sort by start time
-    }
-    return appointmentsResult;
-  }, [filters, appointmentsState]);
+  useEffect(() => {
+    setAppointmentsState(getInitialMockAppointments());
+  }, []);
 
   const getAppointmentsForDay = useCallback((dayDate: Date): Appointment[] => {
     const dateStr = format(dayDate, "yyyy-MM-dd");
-    return filteredAppointments[dateStr] || [];
-  }, [filteredAppointments]);
+    const dayJsIndex = dayDate.getDay(); // 0 for Sunday, 1 for Monday, etc.
+
+    const individualAppointments = (appointmentsState[dateStr] || []).filter(appt => {
+      const matchesPsychologist = filters.psychologistId === "all" || appt.psychologistId === filters.psychologistId;
+      const matchesStatus = filters.status === "All" || appt.status === filters.status;
+      const apptDateObj = parse(dateStr, "yyyy-MM-dd", new Date());
+      const matchesDateFrom = !filters.dateFrom || apptDateObj >= new Date(new Date(filters.dateFrom).setUTCHours(0,0,0,0));
+      const matchesDateTo = !filters.dateTo || apptDateObj <= new Date(new Date(filters.dateTo).setUTCHours(23,59,59,999));
+      return matchesPsychologist && matchesStatus && matchesDateFrom && matchesDateTo;
+    });
+
+    const groupSessionsForDay: Appointment[] = mockTherapeuticGroups
+      .filter(group => {
+        const groupDayIndex = dayOfWeekMapping[group.dayOfWeek.toLowerCase()];
+        const matchesPsychologist = filters.psychologistId === "all" || group.psychologistId === filters.psychologistId;
+        // For status filter, group sessions are typically always 'Scheduled' or a similar active state unless explicitly cancelled.
+        // If a specific "GroupSession" status is introduced, filter by it. For now, "All" or "Scheduled" would include them.
+        const matchesStatus = filters.status === "All" || filters.status === "Scheduled"; // Adjust if group sessions have other statuses
+        return groupDayIndex === dayJsIndex && matchesPsychologist && matchesStatus;
+      })
+      .map(group => ({
+        id: `group-${group.id}-${dateStr}`,
+        startTime: group.startTime,
+        endTime: group.endTime,
+        patient: group.name, // Group name as patient for display
+        type: "Sessão em Grupo",
+        psychologistId: group.psychologistId,
+        status: "Scheduled" as AppointmentStatus, // Or a specific "GroupSession" status
+        isGroupSession: true,
+        groupId: group.id,
+        blockReason: group.name, // For conflict detection
+        notes: group.meetingAgenda ? `Roteiro: ${group.meetingAgenda.substring(0, 50)}...` : undefined,
+      }));
+
+    return [...individualAppointments, ...groupSessionsForDay].sort((a, b) => a.startTime.localeCompare(b.startTime));
+  }, [appointmentsState, filters]);
+
 
   const handleDeleteAppointment = useCallback((appointmentId: string, appointmentPatient: string, dayDate: Date) => {
+    if (appointmentId.startsWith('group-')) {
+        toast({ title: "Ação Não Permitida", description: "Sessões de grupo são gerenciadas na página de Grupos.", variant: "default" });
+        return;
+    }
     const dateStr = format(dayDate, "yyyy-MM-dd");
     setAppointmentsState(prev => {
         const updatedAppointmentsForDate = (prev[dateStr] || []).filter(appt => appt.id !== appointmentId);
@@ -188,9 +221,13 @@ function AppointmentCalendarComponent({ view, currentDate, filters, workingDaysO
   }, [onAppointmentsUpdate, toast]);
 
   const handleUpdateStatus = useCallback((appointment: Appointment, newStatus: AppointmentStatus, dayDate: Date) => {
+    if (appointment.isGroupSession) {
+        toast({ title: "Ação Não Permitida", description: "Status de sessões de grupo não pode ser alterado aqui.", variant: "default" });
+        return;
+    }
     const dateStr = format(dayDate, "yyyy-MM-dd");
     setAppointmentsState(prev => {
-        const updatedAppointmentsForDate = (prev[dateStr] || []).map(appt => 
+        const updatedAppointmentsForDate = (prev[dateStr] || []).map(appt =>
             appt.id === appointment.id ? { ...appt, status: newStatus } : appt
         );
         const newState = { ...prev, [dateStr]: updatedAppointmentsForDate };
@@ -209,8 +246,8 @@ function AppointmentCalendarComponent({ view, currentDate, filters, workingDaysO
 
     if (view === "Day" && !isWorkingDay) {
        return (
-         <Card 
-            key={cellKey} 
+         <Card
+            key={cellKey}
             className="p-2 min-h-[120px] bg-muted/50 border-r border-b rounded-none shadow-none flex flex-col items-center justify-center text-center group relative"
         >
             <CardContent className="p-0 h-full flex flex-col flex-grow items-center justify-center">
@@ -223,21 +260,21 @@ function AppointmentCalendarComponent({ view, currentDate, filters, workingDaysO
     }
 
     return (
-      <Card 
-        key={cellKey} 
+      <Card
+        key={cellKey}
         className={cn(
             "p-2 min-h-[120px] border-r border-b rounded-none shadow-none hover:bg-secondary/20 transition-colors flex flex-col group relative",
             !isCurrentMonthView && view === "Month" && "bg-muted/30 text-muted-foreground/50",
-            !isWorkingDay && "bg-muted/40 text-muted-foreground/60",
+            !isWorkingDay && view !== "Day" && "bg-muted/40 text-muted-foreground/60", // Adjusted for Day view
             isSelected && isWorkingDay && "ring-2 ring-accent ring-inset",
             isToday && isWorkingDay && !isSelected && "bg-accent/5 border-accent/30",
-            (!isWorkingDay || (!isCurrentMonthView && view === "Month")) && "pointer-events-none"
+            (!isWorkingDay || (!isCurrentMonthView && view === "Month")) && view !== "Day" && "pointer-events-none"
         )}
         onClick={() => isWorkingDay && setSelectedDate(dayDate)}
       >
         <CardContent className="p-0 h-full flex flex-col flex-grow">
-          <div className={cn("text-sm font-medium text-center rounded-full w-6 h-6 flex items-center justify-center mb-1 self-start", 
-            isSelected && isWorkingDay ? 'bg-accent text-accent-foreground font-bold' : 'text-foreground', 
+          <div className={cn("text-sm font-medium text-center rounded-full w-6 h-6 flex items-center justify-center mb-1 self-start",
+            isSelected && isWorkingDay ? 'bg-accent text-accent-foreground font-bold' : 'text-foreground',
             isToday && isWorkingDay && !isSelected && 'bg-accent/60 text-accent-foreground',
             (!isCurrentMonthView || !isWorkingDay) && view === "Month" && 'opacity-50'
           )}>
@@ -252,17 +289,17 @@ function AppointmentCalendarComponent({ view, currentDate, filters, workingDaysO
                       <div
                         className={cn(
                           "w-full p-1.5 rounded cursor-pointer shadow-sm transition-all leading-tight",
-                          "flex items-center gap-1.5 text-xs", 
-                          getStatusStyles(appt.status)
+                          "flex items-center gap-1.5 text-xs",
+                          getStatusStyles(appt.status, appt.isGroupSession)
                         )}
                       >
-                        {getStatusIcon(appt.status, "w-3 h-3 mr-1")}
+                        {getStatusIcon(appt.status, "w-3 h-3 mr-1", appt.isGroupSession)}
                         <div className="flex-grow truncate">
                           <span className="font-semibold">{appt.startTime}</span>
                           <span className="ml-1">
                             {appt.type === "Blocked Slot" ? `Bloqueio: ${appt.blockReason || 'Motivo não especificado'}` : appt.patient}
                           </span>
-                          {filters.psychologistId === "all" && appt.psychologistId && appt.type !== "Blocked Slot" && (
+                          {filters.psychologistId === "all" && appt.psychologistId && appt.type !== "Blocked Slot" && !appt.isGroupSession && (
                             <span className="text-[0.65rem] opacity-80 ml-0.5">
                               ({mockPsychologists.find(p => p.id === appt.psychologistId)?.name.match(/\b(\w)/g)?.join('') || '??'})
                             </span>
@@ -273,14 +310,22 @@ function AppointmentCalendarComponent({ view, currentDate, filters, workingDaysO
                     <PopoverContent className="w-72 p-0 shadow-xl rounded-lg border bg-popover">
                         <div className="p-4 space-y-2">
                             <h4 className="font-headline text-md">{appt.type === "Blocked Slot" ? `Horário Bloqueado: ${appt.blockReason}` : appt.patient}</h4>
-                            <InfoDisplay label="Tipo" value={appt.type} icon={GripVertical} className="p-0 bg-transparent"/>
+                            <InfoDisplay label="Tipo" value={appt.type} icon={appt.isGroupSession ? UsersIcon : GripVertical} className="p-0 bg-transparent"/>
                             <InfoDisplay label="Horário" value={`${appt.startTime} - ${appt.endTime}`} icon={Clock} className="p-0 bg-transparent"/>
-                            <InfoDisplay label="Status" value={getStatusLabel(appt.status)} icon={() => getStatusIcon(appt.status, "w-4 h-4 mr-1")} className="p-0 bg-transparent"/>
+                            <InfoDisplay label="Status" value={getStatusLabel(appt.status)} icon={() => getStatusIcon(appt.status, "w-4 h-4 mr-1", appt.isGroupSession)} className="p-0 bg-transparent"/>
                             {appt.psychologistId && <InfoDisplay label="Com" value={mockPsychologists.find(p => p.id === appt.psychologistId)?.name || appt.psychologistId} icon={User} className="p-0 bg-transparent"/> }
-                            {appt.notes && <InfoDisplay label="Notas" value={appt.notes} icon={Edit} className="p-0 bg-transparent"/>}
+                            {appt.notes && !appt.isGroupSession && <InfoDisplay label="Notas" value={appt.notes} icon={Edit} className="p-0 bg-transparent"/>}
+                            {appt.isGroupSession && appt.notes && <InfoDisplay label="Roteiro (Início)" value={appt.notes} icon={FileText} className="p-0 bg-transparent"/>}
                         </div>
                         <div className="flex flex-col gap-1.5 p-3 border-t bg-muted/30 rounded-b-lg">
-                            {appt.type !== "Blocked Slot" && appt.patientId && (
+                            {appt.isGroupSession && appt.groupId && (
+                                <Button size="sm" variant="outline" asChild className="w-full">
+                                    <Link href={`/groups/${appt.groupId}`}>
+                                        <UsersIcon className="mr-1.5 h-3.5 w-3.5"/> Ver Detalhes do Grupo
+                                    </Link>
+                                </Button>
+                            )}
+                            {!appt.isGroupSession && appt.patientId && (
                                 <Button size="sm" variant="outline" asChild className="w-full">
                                     <Link href={`/patients/${appt.patientId}?tab=notes&date=${format(dayDate, "yyyy-MM-dd")}`}>
                                         <FileText className="mr-1.5 h-3.5 w-3.5"/> Iniciar Anotação
@@ -288,23 +333,29 @@ function AppointmentCalendarComponent({ view, currentDate, filters, workingDaysO
                                 </Button>
                             )}
                             <div className="flex gap-2 w-full">
-                                <Button size="sm" variant="outline" asChild className="flex-1"><Link href={`/schedule/edit/${appt.id}`}><Edit className="mr-1.5 h-3.5 w-3.5"/> Editar</Link></Button>
-                                <AlertDialog>
-                                <AlertDialogTrigger asChild>
-                                    <Button size="sm" variant="destructive" className="flex-1 bg-destructive/90 hover:bg-destructive text-destructive-foreground"><Trash2 className="mr-1.5 h-3.5 w-3.5"/> Excluir</Button>
-                                </AlertDialogTrigger>
-                                <AlertDialogContent>
-                                    <AlertDialogHeader><AlertDialogTitle>Confirmar Exclusão</AlertDialogTitle>
-                                    <AlertDialogDescription>Tem certeza que deseja excluir o agendamento de {appt.patient} às {appt.startTime} em {format(dayDate, "P", { locale: ptBR })}? Esta ação não pode ser desfeita.</AlertDialogDescription>
-                                    </AlertDialogHeader>
-                                    <AlertDialogFooter>
-                                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                    <AlertDialogAction onClick={() => handleDeleteAppointment(appt.id, appt.patient || "Bloqueio", dayDate)} className="bg-destructive hover:bg-destructive/90">Excluir</AlertDialogAction>
-                                    </AlertDialogFooter>
-                                </AlertDialogContent>
-                                </AlertDialog>
+                                <Button size="sm" variant="outline" asChild className="flex-1">
+                                  <Link href={appt.isGroupSession ? `/groups/edit/${appt.groupId}` : `/schedule/edit/${appt.id}`}>
+                                    <Edit className="mr-1.5 h-3.5 w-3.5"/> {appt.isGroupSession ? "Gerenciar Grupo" : "Editar"}
+                                  </Link>
+                                </Button>
+                                {!appt.isGroupSession && (
+                                  <AlertDialog>
+                                  <AlertDialogTrigger asChild>
+                                      <Button size="sm" variant="destructive" className="flex-1 bg-destructive/90 hover:bg-destructive text-destructive-foreground"><Trash2 className="mr-1.5 h-3.5 w-3.5"/> Excluir</Button>
+                                  </AlertDialogTrigger>
+                                  <AlertDialogContent>
+                                      <AlertDialogHeader><AlertDialogTitle>Confirmar Exclusão</AlertDialogTitle>
+                                      <AlertDialogDescription>Tem certeza que deseja excluir o agendamento de {appt.patient} às {appt.startTime} em {format(dayDate, "P", { locale: ptBR })}? Esta ação não pode ser desfeita.</AlertDialogDescription>
+                                      </AlertDialogHeader>
+                                      <AlertDialogFooter>
+                                      <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                      <AlertDialogAction onClick={() => handleDeleteAppointment(appt.id, appt.patient || "Bloqueio", dayDate)} className="bg-destructive hover:bg-destructive/90">Excluir</AlertDialogAction>
+                                      </AlertDialogFooter>
+                                  </AlertDialogContent>
+                                  </AlertDialog>
+                                )}
                             </div>
-                            {appt.type !== "Blocked Slot" && (
+                            {!appt.isGroupSession && appt.type !== "Blocked Slot" && (
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild><Button size="sm" variant="outline" className="w-full"><Check className="mr-1.5 h-3.5 w-3.5" /> Marcar Status</Button></DropdownMenuTrigger>
                                 <DropdownMenuContent className="w-56">
@@ -330,22 +381,22 @@ function AppointmentCalendarComponent({ view, currentDate, filters, workingDaysO
             </>
           ) : (
             <div className="mt-1 text-xs text-muted-foreground/70 flex items-center justify-center h-full">
-              {/* Dia não trabalhado, não mostra nada extra, só o número do dia esmaecido */}
+              {/* Dia não trabalhado (não na visualização DIÁRIA), não mostra nada extra */}
             </div>
           )}
         </CardContent>
       </Card>
     );
-  }, [getAppointmentsForDay, selectedDate, filters.psychologistId, handleDeleteAppointment, handleUpdateStatus, workingDaysOfWeek, view]); 
+  }, [getAppointmentsForDay, selectedDate, filters.psychologistId, handleDeleteAppointment, handleUpdateStatus, workingDaysOfWeek, view]);
 
   const renderMonthView = useCallback(() => {
     const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
-    const monthStart = startOfWeek(firstDayOfMonth, { locale: ptBR, weekStartsOn: 1 }); // Semana começa na Segunda
+    const monthStart = startOfWeek(firstDayOfMonth, { locale: ptBR, weekStartsOn: 1 });
     const lastDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
-    const monthEnd = endOfWeek(lastDayOfMonth, { locale: ptBR, weekStartsOn: 1 }); // Semana começa na Segunda
-    
+    const monthEnd = endOfWeek(lastDayOfMonth, { locale: ptBR, weekStartsOn: 1 });
+
     const daysInGrid = eachDayOfInterval({ start: monthStart, end: monthEnd });
-    
+
     const dayNames = Array.from({ length: 7 }, (_, i) => {
         const tempDate = addDays(startOfWeek(new Date(), { weekStartsOn: 1}), i);
         return format(tempDate, "EEEEEE", { locale: ptBR });
@@ -360,21 +411,21 @@ function AppointmentCalendarComponent({ view, currentDate, filters, workingDaysO
   }, [currentDate, renderDayCell]);
 
   const renderWeekView = useCallback(() => {
-    const weekStartActual = startOfWeek(currentDate, { weekStartsOn: 1, locale: ptBR }); 
+    const weekStartActual = startOfWeek(currentDate, { weekStartsOn: 1, locale: ptBR });
     const allWeekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStartActual, i));
-    
+
     return (
          <div className={cn("grid grid-cols-7 gap-px bg-border border-l border-t flex-grow")}>
             {allWeekDays.map(day => (<div key={`header-${day.toString()}`} className="py-0.5 text-center text-xs font-medium text-muted-foreground bg-card border-r border-b capitalize">{format(day, "EEE d", { locale: ptBR })}</div>))}
             {allWeekDays.map((day, index) => renderDayCell(day, true, `week-${index}`))}
         </div>
     );
-  }, [currentDate, renderDayCell, workingDaysOfWeek]);
+  }, [currentDate, renderDayCell]);
 
   const renderDayView = useCallback(() => {
      return (
          <div className="flex flex-col gap-px bg-border border-l border-t flex-grow">
-            <div className="py-0.5 text-center text-xs font-medium text-muted-foreground bg-card border-r border-b capitalize">{format(currentDate, "EEEE, d 'de' MMMM", { locale: ptBR })}</div>
+            <div className="py-1 text-center text-xs font-medium text-muted-foreground bg-card border-r border-b capitalize">{format(currentDate, "EEEE, d 'de' MMMM", { locale: ptBR })}</div>
             {renderDayCell(currentDate, true, "day-view")}
         </div>
     );

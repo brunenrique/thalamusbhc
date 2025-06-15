@@ -4,8 +4,8 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import GroupForm from "@/components/forms/group-form";
-import { mockTherapeuticGroups } from "@/app/(app)/groups/page"; 
-import type { GroupFormValues } from "@/components/forms/group-form"; 
+import { mockTherapeuticGroups } from "@/app/(app)/groups/page";
+import type { GroupFormValues } from "@/components/forms/group-form";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Users, Edit, FileWarning } from "lucide-react";
@@ -25,27 +25,14 @@ export default function EditGroupPage() {
     if (groupId) {
       const foundGroup = mockTherapeuticGroups.find(g => g.id === groupId);
       if (foundGroup) {
-        // Map mockTherapeuticGroups to GroupFormValues
-        const scheduleParts = foundGroup.schedule.split(',');
-        const dayOfWeekString = scheduleParts[0]?.trim().toLowerCase();
-        const timeParts = scheduleParts[1]?.trim().split(' - ');
-        
-        // Map day of week string to one of the GroupFormValues["dayOfWeek"]
-        const dayOfWeekMapping: Record<string, GroupFormValues["dayOfWeek"]> = {
-            "segundas": "monday", "terças": "tuesday", "quartas": "wednesday", 
-            "quintas": "thursday", "sextas": "friday", "sábados": "saturday", "domingos": "sunday"
-        };
-        const mappedDayOfWeek = dayOfWeekMapping[dayOfWeekString] || "monday";
-
-
         setGroupData({
           name: foundGroup.name,
-          description: foundGroup.description || "", 
-          psychologistId: foundGroup.psychologistId, 
-          patientIds: foundGroup.participants.map(p => p.id), 
-          dayOfWeek: mappedDayOfWeek,
-          startTime: timeParts?.[0] || "00:00",
-          endTime: timeParts?.[1] || "01:00",
+          description: foundGroup.description || "",
+          psychologistId: foundGroup.psychologistId,
+          patientIds: foundGroup.participants.map(p => p.id),
+          dayOfWeek: foundGroup.dayOfWeek, // Use o novo campo
+          startTime: foundGroup.startTime, // Use o novo campo
+          endTime: foundGroup.endTime,   // Use o novo campo
           meetingAgenda: foundGroup.meetingAgenda || "",
         });
       } else {
@@ -72,7 +59,7 @@ export default function EditGroupPage() {
             <Skeleton className="h-20 w-full" />
             <Skeleton className="h-10 w-full" />
             <Skeleton className="h-10 w-1/2" />
-            <Skeleton className="h-20 w-full" /> 
+            <Skeleton className="h-20 w-full" />
             <div className="flex justify-end"><Skeleton className="h-10 w-24" /></div>
           </CardContent>
         </Card>

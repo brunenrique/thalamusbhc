@@ -5,10 +5,10 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Mail, Phone, CalendarDays, Edit, FileText, Brain, CheckCircle, Clock, MessageSquare, Trash2, Users as UsersIconLucide, Home as HomeIconLucide, Share2, UploadCloud, Calendar as CalendarIconShad, Lightbulb, Tag, BarChart3 as BarChart3Icon, ShieldAlert as ShieldAlertIcon, CheckCircle as CheckCircleIcon, TrendingUp, BookOpen, Activity, Users2, ClipboardList, Target, ListChecks, PlusCircle, Archive, AlertTriangle, History as HistoryIcon, Bot, Image as ImageIcon, Save, CalendarCheck } from "lucide-react";
+import { Mail, Phone, CalendarDays, Edit, FileText, Brain, CheckCircle, Clock, MessageSquare, Trash2, Users as UsersIconLucide, Home as HomeIconLucide, Share2, UploadCloud, Calendar as CalendarIconShad, Lightbulb, Tag, BarChart3 as BarChart3Icon, ShieldAlert as ShieldAlertIcon, CheckCircle as CheckCircleIcon, TrendingUp, BookOpen, Activity, Users2, ClipboardList, Target, ListChecks, PlusCircle, Archive, AlertTriangle, History as HistoryIcon, Bot, Image as ImageIcon, Save, CalendarCheck, FileArchive, Eye, Pencil } from "lucide-react";
 import CopyButton from "@/components/ui/copy-button";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation"; // Added useSearchParams
+import { useRouter, useSearchParams } from "next/navigation"; 
 import PatientTimeline from "@/components/patients/patient-timeline";
 import SessionNoteCard from "@/components/patients/session-note-card";
 import ResourceCard from "@/components/resources/resource-card";
@@ -155,6 +155,20 @@ const mockPatientTasks: PatientTask[] = [
   { id: "ptask4", description: "Revisar técnicas de relaxamento progressivo (vídeo)", dateProposed: "N/A", status: "Sugerido", category: "Exercício", details: "Pode ser útil para momentos de maior tensão." },
 ];
 
+interface PsychologicalDocument {
+  id: string;
+  name: string;
+  type: "Laudo" | "Atestado" | "Declaração" | "Relatório de Avaliação" | "Outro";
+  creationDate: string; // ISO date string
+  lastModified?: string; // ISO date string
+}
+
+const mockPsychologicalDocuments: PsychologicalDocument[] = [
+  { id: "doc1", name: "Laudo Psicológico Inicial - Alice W.", type: "Laudo", creationDate: "2024-07-05", lastModified: "2024-07-08" },
+  { id: "doc2", name: "Atestado de Comparecimento - Alice W.", type: "Atestado", creationDate: "2024-07-15" },
+  { id: "doc3", name: "Relatório de Avaliação BDI - Alice W.", type: "Relatório de Avaliação", creationDate: "2024-07-12", lastModified: "2024-07-12"},
+];
+
 
 export default function PatientDetailPage({ params }: { params: { id: string } }) {
   const patient = mockPatient;
@@ -180,6 +194,8 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
   const [sessionNotes, setSessionNotes] = useState(initialSessionNotes);
   const [assessments, setAssessments] = useState<Array<{ id: string; name: string; dateSent: string; status: "Completed" | "Pending" | "Sent"; score?: string }>>(initialAssessments);
   const [patientResources, setPatientResources] = useState<Array<{ id: string; name: string; type: "pdf" | "docx" | "image" | "other"; size: string; sharedDate: string; dataAiHint: string; uploadDate?: string }>>(initialPatientResources);
+  const [psychologicalDocuments, setPsychologicalDocuments] = useState<PsychologicalDocument[]>(mockPsychologicalDocuments);
+
 
   const [selectedInventoryTemplate, setSelectedInventoryTemplate] = useState<string>("");
   const [inventorySendDate, setInventorySendDate] = useState<Date | undefined>(undefined);
@@ -338,7 +354,6 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
   }, [sessionNotes, patient.id, toast]);
 
   const handleSaveCaseStudyNotes = useCallback(() => {
-    console.log("Salvando anotações do estudo de caso:", caseStudyNotes);
     toast({
       title: "Anotações Salvas (Simulado)",
       description: "Suas anotações do estudo de caso foram salvas com sucesso.",
@@ -346,7 +361,6 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
   }, [caseStudyNotes, toast]);
 
   const handleSaveNextSessionsPlan = useCallback(() => {
-    console.log("Salvando planejamento das próximas sessões:", nextSessionsPlan);
     toast({
       title: "Planejamento Salvo (Simulado)",
       description: "O planejamento para as próximas sessões foi salvo.",
@@ -459,13 +473,14 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
       </Card>
 
       <Tabs defaultValue={initialTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-7">
+        <TabsList className="grid w-full grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-8"> {/* Ajustado para 8 colunas */}
           <TabsTrigger value="overview">Visão Geral</TabsTrigger>
           <TabsTrigger value="notes">Anotações</TabsTrigger>
           <TabsTrigger value="instruments">Instrumentos</TabsTrigger>
           <TabsTrigger value="planning">Planejamento</TabsTrigger>
           <TabsTrigger value="caseStudy"> <Brain className="inline-block mr-1.5 h-4 w-4" /> Estudo de Caso</TabsTrigger>
           <TabsTrigger value="resources">Recursos</TabsTrigger>
+          <TabsTrigger value="documents"><FileArchive className="inline-block mr-1.5 h-4 w-4" /> Documentos</TabsTrigger>
           <TabsTrigger value="timeline">Linha do Tempo</TabsTrigger>
         </TabsList>
 
@@ -731,7 +746,6 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="grid md:grid-cols-2 gap-6">
-                {/* Coluna da Esquerda: Chat com IA (Futuro) */}
                 <Card className="bg-muted/30">
                   <CardHeader>
                     <CardTitle className="text-lg font-semibold flex items-center">
@@ -749,7 +763,6 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
                   </CardContent>
                 </Card>
 
-                {/* Coluna da Direita: Anotações Livres */}
                 <Card>
                   <CardHeader>
                     <CardTitle className="text-lg font-semibold">Suas Anotações do Estudo de Caso</CardTitle>
@@ -774,7 +787,6 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
                 </Card>
               </div>
               
-              {/* Seção de Insights da IA Existente */}
               <Card className="mt-6">
                 <CardHeader>
                   <CardTitle className="font-headline flex items-center"><Brain className="mr-2 h-5 w-5 text-primary" /> Insights da IA sobre as Sessões</CardTitle>
@@ -883,6 +895,53 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
             <CardContent className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {patientResources.map(resource => (<ResourceCard key={resource.id} resource={resource} />))}
               {patientResources.length === 0 && <p className="text-muted-foreground md:col-span-full">Nenhum recurso compartilhado.</p>}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="documents" className="mt-8">
+          <Card className="shadow-sm">
+            <CardHeader className="flex flex-row justify-between items-center">
+              <div>
+                <CardTitle className="font-headline flex items-center"><FileArchive className="mr-2 h-5 w-5 text-primary"/> Documentos Psicológicos</CardTitle>
+                <CardDescription>Laudos, atestados, declarações e outros documentos do paciente.</CardDescription>
+              </div>
+              <Button className="bg-accent hover:bg-accent/90 text-accent-foreground">
+                <PlusCircle className="mr-2 h-4 w-4" /> Criar Novo Documento
+              </Button>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {psychologicalDocuments.length > 0 ? (
+                psychologicalDocuments.map(doc => (
+                  <Card key={doc.id} className="shadow-xs hover:shadow-sm transition-shadow">
+                    <CardContent className="p-3">
+                      <div className="flex justify-between items-center">
+                        <div>
+                          <h4 className="font-medium text-sm">{doc.name}</h4>
+                          <p className="text-xs text-muted-foreground">
+                            Tipo: <Badge variant="outline" className="text-xs">{doc.type}</Badge> | 
+                            Criado em: {format(new Date(doc.creationDate), "P", { locale: ptBR })}
+                            {doc.lastModified && ` | Modificado em: ${format(new Date(doc.lastModified), "P", { locale: ptBR })}`}
+                          </p>
+                        </div>
+                        <div className="flex gap-1">
+                          <Button variant="ghost" size="icon" className="h-7 w-7" aria-label={`Visualizar ${doc.name}`}>
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                          <Button variant="ghost" size="icon" className="h-7 w-7" aria-label={`Editar ${doc.name}`}>
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                          <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:text-destructive" aria-label={`Excluir ${doc.name}`}>
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))
+              ) : (
+                <p className="text-muted-foreground text-sm">Nenhum documento psicológico registrado para este paciente.</p>
+              )}
             </CardContent>
           </Card>
         </TabsContent>

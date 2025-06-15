@@ -121,7 +121,6 @@ const getStatusLabel = (status: AppointmentStatus): string => {
     return labels[status] || status;
 }
 
-// Helper to map date-fns getDay (0=Sun, 1=Mon) to string IDs ('sunday', 'monday')
 const getDayIdFromDate = (date: Date): string => {
   const dayIndex = getDay(date);
   const ids = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
@@ -137,7 +136,7 @@ interface AppointmentCalendarProps {
     dateFrom?: Date;
     dateTo?: Date;
   };
-  workingDaysOfWeek?: string[]; // e.g., ['monday', 'tuesday', 'wednesday', 'thursday', 'friday']
+  workingDaysOfWeek?: string[];
   onAppointmentsUpdate?: (appointments: AppointmentsByDate) => void;
 }
 
@@ -199,7 +198,7 @@ function AppointmentCalendarComponent({ view, currentDate, filters, workingDaysO
     toast({ title: "Status Atualizado", description: `Status de ${appointment.patient} alterado para ${getStatusLabel(newStatus)}.` });
   }, [onAppointmentsUpdate, toast]);
 
-  const renderDayCell = useCallback((dayDate: Date, isCurrentMonth: boolean, cellKey: string | number) => {
+  const renderDayCell = useCallback((dayDate: Date, isCurrentMonthView: boolean, cellKey: string | number) => {
     const dayAppointments = getAppointmentsForDay(dayDate);
     const isSelected = selectedDate && isSameDay(dayDate, selectedDate);
     const isToday = isSameDay(dayDate, new Date());
@@ -221,18 +220,16 @@ function AppointmentCalendarComponent({ view, currentDate, filters, workingDaysO
        );
     }
 
-
     return (
       <Card 
         key={cellKey} 
         className={cn(
             "p-2 min-h-[120px] border-r border-b rounded-none shadow-none hover:bg-secondary/20 transition-colors flex flex-col group relative",
-            !isCurrentMonth && view === "Month" && "bg-muted/30 text-muted-foreground/50 pointer-events-none", // More muted for non-month days
-            !isWorkingDay && view === "Month" && "bg-muted/40 text-muted-foreground/60 pointer-events-none", // Muted for non-working days in month view
-            isWorkingDay && !isCurrentMonth && view === "Month" && "bg-muted/20 text-muted-foreground/70", // Non-month working days less interactive
+            !isCurrentMonthView && view === "Month" && "bg-muted/30 text-muted-foreground/50",
+            !isWorkingDay && "bg-muted/40 text-muted-foreground/60",
             isSelected && isWorkingDay && "ring-2 ring-accent ring-inset",
             isToday && isWorkingDay && !isSelected && "bg-accent/5 border-accent/30",
-            !isWorkingDay && view !== "Day" && "opacity-60" // General opacity for non-working days in multi-day views
+            (!isWorkingDay || (!isCurrentMonthView && view === "Month")) && "pointer-events-none"
         )}
         onClick={() => isWorkingDay && setSelectedDate(dayDate)}
       >
@@ -240,7 +237,7 @@ function AppointmentCalendarComponent({ view, currentDate, filters, workingDaysO
           <div className={cn("text-sm font-medium text-center rounded-full w-6 h-6 flex items-center justify-center mb-1 self-start", 
             isSelected && isWorkingDay ? 'bg-accent text-accent-foreground font-bold' : 'text-foreground', 
             isToday && isWorkingDay && !isSelected && 'bg-accent/60 text-accent-foreground',
-            (!isCurrentMonth || !isWorkingDay) && view === "Month" && 'opacity-50'
+            (!isCurrentMonthView || !isWorkingDay) && view === "Month" && 'opacity-50'
           )}>
             {format(dayDate, "d")}
           </div>
@@ -257,7 +254,7 @@ function AppointmentCalendarComponent({ view, currentDate, filters, workingDaysO
                           getStatusStyles(appt.status)
                         )}
                       >
-                        {getStatusIcon(appt.status)}
+                        {getStatusIcon(appt.status, "w-3 h-3 mr-1")}
                         <div className="flex-grow truncate">
                           <span className="font-semibold">{appt.startTime}</span>
                           <span className="ml-1">
@@ -316,38 +313,34 @@ function AppointmentCalendarComponent({ view, currentDate, filters, workingDaysO
                   </Popover>
                 ))}
               </div>
-              <Button variant="ghost" size="icon" className="absolute bottom-1 right-1 h-7 w-7 opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity" asChild>
-                <Link href={`/schedule/new?date=${format(dayDate, "yyyy-MM-dd")}`}><PlusCircle className="h-5 w-5" /><span className="sr-only">Adicionar agendamento</span></Link>
-              </Button>
+              {isWorkingDay && (
+                <Button variant="ghost" size="icon" className="absolute bottom-1 right-1 h-7 w-7 opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity" asChild>
+                  <Link href={`/schedule/new?date=${format(dayDate, "yyyy-MM-dd")}`}><PlusCircle className="h-5 w-5" /><span className="sr-only">Adicionar agendamento</span></Link>
+                </Button>
+              )}
             </>
           ) : (
             <div className="mt-1 text-xs text-muted-foreground/70 flex items-center justify-center h-full">
-              {/* Não mostrar nada em dias não trabalhados na visualização de mês/semana, a não ser que seja o dia principal */}
+              {/* Dia não trabalhado, não mostra nada extra, só o número do dia esmaecido */}
             </div>
           )}
         </CardContent>
       </Card>
     );
-  }, [getAppointmentsForDay, selectedDate, filters.psychologistId, handleDeleteAppointment, handleUpdateStatus, workingDaysOfWeek, view, currentDate]); 
+  }, [getAppointmentsForDay, selectedDate, filters.psychologistId, handleDeleteAppointment, handleUpdateStatus, workingDaysOfWeek, view]); 
 
   const renderMonthView = useCallback(() => {
     const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
-    const monthStart = startOfWeek(firstDayOfMonth, { locale: ptBR, weekStartsOn: 1 }); // Segunda-feira
+    const monthStart = startOfWeek(firstDayOfMonth, { locale: ptBR, weekStartsOn: 1 });
     const lastDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
-    const monthEnd = endOfWeek(lastDayOfMonth, { locale: ptBR, weekStartsOn: 1 }); // Domingo
+    const monthEnd = endOfWeek(lastDayOfMonth, { locale: ptBR, weekStartsOn: 1 }); 
     
     const daysInGrid = eachDayOfInterval({ start: monthStart, end: monthEnd });
     
     const dayNames = Array.from({ length: 7 }, (_, i) => {
-        // Para ter Seg a Dom, e weekStartsOn: 1 (Monday) no startOfWeek
-        let dayIndex = (i + 1) % 7; // 1 (Mon) ... 6 (Sat), 0 (Sun)
-        if (dayIndex === 0) dayIndex = 6; // move Sun to end
-        else dayIndex = dayIndex - 1; // shift others
-        
-        const tempDate = addDays(startOfWeek(new Date(), { weekStartsOn: 1}), i); // any Monday
+        const tempDate = addDays(startOfWeek(new Date(), { weekStartsOn: 1}), i);
         return format(tempDate, "EEEEEE", { locale: ptBR });
     });
-
 
     return (
         <div className="grid grid-cols-7 gap-px bg-border border-l border-t flex-grow">
@@ -361,22 +354,10 @@ function AppointmentCalendarComponent({ view, currentDate, filters, workingDaysO
     const weekStartActual = startOfWeek(currentDate, { weekStartsOn: 1, locale: ptBR }); 
     const allWeekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStartActual, i));
     
-    const displayedWeekDays = allWeekDays.filter(day => workingDaysOfWeek.includes(getDayIdFromDate(day)));
-
-    if (displayedWeekDays.length === 0) {
-      return (
-        <div className="flex flex-col items-center justify-center h-full text-muted-foreground p-4">
-          <CalendarX2 className="w-16 h-16 mb-4" />
-          <p className="text-lg font-semibold">Nenhum dia de trabalho configurado para esta semana.</p>
-          <p className="text-sm">Ajuste os dias de trabalho nas configurações da agenda.</p>
-        </div>
-      );
-    }
-    
     return (
-         <div className={cn("grid gap-px bg-border border-l border-t flex-grow", `grid-cols-${displayedWeekDays.length}`)}>
-            {displayedWeekDays.map(day => (<div key={`header-${day.toString()}`} className="py-0.5 text-center text-xs font-medium text-muted-foreground bg-card border-r border-b capitalize">{format(day, "EEE d", { locale: ptBR })}</div>))}
-            {displayedWeekDays.map((day, index) => renderDayCell(day, true, `week-${index}`))}
+         <div className={cn("grid grid-cols-7 gap-px bg-border border-l border-t flex-grow")}>
+            {allWeekDays.map(day => (<div key={`header-${day.toString()}`} className="py-0.5 text-center text-xs font-medium text-muted-foreground bg-card border-r border-b capitalize">{format(day, "EEE d", { locale: ptBR })}</div>))}
+            {allWeekDays.map((day, index) => renderDayCell(day, true, `week-${index}`))}
         </div>
     );
   }, [currentDate, renderDayCell, workingDaysOfWeek]);

@@ -5,7 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Mail, Phone, CalendarDays, Edit, FileText, Brain, CheckCircle, Clock, MessageSquare, Trash2, Users as UsersIconLucide, Home as HomeIconLucide, Share2, UploadCloud, Calendar as CalendarIconShad, Lightbulb, Tag, BarChart3 as BarChart3Icon, ShieldAlert as ShieldAlertIcon, CheckCircle as CheckCircleIcon, TrendingUp, BookOpen, Activity, Users2, ClipboardList, Target, ListChecks, PlusCircle, Archive, AlertTriangle, History as HistoryIcon, Bot, Image as ImageIcon, Save, CalendarCheck, FileArchive, Eye, Pencil, FilePlus2, ClipboardEdit, Send } from "lucide-react";
+import { Mail, Phone, CalendarDays, Edit, FileText, Brain, CheckCircle, Clock, MessageSquare, Trash2, Users as UsersIconLucide, Home as HomeIconLucide, Share2, UploadCloud, Calendar as CalendarIconShad, Lightbulb, Tag, BarChart3 as BarChart3Icon, ShieldAlert as ShieldAlertIcon, CheckCircle as CheckCircleIcon, TrendingUp, BookOpen, Activity, Users2, ClipboardList, Target, ListChecks, PlusCircle, Archive, AlertTriangle, History as HistoryIcon, Bot, Image as ImageIcon, Save, CalendarCheck, FileArchive, Eye, Pencil, FilePlus2, ClipboardEdit, Send, Sparkles } from "lucide-react";
 import CopyButton from "@/components/ui/copy-button";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation"; 
@@ -236,7 +236,13 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
   const [currentProgressData, setCurrentProgressData] = useState<Array<{ date: Date; score: number }>>([]);
   const [isLoadingProgressChart, setIsLoadingProgressChart] = useState(false);
   const [selectedGlobalResource, setSelectedGlobalResource] = useState<string>("");
+  
   const [caseStudyNotes, setCaseStudyNotes] = useState<string>("");
+  const [supervisionInputText, setSupervisionInputText] = useState<string>("");
+  const [supervisionResponse, setSupervisionResponse] = useState<string | null>(null);
+  const [isSupervisionLoading, setIsSupervisionLoading] = useState<boolean>(false);
+  const [supervisionError, setSupervisionError] = useState<string | null>(null);
+
   const [nextSessionsPlan, setNextSessionsPlan] = useState<string>("");
 
   const [isCreateDocumentDialogOpen, setIsCreateDocumentDialogOpen] = useState(false);
@@ -394,6 +400,45 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
       description: "Suas anotações do estudo de caso foram salvas com sucesso.",
     });
   }, [caseStudyNotes, toast]);
+
+  const handleClinicalSupervisionSubmit = useCallback(async () => {
+    if (!supervisionInputText.trim()) {
+      toast({
+        title: "Material Clínico Vazio",
+        description: "Por favor, insira o material clínico para análise.",
+        variant: "default",
+      });
+      return;
+    }
+    setIsSupervisionLoading(true);
+    setSupervisionResponse(null);
+    setSupervisionError(null);
+    try {
+      const response = await fetch('/api/supervisao', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ clinicalMaterial: supervisionInputText }),
+      });
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || `Erro HTTP: ${response.status}`);
+      }
+      const result = await response.json();
+      setSupervisionResponse(result.analysis);
+      toast({ title: "Análise de Supervisão Recebida" });
+    } catch (error: any) {
+      console.error("Erro ao solicitar supervisão clínica:", error);
+      setSupervisionError(error.message || "Falha ao obter análise de supervisão.");
+      toast({
+        title: "Erro na Análise de Supervisão",
+        description: error.message || "Não foi possível obter a análise. Tente novamente.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSupervisionLoading(false);
+    }
+  }, [supervisionInputText, toast]);
+
 
   const handleSaveNextSessionsPlan = useCallback(() => {
     toast({
@@ -913,35 +958,77 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
         <TabsContent value="caseStudy" className="mt-8 space-y-6">
           <Card className="shadow-sm">
             <CardHeader>
-              <CardTitle className="font-headline flex items-center"><Brain className="mr-2 h-5 w-5 text-primary" /> Estudo de Caso Interativo</CardTitle>
-              <CardDescription>Converse com a IA e registre suas anotações sobre o caso.</CardDescription>
+              <CardTitle className="font-headline flex items-center"><Brain className="mr-2 h-5 w-5 text-primary" /> Estudo de Caso Interativo & Simulação de Supervisão</CardTitle>
+              <CardDescription>Use a IA para simular uma supervisão clínica ou registre suas anotações sobre o caso.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
+              <Alert variant="default" className="bg-amber-50 border-amber-300 text-amber-800 dark:bg-amber-900/30 dark:border-amber-700 dark:text-amber-300">
+                  <AlertTriangle className="h-5 w-5 !text-amber-600 dark:!text-amber-400" />
+                  <AlertTitle className="font-semibold">Atenção à Privacidade</AlertTitle>
+                  <AlertDescription className="text-xs">
+                    Garanta a completa anonimização de todos os dados do paciente antes de submeter qualquer material clínico para análise pela IA. Remova nomes, datas específicas, locais e quaisquer outros detalhes que possam identificar o indivíduo.
+                  </AlertDescription>
+              </Alert>
               <div className="grid md:grid-cols-2 gap-6">
                 <Card className="bg-muted/30">
                   <CardHeader>
                     <CardTitle className="text-lg font-semibold flex items-center">
-                      <Bot className="mr-2 h-5 w-5 text-accent" />
-                      Chat com Assistente IA (Em Breve)
+                      <Sparkles className="mr-2 h-5 w-5 text-accent" />
+                      Simulação de Supervisão Clínica com IA
                     </CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-3 text-sm text-muted-foreground">
-                    <p>Funcionalidade de chat em desenvolvimento.</p>
-                    <p>Em breve, você poderá discutir o caso com a IA aqui, fazer perguntas, solicitar formulações e explorar hipóteses.</p>
-                    <div className="mt-4 p-4 border border-dashed rounded-md space-y-2">
-                        <Textarea placeholder="Pergunte à IA sobre o caso..." disabled rows={3} />
-                        <Button variant="outline" disabled size="sm">Enviar Mensagem</Button>
-                    </div>
+                  <CardContent className="space-y-3">
+                    <Textarea 
+                        placeholder="Insira aqui a transcrição da sessão, relato do caso ou sua dúvida para simulação de supervisão..." 
+                        rows={8}
+                        className="min-h-[150px] bg-background"
+                        value={supervisionInputText}
+                        onChange={(e) => setSupervisionInputText(e.target.value)}
+                        disabled={isSupervisionLoading}
+                    />
+                    <Button 
+                        onClick={handleClinicalSupervisionSubmit} 
+                        disabled={isSupervisionLoading || !supervisionInputText.trim()}
+                        className="w-full bg-accent hover:bg-accent/90 text-accent-foreground"
+                    >
+                      {isSupervisionLoading ? <Sparkles className="mr-2 h-4 w-4 animate-pulse" /> : <Sparkles className="mr-2 h-4 w-4" />}
+                      {isSupervisionLoading ? "Analisando..." : "Analisar com IA Supervisora"}
+                    </Button>
+                    {supervisionError && !isSupervisionLoading && (
+                        <Alert variant="destructive" className="mt-3">
+                            <AlertTriangle className="h-4 w-4" />
+                            <AlertTitle>Erro na Análise</AlertTitle>
+                            <AlertDescription className="text-xs">{supervisionError}</AlertDescription>
+                        </Alert>
+                    )}
+                    {supervisionResponse && !isSupervisionLoading && (
+                        <div className="mt-4 pt-3 border-t">
+                            <h3 className="text-sm font-semibold mb-1.5">Resposta da IA Supervisora:</h3>
+                            <Textarea
+                                value={supervisionResponse}
+                                readOnly
+                                rows={10}
+                                className="min-h-[200px] bg-background text-sm"
+                                placeholder="A análise da IA aparecerá aqui..."
+                            />
+                        </div>
+                    )}
+                    {isSupervisionLoading && (
+                       <div className="mt-4 pt-3 border-t space-y-2">
+                            <Skeleton className="h-5 w-1/3" />
+                            <Skeleton className="h-24 w-full" />
+                        </div>
+                    )}
                   </CardContent>
                 </Card>
 
                 <Card>
                   <CardHeader>
-                    <CardTitle className="text-lg font-semibold">Suas Anotações do Estudo de Caso</CardTitle>
+                    <CardTitle className="text-lg font-semibold">Suas Anotações sobre o Caso</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-3">
                     <Textarea
-                      placeholder="Digite suas anotações, formulações, hipóteses, ou copie e cole trechos do chat com a IA aqui..."
+                      placeholder="Digite suas anotações, formulações, hipóteses, ou copie e cole trechos da análise da IA aqui..."
                       rows={12}
                       className="min-h-[250px]"
                       value={caseStudyNotes}

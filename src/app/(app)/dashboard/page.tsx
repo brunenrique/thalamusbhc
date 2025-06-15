@@ -36,6 +36,18 @@ const DashboardWeeklySchedule = dynamic(() => import("@/components/dashboard/das
   ssr: false,
 });
 
+const upcomingAppointments = [
+  { id: '1', patientName: 'Alice Wonderland', time: '10:00', psychologist: 'Dr. Silva' },
+  { id: '2', patientName: 'Bob O Construtor', time: '11:30', psychologist: 'Dra. Jones' },
+  { id: '3', patientName: 'Charlie Brown', time: '14:00', psychologist: 'Dr. Silva' },
+];
+
+const recentActivities = [
+  { id: 'act1', description: 'Nova paciente "Eva Green" adicionada.', time: 'Há 2 horas', icon: <Users className="w-4 h-4" /> },
+  { id: 'act2', description: 'Notas da sessão de "Alice W." finalizadas.', time: 'Há 5 horas', icon: <ClipboardList className="w-4 h-4" /> },
+  { id: 'act3', description: 'Agendamento com "Bob O." remarcado.', time: 'Há 1 dia', icon: <CalendarCheck className="w-4 h-4" /> },
+];
+
 
 export default function DashboardPage() {
   const [isLoading, setIsLoading] = useState(true);
@@ -44,17 +56,7 @@ export default function DashboardPage() {
     const timer = setTimeout(() => setIsLoading(false), 1500); // Simulate loading time
     return () => clearTimeout(timer);
   }, []);
-  const upcomingAppointments = [
-    { id: '1', patientName: 'Alice Wonderland', time: '10:00', psychologist: 'Dr. Silva' },
-    { id: '2', patientName: 'Bob O Construtor', time: '11:30', psychologist: 'Dra. Jones' },
-    { id: '3', patientName: 'Charlie Brown', time: '14:00', psychologist: 'Dr. Silva' },
-  ];
-
-  const recentActivities = [
-    { id: 'act1', description: 'Nova paciente "Eva Green" adicionada.', time: 'Há 2 horas', icon: <Users className="w-4 h-4" /> },
-    { id: 'act2', description: 'Notas da sessão de "Alice W." finalizadas.', time: 'Há 5 horas', icon: <ClipboardList className="w-4 h-4" /> },
-    { id: 'act3', description: 'Agendamento com "Bob O." remarcado.', time: 'Há 1 dia', icon: <CalendarCheck className="w-4 h-4" /> },
-  ];
+  
 
   return (
     <div className="space-y-6">
@@ -68,7 +70,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Stats Cards */}
- {isLoading ? (
+      {isLoading ? (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           {[...Array(7)].map((_, i) => (
             <SkeletonBox key={i} className="h-[120px] w-full" />
@@ -98,19 +100,19 @@ export default function DashboardPage() {
         <Card className="shadow-sm">
           <CardHeader>
             <CardTitle className="font-headline">Ocupação da Agenda</CardTitle>
- {isLoading ? <Skeleton className="h-4 w-1/2" /> : <CardDescription>Tendências de ocupação semanal</CardDescription>}
+            {isLoading ? <Skeleton className="h-4 w-1/2" /> : <CardDescription>Tendências de ocupação semanal</CardDescription>}
           </CardHeader>
           <CardContent className="h-[300px]">
- {isLoading ? <SkeletonBox className="h-[260px] w-full" /> : <OccupancyChart />}
+            {isLoading ? <SkeletonBox className="h-[260px] w-full" /> : <OccupancyChart />}
           </CardContent>
         </Card>
         <Card className="shadow-sm">
           <CardHeader>
             <CardTitle className="font-headline">Desempenho dos Psicólogos</CardTitle>
- {isLoading ? <Skeleton className="h-4 w-1/2" /> : <CardDescription>Sessões concluídas por psicólogo</CardDescription>}
+            {isLoading ? <Skeleton className="h-4 w-1/2" /> : <CardDescription>Sessões concluídas por psicólogo</CardDescription>}
           </CardHeader>
           <CardContent className="h-[300px]">
- {isLoading ? <SkeletonBox className="h-[260px] w-full" /> : <PerformanceChart />}
+            {isLoading ? <SkeletonBox className="h-[260px] w-full" /> : <PerformanceChart />}
           </CardContent>
         </Card>
       </div>
@@ -120,55 +122,57 @@ export default function DashboardPage() {
         <Card className="shadow-sm">
           <CardHeader>
             <CardTitle className="font-headline">Próximos Agendamentos</CardTitle>
- {isLoading && <Skeleton className="h-4 w-1/3" />}
+            {isLoading && <Skeleton className="h-4 w-1/3" />}
           </CardHeader>
           <CardContent className="space-y-3">
- {isLoading ? (
+            {isLoading ? (
               <>
                 {[...Array(3)].map((_, i) => (
                   <SkeletonBox key={i} className="h-[60px] w-full" />
                 ))}
               </>
             ) : (
- upcomingAppointments.length > 0 ? (
- upcomingAppointments.map(appt => (
- <div key={appt.id} className="flex items-center justify-between p-3 bg-secondary/50 rounded-md">
- <div>
- <p className="font-semibold">{appt.patientName}</p>
- <p className="text-sm text-muted-foreground">{appt.psychologist}</p>
+              upcomingAppointments.length > 0 ? (
+                upcomingAppointments.map(appt => (
+                  <div key={appt.id} className="flex items-center justify-between p-3 bg-secondary/50 rounded-md">
+                    <div>
+                      <p className="font-semibold">{appt.patientName}</p>
+                      <p className="text-sm text-muted-foreground">{appt.psychologist}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-medium">{appt.time}</p>
+                      <Button variant="link" size="sm" className="p-0 h-auto text-accent" asChild>
+                        <Link href={`/patients/${appt.id}`}>Ver Detalhes</Link>
+                      </Button>
+                    </div>
                   </div>
-                  <div className="text-right">
- <p className="font-medium">{appt.time}</p>
-                    <Button variant="link" size="sm" className="p-0 h-auto text-accent" asChild>
- <Link href={`/patients/${appt.id}`}>Ver Detalhes</Link>
-                    </Button>
-                  </div>
-                </div>
-              ))
-            ) : (
-              <p className="text-muted-foreground">Nenhum próximo agendamento.</p>
+                ))
+              ) : (
+                <p className="text-muted-foreground">Nenhum próximo agendamento.</p>
+              )
             )}
           </CardContent>
         </Card>
         <Card className="shadow-sm">
           <CardHeader>
- {isLoading && <Skeleton className="h-4 w-1/3" />}
             <CardTitle className="font-headline">Atividade Recente</CardTitle>
+            {isLoading && <Skeleton className="h-4 w-1/3" />}
           </CardHeader>
           <CardContent className="space-y-3">
- {isLoading ? (
+            {isLoading ? (
               <>
                 {[...Array(3)].map((_, i) => (
                   <SkeletonBox key={i} className="h-[60px] w-full" />
                 ))}
               </>
             ) : (
- recentActivities.length > 0 ? (
- recentActivities.map(activity => (
- <RecentActivityItem key={activity.id} description={activity.description} time={activity.time} icon={activity.icon} />
- ))
-            ) : (
-              <p className="text-muted-foreground">Nenhuma atividade recente.</p>
+              recentActivities.length > 0 ? (
+                recentActivities.map(activity => (
+                  <RecentActivityItem key={activity.id} description={activity.description} time={activity.time} icon={activity.icon} />
+                ))
+              ) : (
+                <p className="text-muted-foreground">Nenhuma atividade recente.</p>
+              )
             )}
           </CardContent>
         </Card>

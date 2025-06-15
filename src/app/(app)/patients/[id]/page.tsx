@@ -455,7 +455,7 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
           <TabsTrigger value="timeline">Linha do Tempo</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="overview" className="mt-6 space-y-6">
+        <TabsContent value="overview" className="mt-8 space-y-6">
             <Card>
                 <CardHeader>
                     <CardTitle className="font-headline flex items-center"><TrendingUp className="mr-2 h-5 w-5 text-primary"/>Progresso Terapêutico</CardTitle>
@@ -542,7 +542,7 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
             </Card>
         </TabsContent>
 
-        <TabsContent value="notes" className="mt-6">
+        <TabsContent value="notes" className="mt-8">
           <Card className="shadow-sm">
             <CardHeader className="flex flex-row justify-between items-center">
               <div>
@@ -567,7 +567,7 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
           </Card>
         </TabsContent>
 
-        <TabsContent value="instruments" className="mt-6">
+        <TabsContent value="instruments" className="mt-8">
           <Card className="shadow-sm">
             <CardHeader className="flex flex-row justify-between items-center">
               <div>
@@ -622,7 +622,7 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
           </Card>
         </TabsContent>
         
-        <TabsContent value="planning" className="mt-6 space-y-6">
+        <TabsContent value="planning" className="mt-8 space-y-6">
             <Card className="shadow-sm">
                 <CardHeader className="flex flex-row justify-between items-center">
                   <div>
@@ -684,7 +684,7 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
             </Card>
         </TabsContent>
 
-        <TabsContent value="aiAnalysis" className="mt-6">
+        <TabsContent value="aiAnalysis" className="mt-8">
             <Card className="shadow-sm">
                 <CardHeader>
                   <CardTitle className="font-headline flex items-center"><Brain className="mr-2 h-5 w-5 text-primary" /> Análise Detalhada por IA</CardTitle>
@@ -754,7 +754,7 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
               </Card>
         </TabsContent>
         
-        <TabsContent value="resources" className="mt-6">
+        <TabsContent value="resources" className="mt-8">
           <Card className="shadow-sm">
             <CardHeader className="flex flex-row justify-between items-center">
              <div>
@@ -795,7 +795,7 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
           </Card>
         </TabsContent>
         
-        <TabsContent value="timeline" className="mt-6">
+        <TabsContent value="timeline" className="mt-8">
             <Card className="shadow-sm">
                 <CardHeader>
                   <CardTitle className="font-headline flex items-center"><HistoryIcon className="mr-2 h-5 w-5 text-primary"/> Linha do Tempo do Paciente</CardTitle>

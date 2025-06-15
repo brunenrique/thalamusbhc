@@ -1,5 +1,5 @@
 
- p# PsiGuard
+# PsiGuard
 
 Plataforma web para gestão de clínicas de psicologia, com agenda integrada, prontuários seguros e funcionalidades auxiliadas por IA. O projeto é baseado em **Next.js** e **Firebase**, utilizando **TypeScript** e **Tailwind CSS** no frontend e **Cloud Functions** no backend. Fluxos de IA são implementados com **Genkit** e Google AI.
 
@@ -8,7 +8,7 @@ Plataforma web para gestão de clínicas de psicologia, com agenda integrada, pr
 - **Next.js 15** com React 18 (App Router)
 - **TypeScript**
 - **Tailwind CSS**
-- **Firebase**: Authentication, Firestore, Cloud Functions, Cloud Messaging, Storage e Hosting
+- **Firebase**: Firestore, Cloud Functions, Cloud Messaging, Storage e Hosting (Autenticação desabilitada temporariamente)
 - **Genkit** + Google AI para funcionalidades de inteligência artificial
 - **Jest** e Testing Library para testes automatizados
 
@@ -32,9 +32,9 @@ Plataforma web para gestão de clínicas de psicologia, com agenda integrada, pr
     *   Preencha o arquivo `.env.local` com as credenciais do seu projeto Firebase e outras chaves necessárias. Veja a seção "Variáveis de Ambiente" abaixo para detalhes sobre cada variável.
 4.  **Inicie os Emuladores Firebase (em um terminal separado):**
     *   É altamente recomendado usar os emuladores do Firebase para desenvolvimento local.
-    *   Se esta é a primeira vez, configure os emuladores: `firebase init emulators` (selecione Auth, Firestore, Storage, Functions).
+    *   Se esta é a primeira vez, configure os emuladores: `firebase init emulators` (selecione Firestore, Storage, Functions. Autenticação pode ser omitida por enquanto).
     *   Inicie os emuladores: `firebase emulators:start`
-    *   Verifique se os emuladores estão rodando nas portas corretas (Auth: 9099, Firestore: 8083, Storage: 9199, UI: 4003). O arquivo `firebase.json` está configurado para usar `host: "0.0.0.0"` para os emuladores, o que é recomendado para ambientes de desenvolvimento como Cloud Workstations ou Docker.
+    *   Verifique se os emuladores estão rodando nas portas corretas (Firestore: 8083, Storage: 9199, UI: 4003). O arquivo `firebase.json` está configurado para usar `host: "0.0.0.0"` para os emuladores, o que é recomendado para ambientes de desenvolvimento como Cloud Workstations ou Docker.
 5.  **Inicie o Servidor de Desenvolvimento Next.js (em outro terminal):**
     ```bash
     npm run dev
@@ -74,8 +74,8 @@ Você pode encontrar esses valores nas configurações do seu projeto Firebase:
 Estas variáveis são usadas para inicializar o Firebase Admin SDK no backend (ex: em Cloud Functions ou rotas de API Next.js). **NUNCA as exponha no código do cliente ou com o prefixo `NEXT_PUBLIC_`.** Em produção, configure-as diretamente no seu ambiente de hospedagem (ex: Vercel Environment Variables, Google Cloud Run secrets). Para desenvolvimento local com funções de servidor, elas devem estar no `.env.local`.
 
 -   `FIREBASE_PROJECT_ID`: O ID do seu projeto Firebase. (Deve ser o mesmo que `NEXT_PUBLIC_FIREBASE_PROJECT_ID`).
--   `FIREBASE_CLIENT_EMAIL`: O email da conta de serviço do Firebase Admin SDK.
--   `FIREBASE_PRIVATE_KEY`: A chave privada da conta de serviço.
+-   `FIREBASE_CLIENT_EMAIL`: O email da conta de serviço do Firebase Admin SDK. (Necessário para algumas operações do Admin SDK, como backups).
+-   `FIREBASE_PRIVATE_KEY`: A chave privada da conta de serviço. (Necessário para algumas operações do Admin SDK).
 
 Para obter `FIREBASE_CLIENT_EMAIL` e `FIREBASE_PRIVATE_KEY`:
 *No Console do Firebase -> Seu Projeto -> Configurações do Projeto -> Contas de serviço -> Gerar nova chave privada (isso fará o download de um arquivo JSON). O `client_email` e `private_key` estão neste arquivo.*

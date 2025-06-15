@@ -1,3 +1,4 @@
+
 import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
 
@@ -60,15 +61,5 @@ export const scheduleReminders = functions.pubsub
     );
   });
 
-export const onCreateUser = functions.auth.user().onCreate(async user => {
-  const email = user.email || '';
-  const role = email.endsWith('@psiguard.app') ? 'Admin' : 'Psychologist';
-
-  await admin.auth().setCustomUserClaims(user.uid, { role });
-});
-
-export const setUserRole = functions.auth.user().onCreate(async user => {
-  const snap = await db.collection('users').doc(user.uid).get();
-  const role = snap.exists && snap.data()?.role ? snap.data()!.role : 'Psychologist';
-  await admin.auth().setCustomUserClaims(user.uid, { role });
-});
+// Firebase Authentication related functions (onCreateUser, setUserRole) have been removed
+// as authentication is temporarily disabled.

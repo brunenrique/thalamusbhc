@@ -1,3 +1,4 @@
+
 export const APP_ROUTES = {
   dashboard: "/dashboard",
   schedule: "/schedule",
@@ -15,7 +16,7 @@ export const APP_ROUTES = {
   toolsKnowledgeBase: "/tools/knowledge-base",
   toolsCaseFormulationModels: "/tools/case-formulation-models",
   inventoriesScales: "/inventories-scales",
-  userApprovals: "/user-approvals",
+  // userApprovals: "/user-approvals", // Route removed as feature is disabled
   toolsBackup: "/tools/backup",
   toolsAuditTrail: "/tools/audit-trail",
   adminMetrics: "/admin/metrics",

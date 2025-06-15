@@ -1,3 +1,4 @@
+
 import { useChatStore } from '@/stores/chatStore';
 
 export interface AuthUser {
@@ -10,15 +11,14 @@ export interface AuthUser {
 export default function useAuth() {
   const currentUser = useChatStore((state) => state.currentUser);
 
-  const user: AuthUser = currentUser.uid
-    ? { ...currentUser, role: 'admin' }
-    : {
-        uid: 'mock-user',
-        displayName: 'Usuário Demo',
-        avatarUrl: 'https://placehold.co/40x40',
-        role: 'admin',
+  // Since authentication is disabled, always return a mock user
+  // to prevent UI breakages in components expecting a user object.
+  const user: AuthUser = {
+        uid: 'mock-user-uid',
+        displayName: 'Usuário Mock',
+        avatarUrl: 'https://placehold.co/40x40/70C1B3/FFFFFF?text=UM',
+        role: 'Admin', // Provide a default role for development
       };
 
   return { user };
 }
-

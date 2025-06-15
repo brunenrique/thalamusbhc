@@ -1,25 +1,18 @@
+
 'use client';
 
-import { auth } from '@/lib/firebase'; // Alterado de @/services/firebase
-import { getIdTokenResult } from 'firebase/auth';
+// import { auth } from '@/lib/firebase'; // Firebase Auth disabled
+// import { getIdTokenResult } from 'firebase/auth'; // Firebase Auth disabled
 
 export type UserRole = 'Admin' | 'Psychologist' | 'Secretary';
 
 export async function getCurrentUserRole(): Promise<UserRole | null> {
-  const user = auth.currentUser;
-  if (!user) return null;
-  try {
-    const tokenResult = await getIdTokenResult(user, true);
-    return (tokenResult.claims.role as UserRole) || null;
-  } catch (err) {
-    console.error('Failed to get user role', err);
-    return null;
-  }
+  // Authentication is disabled, return a mock role or null.
+  // Returning 'Admin' for now to allow access to admin-only features during development.
+  return 'Admin';
 }
 
-export async function checkUserRole(required: UserRole | UserRole[]): Promise<boolean> {
-  const role = await getCurrentUserRole();
-  if (!role) return false;
-  const roles = Array.isArray(required) ? required : [required];
-  return roles.includes(role);
+export async function checkUserRole(_required: UserRole | UserRole[]): Promise<boolean> {
+  // Authentication is disabled, always allow access.
+  return true;
 }

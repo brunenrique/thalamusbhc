@@ -1,10 +1,11 @@
+
 {
   "name": "functions",
   "engines": {"node": "18"},
   "main": "lib/index.js",
   "scripts": {
     "build": "tsc",
-    "deploy": "npm run build && firebase deploy --only functions:setRoleOnSignUp"
+    "deploy": "npm run build && firebase deploy --only functions"
   },
   "dependencies": {
     "firebase-admin": "^11.10.1",

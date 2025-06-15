@@ -16,7 +16,7 @@ import {
   LucideIcon,
   LogOut,
   HelpCircle,
-  ShieldQuestion, 
+  // ShieldQuestion, // Icon for User Approvals, which is removed
   Wrench, 
   BookOpen, 
   BrainCog, 
@@ -80,7 +80,7 @@ const navStructure: NavItem[] = [
   { 
     href: "#", label: "Ferramentas Admin", icon: Settings, adminOnly: true, group: "Administração", 
     subItems: [
-        { href: APP_ROUTES.userApprovals, label: "Aprovação de Usuários", icon: ShieldQuestion, adminOnly: true },
+        // { href: APP_ROUTES.userApprovals, label: "Aprovação de Usuários", icon: ShieldQuestion, adminOnly: true }, // User Approvals removed
         { href: APP_ROUTES.toolsBackup, label: "Backup de Dados", icon: DataBackupIcon, adminOnly: true },
         { href: APP_ROUTES.toolsAuditTrail, label: "Trilha de Auditoria", icon: HistoryIcon, adminOnly: true }, 
         { href: APP_ROUTES.adminMetrics, label: "Métricas da Clínica", icon: LineChart, adminOnly: true },
@@ -244,7 +244,7 @@ export default function SidebarNav({ currentPath, userRole = "admin" }: SidebarN
          <SidebarMenuItem>
             <SidebarMenuButton
                 tooltip={state === "collapsed" ? "Sair" : undefined}
-                onClick={() => { /* console.log("Logout action") */ }} 
+                onClick={() => { /* Logout logic would be here if auth was enabled */ }} 
             >
                 <LogOut />
                 <span className="group-data-[collapsible=icon]:hidden">Sair</span>

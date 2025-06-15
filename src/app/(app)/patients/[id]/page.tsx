@@ -5,7 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Mail, Phone, CalendarDays, Edit, FileText, Brain, CheckCircle, Clock, MessageSquare, Trash2, Users as UsersIconLucide, Home as HomeIconLucide, Share2, UploadCloud, Calendar as CalendarIconShad, Lightbulb, Tag, BarChart3 as BarChart3Icon, ShieldAlert as ShieldAlertIcon, CheckCircle as CheckCircleIcon, TrendingUp, BookOpen, Activity, Users2, ClipboardList, Target, ListChecks, PlusCircle, Archive, AlertTriangle, History as HistoryIcon, Bot, Image as ImageIcon, Save, CalendarCheck, FileArchive, Eye, Pencil, FilePlus2 } from "lucide-react";
+import { Mail, Phone, CalendarDays, Edit, FileText, Brain, CheckCircle, Clock, MessageSquare, Trash2, Users as UsersIconLucide, Home as HomeIconLucide, Share2, UploadCloud, Calendar as CalendarIconShad, Lightbulb, Tag, BarChart3 as BarChart3Icon, ShieldAlert as ShieldAlertIcon, CheckCircle as CheckCircleIcon, TrendingUp, BookOpen, Activity, Users2, ClipboardList, Target, ListChecks, PlusCircle, Archive, AlertTriangle, History as HistoryIcon, Bot, Image as ImageIcon, Save, CalendarCheck, FileArchive, Eye, Pencil, FilePlus2, ClipboardEdit, Send } from "lucide-react";
 import CopyButton from "@/components/ui/copy-button";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation"; 
@@ -36,6 +36,7 @@ import {
 } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { format } from 'date-fns';
@@ -158,7 +159,7 @@ const mockPatientTasks: PatientTask[] = [
 interface PsychologicalDocument {
   id: string;
   name: string;
-  type: "Laudo" | "Atestado" | "Declaração" | "Relatório de Avaliação" | "Outro";
+  type: "Laudo" | "Atestado" | "Declaração" | "Relatório de Avaliação" | "Outro" | "Anamnese";
   creationDate: string; // ISO date string
   lastModified?: string; // ISO date string
 }
@@ -176,6 +177,9 @@ interface DocumentTemplate {
 }
 
 const mockDocumentTemplates: DocumentTemplate[] = [
+  { id: "tpl_anam_adulto", name: "Anamnese Adulto (Completa)", type: "Anamnese" },
+  { id: "tpl_anam_infantil", name: "Anamnese Infantil (Pais/Responsáveis)", type: "Anamnese" },
+  { id: "tpl_anam_breve", name: "Anamnese Breve (Triagem)", type: "Anamnese" },
   { id: "tpl_laudo_inicial", name: "Laudo Psicológico Inicial (Padrão)", type: "Laudo" },
   { id: "tpl_atestado_comp", name: "Atestado de Comparecimento", type: "Atestado" },
   { id: "tpl_declaracao_acomp", name: "Declaração de Acompanhamento Psicológico", type: "Declaração" },
@@ -183,6 +187,14 @@ const mockDocumentTemplates: DocumentTemplate[] = [
   { id: "tpl_rel_gad7", name: "Relatório de Resultados - GAD-7", type: "Relatório de Avaliação" },
   { id: "tpl_outro", name: "Outro Documento (Personalizado)", type: "Outro" },
 ];
+
+interface SentAnamnesis {
+    id: string;
+    templateName: string;
+    sentDate: string; // ISO Date
+    status: "Pendente" | "Preenchida";
+    filledDate?: string; // ISO Date
+}
 
 
 export default function PatientDetailPage({ params }: { params: { id: string } }) {
@@ -229,6 +241,11 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
 
   const [isCreateDocumentDialogOpen, setIsCreateDocumentDialogOpen] = useState(false);
   const [selectedDocumentTemplateId, setSelectedDocumentTemplateId] = useState<string>("");
+  
+  const [anamnesisText, setAnamnesisText] = useState<string>("");
+  const [selectedAnamnesisTemplateIdToSent, setSelectedAnamnesisTemplateIdToSent] = useState<string>("");
+  const [patientWhatsApp, setPatientWhatsApp] = useState<string>(patient.phone || "");
+  const [sentAnamneses, setSentAnamneses] = useState<SentAnamnesis[]>([]);
 
 
   useEffect(() => {
@@ -413,6 +430,43 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
     setSelectedDocumentTemplateId("");
   }, [selectedDocumentTemplateId, patient.name, toast]);
 
+  const handleSaveAnamnesisText = useCallback(() => {
+    if(!anamnesisText.trim()){
+        toast({ title: "Anamnese Vazia", description: "Digite o conteúdo da anamnese antes de salvar.", variant: "default"});
+        return;
+    }
+    toast({ title: "Anamnese Salva (Simulado)", description: "A anamnese preenchida pelo profissional foi salva."});
+  }, [anamnesisText, toast]);
+
+  const handleSendAnamnesisLink = useCallback(() => {
+    if(!selectedAnamnesisTemplateIdToSent){
+        toast({ title: "Nenhum Modelo Selecionado", description: "Por favor, selecione um modelo de anamnese para enviar.", variant: "destructive"});
+        return;
+    }
+    if(!patientWhatsApp.trim()){
+        toast({ title: "WhatsApp Necessário", description: "Por favor, insira o número de WhatsApp do paciente.", variant: "destructive"});
+        return;
+    }
+    const template = mockDocumentTemplates.find(t => t.id === selectedAnamnesisTemplateIdToSent && t.type === "Anamnese");
+    if(!template){
+        toast({ title: "Modelo Inválido", description: "O modelo selecionado não é uma anamnese válida.", variant: "destructive"});
+        return;
+    }
+
+    const newSentAnamnesis: SentAnamnesis = {
+        id: `sent_anam_${Date.now()}`,
+        templateName: template.name,
+        sentDate: new Date().toISOString(),
+        status: "Pendente",
+    };
+    setSentAnamneses(prev => [newSentAnamnesis, ...prev].sort((a,b) => new Date(b.sentDate).getTime() - new Date(a.sentDate).getTime()));
+
+    toast({ title: "Link de Anamnese Enviado (Simulado)", description: `Um link para a anamnese "${template.name}" foi enviado para o WhatsApp ${patientWhatsApp}.`});
+    setSelectedAnamnesisTemplateIdToSent("");
+  }, [selectedAnamnesisTemplateIdToSent, patientWhatsApp, toast]);
+
+  const anamnesisTemplates = useMemo(() => mockDocumentTemplates.filter(t => t.type === "Anamnese"), []);
+
 
   const formattedDob = useMemo(() => patient.dob ? format(new Date(patient.dob), "P", { locale: ptBR }) : "N/A", [patient.dob]);
   const formattedNextAppointment = useMemo(() => patient.nextAppointment
@@ -519,10 +573,11 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
       </Card>
 
       <Tabs defaultValue={initialTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-8"> {/* Ajustado para 8 colunas */}
+        <TabsList className="grid w-full grid-cols-3 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-9">
           <TabsTrigger value="overview">Visão Geral</TabsTrigger>
           <TabsTrigger value="notes">Anotações</TabsTrigger>
           <TabsTrigger value="instruments">Instrumentos</TabsTrigger>
+          <TabsTrigger value="anamnesis"><ClipboardEdit className="inline-block mr-1.5 h-4 w-4" />Anamnese</TabsTrigger>
           <TabsTrigger value="planning">Planejamento</TabsTrigger>
           <TabsTrigger value="caseStudy"> <Brain className="inline-block mr-1.5 h-4 w-4" /> Estudo de Caso</TabsTrigger>
           <TabsTrigger value="resources">Recursos</TabsTrigger>
@@ -695,6 +750,77 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
               {assessments.length === 0 && <p className="text-muted-foreground md:col-span-full">Nenhum instrumento atribuído ou concluído.</p>}
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="anamnesis" className="mt-8 space-y-6">
+            <Card>
+                <CardHeader>
+                    <CardTitle className="font-headline flex items-center"><ClipboardEdit className="mr-2 h-5 w-5 text-primary"/>Anamnese (Preenchimento Profissional)</CardTitle>
+                    <CardDescription>Registre aqui as informações da anamnese coletadas diretamente.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <Textarea 
+                        placeholder="Digite o histórico do paciente, queixa principal, histórico familiar, social, de saúde, etc..."
+                        rows={15}
+                        className="min-h-[300px]"
+                        value={anamnesisText}
+                        onChange={(e) => setAnamnesisText(e.target.value)}
+                    />
+                </CardContent>
+                <CardFooter>
+                    <Button onClick={handleSaveAnamnesisText} className="bg-accent hover:bg-accent/90 text-accent-foreground ml-auto">
+                        <Save className="mr-2 h-4 w-4" /> Salvar Anamnese
+                    </Button>
+                </CardFooter>
+            </Card>
+            <Card>
+                <CardHeader>
+                     <CardTitle className="font-headline flex items-center"><Send className="mr-2 h-5 w-5 text-primary"/>Enviar Anamnese ao Paciente</CardTitle>
+                    <CardDescription>Selecione um modelo de anamnese e envie um link para o paciente preencher.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    <div className="space-y-1">
+                        <Label htmlFor="anamnesis-template-select-to-send">Modelo de Anamnese</Label>
+                        <Select value={selectedAnamnesisTemplateIdToSent} onValueChange={setSelectedAnamnesisTemplateIdToSent}>
+                            <SelectTrigger id="anamnesis-template-select-to-send"><SelectValue placeholder="Selecione um modelo de anamnese" /></SelectTrigger>
+                            <SelectContent>
+                                {anamnesisTemplates.map(template => (
+                                    <SelectItem key={template.id} value={template.id}>{template.name}</SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    <div className="space-y-1">
+                        <Label htmlFor="patient-whatsapp-anamnesis">WhatsApp do Paciente (para envio do link)</Label>
+                        <Input id="patient-whatsapp-anamnesis" placeholder="(XX) XXXXX-XXXX" value={patientWhatsApp} onChange={(e) => setPatientWhatsApp(e.target.value)} />
+                    </div>
+                </CardContent>
+                 <CardFooter>
+                    <Button onClick={handleSendAnamnesisLink} className="bg-accent hover:bg-accent/90 text-accent-foreground ml-auto" disabled={!selectedAnamnesisTemplateIdToSent || !patientWhatsApp.trim()}>
+                        <Send className="mr-2 h-4 w-4" /> Enviar Link da Anamnese
+                    </Button>
+                </CardFooter>
+            </Card>
+             <Card>
+                <CardHeader>
+                    <CardTitle className="font-headline flex items-center"><HistoryIcon className="mr-2 h-5 w-5 text-primary"/>Histórico de Anamneses Enviadas/Preenchidas</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                    {sentAnamneses.length === 0 && <p className="text-sm text-muted-foreground">Nenhuma anamnese enviada ou preenchida ainda.</p>}
+                    {sentAnamneses.map(sa => (
+                        <div key={sa.id} className="p-3 border rounded-md bg-secondary/30 flex justify-between items-center hover:shadow-sm transition-shadow">
+                            <div>
+                                <p className="text-sm font-medium">{sa.templateName}</p>
+                                <p className="text-xs text-muted-foreground">Enviada em: {format(new Date(sa.sentDate), "P 'às' HH:mm", { locale: ptBR })}</p>
+                            </div>
+                            <Badge variant={sa.status === "Preenchida" ? "default" : "outline"} className={sa.status === "Preenchida" ? "bg-green-100 text-green-700 border-green-300" : ""}>
+                                {sa.status}
+                                {sa.status === "Preenchida" && sa.filledDate && <span className="ml-1 text-xs">({format(new Date(sa.filledDate), "P", { locale: ptBR })})</span>}
+                            </Badge>
+                        </div>
+                    ))}
+                </CardContent>
+            </Card>
         </TabsContent>
         
         <TabsContent value="planning" className="mt-8 space-y-6">
@@ -969,7 +1095,7 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
                             <Select value={selectedDocumentTemplateId} onValueChange={setSelectedDocumentTemplateId}>
                                 <SelectTrigger id="document-template-select"><SelectValue placeholder="Selecione um modelo" /></SelectTrigger>
                                 <SelectContent>
-                                {mockDocumentTemplates.map(template => (
+                                {mockDocumentTemplates.filter(t => t.type !== "Anamnese").map(template => (
                                     <SelectItem key={template.id} value={template.id}>{template.name} ({template.type})</SelectItem>
                                 ))}
                                 </SelectContent>

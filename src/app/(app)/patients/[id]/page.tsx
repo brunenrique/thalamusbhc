@@ -5,7 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Mail, Phone, CalendarDays, Edit, FileText, Brain, CheckCircle, Clock, MessageSquare, Trash2, Users as UsersIconLucide, Home as HomeIconLucide, Share2, UploadCloud, Calendar as CalendarIconShad, Lightbulb, Tag, BarChart3 as BarChart3Icon, ShieldAlert as ShieldAlertIcon, CheckCircle as CheckCircleIcon, TrendingUp, BookOpen, Activity, Users2, ClipboardList, Target, ListChecks, PlusCircle, Archive, AlertTriangle, History as HistoryIcon } from "lucide-react";
+import { Mail, Phone, CalendarDays, Edit, FileText, Brain, CheckCircle, Clock, MessageSquare, Trash2, Users as UsersIconLucide, Home as HomeIconLucide, Share2, UploadCloud, Calendar as CalendarIconShad, Lightbulb, Tag, BarChart3 as BarChart3Icon, ShieldAlert as ShieldAlertIcon, CheckCircle as CheckCircleIcon, TrendingUp, BookOpen, Activity, Users2, ClipboardList, Target, ListChecks, PlusCircle, Archive, AlertTriangle, History as HistoryIcon, Bot, Image as ImageIcon, Save } from "lucide-react";
 import CopyButton from "@/components/ui/copy-button";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation"; // Added useSearchParams
@@ -193,6 +193,7 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
   const [currentProgressData, setCurrentProgressData] = useState<Array<{ date: Date; score: number }>>([]);
   const [isLoadingProgressChart, setIsLoadingProgressChart] = useState(false);
   const [selectedGlobalResource, setSelectedGlobalResource] = useState<string>("");
+  const [caseStudyNotes, setCaseStudyNotes] = useState<string>("");
 
 
   useEffect(() => {
@@ -292,9 +293,7 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
     const summaryForInsights = mostRecentNote.summary;
 
     try {
-      // Simulação de chamada de API, já que o generateSessionInsights original é client-side.
       await new Promise(resolve => setTimeout(resolve, 1500));
-      // Mock dos dados retornados pela IA
       setGeneralPatientInsights({
         keywords: mostRecentNote.keywords || ["Tópico Simul." , "Outro Tópico"],
         themes: mostRecentNote.themes || ["Tema Simulado A", "Tema Simulado B"],
@@ -337,6 +336,14 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
     }
   }, [sessionNotes, patient.id, toast]);
 
+  const handleSaveCaseStudyNotes = useCallback(() => {
+    console.log("Salvando anotações do estudo de caso:", caseStudyNotes);
+    toast({
+      title: "Anotações Salvas (Simulado)",
+      description: "Suas anotações do estudo de caso foram salvas com sucesso.",
+    });
+  }, [caseStudyNotes, toast]);
+
 
   const formattedDob = useMemo(() => patient.dob ? format(new Date(patient.dob), "P", { locale: ptBR }) : "N/A", [patient.dob]);
   const formattedNextAppointment = useMemo(() => patient.nextAppointment
@@ -352,7 +359,6 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
         <Link href="/patients">← Voltar para Pacientes</Link>
       </Button>
       
-      {/* Patient Header Info */}
       <Card className="shadow-md overflow-hidden">
         <CardHeader className="bg-muted/30 p-6">
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
@@ -431,7 +437,6 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
         </CardHeader>
       </Card>
 
-      {/* KPIs / Quick Overview Card */}
       <Card className="shadow-sm">
         <CardHeader>
           <CardTitle className="font-headline flex items-center"><Users2 className="mr-2 h-5 w-5 text-primary"/> Resumo do Paciente</CardTitle>
@@ -450,7 +455,7 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
           <TabsTrigger value="notes">Anotações</TabsTrigger>
           <TabsTrigger value="instruments">Instrumentos</TabsTrigger>
           <TabsTrigger value="planning">Planejamento</TabsTrigger>
-          <TabsTrigger value="aiAnalysis">Análise IA</TabsTrigger>
+          <TabsTrigger value="caseStudy"> <Brain className="inline-block mr-1.5 h-4 w-4" /> Estudo de Caso</TabsTrigger>
           <TabsTrigger value="resources">Recursos</TabsTrigger>
           <TabsTrigger value="timeline">Linha do Tempo</TabsTrigger>
         </TabsList>
@@ -684,16 +689,67 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
             </Card>
         </TabsContent>
 
-        <TabsContent value="aiAnalysis" className="mt-8">
-            <Card className="shadow-sm">
+        <TabsContent value="caseStudy" className="mt-8 space-y-6">
+          <Card className="shadow-sm">
+            <CardHeader>
+              <CardTitle className="font-headline flex items-center"><Brain className="mr-2 h-5 w-5 text-primary" /> Estudo de Caso Interativo</CardTitle>
+              <CardDescription>Converse com a IA e registre suas anotações sobre o caso.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="grid md:grid-cols-2 gap-6">
+                {/* Coluna da Esquerda: Chat com IA (Futuro) */}
+                <Card className="bg-muted/30">
+                  <CardHeader>
+                    <CardTitle className="text-lg font-semibold flex items-center">
+                      <Bot className="mr-2 h-5 w-5 text-accent" />
+                      Chat com Assistente IA (Em Breve)
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3 text-sm text-muted-foreground">
+                    <p>Funcionalidade de chat em desenvolvimento.</p>
+                    <p>Em breve, você poderá discutir o caso com a IA aqui, fazer perguntas, solicitar formulações e explorar hipóteses.</p>
+                    <div className="mt-4 p-4 border border-dashed rounded-md space-y-2">
+                        <Textarea placeholder="Pergunte à IA sobre o caso..." disabled rows={3} />
+                        <Button variant="outline" disabled size="sm">Enviar Mensagem</Button>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Coluna da Direita: Anotações Livres */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg font-semibold">Suas Anotações do Estudo de Caso</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <Textarea
+                      placeholder="Digite suas anotações, formulações, hipóteses, ou copie e cole trechos do chat com a IA aqui..."
+                      rows={12}
+                      className="min-h-[250px]"
+                      value={caseStudyNotes}
+                      onChange={(e) => setCaseStudyNotes(e.target.value)}
+                    />
+                    <div className="flex justify-between items-center">
+                      <Button variant="outline" disabled size="sm">
+                        <ImageIcon className="mr-2 h-4 w-4" /> Adicionar Imagem
+                      </Button>
+                      <Button onClick={handleSaveCaseStudyNotes} className="bg-accent hover:bg-accent/90 text-accent-foreground">
+                        <Save className="mr-2 h-4 w-4" /> Salvar Anotações do Estudo
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+              
+              {/* Seção de Insights da IA Existente */}
+              <Card className="mt-6">
                 <CardHeader>
-                  <CardTitle className="font-headline flex items-center"><Brain className="mr-2 h-5 w-5 text-primary" /> Análise Detalhada por IA</CardTitle>
-                  <CardDescription>Gere e visualize insights detalhados sobre o caso do paciente.</CardDescription>
+                  <CardTitle className="font-headline flex items-center"><Brain className="mr-2 h-5 w-5 text-primary" /> Insights da IA sobre as Sessões</CardTitle>
+                  <CardDescription>Gere e visualize insights detalhados baseados nas anotações de sessão.</CardDescription>
                 </CardHeader>
                 <CardContent>
                   {!generalPatientInsights && !isLoadingGeneralInsights && !errorGeneralInsights && (
                     <Button onClick={handleGenerateGeneralPatientInsights} variant="outline" className="w-full sm:w-auto bg-accent hover:bg-accent/90 text-accent-foreground">
-                      <Brain className="mr-2 h-4 w-4" /> Gerar Insights Gerais (Baseado na Última Sessão)
+                      <Brain className="mr-2 h-4 w-4" /> Gerar/Atualizar Insights da IA
                     </Button>
                   )}
                   {isLoadingGeneralInsights && (
@@ -752,6 +808,8 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
                   )}
                 </CardContent>
               </Card>
+            </CardContent>
+          </Card>
         </TabsContent>
         
         <TabsContent value="resources" className="mt-8">

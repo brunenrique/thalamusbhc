@@ -19,7 +19,7 @@ function generateUID(length: number = 16): string {
   for (let i = 0; i < length; i++) {
     result += characters.charAt(Math.floor(Math.random() * characters.length));
   }
-  return result + '@thalamus.app'; // Updated domain
+  return result + '@thalamus.app'; 
 }
 
 const psychologistNameMap: Record<string, string> = {
@@ -30,7 +30,7 @@ const psychologistNameMap: Record<string, string> = {
 export function generateICS(appointmentsByDate: AppointmentsByDate, specificDate?: Date): string {
   let icsString = 'BEGIN:VCALENDAR\r\n';
   icsString += 'VERSION:2.0\r\n';
-  icsString += `PRODID:-//Thalamus//App//EN\r\n`; // Updated PRODID
+  icsString += `PRODID:-//Thalamus//App//EN\r\n`; 
   icsString += 'CALSCALE:GREGORIAN\r\n';
 
   const dtStamp = format(new Date(), "yyyyMMdd'T'HHmmss'Z'");
@@ -68,7 +68,7 @@ export function generateICS(appointmentsByDate: AppointmentsByDate, specificDate
 
 
       icsString += 'BEGIN:VEVENT\r\n';
-      icsString += `UID:${appointment.id}-${dateKey}-${generateUID(8)}\r\n`; // UID generation now uses new domain
+      icsString += `UID:${appointment.id}-${dateKey}-${generateUID(8)}\r\n`; 
       icsString += `DTSTAMP:${dtStamp}\r\n`;
       icsString += `DTSTART:${dtStart}\r\n`;
       icsString += `DTEND:${dtEnd}\r\n`;
@@ -83,3 +83,5 @@ export function generateICS(appointmentsByDate: AppointmentsByDate, specificDate
   icsString += 'END:VCALENDAR\r\n';
   return icsString;
 }
+
+    

@@ -1,8 +1,8 @@
 
 "use client";
-import React, { useState, useMemo, useEffect, useCallback } from 'react'; // Added useCallback
+import React, { useState, useMemo, useEffect, useCallback } from 'react'; 
 import { Button } from "@/components/ui/button";
-import { CalendarDays, PlusCircle, ChevronLeft, ChevronRight, ListFilter, Download } from "lucide-react";
+import { CalendarDays, PlusCircle, ChevronLeft, ChevronRight, ListFilter, Download, ShieldAlert } from "lucide-react"; // ShieldAlert para bloquear horário
 import Link from "next/link";
 import AppointmentCalendar, { type AppointmentsByDate, getInitialMockAppointments } from "@/components/schedule/appointment-calendar";
 import {
@@ -23,7 +23,7 @@ import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { Label } from '@/components/ui/label';
 import { format, getDay, startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachDayOfInterval, isWithinInterval, parse } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { generateICS } from '@/services/ics-generator';
+import { generateICS } from '@/lib/ics-generator'; 
 import { useToast } from '@/hooks/use-toast';
 import {
   getAuthUrl,
@@ -137,7 +137,6 @@ export default function SchedulePage() {
         });
     }
     
-    // Apply filters to the selected view's appointments
     const finalAppointmentsToExport: AppointmentsByDate = {};
     for (const dateKey in appointmentsToExport) {
         finalAppointmentsToExport[dateKey] = (appointmentsToExport[dateKey] || []).filter(appt => {
@@ -160,7 +159,7 @@ export default function SchedulePage() {
     const blob = new Blob([icsString], { type: 'text/calendar;charset=utf-8;' });
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
-    link.setAttribute("download", `psiguard_agenda_${currentView.toLowerCase()}_${format(currentDate, "yyyyMMdd")}.ics`);
+    link.setAttribute("download", `thalamus_agenda_${currentView.toLowerCase()}_${format(currentDate, "yyyyMMdd")}.ics`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -171,7 +170,7 @@ export default function SchedulePage() {
     setAppointmentsData(updatedAppointments);
   }, []);
 
-  const psychId = "psy1"; // exemplo de usuário
+  const psychId = "psy1"; 
   const [authorized, setAuthorized] = useState(false);
 
   useEffect(() => {
@@ -206,11 +205,18 @@ export default function SchedulePage() {
           <CalendarDays className="h-7 w-7 text-primary" />
           <h1 className="text-3xl font-headline font-bold">Agenda de Consultas</h1>
         </div>
-        <Button asChild className="bg-accent hover:bg-accent/90 text-accent-foreground">
-          <Link href="/schedule/new">
-            <PlusCircle className="mr-2 h-4 w-4" /> Novo Agendamento
-          </Link>
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" asChild>
+            <Link href={`/schedule/new?isBlockTime=true&date=${format(currentDate, 'yyyy-MM-dd')}`}>
+              <ShieldAlert className="mr-2 h-4 w-4" /> Bloquear Horário
+            </Link>
+          </Button>
+          <Button asChild className="bg-accent hover:bg-accent/90 text-accent-foreground">
+            <Link href="/schedule/new">
+              <PlusCircle className="mr-2 h-4 w-4" /> Novo Agendamento
+            </Link>
+          </Button>
+        </div>
       </div>
 
       <div className="flex flex-col sm:flex-row items-center justify-between p-3 sm:p-4 border rounded-lg shadow-sm bg-card gap-3">
@@ -282,7 +288,7 @@ export default function SchedulePage() {
                     <Label htmlFor="filterStatus">Status</Label>
                     <Select
                       value={filters.status}
-                      onValueChange={(value) => handleFilterChange("status", value)}
+                      onValueChange={(value) => handleFilterChange("status", value as AppointmentStatusFilter)}
                     >
                       <SelectTrigger id="filterStatus">
                         <SelectValue placeholder="Selecione status" />
@@ -325,8 +331,10 @@ export default function SchedulePage() {
                   </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
+            {/* Removido os botões de Google Calendar por enquanto para simplificar
             <Button variant="outline" size="sm" onClick={handleSyncGoogle}>Sincronizar</Button>
             <Button variant="outline" size="sm" onClick={handleManageOAuth}>{authorized ? 'Desconectar Google' : 'Conectar Google'}</Button>
+            */}
           </div>
         </div>
       </div>
@@ -342,3 +350,5 @@ export default function SchedulePage() {
     </div>
   );
 }
+
+    

@@ -1,3 +1,4 @@
+
 "use client";
 
 import * as React from "react";
@@ -17,12 +18,12 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription as ShadCnCardDescription } from "@/components/ui/card";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { CalendarIcon, Save, Repeat } from "lucide-react";
+import { CalendarIcon, Save, Repeat, User, Briefcase } from "lucide-react";
 import { cn } from "@/shared/utils";
 import { format, parse } from "date-fns";
 import { ptBR } from 'date-fns/locale';
@@ -144,6 +145,7 @@ export default function AppointmentForm({ appointmentData }: AppointmentFormProp
   const prefilledPatientNameParam = searchParams.get("patientName");
   const prefilledPsychologistIdParam = searchParams.get("psychologistId");
   const prefilledDateParam = searchParams.get("date");
+  const prefilledIsBlockTime = searchParams.get("isBlockTime") === "true";
   
   const initialDate = prefilledDateParam 
     ? parse(prefilledDateParam, "yyyy-MM-dd", new Date()) 
@@ -174,7 +176,7 @@ export default function AppointmentForm({ appointmentData }: AppointmentFormProp
       recurrenceInterval: appointmentData?.recurrenceInterval || 1,
       recurrenceEndDate: appointmentData?.recurrenceEndDate ? new Date(appointmentData.recurrenceEndDate) : undefined,
       recurrenceDaysOfWeek: appointmentData?.recurrenceDaysOfWeek || [],
-      isBlockTime: appointmentData?.isBlockTime || false,
+      isBlockTime: prefilledIsBlockTime || appointmentData?.isBlockTime || false,
       blockReason: appointmentData?.blockReason || "",
     },
   });
@@ -228,31 +230,33 @@ export default function AppointmentForm({ appointmentData }: AppointmentFormProp
       if (res.status === 409) {
         toast({
           title: "Conflito de Horário",
-          description: "Já existe um agendamento para este psicólogo nesse intervalo.",
+          description: "Já existe um agendamento ou bloqueio para este(a) psicólogo(a) no intervalo selecionado. Por favor, escolha outro horário.",
           variant: "destructive",
         });
+        setIsLoading(false);
         return;
       }
 
       if (!res.ok) {
         toast({
-          title: "Erro",
-          description: "Falha ao criar agendamento.",
+          title: "Erro ao Salvar",
+          description: "Falha ao salvar o agendamento. Por favor, tente novamente.",
           variant: "destructive",
         });
+        setIsLoading(false);
         return;
       }
 
       const { id } = await res.json();
       addAppointment(dateKey, { id, status: "Scheduled", ...payload } as Appointment);
       toast({
-        title: data.isBlockTime ? "Horário Bloqueado" : "Agendamento Criado",
-        description: `O ${data.isBlockTime ? 'horário' : 'agendamento'} para ${data.isBlockTime ? data.blockReason : payload.patient} em ${format(data.appointmentDate, "P", {locale: ptBR})} foi criado com sucesso.`,
+        title: data.isBlockTime ? "Horário Bloqueado" : (appointmentData?.id ? "Agendamento Atualizado" : "Agendamento Criado"),
+        description: `O ${data.isBlockTime ? 'horário' : 'agendamento'} para ${data.isBlockTime ? data.blockReason : payload.patient} em ${format(data.appointmentDate, "P", {locale: ptBR})} foi ${appointmentData?.id ? 'atualizado' : 'criado'} com sucesso.`,
       });
       router.push("/schedule");
     } catch (e) {
       console.error(e);
-      toast({ title: "Erro", description: "Falha inesperada.", variant: "destructive" });
+      toast({ title: "Erro Inesperado", description: "Ocorreu uma falha inesperada ao salvar. Tente novamente.", variant: "destructive" });
     } finally {
       setIsLoading(false);
     }
@@ -263,12 +267,12 @@ export default function AppointmentForm({ appointmentData }: AppointmentFormProp
       <Form {...form}>
         <form role="form" onSubmit={form.handleSubmit(onSubmit)}>
           <CardHeader>
-            <CardTitle className="font-headline">
-              {appointmentData?.id ? "Editar Agendamento" : (isBlockTime ? "Bloquear Horário" : "Novo Agendamento")}
+            <CardTitle className="font-headline text-xl">
+              {appointmentData?.id ? "Editar Agendamento" : (isBlockTime ? "Bloquear Horário na Agenda" : "Novo Agendamento")}
             </CardTitle>
-            <CardDescription>
-                {isBlockTime ? "Marque um horário como indisponível na agenda." : "Preencha os detalhes para agendar uma nova consulta."}
-            </CardDescription>
+            <ShadCnCardDescription>
+                {isBlockTime ? "Indique um período de indisponibilidade na agenda." : "Preencha os detalhes para criar ou editar uma consulta."}
+            </ShadCnCardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
              <FormField
@@ -285,7 +289,7 @@ export default function AppointmentForm({ appointmentData }: AppointmentFormProp
                     </FormControl>
                     <div className="space-y-1 leading-none">
                         <FormLabel htmlFor="isBlockTime" className="font-medium cursor-pointer">
-                        Bloquear este horário (ex: para indisponibilidade, reunião)
+                         Marcar como bloqueio (ex: reunião, almoço, indisponibilidade)
                         </FormLabel>
                     </div>
                     </FormItem>
@@ -304,7 +308,7 @@ export default function AppointmentForm({ appointmentData }: AppointmentFormProp
                             <FormControl>
                                 <Input {...field} readOnly className="bg-muted/50"/>
                             </FormControl>
-                            <FormDescription>Paciente da lista de espera. Será criado um novo registro se não existir.</FormDescription>
+                            <FormDescription>Paciente selecionado da lista de espera. Se não existir, um novo cadastro pode ser necessário.</FormDescription>
                             <FormMessage />
                         </FormItem>
                         )}
@@ -319,7 +323,8 @@ export default function AppointmentForm({ appointmentData }: AppointmentFormProp
                             <Select onValueChange={field.onChange} defaultValue={field.value}>
                             <FormControl>
                                 <SelectTrigger>
-                                <SelectValue placeholder="Selecione um paciente" />
+                                 <User className="mr-2 h-4 w-4 text-muted-foreground" />
+                                <SelectValue placeholder="Nome do paciente" />
                                 </SelectTrigger>
                             </FormControl>
                             <SelectContent>
@@ -340,7 +345,8 @@ export default function AppointmentForm({ appointmentData }: AppointmentFormProp
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
                             <SelectTrigger>
-                            <SelectValue placeholder="Selecione o tipo" />
+                            <Briefcase className="mr-2 h-4 w-4 text-muted-foreground" />
+                            <SelectValue placeholder="Finalidade da consulta" />
                             </SelectTrigger>
                         </FormControl>
                         <SelectContent>
@@ -362,7 +368,7 @@ export default function AppointmentForm({ appointmentData }: AppointmentFormProp
                     <FormItem>
                         <FormLabel>Motivo do Bloqueio *</FormLabel>
                         <FormControl>
-                        <Input placeholder="Ex: Reunião de Equipe, Tempo Pessoal" {...field} />
+                        <Input placeholder="Ex: Reunião de Equipe, Intervalo Pessoal" {...field} />
                         </FormControl>
                         <FormMessage />
                     </FormItem>
@@ -380,7 +386,8 @@ export default function AppointmentForm({ appointmentData }: AppointmentFormProp
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
                             <SelectTrigger>
-                            <SelectValue placeholder="Selecione um(a) psicólogo(a)" />
+                            <User className="mr-2 h-4 w-4 text-muted-foreground" />
+                            <SelectValue placeholder="Psicólogo(a) responsável" />
                             </SelectTrigger>
                         </FormControl>
                         <SelectContent>
@@ -469,7 +476,7 @@ export default function AppointmentForm({ appointmentData }: AppointmentFormProp
                 <FormItem>
                   <FormLabel>Observações (Opcional)</FormLabel>
                   <FormControl>
-                    <Textarea placeholder="Qualquer observação relevante para este agendamento..." {...field} rows={3} />
+                    <Textarea placeholder="Informações adicionais sobre este agendamento ou bloqueio..." {...field} rows={3} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -612,7 +619,8 @@ export default function AppointmentForm({ appointmentData }: AppointmentFormProp
           <CardFooter className="flex justify-end">
             <Button type="submit" className="bg-accent hover:bg-accent/90 text-accent-foreground" disabled={isLoading}>
               <Save className="mr-2 h-4 w-4" />
-              {isLoading ? (appointmentData?.id ? "Salvando..." : (isBlockTime ? "Bloqueando..." : "Agendando...")) : (appointmentData?.id ? "Salvar Alterações" : (isBlockTime ? "Bloquear Horário" : "Criar Agendamento"))}
+              {isLoading ? (appointmentData?.id ? "Salvando..." : (isBlockTime ? "Bloqueando..." : "Agendando...")) : 
+                (appointmentData?.id ? "Salvar Alterações" : (isBlockTime ? "Criar Bloqueio" : "Criar Agendamento"))}
             </Button>
           </CardFooter>
         </form>

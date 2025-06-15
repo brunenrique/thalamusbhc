@@ -1,3 +1,4 @@
+
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { firestoreAdmin } from '@/lib/firebaseAdmin';
@@ -29,19 +30,23 @@ export async function POST(req: Request) {
       if (appt.status === 'CancelledByPatient' || appt.status === 'CancelledByClinic') {
         return false;
       }
-      if (!data.isBlockTime && appt.type === 'Blocked Slot') {
-        return data.startTime < appt.endTime && data.endTime > appt.startTime;
+      // Se o novo evento é um bloqueio, ele conflita com qualquer coisa.
+      // Se o evento existente é um bloqueio, ele conflita com qualquer novo agendamento (não bloqueio).
+      // Dois bloqueios não conflitam entre si (permitindo sobreposição se desejado, mas a lógica atual evita isso).
+      if (data.isBlockTime || appt.type === 'Blocked Slot') {
+         return data.startTime < appt.endTime && data.endTime > appt.startTime;
       }
+      // Conflito entre dois agendamentos normais
       return data.startTime < appt.endTime && data.endTime > appt.startTime;
     });
 
     if (conflict) {
-      return NextResponse.json({ error: 'Schedule conflict' }, { status: 409 });
+      return NextResponse.json({ error: 'Já existe um agendamento ou bloqueio para este(a) psicólogo(a) no intervalo selecionado. Por favor, escolha outro horário.' }, { status: 409 });
     }
 
     const docRef = await firestoreAdmin.collection('appointments').add({
       ...data,
-      status: 'Scheduled',
+      status: 'Scheduled', // Bloqueios também são 'Scheduled' inicialmente ou podem ter um status 'Blocked'
     });
 
     return NextResponse.json({ id: docRef.id });
@@ -50,3 +55,5 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Internal error' }, { status: 500 });
   }
 }
+
+    

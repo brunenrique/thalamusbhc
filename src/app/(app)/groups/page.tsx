@@ -21,7 +21,7 @@ export const mockTherapeuticGroups = [
     name: "Grupo de Apoio à Ansiedade",
     psychologist: "Dr. Silva",
     psychologistId: "psy1",
-    membersCount: 8, // This will be dynamically calculated on the detail page based on participants.length
+    membersCount: 2, // Updated based on participants array
     schedule: "Terças, 18:00 - 19:30",
     dayOfWeek: "tuesday",
     startTime: "18:00",
@@ -43,7 +43,7 @@ export const mockTherapeuticGroups = [
     name: "Habilidades Sociais para Adolescentes",
     psychologist: "Dra. Jones",
     psychologistId: "psy2",
-    membersCount: 6,
+    membersCount: 2, // Updated based on participants array
     schedule: "Quintas, 16:00 - 17:00",
     dayOfWeek: "thursday",
     startTime: "16:00",
@@ -64,7 +64,7 @@ export const mockTherapeuticGroups = [
     name: "Grupo de Luto e Perdas",
     psychologist: "Dr. Silva",
     psychologistId: "psy1",
-    membersCount: 5,
+    membersCount: 0, // Updated based on participants array
     schedule: "Segundas, 10:00 - 11:30",
     dayOfWeek: "monday",
     startTime: "10:00",

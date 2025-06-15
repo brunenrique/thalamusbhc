@@ -5,7 +5,7 @@ import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
-import { Clock, User, PlusCircle, Edit, Trash2, CheckCircle, AlertTriangle, XCircle, Check, Ban, UserCheck, UserX, RepeatIcon } from 'lucide-react';
+import { Clock, User, PlusCircle, Edit, Trash2, CheckCircle, AlertTriangle, XCircle, Check, Ban, UserCheck, UserX, RepeatIcon, GripVertical } from 'lucide-react';
 import { format, startOfWeek, endOfWeek, eachDayOfInterval, addDays, subDays, isSameMonth, isSameDay, parse } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import Link from 'next/link';
@@ -31,6 +31,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useToast } from "@/hooks/use-toast";
 import type { Appointment, AppointmentsByDate, AppointmentStatus } from "@/types/appointment";
+import InfoDisplay from '@/components/ui/info-display'; // For better popover content
 
 const mockPsychologists = [
   { id: "psy1", name: "Dr. Silva" },
@@ -72,17 +73,37 @@ export const getInitialMockAppointments = (): AppointmentsByDate => {
   return initialData;
 };
 
-const getStatusIcon = (status: AppointmentStatus) => {
+const getStatusStyles = (status: AppointmentStatus): string => {
     switch (status) {
-        case "Scheduled": return <Clock className="w-3 h-3 mr-1 inline-block text-inherit" />;
-        case "Confirmed": return <UserCheck className="w-3 h-3 mr-1 inline-block text-inherit" />;
-        case "Completed": return <CheckCircle className="w-3 h-3 mr-1 inline-block text-inherit" />;
-        case "CancelledByPatient": return <UserX className="w-3 h-3 mr-1 inline-block text-inherit" />;
-        case "CancelledByClinic": return <Ban className="w-3 h-3 mr-1 inline-block text-inherit" />;
-        case "Blocked": return <AlertTriangle className="w-3 h-3 mr-1 inline-block text-inherit" />;
-        case "NoShow": return <UserX className="w-3 h-3 mr-1 inline-block text-inherit" />;
-        case "Rescheduled": return <RepeatIcon className="w-3 h-3 mr-1 inline-block text-inherit" />;
-        default: return <Clock className="w-3 h-3 mr-1 inline-block text-inherit" />;
+        case "Scheduled":
+        case "Confirmed":
+            return "bg-accent/15 text-accent-foreground hover:bg-accent/25 border-l-4 border-accent";
+        case "Completed":
+            return "bg-primary/15 text-primary-foreground hover:bg-primary/25 border-l-4 border-primary";
+        case "Blocked":
+            return "bg-muted/70 text-muted-foreground hover:bg-muted border-l-4 border-slate-400";
+        case "CancelledByPatient":
+        case "CancelledByClinic":
+        case "NoShow":
+            return "bg-destructive/10 text-destructive-foreground hover:bg-destructive/20 border-l-4 border-destructive";
+        case "Rescheduled":
+            return "bg-yellow-400/15 text-yellow-700 dark:text-yellow-300 hover:bg-yellow-400/25 border-l-4 border-yellow-500";
+        default:
+            return "bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 border-l-4 border-slate-300";
+    }
+};
+
+const getStatusIcon = (status: AppointmentStatus, className: string = "w-3.5 h-3.5 mr-1.5 inline-block") => {
+    switch (status) {
+        case "Scheduled": return <Clock className={cn(className, "text-accent-foreground/80")} />;
+        case "Confirmed": return <UserCheck className={cn(className, "text-accent-foreground/80")} />;
+        case "Completed": return <CheckCircle className={cn(className, "text-primary-foreground/80")} />;
+        case "CancelledByPatient": return <UserX className={cn(className, "text-destructive-foreground/80")} />;
+        case "CancelledByClinic": return <Ban className={cn(className, "text-destructive-foreground/80")} />;
+        case "Blocked": return <AlertTriangle className={cn(className, "text-muted-foreground/80")} />;
+        case "NoShow": return <UserX className={cn(className, "text-destructive-foreground/80")} />;
+        case "Rescheduled": return <RepeatIcon className={cn(className, "text-yellow-600/80 dark:text-yellow-400/80")} />;
+        default: return <Clock className={cn(className, "text-slate-500/80")} />;
     }
 };
 
@@ -176,18 +197,18 @@ function AppointmentCalendarComponent({ view, currentDate, filters, onAppointmen
       <Card 
         key={cellKey} 
         className={cn(
-            "p-2 min-h-[120px] bg-card border-r border-b rounded-none shadow-none hover:bg-secondary/30 transition-colors flex flex-col",
-            !isCurrentMonth && "bg-muted/30 text-muted-foreground",
-            isSelected && "ring-2 ring-primary ring-inset",
-            isToday && !isSelected && "bg-accent/10 border-accent" 
+            "p-2 min-h-[120px] bg-card border-r border-b rounded-none shadow-none hover:bg-secondary/20 transition-colors flex flex-col group relative", // Added group relative for add button
+            !isCurrentMonth && "bg-muted/30 text-muted-foreground/70",
+            isSelected && "ring-2 ring-accent ring-inset",
+            isToday && !isSelected && "bg-accent/5 border-accent/30" 
         )}
         onClick={() => setSelectedDate(dayDate)}
       >
         <CardContent className="p-0 h-full flex flex-col flex-grow">
           <div className={cn("text-sm font-medium text-center rounded-full w-6 h-6 flex items-center justify-center mb-1 self-start", 
-            isSelected ? 'bg-primary text-primary-foreground font-bold' : 'text-foreground', 
-            isToday && !isSelected && 'bg-accent text-accent-foreground',
-            !isCurrentMonth && 'opacity-60'
+            isSelected ? 'bg-accent text-accent-foreground font-bold' : 'text-foreground', 
+            isToday && !isSelected && 'bg-accent/60 text-accent-foreground',
+            !isCurrentMonth && 'opacity-50'
           )}>
             {format(dayDate, "d")}
           </div>
@@ -197,20 +218,16 @@ function AppointmentCalendarComponent({ view, currentDate, filters, onAppointmen
                 <PopoverTrigger asChild>
                   <div
                     className={cn(
-                      "w-full p-1.5 rounded cursor-pointer text-[0.7rem] shadow-sm transition-colors leading-tight",
-                      "flex items-center gap-1",
-                      appt.status === "Blocked" ? "bg-muted/70 text-muted-foreground hover:bg-muted" :
-                      appt.status === "Completed" ? "bg-green-500/10 text-green-700 dark:text-green-300 dark:bg-green-700/20 hover:bg-green-500/20 dark:hover:bg-green-700/30" :
-                      appt.status === "Scheduled" || appt.status === "Confirmed" ? "bg-accent/10 text-accent-foreground hover:bg-accent/20" :
-                      appt.status === "CancelledByPatient" || appt.status === "CancelledByClinic" || appt.status === "NoShow" ? "bg-destructive/10 text-destructive dark:text-destructive-foreground/70 dark:bg-destructive/20 hover:bg-destructive/20 dark:hover:bg-destructive/30" :
-                      "bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+                      "w-full p-1.5 rounded cursor-pointer text-[0.7rem] shadow-sm transition-all leading-tight",
+                      "flex items-center gap-1.5",
+                      getStatusStyles(appt.status)
                     )}
                   >
                     {getStatusIcon(appt.status)}
                     <div className="flex-grow truncate">
                       <span className="font-semibold">{appt.startTime}</span>
                       <span className="ml-1">
-                        {appt.type === "Blocked Slot" ? `Bloq: ${appt.blockReason}` : appt.patient}
+                        {appt.type === "Blocked Slot" ? `Bloqueio: ${appt.blockReason || 'Motivo não especificado'}` : appt.patient}
                       </span>
                       {filters.psychologistId === "all" && appt.psychologistId && appt.type !== "Blocked Slot" && (
                         <span className="text-[0.65rem] opacity-80 ml-0.5">
@@ -220,49 +237,53 @@ function AppointmentCalendarComponent({ view, currentDate, filters, onAppointmen
                     </div>
                   </div>
                 </PopoverTrigger>
-                <PopoverContent className="w-72 p-3 shadow-lg rounded-lg">
-                    <h4 className="font-semibold text-sm mb-0.5">{appt.type === "Blocked Slot" ? `Bloqueado: ${appt.blockReason}` : appt.patient}</h4>
-                    <p className="text-xs text-muted-foreground mb-0.5">{appt.type}</p>
-                    <p className="text-xs text-muted-foreground flex items-center mb-0.5"><Clock className="w-3 h-3 mr-1 inline-block"/>{appt.startTime} - {appt.endTime}</p>
-                    <p className="text-xs text-muted-foreground flex items-center mb-2">{getStatusIcon(appt.status)} Status: {getStatusLabel(appt.status)}</p>
-                    {appt.psychologistId && <p className="text-xs text-muted-foreground mb-2">Com: {mockPsychologists.find(p => p.id === appt.psychologistId)?.name || appt.psychologistId}</p> }
-                    {appt.notes && <p className="text-xs text-muted-foreground mb-2">Notas: {appt.notes}</p>}
-                    <div className="flex gap-2 mb-2">
-                        <Button size="sm" variant="outline" asChild><Link href={`/schedule/edit/${appt.id}`}><Edit className="mr-1 h-3 w-3"/> Editar</Link></Button>
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <Button size="sm" variant="destructive" className="bg-destructive/90 hover:bg-destructive text-destructive-foreground"><Trash2 className="mr-1 h-3 w-3"/> Excluir</Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader><AlertDialogTitle>Confirmar Exclusão</AlertDialogTitle>
-                              <AlertDialogDescription>Tem certeza que deseja excluir o agendamento de {appt.patient} às {appt.startTime} em {format(dayDate, "P", { locale: ptBR })}? Esta ação não pode ser desfeita.</AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                              <AlertDialogAction onClick={() => handleDeleteAppointment(appt.id, appt.patient, dayDate)} className="bg-destructive hover:bg-destructive/90">Excluir</AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
+                <PopoverContent className="w-72 p-0 shadow-xl rounded-lg border bg-popover">
+                    <div className="p-4 space-y-2">
+                        <h4 className="font-headline text-md">{appt.type === "Blocked Slot" ? `Horário Bloqueado: ${appt.blockReason}` : appt.patient}</h4>
+                        <InfoDisplay label="Tipo" value={appt.type} icon={GripVertical} className="p-0 bg-transparent"/>
+                        <InfoDisplay label="Horário" value={`${appt.startTime} - ${appt.endTime}`} icon={Clock} className="p-0 bg-transparent"/>
+                        <InfoDisplay label="Status" value={getStatusLabel(appt.status)} icon={() => getStatusIcon(appt.status, "w-4 h-4 mr-1")} className="p-0 bg-transparent"/>
+                        {appt.psychologistId && <InfoDisplay label="Com" value={mockPsychologists.find(p => p.id === appt.psychologistId)?.name || appt.psychologistId} icon={User} className="p-0 bg-transparent"/> }
+                        {appt.notes && <InfoDisplay label="Notas" value={appt.notes} icon={Edit} className="p-0 bg-transparent"/>}
                     </div>
-                    {appt.type !== "Blocked Slot" && (
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild><Button size="sm" variant="outline" className="w-full"><Check className="mr-1 h-3 w-3" /> Marcar Status</Button></DropdownMenuTrigger>
-                        <DropdownMenuContent className="w-56">
-                          <DropdownMenuLabel>Atualizar Status</DropdownMenuLabel><DropdownMenuSeparator />
-                          {(["Scheduled", "Confirmed", "Completed", "NoShow", "Rescheduled", "CancelledByPatient", "CancelledByClinic"] as AppointmentStatus[]).map(statusOpt => (
-                            <DropdownMenuItem key={statusOpt} onClick={() => handleUpdateStatus(appt, statusOpt, dayDate)} disabled={appt.status === statusOpt}>
-                              {getStatusIcon(statusOpt)} {getStatusLabel(statusOpt)}
-                            </DropdownMenuItem>
-                          ))}
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    )}
+                    <div className="flex flex-col gap-1.5 p-3 border-t bg-muted/30 rounded-b-lg">
+                        <div className="flex gap-2 w-full">
+                            <Button size="sm" variant="outline" asChild className="flex-1"><Link href={`/schedule/edit/${appt.id}`}><Edit className="mr-1.5 h-3.5 w-3.5"/> Editar</Link></Button>
+                            <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                                <Button size="sm" variant="destructive" className="flex-1 bg-destructive/90 hover:bg-destructive text-destructive-foreground"><Trash2 className="mr-1.5 h-3.5 w-3.5"/> Excluir</Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                                <AlertDialogHeader><AlertDialogTitle>Confirmar Exclusão</AlertDialogTitle>
+                                <AlertDialogDescription>Tem certeza que deseja excluir o agendamento de {appt.patient} às {appt.startTime} em {format(dayDate, "P", { locale: ptBR })}? Esta ação não pode ser desfeita.</AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                <AlertDialogAction onClick={() => handleDeleteAppointment(appt.id, appt.patient || "Bloqueio", dayDate)} className="bg-destructive hover:bg-destructive/90">Excluir</AlertDialogAction>
+                                </AlertDialogFooter>
+                            </AlertDialogContent>
+                            </AlertDialog>
+                        </div>
+                        {appt.type !== "Blocked Slot" && (
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild><Button size="sm" variant="outline" className="w-full"><Check className="mr-1.5 h-3.5 w-3.5" /> Marcar Status</Button></DropdownMenuTrigger>
+                            <DropdownMenuContent className="w-56">
+                            <DropdownMenuLabel>Atualizar Status</DropdownMenuLabel><DropdownMenuSeparator />
+                            {(["Scheduled", "Confirmed", "Completed", "NoShow", "Rescheduled", "CancelledByPatient", "CancelledByClinic"] as AppointmentStatus[]).map(statusOpt => (
+                                <DropdownMenuItem key={statusOpt} onClick={() => handleUpdateStatus(appt, statusOpt, dayDate)} disabled={appt.status === statusOpt}>
+                                {getStatusIcon(statusOpt, "w-4 h-4 mr-2")} {getStatusLabel(statusOpt)}
+                                </DropdownMenuItem>
+                            ))}
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                        )}
+                    </div>
                 </PopoverContent>
               </Popover>
             ))}
           </div>
-           <Button variant="ghost" size="icon" className="mt-auto ml-auto h-6 w-6 self-end opacity-30 hover:opacity-100" asChild>
-              <Link href={`/schedule/new?date=${format(dayDate, "yyyy-MM-dd")}`}><PlusCircle className="h-4 w-4" /><span className="sr-only">Adicionar agendamento</span></Link>
+           <Button variant="ghost" size="icon" className="absolute bottom-1 right-1 h-7 w-7 opacity-0 group-hover:opacity-60 hover:!opacity-100 focus:opacity-100 transition-opacity" asChild>
+              <Link href={`/schedule/new?date=${format(dayDate, "yyyy-MM-dd")}`}><PlusCircle className="h-5 w-5" /><span className="sr-only">Adicionar agendamento</span></Link>
             </Button>
         </CardContent>
       </Card>
@@ -316,3 +337,4 @@ function AppointmentCalendarComponent({ view, currentDate, filters, onAppointmen
 
 const AppointmentCalendar = React.memo(AppointmentCalendarComponent);
 export default AppointmentCalendar;
+

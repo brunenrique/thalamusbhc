@@ -6,17 +6,21 @@ import { cn } from "@/shared/utils";
 export interface InfoDisplayProps {
   label: string;
   value: React.ReactNode;
-  icon?: LucideIcon;
+  icon?: LucideIcon | (() => React.ReactNode); // Allow function for custom icon rendering
   className?: string;
 }
 
-function InfoDisplayComponent({ label, value, icon: Icon, className }: InfoDisplayProps) {
+function InfoDisplayComponent({ label, value, icon: IconComponent, className }: InfoDisplayProps) {
   return (
-    <div className={cn("flex items-start gap-3 p-3 bg-secondary/30 rounded-md", className)}>
-      {Icon && <Icon className="text-accent h-5 w-5 mt-1" />}
-      <div>
-        <p className="text-sm font-medium text-muted-foreground">{label}</p>
-        <p className="text-foreground">{value ?? "N/A"}</p>
+    <div className={cn("flex items-start gap-2", className)}> {/* Adjusted gap */}
+      {IconComponent && (
+        typeof IconComponent === 'function' 
+          ? IconComponent() 
+          : <IconComponent className="text-muted-foreground h-4 w-4 mt-0.5" /> // Default icon styling
+      )}
+      <div className="flex-1">
+        <p className="text-xs font-medium text-muted-foreground">{label}</p>
+        <p className="text-sm text-foreground">{value ?? "N/A"}</p>
       </div>
     </div>
   );

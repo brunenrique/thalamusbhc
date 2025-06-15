@@ -39,7 +39,7 @@ Plataforma web para gestão de clínicas de psicologia, com agenda integrada, pr
 
 ### Comandos úteis
 
-- `npm run dev` &mdash; inicia o servidor Next.js em modo desenvolvimento (geralmente com Turbopack).
+- `npm run dev` &mdash; inicia o servidor Next.js em modo desenvolvimento na porta `9003` (geralmente com Turbopack).
 - `npm run genkit:dev` &mdash; executa os fluxos de IA em modo de desenvolvimento.
 - `npm run genkit:dev` &mdash; verifica os tipos TypeScript.
 - `npm run lint` &mdash; executa o ESLint.
@@ -80,7 +80,7 @@ Para obter `FIREBASE_CLIENT_EMAIL` e `FIREBASE_PRIVATE_KEY`:
 ### Variáveis de Configuração do Emulador (Desenvolvimento)
 
 -   `NEXT_PUBLIC_FIREBASE_EMULATOR_HOST`: Define o host que o SDK do Firebase do lado do cliente usará para se conectar aos emuladores.
-    *   Para desenvolvimento local padrão ou dentro de contêineres onde os emuladores estão acessíveis via `127.0.0.1` (especialmente se os emuladores em `firebase.json` estiverem configurados para `host: "0.0.0.0"`), o valor `127.0.0.1` é geralmente correto.
+    *   Para desenvolvimento local padrão ou dentro de contêineres onde os emuladores estão acessíveis via `localhost` ou `127.0.0.1` (especialmente se os emuladores em `firebase.json` estiverem configurados para `host: "0.0.0.0"`), o valor `localhost` é geralmente recomendado como ponto de partida. Se `localhost` não funcionar, `127.0.0.1` pode ser tentado.
     *   Se você estiver acessando seu ambiente de desenvolvimento (ex: Cloud Workstation) por um IP ou nome de host específico e os emuladores estiverem expostos nesse endereço, ajuste conforme necessário.
 
 ### Outras Variáveis
@@ -114,3 +114,4 @@ Para obter `FIREBASE_CLIENT_EMAIL` e `FIREBASE_PRIVATE_KEY`:
     ```
 
 Consulte [docs/blueprint.md](docs/blueprint.md) para uma visão geral das funcionalidades planejadas.
+

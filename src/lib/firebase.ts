@@ -48,23 +48,25 @@ if (typeof window !== 'undefined') {
 if (process.env.NODE_ENV === 'development') {
   console.info('Development mode: Attempting to connect to Firebase Emulators...');
   try {
-    const host = process.env.NEXT_PUBLIC_FIREBASE_EMULATOR_HOST || '127.0.0.1';
+    // Use 'localhost' as a fallback, as '127.0.0.1' can sometimes be tricky in containerized/proxied environments.
+    const host = process.env.NEXT_PUBLIC_FIREBASE_EMULATOR_HOST || 'localhost';
     
-    // Auth Emulator
-    connectAuthEmulator(auth, `http://${host}:9099`, { disableWarnings: true });
-    console.info(`Auth Emulator connected to http://${host}:9099`);
+    const authPort = 9099;
+    connectAuthEmulator(auth, `http://${host}:${authPort}`, { disableWarnings: true });
+    console.info(`Auth Emulator connected to http://${host}:${authPort}`);
 
-    // Firestore Emulator
-    connectFirestoreEmulator(db, host, 8083); // CORRIGIDO PARA PORTA 8083
-    console.info(`Firestore Emulator connected to ${host}:8083`); // MENSAGEM CORRIGIDA
+    const firestorePort = 8083;
+    connectFirestoreEmulator(db, host, firestorePort);
+    console.info(`Firestore Emulator connected to ${host}:${firestorePort}`);
 
-    // Storage Emulator
-    connectStorageEmulator(storage, host, 9199);
-    console.info(`Storage Emulator connected to ${host}:9199`);
+    const storagePort = 9199;
+    connectStorageEmulator(storage, host, storagePort);
+    console.info(`Storage Emulator connected to ${host}:${storagePort}`);
 
     // Functions Emulator (se necessário)
-    // connectFunctionsEmulator(functions, host, 5001);
-    // console.info(`Functions Emulator connected to ${host}:5001`);
+    // const functionsPort = 5001;
+    // connectFunctionsEmulator(functions, host, functionsPort);
+    // console.info(`Functions Emulator connected to ${host}:${functionsPort}`);
     
   } catch (error) {
     console.error('Error connecting to Firebase Emulators:', error);

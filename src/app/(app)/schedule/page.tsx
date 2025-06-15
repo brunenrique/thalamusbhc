@@ -105,7 +105,7 @@ export default function SchedulePage() {
   }
 
   const handleExportICS = () => {
-    let appointmentsToExport: AppointmentsByDate = {};
+    const appointmentsToExport: AppointmentsByDate = {};
     
     const dateKeys = Object.keys(appointmentsData);
 

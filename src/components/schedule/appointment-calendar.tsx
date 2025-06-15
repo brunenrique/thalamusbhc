@@ -5,7 +5,7 @@ import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
-import { Clock, User, PlusCircle, Edit, Trash2, CheckCircle, AlertTriangle, XCircle, Check, Ban, UserCheck, UserX, RepeatIcon, GripVertical, CalendarX2 } from 'lucide-react';
+import { Clock, User, PlusCircle, Edit, Trash2, FileText, CheckCircle, AlertTriangle, XCircle, Check, Ban, UserCheck, UserX, RepeatIcon, GripVertical, CalendarX2 } from 'lucide-react';
 import { format, startOfWeek, endOfWeek, eachDayOfInterval, addDays, subDays, isSameMonth, isSameDay, parse, getDay } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import Link from 'next/link';
@@ -41,22 +41,22 @@ const mockPsychologists = [
 
 const baseMockAppointments: AppointmentsByDate = {
   "2024-08-15": [
-    { id: "appt1", startTime: "10:00", endTime: "11:00", patient: "Alice Wonderland", type: "Consulta", psychologistId: "psy1", status: "Confirmed", notes: "Sessão inicial com Alice." },
-    { id: "appt2", startTime: "14:00", endTime: "15:00", patient: "Bob O Construtor", type: "Acompanhamento", psychologistId: "psy2", status: "Completed", notes: "Revisão de progresso." },
+    { id: "appt1", patientId: "1", startTime: "10:00", endTime: "11:00", patient: "Alice Wonderland", type: "Consulta", psychologistId: "psy1", status: "Confirmed", notes: "Sessão inicial com Alice." },
+    { id: "appt2", patientId: "2", startTime: "14:00", endTime: "15:00", patient: "Bob O Construtor", type: "Acompanhamento", psychologistId: "psy2", status: "Completed", notes: "Revisão de progresso." },
   ],
   "2024-08-16": [
     { id: "appt3", startTime: "09:00", endTime: "10:00", patient: "Autocuidado", type: "Blocked Slot", psychologistId: "psy1", status: "Blocked", blockReason: "Tempo Pessoal" },
   ],
   "2024-08-20": [
-    { id: "appt4", startTime: "11:00", endTime: "12:00", patient: "Charlie Brown", type: "Sessão de Terapia", psychologistId: "psy1", status: "CancelledByPatient" },
+    { id: "appt4", patientId: "3", startTime: "11:00", endTime: "12:00", patient: "Charlie Brown", type: "Sessão de Terapia", psychologistId: "psy1", status: "CancelledByPatient" },
   ],
 };
 
 export const getInitialMockAppointments = (): AppointmentsByDate => {
   const todayStr = format(new Date(), "yyyy-MM-dd");
   const todayAppointments = [
-    { id: "apptToday1", startTime: "15:00", endTime: "16:00", patient: "Paciente Teste Hoje", type: "Consulta Teste", psychologistId: "psy1", status: "Scheduled" as AppointmentStatus, notes: "Consulta de rotina."},
-    { id: "apptToday2", startTime: "17:00", endTime: "17:30", patient: "Diana Prince", type: "Revisão", psychologistId: "psy2", status: "NoShow" as AppointmentStatus}
+    { id: "apptToday1", patientId: "apptToday1", startTime: "15:00", endTime: "16:00", patient: "Paciente Teste Hoje", type: "Consulta Teste", psychologistId: "psy1", status: "Scheduled" as AppointmentStatus, notes: "Consulta de rotina."},
+    { id: "apptToday2", patientId: "4", startTime: "17:00", endTime: "17:30", patient: "Diana Prince", type: "Revisão", psychologistId: "psy2", status: "NoShow" as AppointmentStatus}
   ];
   const initialData = JSON.parse(JSON.stringify(baseMockAppointments));
   if (initialData[todayStr]) {
@@ -66,10 +66,10 @@ export const getInitialMockAppointments = (): AppointmentsByDate => {
   }
   const aFewDaysAgo = format(subDays(new Date(), 3), "yyyy-MM-dd");
   if (!initialData[aFewDaysAgo]) initialData[aFewDaysAgo] = [];
-  initialData[aFewDaysAgo] = [...initialData[aFewDaysAgo], { id: "apptOld1", startTime: "10:30", endTime: "11:30", patient: "Old Patient", type: "Follow-up", psychologistId: "psy1", status: "Completed"}];
+  initialData[aFewDaysAgo] = [...initialData[aFewDaysAgo], { id: "apptOld1", patientId: "apptOld1", startTime: "10:30", endTime: "11:30", patient: "Old Patient", type: "Follow-up", psychologistId: "psy1", status: "Completed"}];
   const aFewDaysAhead = format(addDays(new Date(), 3), "yyyy-MM-dd");
    if (!initialData[aFewDaysAhead]) initialData[aFewDaysAhead] = [];
-  initialData[aFewDaysAhead] = [...initialData[aFewDaysAhead], { id: "apptFuture1", startTime: "16:00", endTime: "17:00", patient: "Future Patient", type: "Initial Consultation", psychologistId: "psy2", status: "Confirmed"}];
+  initialData[aFewDaysAhead] = [...initialData[aFewDaysAhead], { id: "apptFuture1", patientId: "apptFuture1", startTime: "16:00", endTime: "17:00", patient: "Future Patient", type: "Initial Consultation", psychologistId: "psy2", status: "Confirmed"}];
   return initialData;
 };
 
@@ -149,8 +149,10 @@ function AppointmentCalendarComponent({ view, currentDate, filters, workingDaysO
   const { toast } = useToast();
   
   useEffect(() => {
+    // Initialize or update based on props
+    // This is simplified; in a real app, you might fetch or sync appointments here
     setAppointmentsState(getInitialMockAppointments());
-  }, []);
+  }, []); // Consider dependencies if appointments can change from outside
 
   const filteredAppointments = useMemo(() => {
     const appointmentsResult: AppointmentsByDate = {};
@@ -159,12 +161,12 @@ function AppointmentCalendarComponent({ view, currentDate, filters, workingDaysO
         appointmentsResult[dateKey] = dateAppointments.filter(appt => {
             const matchesPsychologist = filters.psychologistId === "all" || appt.psychologistId === filters.psychologistId;
             const matchesStatus = filters.status === "All" || appt.status === filters.status;
-            const apptDateUTC = parse(dateKey, "yyyy-MM-dd", new Date());
-            const apptDate = new Date(apptDateUTC.getUTCFullYear(), apptDateUTC.getUTCMonth(), apptDateUTC.getUTCDate());
+            const apptDateUTC = parse(dateKey, "yyyy-MM-dd", new Date()); // Parse as UTC date
+            const apptDate = new Date(apptDateUTC.getUTCFullYear(), apptDateUTC.getUTCMonth(), apptDateUTC.getUTCDate()); // Convert to local date object, maintaining the date parts
             const matchesDateFrom = !filters.dateFrom || apptDate >= new Date(new Date(filters.dateFrom).setUTCHours(0,0,0,0));
             const matchesDateTo = !filters.dateTo || apptDate <= new Date(new Date(filters.dateTo).setUTCHours(23,59,59,999));
             return matchesPsychologist && matchesStatus && matchesDateFrom && matchesDateTo;
-        }).sort((a, b) => a.startTime.localeCompare(b.startTime)); 
+        }).sort((a, b) => a.startTime.localeCompare(b.startTime)); // Sort by start time
     }
     return appointmentsResult;
   }, [filters, appointmentsState]);
@@ -278,6 +280,13 @@ function AppointmentCalendarComponent({ view, currentDate, filters, workingDaysO
                             {appt.notes && <InfoDisplay label="Notas" value={appt.notes} icon={Edit} className="p-0 bg-transparent"/>}
                         </div>
                         <div className="flex flex-col gap-1.5 p-3 border-t bg-muted/30 rounded-b-lg">
+                            {appt.type !== "Blocked Slot" && appt.patientId && (
+                                <Button size="sm" variant="outline" asChild className="w-full">
+                                    <Link href={`/patients/${appt.patientId}?tab=notes&date=${format(dayDate, "yyyy-MM-dd")}`}>
+                                        <FileText className="mr-1.5 h-3.5 w-3.5"/> Iniciar Anotação
+                                    </Link>
+                                </Button>
+                            )}
                             <div className="flex gap-2 w-full">
                                 <Button size="sm" variant="outline" asChild className="flex-1"><Link href={`/schedule/edit/${appt.id}`}><Edit className="mr-1.5 h-3.5 w-3.5"/> Editar</Link></Button>
                                 <AlertDialog>
@@ -331,9 +340,9 @@ function AppointmentCalendarComponent({ view, currentDate, filters, workingDaysO
 
   const renderMonthView = useCallback(() => {
     const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
-    const monthStart = startOfWeek(firstDayOfMonth, { locale: ptBR, weekStartsOn: 1 });
+    const monthStart = startOfWeek(firstDayOfMonth, { locale: ptBR, weekStartsOn: 1 }); // Semana começa na Segunda
     const lastDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
-    const monthEnd = endOfWeek(lastDayOfMonth, { locale: ptBR, weekStartsOn: 1 }); 
+    const monthEnd = endOfWeek(lastDayOfMonth, { locale: ptBR, weekStartsOn: 1 }); // Semana começa na Segunda
     
     const daysInGrid = eachDayOfInterval({ start: monthStart, end: monthEnd });
     

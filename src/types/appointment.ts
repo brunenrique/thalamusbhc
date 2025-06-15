@@ -1,3 +1,4 @@
+
 export type AppointmentStatus =
   | "Scheduled"
   | "Completed"
@@ -13,6 +14,7 @@ export interface Appointment {
   startTime: string; // HH:mm
   endTime: string; // HH:mm
   patient: string;
+  patientId?: string; // Adicionado para facilitar a navegação
   type: string;
   psychologistId: string;
   status: AppointmentStatus;

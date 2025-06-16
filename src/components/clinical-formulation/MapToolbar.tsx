@@ -10,7 +10,7 @@ const MapToolbar: React.FC = () => {
   const { openABCForm, openSchemaForm } = useClinicalStore();
 
   return (
-    <div className="flex gap-2 p-1.5 rounded-lg bg-background/80 backdrop-blur-sm shadow-md border">
+    <div className="flex gap-2 p-1.5 rounded-lg bg-background/90 backdrop-blur-sm shadow-md border border-border">
       <Button variant="outline" size="sm" className="h-8 px-2.5" onClick={() => openABCForm()}>
         <PlusCircle className="h-4 w-4 mr-1.5" /> Card ABC
       </Button>
@@ -22,3 +22,5 @@ const MapToolbar: React.FC = () => {
 };
 
 export default MapToolbar;
+
+    

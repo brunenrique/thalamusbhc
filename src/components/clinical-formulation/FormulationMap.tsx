@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import ReactFlow, {
   Controls,
   Background,
@@ -17,6 +17,7 @@ import ReactFlow, {
   SelectionMode,
   Panel,
   ReactFlowProvider, 
+  NodeMouseEvent,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 
@@ -24,7 +25,8 @@ import useClinicalStore from '@/stores/clinicalStore';
 import ABCCardNode from './ABCCardNode';
 import SchemaNode from './SchemaNode'; 
 import EdgeLabelModal from './EdgeLabelModal'; 
-import type { ClinicalNodeData, ConnectionLabel, SchemaData, ABCCardData } from '@/types/clinicalTypes';
+import NodeContextMenu from './NodeContextMenu'; // Import the context menu
+import type { ClinicalNodeData, ConnectionLabel, SchemaData, ABCCardData, ClinicalNodeType } from '@/types/clinicalTypes';
 import { Button } from '../ui/button';
 import { Brain, Save, Trash2, ZoomIn, ZoomOut, Maximize, Minimize, Lightbulb } from 'lucide-react'; 
 import { runAnalysis } from '@/services/insightEngine'; 
@@ -53,14 +55,17 @@ const FormulationMap: React.FC = () => {
     cards, 
     schemas, 
     setInsights, 
-    addInsight, 
+    addInsight,
+    openContextMenu, // Get context menu actions from store
+    closeContextMenu,
+    isContextMenuOpen,
   } = useClinicalStore();
 
-  const { fitView, zoomIn, zoomOut, getViewport } = useReactFlow();
+  const { fitView, zoomIn, zoomOut, getViewport, screenToFlowPosition } = useReactFlow();
   const { toast } = useToast();
   const [isGeneratingInsights, setIsGeneratingInsights] = useState(false);
 
-  React.useEffect(() => {
+  useEffect(() => {
     fetchClinicalData('mockPatientId'); 
   }, [fetchClinicalData]);
 
@@ -124,6 +129,24 @@ const FormulationMap: React.FC = () => {
     }
   };
 
+  const handleNodeContextMenu = useCallback(
+    (event: NodeMouseEvent, node: Node<ClinicalNodeData>) => {
+      event.preventDefault();
+      if (node.id && node.type) {
+         // Pass clientX and clientY for positioning the context menu
+        openContextMenu(node.id, node.type as ClinicalNodeType, { x: event.clientX, y: event.clientY });
+      }
+    },
+    [openContextMenu]
+  );
+  
+  // Close context menu if user clicks elsewhere on the pane
+  const onPaneClick = useCallback(() => {
+    if (isContextMenuOpen) {
+      closeContextMenu();
+    }
+  }, [isContextMenuOpen, closeContextMenu]);
+
 
   return (
     <div style={{ height: '100%', width: '100%' }} className="border rounded-md shadow-sm bg-muted/10 relative">
@@ -145,6 +168,8 @@ const FormulationMap: React.FC = () => {
         deleteKeyCode={['Backspace', 'Delete']}
         attributionPosition="bottom-left"
         className="thalamus-flow"
+        onNodeContextMenu={handleNodeContextMenu}
+        onPaneClick={onPaneClick} // Close context menu on pane click
       >
         <Background variant={BackgroundVariant.Dots} gap={16} size={1} />
         <Controls showInteractive={false} className="shadow-md" />
@@ -169,6 +194,7 @@ const FormulationMap: React.FC = () => {
         </Panel>
       </ReactFlow>
       <EdgeLabelModal />
+      <NodeContextMenu /> {/* Render the context menu component */}
     </div>
   );
 };

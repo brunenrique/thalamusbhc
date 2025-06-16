@@ -1,7 +1,7 @@
 
 import { create } from 'zustand';
 import { nanoid } from 'nanoid';
-import type { Edge, Node, OnNodesChange, OnEdgesChange, Viewport, Connection } from 'reactflow';
+import type { Edge, Node, OnNodesChange, OnEdgesChange, Viewport, Connection, NodeMouseEvent } from 'reactflow';
 import { applyNodeChanges, applyEdgeChanges } from 'reactflow';
 import type {
   ABCCardData,
@@ -41,7 +41,7 @@ export interface ClinicalState {
   cards: ABCCardData[];
   schemas: SchemaData[];
   templates: ABCTemplate[];
-  insights: string[]; // Novo estado para insights
+  insights: string[];
   
   nodes: Node<ClinicalNodeData>[];
   edges: Edge<ConnectionLabel | undefined>[]; 
@@ -51,6 +51,13 @@ export interface ClinicalState {
   isLabelEdgeModalOpen: boolean;
   pendingEdge: Edge<ConnectionLabel | undefined> | Connection | null;
   viewport: Viewport;
+
+  // Context Menu State
+  isContextMenuOpen: boolean;
+  contextMenuPosition: { x: number; y: number } | null;
+  contextMenuNodeId: string | null;
+  contextMenuNodeType: ClinicalNodeType | null;
+
 
   // Ações para cards
   addCard: (data: Omit<ABCCardData, 'id' | 'position'>) => void;
@@ -69,8 +76,8 @@ export interface ClinicalState {
   updateSchemaPosition: (schemaId: string, position: { x: number; y: number }) => void;
 
   // Ações para insights
-  setInsights: (insights: string[]) => void; // Nova ação
-  addInsight: (insight: string) => void;    // Nova ação
+  setInsights: (insights: string[]) => void;
+  addInsight: (insight: string) => void;    
 
   // Ações para React Flow (nodes, edges, viewport)
   onNodesChange: OnNodesChange;
@@ -85,6 +92,8 @@ export interface ClinicalState {
   closeABCForm: () => void;
   openLabelEdgeModal: (edge: Edge<ConnectionLabel | undefined> | Connection) => void;
   closeLabelEdgeModal: () => void;
+  openContextMenu: (nodeId: string, nodeType: ClinicalNodeType, position: { x: number; y: number }) => void;
+  closeContextMenu: () => void;
 
   // Simulação de fetch
   fetchClinicalData: (patientId: string) => Promise<void>;
@@ -97,7 +106,7 @@ const useClinicalStore = create<ClinicalState>((set, get) => ({
   cards: [],
   schemas: [],
   templates: initialTemplates,
-  insights: ["Clique em 'Gerar Insights' para análise."], // Estado inicial para insights
+  insights: ["Clique em 'Gerar Insights' para análise."], 
   nodes: [],
   edges: [],
   isABCFormOpen: false,
@@ -105,6 +114,11 @@ const useClinicalStore = create<ClinicalState>((set, get) => ({
   isLabelEdgeModalOpen: false,
   pendingEdge: null,
   viewport: { x: 0, y: 0, zoom: 1 },
+
+  isContextMenuOpen: false,
+  contextMenuPosition: null,
+  contextMenuNodeId: null,
+  contextMenuNodeType: null,
 
   // --- Ações para Cards ---
   addCard: (data) => {
@@ -239,10 +253,7 @@ const useClinicalStore = create<ClinicalState>((set, get) => ({
                 }
             }
         } else if (change.type === 'remove') {
-            // A deleção do card/schema e suas arestas já é tratada em deleteCard/deleteSchema
-            // Aqui, precisamos garantir que a store interna de cards/schemas seja atualizada
-            // se a deleção vier diretamente do ReactFlow (ex: tecla Delete)
-            const nodeToRemove = state.nodes.find(n => n.id === change.id);
+            const nodeToRemove = get().nodes.find(n => n.id === change.id);
             if (nodeToRemove) {
               if (nodeToRemove.type === 'abcCard') {
                 get().deleteCard(change.id);
@@ -284,6 +295,18 @@ const useClinicalStore = create<ClinicalState>((set, get) => ({
   closeABCForm: () => set({ isABCFormOpen: false, editingCardId: null, pendingEdge: null }),
   openLabelEdgeModal: (edgeParams) => set({ isLabelEdgeModalOpen: true, pendingEdge: edgeParams }),
   closeLabelEdgeModal: () => set({ isLabelEdgeModalOpen: false, pendingEdge: null }),
+  openContextMenu: (nodeId, nodeType, position) => set({
+    isContextMenuOpen: true,
+    contextMenuNodeId: nodeId,
+    contextMenuNodeType: nodeType,
+    contextMenuPosition: position,
+  }),
+  closeContextMenu: () => set({
+    isContextMenuOpen: false,
+    contextMenuNodeId: null,
+    contextMenuNodeType: null,
+    contextMenuPosition: null,
+  }),
 
   // --- Simulação de Fetch/Save ---
   fetchClinicalData: async (patientId) => {

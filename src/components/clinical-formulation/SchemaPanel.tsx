@@ -12,13 +12,13 @@ import type { SchemaData } from '@/types/clinicalTypes';
 import { Badge } from '@/components/ui/badge';
 
 const SchemaPanel: React.FC = () => {
-  const { schemas, addSchema, deleteSchema, cards, openABCForm, openSchemaForm, unlinkCardFromSchema } = useClinicalStore();
+  const { schemas, openSchemaForm, deleteSchema, cards, openABCForm, unlinkCardFromSchema } = useClinicalStore();
   const [newSchemaRule, setNewSchemaRule] = useState('');
   const [expandedSchemaId, setExpandedSchemaId] = useState<string | null>(null);
 
   const handleAddSchema = () => {
     if (newSchemaRule.trim()) {
-      openSchemaForm(undefined, newSchemaRule.trim()); // Pass the rule to prefill
+      openSchemaForm(undefined, newSchemaRule.trim());
       setNewSchemaRule('');
     }
   };
@@ -28,72 +28,75 @@ const SchemaPanel: React.FC = () => {
   };
 
   return (
-    <Card className="h-full flex flex-col shadow-md">
-      <CardHeader className="p-4 border-b">
-        <CardTitle className="font-headline text-lg">Esquemas e Regras</CardTitle>
-        <CardDescription className="text-xs">Crenças centrais e regras que podem estar influenciando os comportamentos.</CardDescription>
+    // Removido o Card envolvente principal, pois o Panel do React Flow fornecerá o contêiner
+    // O estilo de Card será aplicado ao Panel no FormulationMap.tsx
+    <>
+      <CardHeader className="p-3 border-b sticky top-0 bg-card z-10">
+        <CardTitle className="font-headline text-base">Esquemas e Regras</CardTitle>
+        <CardDescription className="text-xs">
+          Crenças centrais e regras.
+        </CardDescription>
       </CardHeader>
-      <CardContent className="p-4 flex-grow overflow-hidden flex flex-col">
-        <div className="flex gap-2 mb-3">
+      <CardContent className="p-3 flex-grow overflow-hidden flex flex-col">
+        <div className="flex gap-2 mb-2">
           <Input
             type="text"
             value={newSchemaRule}
             onChange={(e) => setNewSchemaRule(e.target.value)}
             placeholder="Nova regra ou esquema..."
-            className="h-9 text-sm"
+            className="h-8 text-xs"
             onKeyPress={(e) => { if (e.key === 'Enter') handleAddSchema(); }}
           />
-          <Button onClick={handleAddSchema} size="sm" className="bg-accent hover:bg-accent/90 text-accent-foreground shrink-0">
-            <PlusCircleIcon className="h-4 w-4 mr-1.5" /> Adicionar
+          <Button onClick={handleAddSchema} size="sm" className="bg-accent hover:bg-accent/90 text-accent-foreground shrink-0 h-8 px-2">
+            <PlusCircleIcon className="h-3.5 w-3.5 mr-1" /> Add
           </Button>
         </div>
         
         {schemas.length === 0 && (
-            <div className="text-center text-sm text-muted-foreground py-6">
-                <p>Nenhum esquema adicionado ainda.</p>
-                <p className="text-xs">Adicione crenças ou regras relevantes para a formulação.</p>
+            <div className="text-center text-xs text-muted-foreground py-4">
+                <p>Nenhum esquema adicionado.</p>
             </div>
         )}
 
-        <ScrollArea className="flex-grow -mx-4 px-4"> 
-          <div className="space-y-2 pr-1">
+        <ScrollArea className="flex-grow -mx-3 px-3"> 
+          <div className="space-y-1.5 pr-0.5">
             {schemas.map((schema) => (
-              <Card key={schema.id} className="text-xs bg-muted/30 shadow-sm">
-                <div className="p-2 flex justify-between items-start">
+              <Card key={schema.id} className="text-xs bg-muted/30 shadow-xs">
+                <div className="p-1.5 flex justify-between items-start">
                   <button 
-                    className="flex-1 text-left pr-2 focus:outline-none group"
+                    className="flex-1 text-left pr-1 focus:outline-none group"
                     onClick={() => toggleExpandSchema(schema.id)}
                     aria-expanded={expandedSchemaId === schema.id}
                     aria-controls={`schema-details-${schema.id}`}
                   >
-                    <p className="font-medium leading-snug group-hover:text-accent">{schema.rule}</p>
+                    <p className="font-medium text-[11px] leading-tight group-hover:text-accent">{schema.rule}</p>
                   </button>
                   <div className="flex items-center shrink-0">
-                    <Badge variant="secondary" className="mr-1.5 text-[10px] px-1.5 py-0.5">
-                      <Link2Icon className="h-2.5 w-2.5 mr-1"/> {schema.linkedCardIds.length}
+                    <Badge variant="secondary" className="mr-1 text-[9px] px-1 py-0">
+                      <Link2Icon className="h-2 w-2 mr-0.5"/> {schema.linkedCardIds.length}
                     </Badge>
-                    <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground hover:text-foreground" onClick={() => openSchemaForm(schema.id)} aria-label={`Editar esquema ${schema.rule}`}>
-                      <EditIcon className="h-3.5 w-3.5" />
+                    <Button variant="ghost" size="icon" className="h-5 w-5 text-muted-foreground hover:text-foreground" onClick={() => openSchemaForm(schema.id)} aria-label={`Editar esquema ${schema.rule}`}>
+                      <EditIcon className="h-3 w-3" />
                     </Button>
-                    <Button variant="ghost" size="icon" className="h-6 w-6 text-destructive hover:text-destructive" onClick={() => deleteSchema(schema.id)} aria-label={`Deletar esquema ${schema.rule}`}>
-                      <Trash2Icon className="h-3.5 w-3.5" />
+                    <Button variant="ghost" size="icon" className="h-5 w-5 text-destructive hover:text-destructive" onClick={() => deleteSchema(schema.id)} aria-label={`Deletar esquema ${schema.rule}`}>
+                      <Trash2Icon className="h-3 w-3" />
                     </Button>
-                     <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => toggleExpandSchema(schema.id)} aria-label={expandedSchemaId === schema.id ? "Recolher detalhes" : "Expandir detalhes"}>
-                        {expandedSchemaId === schema.id ? <ChevronUpIcon className="h-4 w-4" /> : <ChevronDownIcon className="h-4 w-4" />}
+                     <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => toggleExpandSchema(schema.id)} aria-label={expandedSchemaId === schema.id ? "Recolher detalhes" : "Expandir detalhes"}>
+                        {expandedSchemaId === schema.id ? <ChevronUpIcon className="h-3.5 w-3.5" /> : <ChevronDownIcon className="h-3.5 w-3.5" />}
                     </Button>
                   </div>
                 </div>
                 {expandedSchemaId === schema.id && (
-                  <div id={`schema-details-${schema.id}`} className="border-t p-2 space-y-1.5">
-                    <p className="text-xs text-muted-foreground italic">{schema.notes || "Sem anotações adicionais."}</p>
+                  <div id={`schema-details-${schema.id}`} className="border-t p-1.5 space-y-1">
+                    <p className="text-[11px] text-muted-foreground italic">{schema.notes || "Sem anotações."}</p>
                     {schema.linkedCardIds.length > 0 && (
                       <div>
-                        <p className="text-[11px] font-medium mb-0.5">Cards Vinculados:</p>
-                        <ul className="space-y-1">
+                        <p className="text-[10px] font-medium mb-0.5">Cards Vinculados:</p>
+                        <ul className="space-y-0.5">
                           {schema.linkedCardIds.map(cardId => {
                             const card = cards.find(c => c.id === cardId);
                             return card ? (
-                              <li key={cardId} className="text-[11px] text-muted-foreground flex justify-between items-center group/card-link">
+                              <li key={cardId} className="text-[10px] text-muted-foreground flex justify-between items-center group/card-link">
                                 <span 
                                   className="hover:text-accent cursor-pointer truncate"
                                   onClick={() => openABCForm(cardId)}
@@ -104,11 +107,11 @@ const SchemaPanel: React.FC = () => {
                                 <Button 
                                   variant="ghost" 
                                   size="icon" 
-                                  className="h-5 w-5 opacity-50 group-hover/card-link:opacity-100 text-destructive hover:text-destructive" 
+                                  className="h-4 w-4 opacity-50 group-hover/card-link:opacity-100 text-destructive hover:text-destructive" 
                                   onClick={() => unlinkCardFromSchema(schema.id, cardId)}
                                   title={`Desvincular card "${card.title}"`}
                                 >
-                                  <Unlink className="h-3 w-3" />
+                                  <Unlink className="h-2.5 w-2.5" />
                                 </Button>
                               </li>
                             ) : null;
@@ -117,7 +120,7 @@ const SchemaPanel: React.FC = () => {
                       </div>
                     )}
                     {schema.linkedCardIds.length === 0 && (
-                        <p className="text-[11px] text-muted-foreground">Nenhum card ABC vinculado a este esquema.</p>
+                        <p className="text-[10px] text-muted-foreground">Nenhum card vinculado.</p>
                     )}
                   </div>
                 )}
@@ -126,7 +129,7 @@ const SchemaPanel: React.FC = () => {
           </div>
         </ScrollArea>
       </CardContent>
-    </Card>
+    </>
   );
 };
 

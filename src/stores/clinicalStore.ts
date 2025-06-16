@@ -67,6 +67,7 @@ export interface ClinicalState {
 
   activeColorFilters: ABCCardColor[];
   showSchemaNodes: boolean;
+  isSchemaPanelVisible: boolean;
 
 
   addCard: (data: Omit<ABCCardData, 'id' | 'position'>) => void;
@@ -104,10 +105,11 @@ export interface ClinicalState {
 
   setColorFilters: (colors: ABCCardColor[]) => void;
   toggleShowSchemaNodes: () => void;
+  toggleSchemaPanelVisibility: () => void;
 
   fetchClinicalData: (patientId: string) => Promise<void>;
   saveClinicalData: (patientId: string) => Promise<void>;
-  get: () => ClinicalState; // Add get for internal access
+  get: () => ClinicalState; 
 }
 
 
@@ -134,6 +136,7 @@ const useClinicalStore = create<ClinicalState>((set, get) => ({
 
   activeColorFilters: [...allCardColors],
   showSchemaNodes: true,
+  isSchemaPanelVisible: true,
 
   addCard: (data) => {
     const newCard: ABCCardData = { 
@@ -149,7 +152,6 @@ const useClinicalStore = create<ClinicalState>((set, get) => ({
         data: newCard, 
         draggable: true 
       };
-      console.log("Adding new card node:", newNode);
       return { 
         cards: [...state.cards, newCard], 
         nodes: [...state.nodes, newNode as Node<ClinicalNodeData>] 
@@ -216,7 +218,6 @@ const useClinicalStore = create<ClinicalState>((set, get) => ({
         data: newSchema, 
         draggable: true 
       };
-      console.log("Adding new schema node:", newNode);
       return { 
         schemas: [...state.schemas, newSchema], 
         nodes: [...state.nodes, newNode as Node<ClinicalNodeData>] 
@@ -366,6 +367,7 @@ const useClinicalStore = create<ClinicalState>((set, get) => ({
   }),
   setColorFilters: (colors) => set({ activeColorFilters: colors }),
   toggleShowSchemaNodes: () => set(state => ({ showSchemaNodes: !state.showSchemaNodes })),
+  toggleSchemaPanelVisibility: () => set(state => ({ isSchemaPanelVisible: !state.isSchemaPanelVisible })),
 
   fetchClinicalData: async (patientId) => {
     console.log(`LOG: Fetching clinical data for patient ${patientId}... (Simulated)`);
@@ -401,7 +403,7 @@ const useClinicalStore = create<ClinicalState>((set, get) => ({
     
     console.log("LOG: Initial nodes to set:", nodes);
     console.log("LOG: Initial edges to set:", edges);
-    set({ cards, schemas, nodes, edges, insights: ["Clique em 'Gerar Insights' para análise."], activeColorFilters: [...allCardColors], showSchemaNodes: true });
+    set({ cards, schemas, nodes, edges, insights: ["Clique em 'Gerar Insights' para análise."], activeColorFilters: [...allCardColors], showSchemaNodes: true, isSchemaPanelVisible: true });
   },
   saveClinicalData: async (patientId) => {
     const { cards, schemas, insights, edges, viewport, nodes } = get();
@@ -427,7 +429,8 @@ const useClinicalStore = create<ClinicalState>((set, get) => ({
     await new Promise(resolve => setTimeout(resolve, 300));
     get().addInsight(`Estudo salvo com sucesso em ${new Date().toLocaleTimeString()}. (Simulado)`);
   },
-  get, // Export get
+  get, 
 }));
 
 export default useClinicalStore;
+

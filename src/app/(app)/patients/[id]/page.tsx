@@ -53,7 +53,7 @@ import useClinicalStore from '@/stores/clinicalStore';
 
 // Importações para "O Coração Clínico"
 import FormulationMapWrapper from "@/components/clinical-formulation/FormulationMap";
-import SchemaPanel from "@/components/clinical-formulation/SchemaPanel";
+// SchemaPanel será renderizado dentro do FormulationMapWrapper
 import ABCForm from "@/components/clinical-formulation/ABCForm";
 import SchemaForm from "@/components/clinical-formulation/SchemaForm"; 
 import EdgeLabelModal from "@/components/clinical-formulation/EdgeLabelModal";
@@ -970,15 +970,9 @@ export default function PatientDetailPage() {
             </Card>
         </TabsContent>
 
-        <TabsContent value="caseStudy" className="mt-6 flex flex-col flex-grow">
-            <div className="flex flex-col lg:flex-row gap-4 flex-grow h-full min-h-[80vh]"> {/* Increased min-height */}
-                <div className="lg:w-72 xl:w-80 2xl:w-96 shrink-0 h-full lg:h-auto"> {/* Adjusted width for larger screens */}
-                  <SchemaPanel />
-                </div>
-                <div className="flex-grow min-w-0 h-full">
-                  <FormulationMapWrapper />
-                </div>
-                {/* InsightPanel foi removido conforme solicitado */}
+        <TabsContent value="caseStudy" className="mt-6 flex flex-col flex-grow min-h-[80vh]">
+            <div className="flex-grow h-full w-full">
+              <FormulationMapWrapper />
             </div>
         </TabsContent>
         
@@ -1122,3 +1116,4 @@ export default function PatientDetailPage() {
     
 
     
+

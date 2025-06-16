@@ -10,7 +10,7 @@ export const APP_ROUTES = {
   tasks: "/tasks",
   resources: "/resources",
   analytics: "/analytics",
-  analyticsClinicOccupancy: "/analytics/clinic-occupancy",
+  // analyticsClinicOccupancy: "/analytics/clinic-occupancy", // Rota removida
   tools: "/tools",
   toolsPsychopharmacology: "/tools/psychopharmacology",
   toolsKnowledgeBase: "/tools/knowledge-base",

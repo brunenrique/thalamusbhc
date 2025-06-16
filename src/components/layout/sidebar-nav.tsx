@@ -62,9 +62,6 @@ const navStructure: NavItem[] = [
   { href: APP_ROUTES.resources, label: "Recursos da Clínica", icon: FolderArchive, group: "Operações da Clínica" },
   {
     href: APP_ROUTES.analytics, label: "Relatórios e Análises", icon: BarChartBig, group: "Operações da Clínica",
-    subItems: [
-      { href: APP_ROUTES.analyticsClinicOccupancy, label: "Ocupação da Clínica", icon: BarChartBig },
-    ]
   },
 
   {

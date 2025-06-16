@@ -57,6 +57,7 @@ import InsightPanel from "@/components/clinical-formulation/InsightPanel";
 import ABCForm from "@/components/clinical-formulation/ABCForm";
 import SchemaForm from "@/components/clinical-formulation/SchemaForm"; 
 import EdgeLabelModal from "@/components/clinical-formulation/EdgeLabelModal";
+import useClinicalStore from '@/stores/clinicalStore'; // <<< ADICIONADO IMPORT
 
 
 const PatientProgressChart = dynamic(() => import("@/components/patients/patient-progress-chart"), {
@@ -129,7 +130,7 @@ const mockPatientProgressData: Record<string, Array<{ date: string; score: numbe
   ],
   gad7: [
     { date: "2024-05-15", score: 18 },
-    { date: "2024-06-15", score: 14 },
+    { date: "2024-6-15", score: 14 },
     { date: "2024-07-10", score: 10 },
   ],
 };
@@ -246,11 +247,11 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
   const [isLoadingProgressChart, setIsLoadingProgressChart] = useState(false);
   const [selectedGlobalResource, setSelectedGlobalResource] = useState<string>("");
   
-  const [caseStudyNotes, setCaseStudyNotes] = useState<string>(""); // Manter este estado se for usado em algum lugar
-  const [supervisionInputText, setSupervisionInputText] = useState<string>(""); // Manter este estado
-  const [supervisionResponse, setSupervisionResponse] = useState<string | null>(null); // Manter este estado
-  const [isSupervisionLoading, setIsSupervisionLoading] = useState<boolean>(false); // Manter este estado
-  const [supervisionError, setSupervisionError] = useState<string | null>(null); // Manter este estado
+  const [caseStudyNotes, setCaseStudyNotes] = useState<string>(""); 
+  const [supervisionInputText, setSupervisionInputText] = useState<string>(""); 
+  const [supervisionResponse, setSupervisionResponse] = useState<string | null>(null); 
+  const [isSupervisionLoading, setIsSupervisionLoading] = useState<boolean>(false); 
+  const [supervisionError, setSupervisionError] = useState<string | null>(null); 
 
   const [nextSessionsPlan, setNextSessionsPlan] = useState<string>("");
 
@@ -969,15 +970,16 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
                 <div className="lg:w-72 xl:w-80 shrink-0">
                     <SchemaPanel />
                 </div>
-                <div className="flex-grow min-w-0 h-full"> {/* Adicionado h-full */}
+                <div className="flex-grow min-w-0 h-full">
                     <FormulationMapWrapper />
                 </div>
                 <div className="lg:w-72 xl:w-80 shrink-0">
                     <InsightPanel />
                 </div>
             </div>
+            {/* Modals são renderizados aqui, pois são controlados pelo store e podem ser abertos de qualquer lugar */}
             <ABCForm />
-            <SchemaForm />
+            <SchemaForm prefillRule={useClinicalStore.getState().prefillSchemaRule || undefined} />
             <EdgeLabelModal />
         </TabsContent>
         
@@ -1111,6 +1113,7 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
         </TabsContent>
 
       </Tabs>
+      {/* Modals são renderizados aqui, mas controlados pelo store */}
       <ABCForm />
       <SchemaForm prefillRule={useClinicalStore.getState().prefillSchemaRule || undefined} />
       <EdgeLabelModal />

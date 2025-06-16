@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -72,7 +73,7 @@ body {
     /* Chart Colors Dark */
     --chart-1: hsl(var(--accent));
     --chart-2: hsl(var(--primary));
-    --chart-3: 30 40% 55%; 
+    --chart-3: 30 40% 55%;
     --chart-4: 150 30% 65%;
     --chart-5: 45 15% 50%;
 
@@ -81,10 +82,10 @@ body {
     /* For now, let's make it consistent dark, similar to the main dark theme */
     --sidebar-background: 30 8% 12%; /* Dark brown, slightly distinct from main dark bg */
     --sidebar-foreground: 45 15% 80%;
-    --sidebar-primary: hsl(var(--primary)); 
-    --sidebar-primary-foreground: hsl(var(--primary-foreground)); 
-    --sidebar-accent: hsl(var(--accent)); 
-    --sidebar-accent-foreground: hsl(var(--accent-foreground)); 
+    --sidebar-primary: hsl(var(--primary));
+    --sidebar-primary-foreground: hsl(var(--primary-foreground));
+    --sidebar-accent: hsl(var(--accent));
+    --sidebar-accent-foreground: hsl(var(--accent-foreground));
     --sidebar-border: 30 5% 18%;
     --sidebar-ring: hsl(var(--accent));
   }
@@ -97,4 +98,38 @@ body {
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* Custom React Flow Handle Styles */
+@layer components {
+  .react-flow__handle {
+    width: 10px !important;
+    height: 10px !important;
+    background-color: hsl(var(--primary) / 0.7) !important;
+    border: 1.5px solid hsl(var(--background)) !important;
+    border-radius: 50% !important;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+  }
+
+  .react-flow__handle:hover {
+    background-color: hsl(var(--primary)) !important;
+    transform: scale(1.2);
+  }
+
+  .react-flow__handle-connecting {
+    background-color: hsl(var(--accent)) !important;
+    transform: scale(1.3);
+  }
+
+  .react-flow__handle-target {
+    /* Pode adicionar um estilo sutil diferente para alvos, se desejado */
+    /* border-color: hsl(var(--accent) / 0.5) !important; */
+  }
+
+  /* Ajustes para posicionamento do handle, se necessário (pode não ser preciso) */
+  .react-flow__handle-top { top: -6px !important; }
+  .react-flow__handle-bottom { bottom: -6px !important; }
+  .react-flow__handle-left { left: -6px !important; }
+  .react-flow__handle-right { right: -6px !important; }
 }

@@ -11,22 +11,21 @@ import type { SchemaData } from '@/types/clinicalTypes';
 import { cn } from '@/shared/utils';
 
 const SchemaNode: React.FC<NodeProps<SchemaData>> = ({ data, id, selected }) => {
-  const { openABCForm } = useClinicalStore(); 
   console.log("LOG: Rendering SchemaNode, ID:", id, "Data:", data);
 
   return (
-    <Card 
+    <Card
         className={cn(
-            "w-64 shadow-md hover:shadow-lg transition-shadow duration-150 border-blue-500/40 bg-blue-500/5 text-blue-900 dark:bg-blue-900/10 dark:border-blue-700/50 dark:text-blue-200",
+            "w-64 shadow-md hover:shadow-lg transition-shadow duration-150 border-blue-500/40 bg-blue-500/5 text-blue-900 dark:bg-blue-900/10 dark:border-blue-700/50 dark:text-blue-200 react-flow__node-default", // Added react-flow__node-default
             selected && "ring-2 ring-accent ring-offset-2"
         )}
         style={{minWidth: '240px', maxWidth: '280px'}}
     >
-      <Handle type="target" position={Position.Top} className="!bg-slate-400" />
-      <Handle type="source" position={Position.Bottom} className="!bg-slate-400" />
-      <Handle type="target" position={Position.Left} id={`left-${id}`} className="!bg-slate-400" />
-      <Handle type="source" position={Position.Right} id={`right-${id}`} className="!bg-slate-400" />
-      
+      <Handle type="target" position={Position.Top} id={`top-${id}`} />
+      <Handle type="source" position={Position.Bottom} id={`bottom-${id}`} />
+      <Handle type="target" position={Position.Left} id={`left-${id}`} />
+      <Handle type="source" position={Position.Right} id={`right-${id}`} />
+
       <CardHeader className="p-3">
         <CardTitle className="text-sm font-semibold leading-tight line-clamp-3">{data.rule}</CardTitle>
       </CardHeader>

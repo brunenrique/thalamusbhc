@@ -21,14 +21,13 @@ const cardColorStyles: Record<ABCCardColor, string> = {
 };
 
 const ABCCardNode: React.FC<NodeProps<ABCCardData>> = ({ data, id, selected }) => {
-  const { deleteCard, openABCForm, schemas, changeCardColor } = useClinicalStore();
-  const { setNodes } = useReactFlow();
+  const { schemas } = useClinicalStore();
   console.log("LOG: Rendering ABCCardNode, ID:", id, "Data:", data);
 
   const isLinkedToSchema = schemas.some(schema => schema.linkedCardIds.includes(id));
 
   const cardStyle = cardColorStyles[data.color] || cardColorStyles.default;
-  const textColorClass = data.color === 'default' ? 'text-card-foreground' : 
+  const textColorClass = data.color === 'default' ? 'text-card-foreground' :
                         data.color === 'red' ? 'text-red-900 dark:text-red-200' :
                         data.color === 'green' ? 'text-green-900 dark:text-green-200' :
                         data.color === 'blue' ? 'text-blue-900 dark:text-blue-200' :
@@ -36,7 +35,7 @@ const ABCCardNode: React.FC<NodeProps<ABCCardData>> = ({ data, id, selected }) =
                         data.color === 'purple' ? 'text-purple-900 dark:text-purple-200' :
                         'text-card-foreground';
 
-  const intensityBarColor = data.color === 'default' ? 'bg-primary' : 
+  const intensityBarColor = data.color === 'default' ? 'bg-primary' :
                             data.color === 'red' ? 'bg-red-500' :
                             data.color === 'green' ? 'bg-green-500' :
                             data.color === 'blue' ? 'bg-blue-500' :
@@ -44,8 +43,6 @@ const ABCCardNode: React.FC<NodeProps<ABCCardData>> = ({ data, id, selected }) =
                             data.color === 'purple' ? 'bg-purple-500' :
                             'bg-primary';
 
-
-  // Mini-slider visual (não interativo, apenas display)
   const IntensityBar = ({ value, label }: { value?: number; label: string }) => (
     <div className={cn("text-xs", textColorClass)}>
       <span className="font-medium">{label}: </span>
@@ -57,18 +54,18 @@ const ABCCardNode: React.FC<NodeProps<ABCCardData>> = ({ data, id, selected }) =
   );
 
   return (
-    <Card 
+    <Card
       className={cn(
-        "w-72 shadow-md hover:shadow-lg transition-shadow duration-150", 
+        "w-72 shadow-md hover:shadow-lg transition-shadow duration-150 react-flow__node-default", // Added react-flow__node-default for potential default styles if needed
         cardStyle,
         selected && "ring-2 ring-accent ring-offset-2"
       )}
       style={{minWidth: '280px', maxWidth: '320px'}}
     >
-      <Handle type="target" position={Position.Top} className="!bg-slate-400" />
-      <Handle type="source" position={Position.Bottom} className="!bg-slate-400" />
-      <Handle type="target" position={Position.Left} id={`left-${id}`} className="!bg-slate-400" />
-      <Handle type="source" position={Position.Right} id={`right-${id}`} className="!bg-slate-400" />
+      <Handle type="target" position={Position.Top} id={`top-${id}`} />
+      <Handle type="source" position={Position.Bottom} id={`bottom-${id}`} />
+      <Handle type="target" position={Position.Left} id={`left-${id}`} />
+      <Handle type="source" position={Position.Right} id={`right-${id}`} />
 
       <CardHeader className="p-3 space-y-1">
         <div className="flex justify-between items-start">
@@ -102,8 +99,7 @@ const ABCCardNode: React.FC<NodeProps<ABCCardData>> = ({ data, id, selected }) =
           </div>
         )}
       </CardContent>
-      <CardFooter className="p-2 border-t flex justify-end gap-1">
-      </CardFooter>
+      {/* CardFooter pode ser removido se não houver ações diretas no card */}
     </Card>
   );
 };

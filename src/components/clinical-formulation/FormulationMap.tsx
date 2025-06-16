@@ -16,26 +16,24 @@ import ReactFlow, {
   useReactFlow,
   SelectionMode,
   Panel,
-  ReactFlowProvider, 
+  ReactFlowProvider,
   NodeMouseEvent,
-  EdgeMouseEvent, 
+  EdgeMouseEvent,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 
 import useClinicalStore from '@/stores/clinicalStore';
 import ABCCardNode from './ABCCardNode';
-import SchemaNode from './SchemaNode'; 
+import SchemaNode from './SchemaNode';
 import NodeContextMenu from './NodeContextMenu';
-import MapToolbar from './MapToolbar'; 
+import MapToolbar from './MapToolbar';
 import type { ClinicalNodeData, ConnectionLabel, SchemaData, ABCCardData, ClinicalNodeType } from '@/types/clinicalTypes';
 import { isABCCardData, isSchemaData } from '@/types/clinicalTypes';
 import { Button } from '../ui/button';
-import { Brain, Save, Settings, Maximize, Minimize, Lightbulb, ZoomIn, ZoomOut } from 'lucide-react'; 
-import { runAnalysis } from '@/services/insightEngine'; 
-import { useToast } from '@/hooks/use-toast'; 
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent } from '@/components/ui/dropdown-menu';
+import { Save, Maximize, Minimize, ZoomIn, ZoomOut, Lightbulb } from 'lucide-react';
+import { runAnalysis } from '@/services/insightEngine';
+import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/shared/utils';
-
 
 const nodeTypes = {
   abcCard: ABCCardNode,
@@ -45,24 +43,23 @@ const nodeTypes = {
 const initialViewport = { x: 0, y: 0, zoom: 0.9 };
 
 const FormulationMap: React.FC = () => {
-  const { 
-    nodes: storeNodes, 
-    edges, 
-    onNodesChange: storeOnNodesChange, 
+  const {
+    nodes: storeNodes,
+    edges,
+    onNodesChange: storeOnNodesChange,
     onEdgesChange: storeOnEdgesChange,
     openLabelEdgeModal,
     setViewport,
     updateCardPosition,
     updateSchemaPosition,
-    fetchClinicalData, 
-    saveClinicalData, 
-    setInsights, 
-    addInsight,
+    fetchClinicalData,
+    saveClinicalData,
+    setInsights,
     openContextMenu,
     closeContextMenu,
     isContextMenuOpen,
-    activeColorFilters, 
-    showSchemaNodes,   
+    activeColorFilters,
+    showSchemaNodes,
     get: getClinicalStoreState,
   } = useClinicalStore();
 
@@ -73,7 +70,7 @@ const FormulationMap: React.FC = () => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    fetchClinicalData('mockPatientId'); 
+    fetchClinicalData('mockPatientId');
     console.log("LOG: FormulationMap mounted, fetchClinicalData called.");
 
     const handleFullscreenChange = () => {
@@ -86,18 +83,17 @@ const FormulationMap: React.FC = () => {
   const displayedNodes = useMemo(() => {
     const filtered = storeNodes.filter(node => {
       if (node.type === 'abcCard' && isABCCardData(node.data)) {
-        if (activeColorFilters.length === 0) return false;
+        if (activeColorFilters.length === 0) return true; // Show all if no filter is active
         return activeColorFilters.includes(node.data.color);
       }
       if (node.type === 'schemaNode') {
         return showSchemaNodes;
       }
-      return true; 
+      return true;
     });
     console.log("LOG: Displayed nodes recalculate. Count:", filtered.length, "Filters:", activeColorFilters, "Show Schemas:", showSchemaNodes);
     return filtered;
   }, [storeNodes, activeColorFilters, showSchemaNodes]);
-
 
   const onConnect = useCallback(
     (params: Connection | Edge) => {
@@ -106,28 +102,24 @@ const FormulationMap: React.FC = () => {
         target: params.target!,
         sourceHandle: params.sourceHandle,
         targetHandle: params.targetHandle,
-        type: 'smoothstep', 
+        type: 'smoothstep',
         animated: true,
       };
       openLabelEdgeModal(newEdgeBase);
     },
     [openLabelEdgeModal]
   );
-  
-  const handleSaveLayout = () => {
-    setViewport(getViewport()); 
-    saveClinicalData('mockPatientId'); 
-  };
 
-  const handleFitView = () => {
-    fitView({ padding: 0.1, duration: 300 });
+  const handleSaveLayout = () => {
+    setViewport(getViewport());
+    saveClinicalData('mockPatientId');
   };
 
   const handleGenerateInsights = async () => {
     setIsGeneratingInsights(true);
-    setInsights(["Gerando insights... Por favor, aguarde."]); 
+    setInsights(["Gerando insights... Por favor, aguarde."]);
     try {
-      const currentCards = getClinicalStoreState().cards; 
+      const currentCards = getClinicalStoreState().cards;
       const currentSchemas = getClinicalStoreState().schemas;
       const generated = await runAnalysis(currentCards, currentSchemas);
       setInsights(generated);
@@ -157,7 +149,7 @@ const FormulationMap: React.FC = () => {
     },
     [openContextMenu]
   );
-  
+
   const onPaneClick = useCallback(() => {
     if (isContextMenuOpen) {
       closeContextMenu();
@@ -166,31 +158,28 @@ const FormulationMap: React.FC = () => {
 
   const onEdgeDoubleClick = useCallback(
     (_event: EdgeMouseEvent, edge: Edge<ConnectionLabel | undefined>) => {
-      openLabelEdgeModal(edge); 
+      openLabelEdgeModal(edge);
     },
     [openLabelEdgeModal]
   );
 
   const toggleFullscreen = () => {
     if (!mapContainerRef.current) return;
-
     if (!document.fullscreenElement) {
       mapContainerRef.current.requestFullscreen().catch(err => {
-        alert(`Erro ao tentar entrar em tela cheia: ${err.message} (${err.name})`);
+        toast({ title: "Erro Tela Cheia", description: `Não foi possível ativar: ${err.message}`, variant: "destructive" });
       });
     } else {
-      if (document.exitFullscreen) {
-        document.exitFullscreen();
-      }
+      if (document.exitFullscreen) document.exitFullscreen();
     }
   };
-  
+
   console.log("LOG: Rendering FormulationMap. Nodes to pass to ReactFlow:", displayedNodes.length, "Edges:", edges.length);
 
   return (
-    <div ref={mapContainerRef} className={cn("h-full w-full border rounded-md shadow-sm bg-muted/10 relative", isFullscreen && "fixed inset-0 z-50 bg-background")} onContextMenu={(e) => e.preventDefault()}>
+    <div ref={mapContainerRef} className={cn("h-full w-full border rounded-md shadow-sm bg-muted/10 relative", isFullscreen && "fixed inset-0 z-[100] bg-background")} onContextMenu={(e) => e.preventDefault()}>
       <ReactFlow
-        nodes={displayedNodes} 
+        nodes={displayedNodes}
         edges={edges}
         onNodesChange={storeOnNodesChange}
         onEdgesChange={storeOnEdgesChange}
@@ -202,43 +191,38 @@ const FormulationMap: React.FC = () => {
         onMoveEnd={(_event, viewport) => setViewport(viewport)}
         minZoom={0.1}
         maxZoom={2}
-        selectionMode={SelectionMode.Partial} 
+        selectionMode={SelectionMode.Partial}
         deleteKeyCode={['Backspace', 'Delete']}
         attributionPosition="bottom-left"
         className="h-full w-full"
         onNodeContextMenu={handleNodeContextMenu}
         onPaneClick={onPaneClick}
-        onEdgeDoubleClick={onEdgeDoubleClick} 
+        onEdgeDoubleClick={onEdgeDoubleClick}
       >
         <Background variant={BackgroundVariant.Dots} gap={16} size={1} />
         <Controls showInteractive={false} className="shadow-md" />
         <MiniMap nodeStrokeWidth={3} zoomable pannable className="shadow-md rounded-md border" />
-        
-        <Panel position="top-right" className="p-2 space-x-1.5 flex items-center">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="icon" title="Configurações do Mapa">
-                <Settings className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-72 p-0" align="end"> {/* Aumentei a largura para o MapToolbar */}
-              <MapToolbar />
-            </DropdownMenuContent>
-          </DropdownMenu>
 
-          <Button variant="outline" size="icon" onClick={toggleFullscreen} title={isFullscreen ? "Sair da Tela Cheia" : "Tela Cheia"}>
+        <Panel position="top-left" className="p-2">
+          <MapToolbar />
+        </Panel>
+
+        <Panel position="top-right" className="p-2 space-x-1.5 flex items-center">
+           {/* Os filtros de cor e visibilidade de esquema foram removidos da toolbar principal.
+               Eles podem ser adicionados a um modal de "Opções de Visualização" no futuro, se necessário. */}
+          <Button variant="outline" size="icon" onClick={toggleFullscreen} title={isFullscreen ? "Sair da Tela Cheia" : "Tela Cheia"} className="h-8 w-8">
             {isFullscreen ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" />}
           </Button>
-          <Button variant="outline" size="icon" onClick={() => zoomIn({duration: 300})} title="Aumentar Zoom">
+          <Button variant="outline" size="icon" onClick={() => zoomIn({ duration: 300 })} title="Aumentar Zoom" className="h-8 w-8">
             <ZoomIn className="h-4 w-4" />
           </Button>
-          <Button variant="outline" size="icon" onClick={() => zoomOut({duration: 300})} title="Diminuir Zoom">
+          <Button variant="outline" size="icon" onClick={() => zoomOut({ duration: 300 })} title="Diminuir Zoom" className="h-8 w-8">
             <ZoomOut className="h-4 w-4" />
           </Button>
-           <Button variant="outline" size="sm" onClick={handleGenerateInsights} disabled={isGeneratingInsights} title="Gerar Insights de IA">
+          <Button variant="outline" size="sm" onClick={handleGenerateInsights} disabled={isGeneratingInsights} title="Gerar Insights de IA" className="h-8 px-2.5">
             <Lightbulb className="h-3.5 w-3.5 mr-1" /> {isGeneratingInsights ? "Gerando..." : "Insights IA"}
           </Button>
-          <Button variant="default" size="sm" onClick={handleSaveLayout} className="bg-accent hover:bg-accent/90 text-accent-foreground" title="Salvar estudo de caso">
+          <Button variant="default" size="sm" onClick={handleSaveLayout} className="bg-accent hover:bg-accent/90 text-accent-foreground h-8 px-2.5" title="Salvar estudo de caso">
             <Save className="h-3.5 w-3.5 mr-1" /> Salvar Estudo
           </Button>
         </Panel>
@@ -257,4 +241,3 @@ const FormulationMapWrapper: React.FC = () => {
 }
 
 export default FormulationMapWrapper;
-

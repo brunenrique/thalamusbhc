@@ -52,7 +52,7 @@ const ABCForm: React.FC = () => {
 
   const form = useForm<ABCFormValues>({
     resolver: zodResolver(abcFormSchema),
-    defaultValues: {
+    defaultValues: { // Valores padrão robustos
       title: '',
       antecedentExternal: '',
       antecedentInternal: '',
@@ -74,20 +74,20 @@ const ABCForm: React.FC = () => {
         title: editingCard.title,
         antecedentExternal: editingCard.antecedent.external,
         antecedentInternal: editingCard.antecedent.internal,
-        antecedentThoughtBelief: editingCard.antecedent.thoughtBelief || 50,
-        antecedentEmotionIntensity: editingCard.antecedent.emotionIntensity || 50,
+        antecedentThoughtBelief: editingCard.antecedent.thoughtBelief ?? 50,
+        antecedentEmotionIntensity: editingCard.antecedent.emotionIntensity ?? 50,
         behavior: editingCard.behavior,
         consequenceShortTermGain: editingCard.consequence.shortTermGain,
         consequenceShortTermCost: editingCard.consequence.shortTermCost,
         consequenceLongTermValueCost: editingCard.consequence.longTermValueCost,
-        tags: editingCard.tags,
+        tags: editingCard.tags || [],
         color: editingCard.color,
         notes: editingCard.notes || '',
       });
       setCurrentTags(editingCard.tags || []);
-      setSelectedTemplateId(''); // Reset template if editing
-    } else { // MODO DE CRIAÇÃO
-      form.reset({ // Default values for new card
+      setSelectedTemplateId(''); 
+    } else { 
+      form.reset({ 
         title: '',
         antecedentExternal: '',
         antecedentInternal: '',
@@ -101,20 +101,20 @@ const ABCForm: React.FC = () => {
         color: 'default',
         notes: '',
       });
-      setCurrentTags([]); // Reset tags para novo card
-      setSelectedTemplateId(''); // Reset template para novo card
+      setCurrentTags([]); 
+      setSelectedTemplateId(''); 
     }
-  }, [editingCard, form, isABCFormOpen]); // Depend on isABCFormOpen to reset on open
+  }, [editingCard, form, isABCFormOpen]);
 
   const handleTemplateChange = (templateId: string) => {
     setSelectedTemplateId(templateId);
     const template = templates.find(t => t.id === templateId);
-    if (template && !editingCardId) { // Only apply template if creating new card
+    if (template && !editingCardId) { 
       form.setValue('antecedentExternal', template.antecedentGuide);
-      form.setValue('antecedentInternal', "Pensamentos/Sentimentos: "); // Example placeholder
+      form.setValue('antecedentInternal', "Pensamentos/Sentimentos: "); 
       form.setValue('behavior', template.behaviorGuide);
-      form.setValue('consequenceShortTermGain', "Alívio Imediato: "); // Example placeholder
-      form.setValue('consequenceShortTermCost', "Custo Imediato: "); // Example placeholder
+      form.setValue('consequenceShortTermGain', "Alívio Imediato: "); 
+      form.setValue('consequenceShortTermCost', "Custo Imediato: "); 
       form.setValue('consequenceLongTermValueCost', template.consequenceGuide);
       if (!form.getValues('title')) {
         form.setValue('title', `Análise: ${template.name}`);
@@ -143,8 +143,8 @@ const ABCForm: React.FC = () => {
       antecedent: {
         external: values.antecedentExternal,
         internal: values.antecedentInternal,
-        thoughtBelief: values.antecedentThoughtBelief,
-        emotionIntensity: values.antecedentEmotionIntensity,
+        thoughtBelief: values.antecedentThoughtBelief ?? 0, // Garantir que não seja undefined
+        emotionIntensity: values.antecedentEmotionIntensity ?? 0, // Garantir que não seja undefined
       },
       behavior: values.behavior,
       consequence: {

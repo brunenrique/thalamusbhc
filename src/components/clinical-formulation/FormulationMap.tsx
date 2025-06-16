@@ -26,11 +26,11 @@ import useClinicalStore from '@/stores/clinicalStore';
 import ABCCardNode from './ABCCardNode';
 import SchemaNode from './SchemaNode';
 import NodeContextMenu from './NodeContextMenu';
-import MapToolbar from './MapToolbar';
+import MapToolbar from './MapToolbar'; // Contém os botões de adicionar
 import type { ClinicalNodeData, ConnectionLabel, SchemaData, ABCCardData, ClinicalNodeType } from '@/types/clinicalTypes';
 import { isABCCardData, isSchemaData } from '@/types/clinicalTypes';
 import { Button } from '../ui/button';
-import { Save, Maximize, Minimize, ZoomIn, ZoomOut, Lightbulb, Settings } from 'lucide-react';
+import { Save, Maximize, Minimize, ZoomIn, ZoomOut, Lightbulb, Settings, PlusCircle, Share2 } from 'lucide-react'; // Importei PlusCircle e Share2
 import { runAnalysis } from '@/services/insightEngine';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/shared/utils';
@@ -62,6 +62,8 @@ const FormulationMap: React.FC = () => {
     isContextMenuOpen,
     activeColorFilters,
     showSchemaNodes,
+    openABCForm, // Importar do store
+    openSchemaForm, // Importar do store
     get: getClinicalStoreState,
   } = useClinicalStore();
 
@@ -85,7 +87,7 @@ const FormulationMap: React.FC = () => {
   const displayedNodes = useMemo(() => {
     const filtered = storeNodes.filter(node => {
       if (node.type === 'abcCard' && isABCCardData(node.data)) {
-        if (activeColorFilters.length === 0) return true;
+        if (activeColorFilters.length === 0) return true; // Se nenhum filtro, mostrar todos
         return activeColorFilters.includes(node.data.color);
       }
       if (node.type === 'schemaNode') {
@@ -205,38 +207,46 @@ const FormulationMap: React.FC = () => {
         <Controls showInteractive={false} className="shadow-md" />
         <MiniMap nodeStrokeWidth={3} zoomable pannable className="shadow-md rounded-md border" />
 
-        <Panel position="top-left" className="p-2">
-          <MapToolbar />
-        </Panel>
-
         <Panel position="top-right" className="p-2">
-          <div className="flex flex-wrap items-center gap-1.5"> {/* Alterado aqui */}
-            <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                    <Button variant="outline" size="icon" title="Configurações do Mapa" className="h-8 w-8">
-                        <Settings className="h-4 w-4" />
-                    </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-64">
-                    {/* No futuro, os filtros de cor e o switch de esquemas podem voltar para cá */}
-                    <p className="p-2 text-xs text-muted-foreground">Opções de visualização em breve.</p>
-                </DropdownMenuContent>
-            </DropdownMenu>
-            <Button variant="outline" size="icon" onClick={toggleFullscreen} title={isFullscreen ? "Sair da Tela Cheia" : "Tela Cheia"} className="h-8 w-8">
-              {isFullscreen ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" />}
-            </Button>
-            <Button variant="outline" size="icon" onClick={() => zoomIn({ duration: 300 })} title="Aumentar Zoom" className="h-8 w-8">
-              <ZoomIn className="h-4 w-4" />
-            </Button>
-            <Button variant="outline" size="icon" onClick={() => zoomOut({ duration: 300 })} title="Diminuir Zoom" className="h-8 w-8">
-              <ZoomOut className="h-4 w-4" />
-            </Button>
-            <Button variant="outline" size="sm" onClick={handleGenerateInsights} disabled={isGeneratingInsights} title="Gerar Insights de IA" className="h-8 px-2.5">
-              <Lightbulb className="h-3.5 w-3.5 mr-1" /> {isGeneratingInsights ? "Gerando..." : "Insights IA"}
-            </Button>
-            <Button variant="default" size="sm" onClick={handleSaveLayout} className="bg-accent hover:bg-accent/90 text-accent-foreground h-8 px-2.5" title="Salvar estudo de caso">
-              <Save className="h-3.5 w-3.5 mr-1" /> Salvar Estudo
-            </Button>
+          <div className="flex flex-wrap items-center justify-between gap-2 w-full">
+            {/* Group for Adding Elements (Moved to the left within this panel) */}
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" className="h-8 px-2.5" onClick={() => openABCForm()}>
+                <PlusCircle className="h-4 w-4 mr-1.5" /> Card ABC
+              </Button>
+              <Button variant="outline" size="sm" className="h-8 px-2.5" onClick={() => openSchemaForm()}>
+                <Share2 className="h-4 w-4 mr-1.5" /> Esquema
+              </Button>
+            </div>
+
+            {/* Group for Map Controls (Remains on the right within this panel) */}
+            <div className="flex flex-wrap items-center gap-1.5">
+              <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                      <Button variant="outline" size="icon" title="Configurações do Mapa" className="h-8 w-8">
+                          <Settings className="h-4 w-4" />
+                      </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-64">
+                      <MapToolbar />
+                  </DropdownMenuContent>
+              </DropdownMenu>
+              <Button variant="outline" size="icon" onClick={toggleFullscreen} title={isFullscreen ? "Sair da Tela Cheia" : "Tela Cheia"} className="h-8 w-8">
+                {isFullscreen ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" />}
+              </Button>
+              <Button variant="outline" size="icon" onClick={() => zoomIn({ duration: 300 })} title="Aumentar Zoom" className="h-8 w-8">
+                <ZoomIn className="h-4 w-4" />
+              </Button>
+              <Button variant="outline" size="icon" onClick={() => zoomOut({ duration: 300 })} title="Diminuir Zoom" className="h-8 w-8">
+                <ZoomOut className="h-4 w-4" />
+              </Button>
+              <Button variant="outline" size="sm" onClick={handleGenerateInsights} disabled={isGeneratingInsights} title="Gerar Insights de IA" className="h-8 px-2.5">
+                <Lightbulb className="h-3.5 w-3.5 mr-1" /> {isGeneratingInsights ? "Gerando..." : "Insights IA"}
+              </Button>
+              <Button variant="default" size="sm" onClick={handleSaveLayout} className="bg-accent hover:bg-accent/90 text-accent-foreground h-8 px-2.5" title="Salvar estudo de caso">
+                <Save className="h-3.5 w-3.5 mr-1" /> Salvar Estudo
+              </Button>
+            </div>
           </div>
         </Panel>
       </ReactFlow>
@@ -254,5 +264,3 @@ const FormulationMapWrapper: React.FC = () => {
 }
 
 export default FormulationMapWrapper;
-
-    

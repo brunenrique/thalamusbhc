@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Mail, Phone, CalendarDays, Edit, FileText, Brain, CheckCircle, Clock, MessageSquare, Trash2, Users as UsersIconLucide, Home as HomeIconLucide, Share2, UploadCloud, Calendar as CalendarIconShad, Lightbulb, Tag, BarChart3 as BarChart3Icon, ShieldAlert as ShieldAlertIcon, CheckCircle as CheckCircleIcon, TrendingUp, BookOpen, Activity, Users2, ClipboardList, Target, ListChecks, PlusCircle, Archive, AlertTriangle, History as HistoryIcon, Bot, Image as ImageIcon, Save, CalendarCheck, FileArchive, Eye, Pencil, FilePlus2, ClipboardEdit, Send, Sparkles } from "lucide-react";
 import CopyButton from "@/components/ui/copy-button";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation"; 
+import { useRouter, useSearchParams, useParams } from "next/navigation"; 
 import PatientTimeline from "@/components/patients/patient-timeline";
 import SessionNoteCard from "@/components/patients/session-note-card";
 import ResourceCard from "@/components/resources/resource-card";
@@ -57,7 +57,7 @@ import InsightPanel from "@/components/clinical-formulation/InsightPanel";
 import ABCForm from "@/components/clinical-formulation/ABCForm";
 import SchemaForm from "@/components/clinical-formulation/SchemaForm"; 
 import EdgeLabelModal from "@/components/clinical-formulation/EdgeLabelModal";
-import useClinicalStore from '@/stores/clinicalStore';
+import useClinicalStore from '@/stores/clinicalStore'; // <<<< IMPORTAÇÃO ADICIONADA/CORRIGIDA
 
 
 const PatientProgressChart = dynamic(() => import("@/components/patients/patient-progress-chart"), {
@@ -207,15 +207,19 @@ interface SentAnamnesis {
 }
 
 
-export default function PatientDetailPage({ params }: { params: { id: string } }) {
-  const patient = mockPatient;
+export default function PatientDetailPage() {
+  const params = useParams(); // Usar o hook useParams
+  const patientId = params.id as string; // Acessar o id a partir do objeto retornado pelo hook
+
+  const patient = mockPatient; // Usando mockPatient diretamente por enquanto
   const router = useRouter();
   const { toast } = useToast();
   const searchParams = useSearchParams();
   const initialTab = searchParams.get('tab') || "overview";
 
-  // Adicionando a importação correta de useClinicalStore
-  const { prefillSchemaRule } = useClinicalStore.getState();
+  // Acessando o estado do store para prefillSchemaRule
+  const prefillRuleFromStore = useClinicalStore(state => state.prefillSchemaRule);
+
 
   if (!patient) {
     return (
@@ -535,8 +539,8 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
     : "N/A", [patient.lastSession]);
 
   return (
-    <div className="flex flex-col h-full space-y-6"> {/* Alterado para flex flex-col h-full */}
-      <Button variant="outline" asChild className="mb-4 self-start"> {/* self-start para o botão não esticar */}
+    <div className="flex flex-col h-full space-y-6">
+      <Button variant="outline" asChild className="mb-4 self-start">
         <Link href="/patients">← Voltar para Pacientes</Link>
       </Button>
       
@@ -630,7 +634,7 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
         </CardContent>
       </Card>
 
-      <Tabs defaultValue={initialTab} className="w-full flex flex-col flex-grow"> {/* flex flex-col flex-grow */}
+      <Tabs defaultValue={initialTab} className="w-full flex flex-col flex-grow">
         <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7 2xl:grid-cols-9">
           <TabsTrigger value="overview">Visão Geral</TabsTrigger>
           <TabsTrigger value="notes">Anotações</TabsTrigger>
@@ -710,7 +714,7 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
                 <CardContent className="space-y-3">
                     {sessionNotes.slice(0, 2).map(note => (<SessionNoteCard key={note.id} note={note} patientName={patient.name} therapistName={patient.assignedPsychologist} />))}
                     {sessionNotes.length === 0 && <p className="text-muted-foreground text-sm">Nenhuma anotação ainda.</p>}
-                    {sessionNotes.length > 2 && <Button variant="link" asChild className="text-accent"><Link href={`/patients/${params.id}?tab=notes`}>Ver todas as anotações</Link></Button>}
+                    {sessionNotes.length > 2 && <Button variant="link" asChild className="text-accent"><Link href={`/patients/${patientId}?tab=notes`}>Ver todas as anotações</Link></Button>}
                 </CardContent>
             </Card>
             <Card>
@@ -725,7 +729,7 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
                          </div>
                     ))}
                     {mockTherapeuticGoals.filter(g => g.status === "Em Andamento").length === 0 && <p className="text-muted-foreground text-sm">Nenhuma meta ativa no momento.</p>}
-                     {mockTherapeuticGoals.filter(g => g.status === "Em Andamento").length > 3 && <Button variant="link" asChild className="text-accent"><Link href={`/patients/${params.id}?tab=planning`}>Ver todas as metas</Link></Button>}
+                     {mockTherapeuticGoals.filter(g => g.status === "Em Andamento").length > 3 && <Button variant="link" asChild className="text-accent"><Link href={`/patients/${patientId}?tab=planning`}>Ver todas as metas</Link></Button>}
                 </CardContent>
             </Card>
         </TabsContent>
@@ -969,7 +973,7 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
         </TabsContent>
 
         <TabsContent value="caseStudy" className="mt-6 flex flex-col flex-grow">
-          <div className="flex flex-col lg:flex-row gap-4 flex-grow h-full"> {/* Adicionado h-full */}
+          <div className="flex flex-col lg:flex-row gap-4 flex-grow h-full">
             <div className="lg:w-72 xl:w-80 shrink-0 h-full lg:h-auto">
               <SchemaPanel />
             </div>
@@ -1106,7 +1110,7 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
                   <CardDescription>Eventos chave e interações relacionadas ao paciente.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <PatientTimeline patientId={params.id} />
+                  <PatientTimeline patientId={patientId} />
                 </CardContent>
               </Card>
         </TabsContent>
@@ -1114,7 +1118,7 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
       </Tabs>
       {/* Modais Globais para a Aba "O Coração Clínico" */}
       <ABCForm />
-      <SchemaForm prefillRule={prefillSchemaRule || undefined} />
+      <SchemaForm prefillRule={prefillRuleFromStore || undefined} />
       <EdgeLabelModal />
     </div>
   );

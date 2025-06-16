@@ -11,7 +11,8 @@ import type { SchemaData } from '@/types/clinicalTypes';
 import { cn } from '@/shared/utils';
 
 const SchemaNode: React.FC<NodeProps<SchemaData>> = ({ data, id, selected }) => {
-  const { openABCForm } = useClinicalStore(); // Potencialmente para abrir um formulário de edição de schema no futuro
+  const { openABCForm } = useClinicalStore(); 
+  console.log("LOG: Rendering SchemaNode, ID:", id, "Data:", data);
 
   return (
     <Card 
@@ -39,7 +40,6 @@ const SchemaNode: React.FC<NodeProps<SchemaData>> = ({ data, id, selected }) => 
         </div>
         {data.notes && <p className="mt-1.5 text-muted-foreground italic line-clamp-2">{data.notes}</p>}
       </CardContent>
-      {/* Futuramente, adicionar footer com ações (editar, deletar schema) */}
     </Card>
   );
 };

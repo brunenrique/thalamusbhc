@@ -23,6 +23,7 @@ const cardColorStyles: Record<ABCCardColor, string> = {
 const ABCCardNode: React.FC<NodeProps<ABCCardData>> = ({ data, id, selected }) => {
   const { deleteCard, openABCForm, schemas, changeCardColor } = useClinicalStore();
   const { setNodes } = useReactFlow();
+  console.log("LOG: Rendering ABCCardNode, ID:", id, "Data:", data);
 
   const isLinkedToSchema = schemas.some(schema => schema.linkedCardIds.includes(id));
 
@@ -102,13 +103,6 @@ const ABCCardNode: React.FC<NodeProps<ABCCardData>> = ({ data, id, selected }) =
         )}
       </CardContent>
       <CardFooter className="p-2 border-t flex justify-end gap-1">
-        {/* O menu de contexto substitui esses botões. Eles podem ser removidos ou mantidos para acessibilidade/backup. */}
-        {/* <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => openABCForm(id)} aria-label={`Editar card ${data.title}`}>
-            <Edit3Icon className="h-3.5 w-3.5" />
-        </Button>
-        <Button variant="ghost" size="icon" className="h-6 w-6 text-destructive hover:text-destructive" onClick={() => deleteCard(id)} aria-label={`Deletar card ${data.title}`}>
-            <Trash2Icon className="h-3.5 w-3.5" />
-        </Button> */}
       </CardFooter>
     </Card>
   );

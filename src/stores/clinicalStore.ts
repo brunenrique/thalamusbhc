@@ -55,7 +55,7 @@ export interface ClinicalState {
   editingCardId: string | null; 
   isSchemaFormOpen: boolean;
   editingSchemaId: string | null;
-  prefillSchemaRule: string | null; // Para preencher a regra ao criar novo schema pelo painel
+  prefillSchemaRule: string | null; 
   isLabelEdgeModalOpen: boolean;
   pendingEdge: Edge<ConnectionLabel | undefined> | Connection | null;
   viewport: Viewport;
@@ -77,7 +77,7 @@ export interface ClinicalState {
 
 
   addSchema: (data: Omit<SchemaData, 'id' | 'linkedCardIds' | 'position'>) => void;
-  updateSchema: (schemaId: string, updates: Partial<Omit<SchemaData, 'id' | 'position'>>) => void; // linkedCardIds is managed internally
+  updateSchema: (schemaId: string, updates: Partial<Omit<SchemaData, 'id' | 'position'>>) => void; 
   deleteSchema: (schemaId: string) => void;
   linkCardToSchema: (schemaId: string, cardId: string) => void;
   unlinkCardFromSchema: (schemaId: string, cardId: string) => void;
@@ -107,6 +107,7 @@ export interface ClinicalState {
 
   fetchClinicalData: (patientId: string) => Promise<void>;
   saveClinicalData: (patientId: string) => Promise<void>;
+  get: () => ClinicalState; // Add get for internal access
 }
 
 
@@ -148,6 +149,7 @@ const useClinicalStore = create<ClinicalState>((set, get) => ({
         data: newCard, 
         draggable: true 
       };
+      console.log("Adding new card node:", newNode);
       return { 
         cards: [...state.cards, newCard], 
         nodes: [...state.nodes, newNode as Node<ClinicalNodeData>] 
@@ -173,7 +175,6 @@ const useClinicalStore = create<ClinicalState>((set, get) => ({
         linkedCardIds: schema.linkedCardIds.filter(id => id !== cardId)
       }));
        const updatedNodes = state.nodes.filter((node) => node.id !== cardId);
-       // Atualiza os dados dos nós de esquema na lista de nós do React Flow
        const finalNodes = updatedNodes.map(node => {
         if (node.type === 'schemaNode' && isSchemaData(node.data)) {
             const matchingSchema = updatedSchemas.find(s => s.id === node.id);
@@ -215,6 +216,7 @@ const useClinicalStore = create<ClinicalState>((set, get) => ({
         data: newSchema, 
         draggable: true 
       };
+      console.log("Adding new schema node:", newNode);
       return { 
         schemas: [...state.schemas, newSchema], 
         nodes: [...state.nodes, newNode as Node<ClinicalNodeData>] 
@@ -248,7 +250,6 @@ const useClinicalStore = create<ClinicalState>((set, get) => ({
       const targetSchema = state.schemas.find(s => s.id === schemaId);
       if (targetSchema && !targetSchema.linkedCardIds.includes(cardId)) {
         const newLinkedCardIds = [...targetSchema.linkedCardIds, cardId];
-        // Chamada direta a updateSchema para garantir que o nó também seja atualizado
         const updatedSchemas = state.schemas.map(s => 
           s.id === schemaId ? { ...s, linkedCardIds: newLinkedCardIds } : s
         );
@@ -268,7 +269,6 @@ const useClinicalStore = create<ClinicalState>((set, get) => ({
       const targetSchema = state.schemas.find(s => s.id === schemaId);
       if (targetSchema && targetSchema.linkedCardIds.includes(cardId)) {
         const newLinkedCardIds = targetSchema.linkedCardIds.filter(id => id !== cardId);
-        // Chamada direta a updateSchema
         const updatedSchemas = state.schemas.map(s => 
           s.id === schemaId ? { ...s, linkedCardIds: newLinkedCardIds } : s
         );
@@ -308,9 +308,6 @@ const useClinicalStore = create<ClinicalState>((set, get) => ({
                 }
             }
         } else if (change.type === 'remove') {
-            // A remoção é melhor tratada pela UI (ex: menu de contexto chamando deleteCard/deleteSchema)
-            // para garantir que toda a lógica associada (desvincular, etc.) seja executada.
-            // No entanto, se o React Flow remover um nó diretamente, precisamos espelhar essa remoção.
             const nodeToRemove = get().cards.find(c => c.id === change.id) || get().schemas.find(s => s.id === change.id);
             if (nodeToRemove && isABCCardData(nodeToRemove as ClinicalNodeData)) {
               get().deleteCard(change.id);
@@ -371,7 +368,7 @@ const useClinicalStore = create<ClinicalState>((set, get) => ({
   toggleShowSchemaNodes: () => set(state => ({ showSchemaNodes: !state.showSchemaNodes })),
 
   fetchClinicalData: async (patientId) => {
-    console.info(`Fetching data for patient ${patientId}... (Simulated)`);
+    console.log(`LOG: Fetching clinical data for patient ${patientId}... (Simulated)`);
     await new Promise(resolve => setTimeout(resolve, 300));
     
     const mockCardsData: Omit<ABCCardData, 'id' | 'position'>[] = [
@@ -402,7 +399,9 @@ const useClinicalStore = create<ClinicalState>((set, get) => ({
         edges.push({ id: edgeId, source: schemas[0].id, target: cards[0].id, type: 'smoothstep', data: labelData, label: labelData.label, animated: true, ariaLabel: `Conexão: ${labelData.label}` });
     }
     
-    set({ cards, schemas, nodes, edges, insights: ["Clique em 'Gerar Insights' para análise."] });
+    console.log("LOG: Initial nodes to set:", nodes);
+    console.log("LOG: Initial edges to set:", edges);
+    set({ cards, schemas, nodes, edges, insights: ["Clique em 'Gerar Insights' para análise."], activeColorFilters: [...allCardColors], showSchemaNodes: true });
   },
   saveClinicalData: async (patientId) => {
     const { cards, schemas, insights, edges, viewport, nodes } = get();
@@ -416,7 +415,7 @@ const useClinicalStore = create<ClinicalState>((set, get) => ({
         return node && node.position ? { ...schema, position: node.position } : schema;
     });
 
-    console.info(`Saving data for patient ${patientId}: (Simulated)`, {
+    console.log(`LOG: Saving data for patient ${patientId}: (Simulated)`, {
       patientId,
       cards: finalCards,
       schemas: finalSchemas,
@@ -428,7 +427,7 @@ const useClinicalStore = create<ClinicalState>((set, get) => ({
     await new Promise(resolve => setTimeout(resolve, 300));
     get().addInsight(`Estudo salvo com sucesso em ${new Date().toLocaleTimeString()}. (Simulado)`);
   },
-
+  get, // Export get
 }));
 
 export default useClinicalStore;

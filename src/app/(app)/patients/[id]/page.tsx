@@ -966,16 +966,16 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
         </TabsContent>
 
         <TabsContent value="caseStudy" className="mt-6 flex flex-col flex-grow">
-          <div className="flex flex-col lg:flex-row gap-4 flex-grow min-h-[70vh] md:min-h-[600px]">
-            <div className="lg:w-72 xl:w-80 shrink-0 h-full lg:h-auto">
+          <div className="flex flex-col lg:flex-row gap-4 flex-grow min-h-[70vh] md:min-h-[600px] h-full">
+            {/* <div className="lg:w-72 xl:w-80 shrink-0 h-full lg:h-auto border-2 border-blue-500">
               <SchemaPanel />
-            </div>
-            <div className="flex-grow min-w-0 h-full">
+            </div> */}
+            <div className="flex-grow min-w-0 h-full border-2 border-pink-500"> {/* Temporarily remove SchemaPanel and InsightPanel */}
               <FormulationMapWrapper />
             </div>
-            <div className="lg:w-72 xl:w-80 shrink-0 h-full lg:h-auto">
+            {/* <div className="lg:w-72 xl:w-80 shrink-0 h-full lg:h-auto border-2 border-green-500">
               <InsightPanel />
-            </div>
+            </div> */}
           </div>
         </TabsContent>
         

@@ -64,7 +64,7 @@ const FormulationMap: React.FC = () => {
     isContextMenuOpen,
     activeColorFilters, 
     showSchemaNodes,   
-    get: getClinicalStoreState, // Adicionando a função get
+    get: getClinicalStoreState, 
   } = useClinicalStore();
 
   const { fitView, zoomIn, zoomOut, getViewport, screenToFlowPosition } = useReactFlow();
@@ -73,12 +73,13 @@ const FormulationMap: React.FC = () => {
 
   useEffect(() => {
     fetchClinicalData('mockPatientId'); 
+    console.log("LOG: FormulationMap mounted, fetchClinicalData called.");
   }, [fetchClinicalData]);
 
   const displayedNodes = useMemo(() => {
-    return storeNodes.filter(node => {
+    const filtered = storeNodes.filter(node => {
       if (node.type === 'abcCard' && isABCCardData(node.data)) {
-        if (activeColorFilters.length === 0) return false; // Oculta se nenhum filtro de cor estiver ativo
+        if (activeColorFilters.length === 0) return false;
         return activeColorFilters.includes(node.data.color);
       }
       if (node.type === 'schemaNode') {
@@ -86,6 +87,8 @@ const FormulationMap: React.FC = () => {
       }
       return true; 
     });
+    console.log("LOG: Displayed nodes recalculate. Count:", filtered.length, "Filters:", activeColorFilters, "Show Schemas:", showSchemaNodes);
+    return filtered;
   }, [storeNodes, activeColorFilters, showSchemaNodes]);
 
 
@@ -160,6 +163,8 @@ const FormulationMap: React.FC = () => {
     },
     [openLabelEdgeModal]
   );
+  
+  console.log("LOG: Rendering FormulationMap. Nodes to pass to ReactFlow:", displayedNodes.length, "Edges:", edges.length);
 
   return (
     <div style={{ height: '100%', width: '100%' }} className="border rounded-md shadow-sm bg-muted/10 relative" onContextMenu={(e) => e.preventDefault()}>
@@ -210,7 +215,6 @@ const FormulationMap: React.FC = () => {
           </Button>
         </Panel>
       </ReactFlow>
-      {/* EdgeLabelModal é renderizado em PatientDetailPage agora */}
       <NodeContextMenu />
     </div>
   );

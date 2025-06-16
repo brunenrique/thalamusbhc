@@ -53,11 +53,11 @@ import { gerarProntuario } from "@/services/prontuarioService";
 // Importações para "O Coração Clínico"
 import FormulationMapWrapper from "@/components/clinical-formulation/FormulationMap";
 import SchemaPanel from "@/components/clinical-formulation/SchemaPanel";
-import InsightPanel from "@/components/clinical-formulation/InsightPanel";
+// InsightPanel não é mais necessário aqui
 import ABCForm from "@/components/clinical-formulation/ABCForm";
 import SchemaForm from "@/components/clinical-formulation/SchemaForm"; 
 import EdgeLabelModal from "@/components/clinical-formulation/EdgeLabelModal";
-import useClinicalStore from '@/stores/clinicalStore'; // <<<< IMPORTAÇÃO ADICIONADA/CORRIGIDA
+import useClinicalStore from '@/stores/clinicalStore';
 
 
 const PatientProgressChart = dynamic(() => import("@/components/patients/patient-progress-chart"), {
@@ -208,16 +208,15 @@ interface SentAnamnesis {
 
 
 export default function PatientDetailPage() {
-  const params = useParams(); // Usar o hook useParams
-  const patientId = params.id as string; // Acessar o id a partir do objeto retornado pelo hook
+  const pageParams = useParams(); 
+  const patientId = pageParams.id as string; 
 
-  const patient = mockPatient; // Usando mockPatient diretamente por enquanto
+  const patient = mockPatient; 
   const router = useRouter();
   const { toast } = useToast();
   const searchParams = useSearchParams();
   const initialTab = searchParams.get('tab') || "overview";
 
-  // Acessando o estado do store para prefillSchemaRule
   const prefillRuleFromStore = useClinicalStore(state => state.prefillSchemaRule);
 
 
@@ -980,9 +979,7 @@ export default function PatientDetailPage() {
             <div className="flex-grow min-w-0 h-full">
               <FormulationMapWrapper />
             </div>
-            <div className="lg:w-72 xl:w-80 shrink-0 h-full lg:h-auto">
-              <InsightPanel />
-            </div>
+            {/* InsightPanel removido daqui */}
           </div>
         </TabsContent>
         
@@ -1123,4 +1120,6 @@ export default function PatientDetailPage() {
     </div>
   );
 }
+    
+
     

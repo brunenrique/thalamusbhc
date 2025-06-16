@@ -41,7 +41,7 @@ export interface ClinicalState {
   cards: ABCCardData[];
   schemas: SchemaData[];
   templates: ABCTemplate[];
-  insights: string[];
+  insights: string[]; // Novo estado para insights
   
   nodes: Node<ClinicalNodeData>[];
   edges: Edge<ConnectionLabel | undefined>[]; 
@@ -49,12 +49,12 @@ export interface ClinicalState {
   isABCFormOpen: boolean;
   editingCardId: string | null; 
   isLabelEdgeModalOpen: boolean;
-  pendingEdge: Edge<ConnectionLabel | undefined> | Connection | null; // Edge ou Connection aguardando rótulo
+  pendingEdge: Edge<ConnectionLabel | undefined> | Connection | null;
   viewport: Viewport;
 
   // Ações para cards
   addCard: (data: Omit<ABCCardData, 'id' | 'position'>) => void;
-  updateCard: (cardId: string, updates: Partial<Omit<ABCCardData, 'id'>>) => void; // 'id' não deve ser atualizável
+  updateCard: (cardId: string, updates: Partial<Omit<ABCCardData, 'id'>>) => void;
   deleteCard: (cardId: string) => void;
   changeCardColor: (cardId: string, color: ABCCardData['color']) => void;
   updateCardPosition: (cardId: string, position: { x: number; y: number }) => void;
@@ -62,15 +62,15 @@ export interface ClinicalState {
 
   // Ações para schemas
   addSchema: (data: Omit<SchemaData, 'id' | 'linkedCardIds' | 'position'>) => void;
-  updateSchema: (schemaId: string, updates: Partial<Omit<SchemaData, 'id'>>) => void; // 'id' não deve ser atualizável
+  updateSchema: (schemaId: string, updates: Partial<Omit<SchemaData, 'id'>>) => void;
   deleteSchema: (schemaId: string) => void;
   linkCardToSchema: (schemaId: string, cardId: string) => void;
   unlinkCardFromSchema: (schemaId: string, cardId: string) => void;
   updateSchemaPosition: (schemaId: string, position: { x: number; y: number }) => void;
 
   // Ações para insights
-  setInsights: (insights: string[]) => void;
-  addInsight: (insight: string) => void;
+  setInsights: (insights: string[]) => void; // Nova ação
+  addInsight: (insight: string) => void;    // Nova ação
 
   // Ações para React Flow (nodes, edges, viewport)
   onNodesChange: OnNodesChange;
@@ -87,8 +87,8 @@ export interface ClinicalState {
   closeLabelEdgeModal: () => void;
 
   // Simulação de fetch
-  fetchClinicalData: (patientId: string) => Promise<void>; // Simulado
-  saveClinicalData: (patientId: string) => Promise<void>; // Simulado
+  fetchClinicalData: (patientId: string) => Promise<void>;
+  saveClinicalData: (patientId: string) => Promise<void>;
 }
 
 
@@ -97,7 +97,7 @@ const useClinicalStore = create<ClinicalState>((set, get) => ({
   cards: [],
   schemas: [],
   templates: initialTemplates,
-  insights: [],
+  insights: ["Clique em 'Gerar Insights' para análise."], // Estado inicial para insights
   nodes: [],
   edges: [],
   isABCFormOpen: false,
@@ -227,9 +227,9 @@ const useClinicalStore = create<ClinicalState>((set, get) => ({
     set((state) => ({
       nodes: applyNodeChanges(changes, state.nodes),
     }));
-    // Sincronizar posição de volta para cards/schemas se a mudança for de posição
+    
     changes.forEach(change => {
-        if (change.type === 'position' && change.dragging === false && change.positionAbsolute) {
+        if (change.type === 'position' && typeof change.dragging === 'boolean' && !change.dragging && change.positionAbsolute) {
             const node = get().nodes.find(n => n.id === change.id);
             if (node) {
                 if (node.type === 'abcCard') {
@@ -239,10 +239,16 @@ const useClinicalStore = create<ClinicalState>((set, get) => ({
                 }
             }
         } else if (change.type === 'remove') {
-            const node = state.nodes.find(n => n.id === change.id); // Node before removal by applyNodeChanges
-            if (node) {
-                if (node.type === 'abcCard') get().deleteCard(change.id);
-                else if (node.type === 'schemaNode') get().deleteSchema(change.id);
+            // A deleção do card/schema e suas arestas já é tratada em deleteCard/deleteSchema
+            // Aqui, precisamos garantir que a store interna de cards/schemas seja atualizada
+            // se a deleção vier diretamente do ReactFlow (ex: tecla Delete)
+            const nodeToRemove = state.nodes.find(n => n.id === change.id);
+            if (nodeToRemove) {
+              if (nodeToRemove.type === 'abcCard') {
+                get().deleteCard(change.id);
+              } else if (nodeToRemove.type === 'schemaNode') {
+                get().deleteSchema(change.id);
+              }
             }
         }
     });
@@ -252,11 +258,9 @@ const useClinicalStore = create<ClinicalState>((set, get) => ({
     set((state) => ({
       edges: applyEdgeChanges(changes, state.edges),
     }));
-    // Se uma aresta for removida via UI do React Flow, a store é atualizada.
-    // Nenhuma ação extra de `removeEdge` é necessária aqui se `applyEdgeChanges` lidar com isso.
     changes.forEach(change => {
         if (change.type === 'remove') {
-            get().removeEdge(change.id); // Garante que o estado de `edges` no store está sincronizado
+            get().removeEdge(change.id);
         }
     });
   },
@@ -295,10 +299,9 @@ const useClinicalStore = create<ClinicalState>((set, get) => ({
       { rule: 'Preciso ser perfeito(a) em tudo que faço para ser valorizado(a).', notes: 'Relacionado a alta autocrítica e medo de falha.'}
     ];
     
-    const cards: ABCCardData[] = mockCardsData.map((data, i) => ({...data, id: `c${i+1}`, position: { x: 100 + i * 300, y: 100 }}));
-    const schemas: SchemaData[] = mockSchemasData.map((data, i) => ({...data, id: `s${i+1}`, linkedCardIds: [], position: { x: 150 + i * 300, y: 400 }}));
+    const cards: ABCCardData[] = mockCardsData.map((data, i) => ({...data, id: `c${i+1}`, position: { x: 100 + i * 350, y: 100 }}));
+    const schemas: SchemaData[] = mockSchemasData.map((data, i) => ({...data, id: `s${i+1}`, linkedCardIds: [], position: { x: 150 + i * 350, y: 450 }}));
     
-    // Simular alguns vínculos
     if (schemas[0] && cards[0]) schemas[0].linkedCardIds.push(cards[0].id);
     if (schemas[1] && cards[1]) schemas[1].linkedCardIds.push(cards[1].id);
 
@@ -315,18 +318,18 @@ const useClinicalStore = create<ClinicalState>((set, get) => ({
         edges.push({ id: edgeId, source: schemas[0].id, target: cards[0].id, type: 'smoothstep', data: labelData, label: labelData.label, animated: true });
     }
     
-    set({ cards, schemas, nodes, edges, insights: ['Dados de demonstração carregados.'] });
+    set({ cards, schemas, nodes, edges, insights: ["Clique em 'Gerar Insights' para análise."] });
   },
   saveClinicalData: async (patientId) => {
     const { cards, schemas, insights, edges, viewport, nodes } = get();
-    // Sincronizar posições dos nós com cards/schemas antes de salvar
+    
     const finalCards = cards.map(card => {
         const node = nodes.find(n => n.id === card.id && n.type === 'abcCard');
-        return node ? { ...card, position: node.position } : card;
+        return node && node.position ? { ...card, position: node.position } : card;
     });
     const finalSchemas = schemas.map(schema => {
         const node = nodes.find(n => n.id === schema.id && n.type === 'schemaNode');
-        return node ? { ...schema, position: node.position } : schema;
+        return node && node.position ? { ...schema, position: node.position } : schema;
     });
 
     console.info(`Saving data for patient ${patientId}: (Simulated)`, {

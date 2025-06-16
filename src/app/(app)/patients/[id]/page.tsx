@@ -57,7 +57,7 @@ import InsightPanel from "@/components/clinical-formulation/InsightPanel";
 import ABCForm from "@/components/clinical-formulation/ABCForm";
 import SchemaForm from "@/components/clinical-formulation/SchemaForm"; 
 import EdgeLabelModal from "@/components/clinical-formulation/EdgeLabelModal";
-import useClinicalStore from '@/stores/clinicalStore'; // <<< GARANTINDO A IMPORTAÇÃO
+import useClinicalStore from '@/stores/clinicalStore';
 
 
 const PatientProgressChart = dynamic(() => import("@/components/patients/patient-progress-chart"), {
@@ -213,6 +213,9 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
   const { toast } = useToast();
   const searchParams = useSearchParams();
   const initialTab = searchParams.get('tab') || "overview";
+
+  // Adicionando a importação correta de useClinicalStore
+  const { prefillSchemaRule } = useClinicalStore.getState();
 
   if (!patient) {
     return (
@@ -532,8 +535,8 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
     : "N/A", [patient.lastSession]);
 
   return (
-    <div className="space-y-6">
-      <Button variant="outline" asChild className="mb-4">
+    <div className="flex flex-col h-full space-y-6"> {/* Alterado para flex flex-col h-full */}
+      <Button variant="outline" asChild className="mb-4 self-start"> {/* self-start para o botão não esticar */}
         <Link href="/patients">← Voltar para Pacientes</Link>
       </Button>
       
@@ -627,7 +630,7 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
         </CardContent>
       </Card>
 
-      <Tabs defaultValue={initialTab} className="w-full">
+      <Tabs defaultValue={initialTab} className="w-full flex flex-col flex-grow"> {/* flex flex-col flex-grow */}
         <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7 2xl:grid-cols-9">
           <TabsTrigger value="overview">Visão Geral</TabsTrigger>
           <TabsTrigger value="notes">Anotações</TabsTrigger>
@@ -966,16 +969,16 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
         </TabsContent>
 
         <TabsContent value="caseStudy" className="mt-6 flex flex-col flex-grow">
-          <div className="flex flex-col lg:flex-row gap-4 flex-grow min-h-[70vh] md:min-h-[600px] h-full">
-            {/* <div className="lg:w-72 xl:w-80 shrink-0 h-full lg:h-auto border-2 border-blue-500">
+          <div className="flex flex-col lg:flex-row gap-4 flex-grow h-full"> {/* Adicionado h-full */}
+            <div className="lg:w-72 xl:w-80 shrink-0 h-full lg:h-auto">
               <SchemaPanel />
-            </div> */}
-            <div className="flex-grow min-w-0 h-full border-2 border-pink-500"> {/* Temporarily remove SchemaPanel and InsightPanel */}
+            </div>
+            <div className="flex-grow min-w-0 h-full">
               <FormulationMapWrapper />
             </div>
-            {/* <div className="lg:w-72 xl:w-80 shrink-0 h-full lg:h-auto border-2 border-green-500">
+            <div className="lg:w-72 xl:w-80 shrink-0 h-full lg:h-auto">
               <InsightPanel />
-            </div> */}
+            </div>
           </div>
         </TabsContent>
         
@@ -1109,9 +1112,9 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
         </TabsContent>
 
       </Tabs>
-      {/* Modals são renderizados aqui, mas controlados pelo store */}
+      {/* Modais Globais para a Aba "O Coração Clínico" */}
       <ABCForm />
-      <SchemaForm prefillRule={useClinicalStore.getState().prefillSchemaRule || undefined} />
+      <SchemaForm prefillRule={prefillSchemaRule || undefined} />
       <EdgeLabelModal />
     </div>
   );

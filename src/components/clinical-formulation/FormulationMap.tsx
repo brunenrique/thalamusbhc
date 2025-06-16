@@ -55,8 +55,8 @@ const FormulationMap: React.FC = () => {
     updateSchemaPosition,
     fetchClinicalData, 
     saveClinicalData, 
-    cards, 
-    schemas, 
+    // cards, // não é mais usado diretamente aqui para gerar insights
+    // schemas, // não é mais usado diretamente aqui para gerar insights
     setInsights, 
     addInsight,
     openContextMenu,
@@ -64,7 +64,7 @@ const FormulationMap: React.FC = () => {
     isContextMenuOpen,
     activeColorFilters, 
     showSchemaNodes,   
-    get: getClinicalStoreState, 
+    get: getClinicalStoreState, // Obtém a função get para acesso ao estado atual
   } = useClinicalStore();
 
   const { fitView, zoomIn, zoomOut, getViewport, screenToFlowPosition } = useReactFlow();
@@ -79,7 +79,7 @@ const FormulationMap: React.FC = () => {
   const displayedNodes = useMemo(() => {
     const filtered = storeNodes.filter(node => {
       if (node.type === 'abcCard' && isABCCardData(node.data)) {
-        if (activeColorFilters.length === 0) return false;
+        if (activeColorFilters.length === 0) return false; // Se nenhum filtro de cor estiver ativo, não mostra nenhum card
         return activeColorFilters.includes(node.data.color);
       }
       if (node.type === 'schemaNode') {
@@ -120,6 +120,7 @@ const FormulationMap: React.FC = () => {
     setIsGeneratingInsights(true);
     setInsights(["Gerando insights... Por favor, aguarde."]); 
     try {
+      // Usar getClinicalStoreState para obter o estado mais recente do store
       const currentCards = getClinicalStoreState().cards; 
       const currentSchemas = getClinicalStoreState().schemas;
       const generated = await runAnalysis(currentCards, currentSchemas);
@@ -184,7 +185,7 @@ const FormulationMap: React.FC = () => {
         selectionMode={SelectionMode.Partial} 
         deleteKeyCode={['Backspace', 'Delete']}
         attributionPosition="bottom-left"
-        className="thalamus-flow h-full w-full" 
+        className="h-full w-full" // Garante que o ReactFlow ocupe o espaço
         onNodeContextMenu={handleNodeContextMenu}
         onPaneClick={onPaneClick}
         onEdgeDoubleClick={onEdgeDoubleClick} 

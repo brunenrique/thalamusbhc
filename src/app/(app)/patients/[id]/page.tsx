@@ -49,15 +49,14 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import dynamic from "next/dynamic";
 import { gerarProntuario } from "@/services/prontuarioService";
+import useClinicalStore from '@/stores/clinicalStore';
 
 // Importações para "O Coração Clínico"
 import FormulationMapWrapper from "@/components/clinical-formulation/FormulationMap";
 import SchemaPanel from "@/components/clinical-formulation/SchemaPanel";
-// InsightPanel não é mais necessário aqui
 import ABCForm from "@/components/clinical-formulation/ABCForm";
 import SchemaForm from "@/components/clinical-formulation/SchemaForm"; 
 import EdgeLabelModal from "@/components/clinical-formulation/EdgeLabelModal";
-import useClinicalStore from '@/stores/clinicalStore';
 
 
 const PatientProgressChart = dynamic(() => import("@/components/patients/patient-progress-chart"), {
@@ -972,15 +971,15 @@ export default function PatientDetailPage() {
         </TabsContent>
 
         <TabsContent value="caseStudy" className="mt-6 flex flex-col flex-grow">
-          <div className="flex flex-col lg:flex-row gap-4 flex-grow h-full">
-            <div className="lg:w-72 xl:w-80 shrink-0 h-full lg:h-auto">
-              <SchemaPanel />
+            <div className="flex flex-col lg:flex-row gap-4 flex-grow h-full min-h-[80vh]"> {/* Increased min-height */}
+                <div className="lg:w-72 xl:w-80 2xl:w-96 shrink-0 h-full lg:h-auto"> {/* Adjusted width for larger screens */}
+                  <SchemaPanel />
+                </div>
+                <div className="flex-grow min-w-0 h-full">
+                  <FormulationMapWrapper />
+                </div>
+                {/* InsightPanel foi removido conforme solicitado */}
             </div>
-            <div className="flex-grow min-w-0 h-full">
-              <FormulationMapWrapper />
-            </div>
-            {/* InsightPanel removido daqui */}
-          </div>
         </TabsContent>
         
         <TabsContent value="resources" className="mt-8">

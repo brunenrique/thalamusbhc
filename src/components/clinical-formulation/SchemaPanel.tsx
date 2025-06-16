@@ -6,18 +6,21 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { PlusCircleIcon, Trash2Icon, Link2Icon, ChevronDownIcon, ChevronUpIcon } from 'lucide-react';
+import { PlusCircleIcon, Trash2Icon, Link2Icon, ChevronDownIcon, ChevronUpIcon, EditIcon } from 'lucide-react'; // Adicionado EditIcon
 import useClinicalStore from '@/stores/clinicalStore';
 import type { SchemaData } from '@/types/clinicalTypes';
 import { Badge } from '@/components/ui/badge';
 
 const SchemaPanel: React.FC = () => {
-  const { schemas, addSchema, deleteSchema, cards, openABCForm } = useClinicalStore();
+  const { schemas, addSchema, deleteSchema, cards, openABCForm, openSchemaForm } = useClinicalStore(); // Adicionado openSchemaForm
   const [newSchemaRule, setNewSchemaRule] = useState('');
   const [expandedSchemaId, setExpandedSchemaId] = useState<string | null>(null);
 
   const handleAddSchema = () => {
     if (newSchemaRule.trim()) {
+      // Chamando openSchemaForm sem ID para indicar criação, mas pré-preenchendo a regra
+      // Ou, se preferir, adicione diretamente e depois permita editar.
+      // Por simplicidade, vamos adicionar diretamente e o usuário pode editar depois.
       addSchema({ rule: newSchemaRule.trim(), notes: '' });
       setNewSchemaRule('');
     }
@@ -55,7 +58,7 @@ const SchemaPanel: React.FC = () => {
             </div>
         )}
 
-        <ScrollArea className="flex-grow -mx-4 px-4"> {/* Negative margin + padding to extend scroll area */}
+        <ScrollArea className="flex-grow -mx-4 px-4"> 
           <div className="space-y-2 pr-1">
             {schemas.map((schema) => (
               <Card key={schema.id} className="text-xs bg-muted/30 shadow-sm">
@@ -72,6 +75,9 @@ const SchemaPanel: React.FC = () => {
                     <Badge variant="secondary" className="mr-1.5 text-[10px] px-1.5 py-0.5">
                       <Link2Icon className="h-2.5 w-2.5 mr-1"/> {schema.linkedCardIds.length}
                     </Badge>
+                    <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground hover:text-foreground" onClick={() => openSchemaForm(schema.id)} aria-label={`Editar esquema ${schema.rule}`}>
+                      <EditIcon className="h-3.5 w-3.5" />
+                    </Button>
                     <Button variant="ghost" size="icon" className="h-6 w-6 text-destructive hover:text-destructive" onClick={() => deleteSchema(schema.id)} aria-label={`Deletar esquema ${schema.rule}`}>
                       <Trash2Icon className="h-3.5 w-3.5" />
                     </Button>

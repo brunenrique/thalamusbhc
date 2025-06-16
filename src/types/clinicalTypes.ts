@@ -53,3 +53,13 @@ export interface NodeDataBase {
 }
 
 export type ClinicalNodeData = ABCCardData | SchemaData;
+
+// Tipo para os dados de um nó ABCCardData (para typeguard)
+export function isABCCardData(data: ClinicalNodeData): data is ABCCardData {
+  return (data as ABCCardData).title !== undefined;
+}
+
+// Tipo para os dados de um nó SchemaData (para typeguard)
+export function isSchemaData(data: ClinicalNodeData): data is SchemaData {
+  return (data as SchemaData).rule !== undefined;
+}

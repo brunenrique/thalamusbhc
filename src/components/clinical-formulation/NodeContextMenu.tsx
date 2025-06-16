@@ -36,6 +36,7 @@ const NodeContextMenu: React.FC = () => {
     contextMenuNodeType,
     closeContextMenu,
     openABCForm,
+    openSchemaForm, // Adicionado
     deleteCard,
     deleteSchema,
     changeCardColor,
@@ -56,8 +57,7 @@ const NodeContextMenu: React.FC = () => {
     if (contextMenuNodeType === 'abcCard' && contextMenuNodeId) {
       openABCForm(contextMenuNodeId);
     } else if (contextMenuNodeType === 'schemaNode' && contextMenuNodeId) {
-      // TODO: Implement openSchemaForm(contextMenuNodeId)
-      console.info("Editar Esquema (ainda não implementado):", contextMenuNodeId);
+      openSchemaForm(contextMenuNodeId); // Chamar openSchemaForm
     }
     closeContextMenu();
   };
@@ -97,6 +97,11 @@ const NodeContextMenu: React.FC = () => {
       }
     }
   };
+  
+  const nodeTitle = contextMenuNodeType === 'abcCard' 
+    ? (currentCard?.title || 'Card ABC') 
+    : (currentSchema?.rule || 'Esquema');
+
 
   return (
     <div
@@ -117,13 +122,14 @@ const NodeContextMenu: React.FC = () => {
             onCloseAutoFocus={(e) => e.preventDefault()}
             onPointerDownOutside={closeContextMenu}
         >
-          <DropdownMenuLabel>
-            {contextMenuNodeType === 'abcCard' ? `Card: ${currentCard?.title.substring(0,25) || 'Card ABC'}...` : `Esquema: ${currentSchema?.rule.substring(0,25) || 'Esquema'}...`}
+          <DropdownMenuLabel className="truncate" title={nodeTitle}>
+            {contextMenuNodeType === 'abcCard' ? 'Card: ' : 'Esquema: '}
+            {nodeTitle.length > 25 ? `${nodeTitle.substring(0, 25)}...` : nodeTitle}
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={handleEdit}>
             <Edit className="mr-2 h-4 w-4" />
-            <span>{contextMenuNodeType === 'abcCard' ? 'Editar Card' : 'Editar Esquema (Em breve)'}</span>
+            <span>{contextMenuNodeType === 'abcCard' ? 'Editar Card' : 'Editar Esquema'}</span>
           </DropdownMenuItem>
 
           {contextMenuNodeType === 'abcCard' && currentCard && (

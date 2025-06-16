@@ -54,6 +54,9 @@ import { gerarProntuario } from "@/services/prontuarioService";
 import FormulationMapWrapper from "@/components/clinical-formulation/FormulationMap";
 import SchemaPanel from "@/components/clinical-formulation/SchemaPanel";
 import InsightPanel from "@/components/clinical-formulation/InsightPanel";
+import ABCForm from "@/components/clinical-formulation/ABCForm"; // Importar ABCForm
+import SchemaForm from "@/components/clinical-formulation/SchemaForm"; // Importar SchemaForm
+import EdgeLabelModal from "@/components/clinical-formulation/EdgeLabelModal"; // Importar EdgeLabelModal
 
 const PatientProgressChart = dynamic(() => import("@/components/patients/patient-progress-chart"), {
   loading: () => (
@@ -629,7 +632,7 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
           <TabsTrigger value="instruments">Instrumentos</TabsTrigger>
           <TabsTrigger value="anamnesis"><ClipboardEdit className="inline-block mr-1.5 h-4 w-4" />Anamnese</TabsTrigger>
           <TabsTrigger value="planning">Planejamento</TabsTrigger>
-          <TabsTrigger value="caseStudy"> <Brain className="inline-block mr-1.5 h-4 w-4" /> Estudo de Caso</TabsTrigger>
+          <TabsTrigger value="caseStudy"> <Brain className="inline-block mr-1.5 h-4 w-4" /> O Coração Clínico</TabsTrigger>
           <TabsTrigger value="resources">Recursos</TabsTrigger>
           <TabsTrigger value="documents"><FileArchive className="inline-block mr-1.5 h-4 w-4" /> Documentos</TabsTrigger>
           <TabsTrigger value="timeline">Linha do Tempo</TabsTrigger>
@@ -960,18 +963,21 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
             </Card>
         </TabsContent>
 
-        <TabsContent value="caseStudy" className="mt-8 space-y-6">
-            <div className="flex flex-col lg:flex-row gap-4 min-h-[70vh] md:min-h-[600px]">
+        <TabsContent value="caseStudy" className="mt-8">
+             <div className="flex flex-col lg:flex-row gap-4 min-h-[70vh] md:min-h-[600px]">
                 <div className="lg:w-72 xl:w-80 shrink-0">
                     <SchemaPanel />
                 </div>
-                <div className="flex-grow min-w-0"> {/* Important for ReactFlow to not overflow its parent */}
+                <div className="flex-grow min-w-0">
                     <FormulationMapWrapper />
                 </div>
                 <div className="lg:w-72 xl:w-80 shrink-0">
                     <InsightPanel />
                 </div>
             </div>
+            <ABCForm />
+            <SchemaForm /> {/* Adicionar o SchemaForm aqui */}
+            <EdgeLabelModal />
         </TabsContent>
         
         <TabsContent value="resources" className="mt-8">

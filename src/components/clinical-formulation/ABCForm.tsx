@@ -35,14 +35,14 @@ const abcFormSchema = z.object({
 type ABCFormValues = z.infer<typeof abcFormSchema>;
 
 const ABCForm: React.FC = () => {
-  const { 
-    isABCFormOpen, 
-    closeABCForm, 
-    addCard, 
-    updateCard, 
-    editingCardId, 
-    cards, 
-    templates 
+  const {
+    isABCFormOpen,
+    closeABCForm,
+    addCard,
+    updateCard,
+    editingCardId,
+    cards,
+    templates
   } = useClinicalStore();
 
   const editingCard = editingCardId ? cards.find(c => c.id === editingCardId) : null;
@@ -86,7 +86,7 @@ const ABCForm: React.FC = () => {
       });
       setCurrentTags(editingCard.tags || []);
       setSelectedTemplateId(''); // Reset template if editing
-    } else {
+    } else { // MODO DE CRIAÇÃO
       form.reset({ // Default values for new card
         title: '',
         antecedentExternal: '',
@@ -101,8 +101,8 @@ const ABCForm: React.FC = () => {
         color: 'default',
         notes: '',
       });
-      setCurrentTags([]);
-      setSelectedTemplateId('');
+      setCurrentTags([]); // Reset tags para novo card
+      setSelectedTemplateId(''); // Reset template para novo card
     }
   }, [editingCard, form, isABCFormOpen]); // Depend on isABCFormOpen to reset on open
 
@@ -121,7 +121,7 @@ const ABCForm: React.FC = () => {
       }
     }
   };
-  
+
   const handleAddTag = () => {
     if (tagInput && !currentTags.includes(tagInput.trim().toLowerCase())) {
       const newTags = [...currentTags, tagInput.trim().toLowerCase()];
@@ -225,16 +225,28 @@ const ABCForm: React.FC = () => {
                     <FormField control={form.control} name="antecedentThoughtBelief" render={({ field }) => (
                     <FormItem>
                         <FormLabel>Crença no Pensamento/Crença (0-100%)</FormLabel>
-                        <FormControl><Slider defaultValue={[field.value || 50]} min={0} max={100} step={1} onValueChange={(value) => field.onChange(value[0])} /></FormControl>
-                        <FormDescription className="text-xs text-right">{field.value || 0}%</FormDescription>
+                        <FormControl>
+                          <Slider
+                            value={[field.value ?? 50]}
+                            min={0} max={100} step={1}
+                            onValueChange={(value) => field.onChange(value[0])}
+                          />
+                        </FormControl>
+                        <FormDescription className="text-xs text-right">{field.value ?? 50}%</FormDescription>
                         <FormMessage />
                     </FormItem>
                     )} />
                     <FormField control={form.control} name="antecedentEmotionIntensity" render={({ field }) => (
                     <FormItem>
                         <FormLabel>Intensidade da Emoção (0-100%)</FormLabel>
-                        <FormControl><Slider defaultValue={[field.value || 50]} min={0} max={100} step={1} onValueChange={(value) => field.onChange(value[0])} /></FormControl>
-                        <FormDescription className="text-xs text-right">{field.value || 0}%</FormDescription>
+                        <FormControl>
+                          <Slider
+                            value={[field.value ?? 50]}
+                            min={0} max={100} step={1}
+                            onValueChange={(value) => field.onChange(value[0])}
+                          />
+                        </FormControl>
+                        <FormDescription className="text-xs text-right">{field.value ?? 50}%</FormDescription>
                         <FormMessage />
                     </FormItem>
                     )} />
@@ -276,13 +288,13 @@ const ABCForm: React.FC = () => {
                 )} />
               </div>
             </fieldset>
-            
+
             <FormItem>
                 <FormLabel>Tags (Opcional)</FormLabel>
                 <div className="flex items-center gap-2">
-                    <Input 
-                        value={tagInput} 
-                        onChange={(e) => setTagInput(e.target.value)} 
+                    <Input
+                        value={tagInput}
+                        onChange={(e) => setTagInput(e.target.value)}
                         placeholder="Ex: ansiedade, evitação"
                         onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ',') { e.preventDefault(); handleAddTag();}}}
                     />
@@ -319,7 +331,7 @@ const ABCForm: React.FC = () => {
                 <FormMessage />
               </FormItem>
             )} />
-            
+
             <FormField control={form.control} name="notes" render={({ field }) => (
               <FormItem>
                 <FormLabel>Anotações Adicionais (Opcional)</FormLabel>

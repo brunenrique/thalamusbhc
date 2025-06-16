@@ -31,33 +31,29 @@ export interface ABCCardData {
   };
   tags: string[];
   color: 'default' | 'red' | 'green' | 'blue' | 'yellow' | 'purple';
-  notes?: string; // Campo adicional para anotações no card
-  position?: XYPosition; // Posição no React Flow
+  notes?: string; 
+  position?: XYPosition; 
 }
 
 export interface SchemaData {
   id: string;
   rule: string;
   linkedCardIds: string[];
-  notes?: string; // Campo adicional
-  position?: XYPosition; // Posição no React Flow
+  notes?: string; 
+  position?: XYPosition; 
 }
 
 // Tipos para os nós do React Flow
 export type ClinicalNodeType = 'abcCard' | 'schemaNode';
 
-export interface NodeDataBase {
+export interface NodeDataBase { // Renomeado de ClinicalNodeBase para NodeDataBase
   id: string;
-  type: ClinicalNodeType;
-  label?: string; // Pode ser o título do card ou a regra do schema
+  // type: ClinicalNodeType; // O type já está no objeto Node do React Flow
+  // label?: string; // O label pode vir do data.title ou data.rule
 }
 
-export interface ABCCardNodeData extends NodeDataBase, ABCCardData {
-  type: 'abcCard';
-}
+// Ajuste para que ABCCardNodeData e SchemaNodeData herdem de suas respectivas interfaces de dados
+// e não diretamente de NodeDataBase, pois o 'data' do nó do React Flow já conterá esses objetos.
+// A ideia é que Node<ClinicalNodeData>['data'] seja ABCCardData | SchemaData
 
-export interface SchemaNodeData extends NodeDataBase, SchemaData {
-  type: 'schemaNode';
-}
-
-export type ClinicalNodeData = ABCCardNodeData | SchemaNodeData;
+export type ClinicalNodeData = ABCCardData | SchemaData; // Este é o tipo para o campo `data` de um Node.

@@ -2,7 +2,8 @@
 "use client";
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { Button } from "@/components/ui/button";
-import { CalendarDays, PlusCircle, ChevronLeft, ChevronRight, ListFilter, Download, ShieldAlert, MapPin } from "lucide-react"; // Adicionado MapPin
+import { Card } from '@/components/ui/card'; // Import Card
+import { CalendarDays, PlusCircle, ChevronLeft, ChevronRight, ListFilter, Download, ShieldAlert, MapPin } from "lucide-react";
 import Link from "next/link";
 import AppointmentCalendar, { type AppointmentsByDate, getInitialMockAppointments } from "@/components/schedule/appointment-calendar";
 import {
@@ -22,7 +23,6 @@ import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachDayOfInte
 import { ptBR } from 'date-fns/locale';
 import { generateICS } from '@/lib/ics-generator';
 import { useToast } from '@/hooks/use-toast';
-import { Card } from '@/components/ui/card'; // Import Card
 
 const mockPsychologists = [
   { id: "psy1", name: "Dr. Silva" },
@@ -214,7 +214,7 @@ export default function SchedulePage() {
   };
 
   return (
-    <div className="space-y-6 flex flex-col h-[calc(100vh-var(--header-height,4rem)-2rem)]">
+    <div className="space-y-4 flex flex-col h-[calc(100vh-var(--header-height,4rem)-2rem)]"> {/* Reduzido space-y */}
       {/* Cabeçalho e Filtros Globais */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div className="flex items-center gap-2">
@@ -263,9 +263,8 @@ export default function SchedulePage() {
                     </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="w-64 p-2" align="end">
-                    <DropdownMenuLabel>Filtros Globais (Status/Data)</DropdownMenuLabel>
+                    <DropdownMenuLabel>Filtros Globais (Data)</DropdownMenuLabel>
                     <DropdownMenuSeparator />
-                    {/* Os filtros de status serão por calendário individual. Este pode ser para filtros de data */}
                      <DropdownMenuGroup>
                          <div className="space-y-2 px-2 py-1.5">
                             <Label>Intervalo de Datas (Geral)</Label>
@@ -309,7 +308,7 @@ export default function SchedulePage() {
       </Card>
 
       {/* Área dos Calendários */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 flex-grow overflow-hidden">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 flex-grow"> {/* Removido overflow-hidden */}
         {/* Calendário 1 */}
         <div className="flex flex-col border rounded-lg shadow-sm bg-card overflow-hidden">
           <div className="p-2 border-b flex flex-col sm:flex-row items-center justify-between gap-2">

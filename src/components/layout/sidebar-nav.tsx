@@ -61,7 +61,7 @@ const navStructure: NavItem[] = [
   { href: APP_ROUTES.tasks, label: "Tarefas", icon: CheckSquare, group: "Operações da Clínica" },
   { href: APP_ROUTES.resources, label: "Recursos da Clínica", icon: FolderArchive, group: "Operações da Clínica" },
   {
-    href: APP_ROUTES.analytics, label: "Análises", icon: BarChartBig, group: "Operações da Clínica",
+    href: APP_ROUTES.analytics, label: "Relatórios e Análises", icon: BarChartBig, group: "Operações da Clínica",
     subItems: [
       { href: APP_ROUTES.analyticsClinicOccupancy, label: "Ocupação da Clínica", icon: BarChartBig },
     ]
@@ -207,7 +207,7 @@ export default function SidebarNav({ currentPath, userRole = "Admin" }: SidebarN
             const visibleSubItems = item.subItems.filter(sub => !sub.adminOnly || userRole === "Admin"); // Corrected
             if (visibleSubItems.length > 0) {
                 acc[groupName].push(item);
-            } else if (item.href && item.href !== "#") {
+            } else if (item.href && item.href !== "#") { // Ensure parent item is added if it has a link, even if all subitems are filtered out
                  acc[groupName].push(item);
             }
         } else {

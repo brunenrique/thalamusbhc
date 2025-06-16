@@ -25,7 +25,7 @@ import useClinicalStore from '@/stores/clinicalStore';
 import ABCCardNode from './ABCCardNode';
 import SchemaNode from './SchemaNode'; 
 import EdgeLabelModal from './EdgeLabelModal'; 
-import NodeContextMenu from './NodeContextMenu'; // Import the context menu
+import NodeContextMenu from './NodeContextMenu';
 import type { ClinicalNodeData, ConnectionLabel, SchemaData, ABCCardData, ClinicalNodeType } from '@/types/clinicalTypes';
 import { Button } from '../ui/button';
 import { Brain, Save, Trash2, ZoomIn, ZoomOut, Maximize, Minimize, Lightbulb } from 'lucide-react'; 
@@ -56,7 +56,7 @@ const FormulationMap: React.FC = () => {
     schemas, 
     setInsights, 
     addInsight,
-    openContextMenu, // Get context menu actions from store
+    openContextMenu,
     closeContextMenu,
     isContextMenuOpen,
   } = useClinicalStore();
@@ -73,7 +73,7 @@ const FormulationMap: React.FC = () => {
   const onConnect = useCallback(
     (params: Connection | Edge) => {
       const newEdgeBase: Edge = {
-        id: `edge-${params.source}-${params.target}-${Date.now()}`, 
+        // id: `edge-${params.source}-${params.target}-${Date.now()}`, // ID gerado pelo store agora
         source: params.source!,
         target: params.target!,
         sourceHandle: params.sourceHandle,
@@ -84,18 +84,7 @@ const FormulationMap: React.FC = () => {
     [openLabelEdgeModal]
   );
 
-  const onNodeDragStop = useCallback(
-    (_event: React.MouseEvent, node: Node<ClinicalNodeData>) => {
-      if (node.positionAbsolute) {
-        if (node.type === 'abcCard') {
-          updateCardPosition(node.id, node.positionAbsolute);
-        } else if (node.type === 'schemaNode') {
-          updateSchemaPosition(node.id, node.positionAbsolute);
-        }
-      }
-    },
-    [updateCardPosition, updateSchemaPosition]
-  );
+  // onNodeDragStop é gerenciado pelo onNodesChange agora
   
   const handleSaveLayout = () => {
     setViewport(getViewport()); 
@@ -133,14 +122,12 @@ const FormulationMap: React.FC = () => {
     (event: NodeMouseEvent, node: Node<ClinicalNodeData>) => {
       event.preventDefault();
       if (node.id && node.type) {
-         // Pass clientX and clientY for positioning the context menu
         openContextMenu(node.id, node.type as ClinicalNodeType, { x: event.clientX, y: event.clientY });
       }
     },
     [openContextMenu]
   );
   
-  // Close context menu if user clicks elsewhere on the pane
   const onPaneClick = useCallback(() => {
     if (isContextMenuOpen) {
       closeContextMenu();
@@ -149,14 +136,14 @@ const FormulationMap: React.FC = () => {
 
 
   return (
-    <div style={{ height: '100%', width: '100%' }} className="border rounded-md shadow-sm bg-muted/10 relative">
+    <div style={{ height: '100%', width: '100%' }} className="border rounded-md shadow-sm bg-muted/10 relative" onContextMenu={(e) => e.preventDefault()}> {/* Prevent default on pane also */}
       <ReactFlow
         nodes={nodes}
         edges={edges}
         onNodesChange={storeOnNodesChange}
         onEdgesChange={storeOnEdgesChange}
         onConnect={onConnect}
-        onNodeDragStop={onNodeDragStop}
+        // onNodeDragStop is handled by onNodesChange type='position'
         nodeTypes={nodeTypes}
         fitView
         fitViewOptions={{ padding: 0.1, duration: 300 }}
@@ -169,7 +156,7 @@ const FormulationMap: React.FC = () => {
         attributionPosition="bottom-left"
         className="thalamus-flow"
         onNodeContextMenu={handleNodeContextMenu}
-        onPaneClick={onPaneClick} // Close context menu on pane click
+        onPaneClick={onPaneClick}
       >
         <Background variant={BackgroundVariant.Dots} gap={16} size={1} />
         <Controls showInteractive={false} className="shadow-md" />
@@ -194,7 +181,7 @@ const FormulationMap: React.FC = () => {
         </Panel>
       </ReactFlow>
       <EdgeLabelModal />
-      <NodeContextMenu /> {/* Render the context menu component */}
+      <NodeContextMenu />
     </div>
   );
 };

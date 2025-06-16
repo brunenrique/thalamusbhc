@@ -8,11 +8,11 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Edit3Icon, Trash2Icon, PaletteIcon, LinkIcon as LinkIconLucide, ExternalLinkIcon } from 'lucide-react';
 import useClinicalStore from '@/stores/clinicalStore';
-import type { ABCCardData } from '@/types/clinicalTypes';
+import type { ABCCardData, ABCCardColor } from '@/types/clinicalTypes';
 import { cn } from '@/shared/utils';
 
-const cardColorStyles = {
-  default: 'bg-card border-border',
+const cardColorStyles: Record<ABCCardColor, string> = {
+  default: 'bg-card border-border text-card-foreground',
   red: 'bg-red-500/10 border-red-500/30 text-red-900 dark:bg-red-900/20 dark:border-red-700/50 dark:text-red-200',
   green: 'bg-green-500/10 border-green-500/30 text-green-900 dark:bg-green-900/20 dark:border-green-700/50 dark:text-green-200',
   blue: 'bg-blue-500/10 border-blue-500/30 text-blue-900 dark:bg-blue-900/20 dark:border-blue-700/50 dark:text-blue-200',
@@ -21,21 +21,37 @@ const cardColorStyles = {
 };
 
 const ABCCardNode: React.FC<NodeProps<ABCCardData>> = ({ data, id, selected }) => {
-  const { deleteCard, openABCForm, schemas } = useClinicalStore();
+  const { deleteCard, openABCForm, schemas, changeCardColor } = useClinicalStore();
   const { setNodes } = useReactFlow();
 
   const isLinkedToSchema = schemas.some(schema => schema.linkedCardIds.includes(id));
 
   const cardStyle = cardColorStyles[data.color] || cardColorStyles.default;
+  const textColorClass = data.color === 'default' ? 'text-card-foreground' : 
+                        data.color === 'red' ? 'text-red-900 dark:text-red-200' :
+                        data.color === 'green' ? 'text-green-900 dark:text-green-200' :
+                        data.color === 'blue' ? 'text-blue-900 dark:text-blue-200' :
+                        data.color === 'yellow' ? 'text-yellow-900 dark:text-yellow-200' :
+                        data.color === 'purple' ? 'text-purple-900 dark:text-purple-200' :
+                        'text-card-foreground';
+
+  const intensityBarColor = data.color === 'default' ? 'bg-primary' : 
+                            data.color === 'red' ? 'bg-red-500' :
+                            data.color === 'green' ? 'bg-green-500' :
+                            data.color === 'blue' ? 'bg-blue-500' :
+                            data.color === 'yellow' ? 'bg-yellow-500' :
+                            data.color === 'purple' ? 'bg-purple-500' :
+                            'bg-primary';
+
 
   // Mini-slider visual (não interativo, apenas display)
   const IntensityBar = ({ value, label }: { value?: number; label: string }) => (
-    <div className="text-xs">
+    <div className={cn("text-xs", textColorClass)}>
       <span className="font-medium">{label}: </span>
       <div className="w-16 h-1.5 bg-muted rounded-full inline-block align-middle ml-1 mr-0.5">
-        <div className="h-full bg-primary rounded-full" style={{ width: `${value || 0}%` }}></div>
+        <div className={cn("h-full rounded-full", intensityBarColor)} style={{ width: `${value || 0}%` }}></div>
       </div>
-      <span className="text-muted-foreground">({value || 0}%)</span>
+      <span className="opacity-80">({value || 0}%)</span>
     </div>
   );
 
@@ -55,44 +71,44 @@ const ABCCardNode: React.FC<NodeProps<ABCCardData>> = ({ data, id, selected }) =
 
       <CardHeader className="p-3 space-y-1">
         <div className="flex justify-between items-start">
-            <CardTitle className="text-sm font-semibold line-clamp-2 leading-tight">{data.title}</CardTitle>
+            <CardTitle className={cn("text-sm font-semibold line-clamp-2 leading-tight", textColorClass)}>{data.title}</CardTitle>
             {isLinkedToSchema && <LinkIconLucide className="h-3 w-3 text-muted-foreground flex-shrink-0" title="Vinculado a um Esquema" />}
         </div>
       </CardHeader>
       <CardContent className="p-3 text-xs space-y-2">
-        <div>
+        <div className={textColorClass}>
           <p className="font-medium">A:</p>
-          <p className="pl-2 text-muted-foreground line-clamp-2">Ext: {data.antecedent.external}</p>
-          <p className="pl-2 text-muted-foreground line-clamp-2">Int: {data.antecedent.internal}</p>
+          <p className="pl-2 opacity-90 line-clamp-2">Ext: {data.antecedent.external}</p>
+          <p className="pl-2 opacity-90 line-clamp-2">Int: {data.antecedent.internal}</p>
           <div className="pl-2 mt-0.5 space-y-0.5">
              <IntensityBar value={data.antecedent.thoughtBelief} label="Crença" />
              <IntensityBar value={data.antecedent.emotionIntensity} label="Emoção" />
           </div>
         </div>
-        <div>
+        <div className={textColorClass}>
           <p className="font-medium">B:</p>
-          <p className="pl-2 text-muted-foreground line-clamp-2">{data.behavior}</p>
+          <p className="pl-2 opacity-90 line-clamp-2">{data.behavior}</p>
         </div>
-        <div>
+        <div className={textColorClass}>
           <p className="font-medium">C:</p>
-          <p className="pl-2 text-muted-foreground line-clamp-2">Curto (Ganho): {data.consequence.shortTermGain}</p>
-          <p className="pl-2 text-muted-foreground line-clamp-2">Curto (Custo): {data.consequence.shortTermCost}</p>
-          <p className="pl-2 text-muted-foreground line-clamp-2">Longo Prazo (Valores): {data.consequence.longTermValueCost}</p>
+          <p className="pl-2 opacity-90 line-clamp-2">Curto (Ganho): {data.consequence.shortTermGain}</p>
+          <p className="pl-2 opacity-90 line-clamp-2">Curto (Custo): {data.consequence.shortTermCost}</p>
+          <p className="pl-2 opacity-90 line-clamp-2">Longo Prazo (Valores): {data.consequence.longTermValueCost}</p>
         </div>
         {data.tags && data.tags.length > 0 && (
           <div className="flex flex-wrap gap-1 pt-1">
-            {data.tags.map(tag => <Badge key={tag} variant="secondary" className="text-[10px] px-1.5 py-0.5">{tag}</Badge>)}
+            {data.tags.map(tag => <Badge key={tag} variant="secondary" className={cn("text-[10px] px-1.5 py-0.5", data.color !== 'default' ? 'bg-opacity-20' : '')}>{tag}</Badge>)}
           </div>
         )}
       </CardContent>
       <CardFooter className="p-2 border-t flex justify-end gap-1">
-        {/* <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => console.log('Change color for', id)}><PaletteIcon className="h-3.5 w-3.5" /></Button> */}
-        <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => openABCForm(id)} aria-label={`Editar card ${data.title}`}>
+        {/* O menu de contexto substitui esses botões. Eles podem ser removidos ou mantidos para acessibilidade/backup. */}
+        {/* <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => openABCForm(id)} aria-label={`Editar card ${data.title}`}>
             <Edit3Icon className="h-3.5 w-3.5" />
         </Button>
         <Button variant="ghost" size="icon" className="h-6 w-6 text-destructive hover:text-destructive" onClick={() => deleteCard(id)} aria-label={`Deletar card ${data.title}`}>
             <Trash2Icon className="h-3.5 w-3.5" />
-        </Button>
+        </Button> */}
       </CardFooter>
     </Card>
   );

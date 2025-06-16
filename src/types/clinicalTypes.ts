@@ -14,6 +14,8 @@ export interface ABCTemplate {
   consequenceGuide: string;
 }
 
+export type ABCCardColor = 'default' | 'red' | 'green' | 'blue' | 'yellow' | 'purple';
+
 export interface ABCCardData {
   id: string;
   title: string;
@@ -30,7 +32,7 @@ export interface ABCCardData {
     longTermValueCost: string;
   };
   tags: string[];
-  color: 'default' | 'red' | 'green' | 'blue' | 'yellow' | 'purple';
+  color: ABCCardColor;
   notes?: string; 
   position?: XYPosition; 
 }
@@ -46,14 +48,8 @@ export interface SchemaData {
 // Tipos para os nós do React Flow
 export type ClinicalNodeType = 'abcCard' | 'schemaNode';
 
-export interface NodeDataBase { // Renomeado de ClinicalNodeBase para NodeDataBase
+export interface NodeDataBase { 
   id: string;
-  // type: ClinicalNodeType; // O type já está no objeto Node do React Flow
-  // label?: string; // O label pode vir do data.title ou data.rule
 }
 
-// Ajuste para que ABCCardNodeData e SchemaNodeData herdem de suas respectivas interfaces de dados
-// e não diretamente de NodeDataBase, pois o 'data' do nó do React Flow já conterá esses objetos.
-// A ideia é que Node<ClinicalNodeData>['data'] seja ABCCardData | SchemaData
-
-export type ClinicalNodeData = ABCCardData | SchemaData; // Este é o tipo para o campo `data` de um Node.
+export type ClinicalNodeData = ABCCardData | SchemaData;

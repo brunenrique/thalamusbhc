@@ -9,7 +9,8 @@ import type {
   ABCTemplate,
   ConnectionLabel,
   ClinicalNodeData,
-  ClinicalNodeType
+  ClinicalNodeType,
+  ABCCardColor
 } from '@/types/clinicalTypes';
 
 // Mock inicial para templates
@@ -61,15 +62,15 @@ export interface ClinicalState {
 
   // Ações para cards
   addCard: (data: Omit<ABCCardData, 'id' | 'position'>) => void;
-  updateCard: (cardId: string, updates: Partial<Omit<ABCCardData, 'id'>>) => void;
+  updateCard: (cardId: string, updates: Partial<Omit<ABCCardData, 'id' | 'position'>>) => void;
   deleteCard: (cardId: string) => void;
-  changeCardColor: (cardId: string, color: ABCCardData['color']) => void;
+  changeCardColor: (cardId: string, color: ABCCardColor) => void;
   updateCardPosition: (cardId: string, position: { x: number; y: number }) => void;
 
 
   // Ações para schemas
   addSchema: (data: Omit<SchemaData, 'id' | 'linkedCardIds' | 'position'>) => void;
-  updateSchema: (schemaId: string, updates: Partial<Omit<SchemaData, 'id'>>) => void;
+  updateSchema: (schemaId: string, updates: Partial<Omit<SchemaData, 'id' | 'position'>>) => void;
   deleteSchema: (schemaId: string) => void;
   linkCardToSchema: (schemaId: string, cardId: string) => void;
   unlinkCardFromSchema: (schemaId: string, cardId: string) => void;
@@ -144,10 +145,10 @@ const useClinicalStore = create<ClinicalState>((set, get) => ({
   updateCard: (cardId, updates) =>
     set((state) => {
       const updatedCards = state.cards.map((card) =>
-        card.id === cardId ? { ...card, ...updates } : card
+        card.id === cardId ? { ...card, ...updates, id: card.id } : card // Ensure id is preserved
       );
       const updatedNodes = state.nodes.map((node) =>
-        node.id === cardId && node.type === 'abcCard' ? { ...node, data: { ...node.data, ...updates } as ABCCardData } : node
+        node.id === cardId && node.type === 'abcCard' ? { ...node, data: updatedCards.find(c => c.id === cardId) as ABCCardData } : node
       );
       return { cards: updatedCards, nodes: updatedNodes };
     }),
@@ -164,8 +165,9 @@ const useClinicalStore = create<ClinicalState>((set, get) => ({
         edges: state.edges.filter((edge) => edge.source !== cardId && edge.target !== cardId),
       };
     }),
-  changeCardColor: (cardId, color) =>
-    get().updateCard(cardId, { color }),
+  changeCardColor: (cardId, color) => {
+    get().updateCard(cardId, { color });
+  },
   updateCardPosition: (cardId, position) => 
     set(state => ({
       nodes: state.nodes.map(node => (node.id === cardId && node.type === 'abcCard') ? {...node, position} : node),
@@ -197,10 +199,10 @@ const useClinicalStore = create<ClinicalState>((set, get) => ({
   updateSchema: (schemaId, updates) => 
     set((state) => {
       const updatedSchemas = state.schemas.map((schema) =>
-        schema.id === schemaId ? { ...schema, ...updates } : schema
+        schema.id === schemaId ? { ...schema, ...updates, id: schema.id } : schema // Ensure id is preserved
       );
       const updatedNodes = state.nodes.map((node) =>
-        node.id === schemaId && node.type === 'schemaNode' ? { ...node, data: { ...node.data, ...updates } as SchemaData } : node
+        node.id === schemaId && node.type === 'schemaNode' ? { ...node, data: updatedSchemas.find(s => s.id === schemaId) as SchemaData } : node
       );
       return { schemas: updatedSchemas, nodes: updatedNodes };
     }),
@@ -253,7 +255,7 @@ const useClinicalStore = create<ClinicalState>((set, get) => ({
                 }
             }
         } else if (change.type === 'remove') {
-            const nodeToRemove = get().nodes.find(n => n.id === change.id);
+            const nodeToRemove = get().nodes.find(n => n.id === change.id); // get current nodes before filtering
             if (nodeToRemove) {
               if (nodeToRemove.type === 'abcCard') {
                 get().deleteCard(change.id);
@@ -303,9 +305,6 @@ const useClinicalStore = create<ClinicalState>((set, get) => ({
   }),
   closeContextMenu: () => set({
     isContextMenuOpen: false,
-    contextMenuNodeId: null,
-    contextMenuNodeType: null,
-    contextMenuPosition: null,
   }),
 
   // --- Simulação de Fetch/Save ---

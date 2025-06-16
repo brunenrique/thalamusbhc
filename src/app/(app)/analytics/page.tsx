@@ -1,7 +1,7 @@
 
 "use client";
 
-import { BarChart3, Users, CalendarCheck, TrendingUp, PieChart as PieChartIcon, UsersRound, Activity as ActivityIcon, AlertTriangle, Brain, SlidersHorizontal, ShoppingCart, LineChart } from "lucide-react";
+import { BarChart3, Users, CalendarCheck, TrendingUp, PieChart as PieChartIcon, UsersRound, Activity as ActivityIcon, AlertTriangle, Brain, SlidersHorizontal, ShoppingCart, LineChart, Download } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";

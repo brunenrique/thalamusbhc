@@ -1,7 +1,7 @@
 
-"use client"; // Ensure this is a client component
+"use client"; 
 
-import React from 'react'; // Import React if not already imported
+import React from 'react'; 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -58,71 +58,73 @@ export default function WaitingListPage() {
         </CardHeader>
         <CardContent>
           {mockWaitingList.length > 0 ? (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Nome</TableHead>
-                  <TableHead>Psicólogo(a) Solicitado(a)</TableHead>
-                  <TableHead>Data de Adição</TableHead>
-                  <TableHead>Prioridade</TableHead>
-                  <TableHead>Observações</TableHead>
-                  <TableHead className="text-right">Ações</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {mockWaitingList.map(item => (
-                  <TableRow key={item.id}>
-                    <TableCell className="font-medium">
-                       <Link href={`/schedule/new?patientName=${encodeURIComponent(item.name)}&psychologistId=${item.requestedPsychologistId || 'any'}`} className="hover:underline text-accent">
-                        {item.name}
-                      </Link>
-                    </TableCell>
-                    <TableCell>{item.requestedPsychologist}</TableCell>
-                    <TableCell>{format(new Date(item.dateAdded), "P", { locale: ptBR })}</TableCell>
-                    <TableCell>
-                      <Badge variant={item.priority === "Alta" ? "destructive" : item.priority === "Média" ? "secondary" : "outline"}>
-                        {priorityLabels[item.priority] || item.priority}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="max-w-xs truncate" title={item.notes}>{item.notes}</TableCell>
-                    <TableCell className="text-right">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem asChild>
-                            <Link href={`/schedule/new?patientName=${encodeURIComponent(item.name)}&psychologistId=${item.requestedPsychologistId || 'any'}`}>
-                              <CalendarPlus className="mr-2 h-4 w-4" />
-                              Alocar Horário
-                            </Link>
-                          </DropdownMenuItem>
-                          <DropdownMenuItem asChild>
-                            <Link href={`/waiting-list/edit/${item.id}`}>
-                                <Edit className="mr-2 h-4 w-4" />
-                                Editar Entrada
-                            </Link>
-                          </DropdownMenuItem>
-                          <DropdownMenuItem className="text-destructive">
-                            <Trash2 className="mr-2 h-4 w-4" />
-                            Remover da Lista
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Nome</TableHead>
+                    <TableHead>Psicólogo(a) Solicitado(a)</TableHead>
+                    <TableHead>Data de Adição</TableHead>
+                    <TableHead>Prioridade</TableHead>
+                    <TableHead>Observações</TableHead>
+                    <TableHead className="text-right">Ações</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {mockWaitingList.map(item => (
+                    <TableRow key={item.id}>
+                      <TableCell className="font-medium">
+                         <Link href={`/schedule/new?patientName=${encodeURIComponent(item.name)}&psychologistId=${item.requestedPsychologistId || 'any'}`} className="hover:underline text-accent">
+                          {item.name}
+                        </Link>
+                      </TableCell>
+                      <TableCell>{item.requestedPsychologist}</TableCell>
+                      <TableCell>{format(new Date(item.dateAdded), "P", { locale: ptBR })}</TableCell>
+                      <TableCell>
+                        <Badge variant={item.priority === "Alta" ? "destructive" : item.priority === "Média" ? "secondary" : "outline"}>
+                          {priorityLabels[item.priority] || item.priority}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="max-w-xs truncate" title={item.notes}>{item.notes}</TableCell>
+                      <TableCell className="text-right">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem asChild>
+                              <Link href={`/schedule/new?patientName=${encodeURIComponent(item.name)}&psychologistId=${item.requestedPsychologistId || 'any'}`}>
+                                <CalendarPlus className="mr-2 h-4 w-4" />
+                                Alocar Horário
+                              </Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem asChild>
+                              <Link href={`/waiting-list/edit/${item.id}`}>
+                                  <Edit className="mr-2 h-4 w-4" />
+                                  Editar Entrada
+                              </Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem className="text-destructive">
+                              <Trash2 className="mr-2 h-4 w-4" />
+                              Remover da Lista
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           ) : (
              <div className="text-center py-10">
               <ListChecks className="mx-auto h-12 w-12 text-muted-foreground" />
               <h3 className="mt-2 text-sm font-medium text-foreground">Lista de espera vazia</h3>
               <p className="mt-1 text-sm text-muted-foreground">Nenhum paciente está atualmente na lista de espera.</p>
             </div>
-          )}
+           )}
         </CardContent>
       </Card>
     </div>

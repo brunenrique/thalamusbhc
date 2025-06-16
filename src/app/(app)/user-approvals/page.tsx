@@ -77,7 +77,6 @@ export default function UserApprovalsPage() {
     try {
       const db = getFirestore(app);
       await updateDoc(doc(db, "users", userId), { isApproved: true });
-      // No need to manually update setPendingUsers here, onSnapshot will handle it
       toast({
         title: "Usuário Aprovado",
         description: "O usuário foi aprovado com sucesso e agora tem acesso ao sistema.",
@@ -96,7 +95,6 @@ export default function UserApprovalsPage() {
     try {
       const db = getFirestore(app);
       await deleteDoc(doc(db, "users", userId));
-      // No need to manually update setPendingUsers here, onSnapshot will handle it
       toast({
         title: "Usuário Rejeitado",
         description: `O usuário ${userName} foi rejeitado e removido da lista de pendências.`,

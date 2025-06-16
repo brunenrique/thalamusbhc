@@ -155,9 +155,8 @@ interface AppointmentCalendarProps {
 
 const defaultWorkingDays = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
 
-// Define a faixa de horários para a coluna lateral e para os slots internos
-const timeSlots = Array.from({ length: 12 }, (_, i) => `${String(i + 8).padStart(2, '0')}:00`); // 08:00 to 19:00
-const ROW_HEIGHT_CLASS = "h-16"; // Ajuste esta altura conforme necessário (ex: h-16, h-20)
+const timeSlots = Array.from({ length: 12 }, (_, i) => `${String(i + 8).padStart(2, '0')}:00`); 
+const ROW_HEIGHT_CLASS = "h-16"; 
 
 function AppointmentCalendarComponent({ view, currentDate, filters, workingDaysOfWeek = defaultWorkingDays, onAppointmentsUpdate }: AppointmentCalendarProps) {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(currentDate);
@@ -349,15 +348,15 @@ function AppointmentCalendarComponent({ view, currentDate, filters, workingDaysO
     }
     
     return (
-      <div // Represents a single day column in Week view, or the single day in Day view
+      <div 
         key={`day-timeline-${dayDate.toISOString()}-${cellKeySuffix}`}
         className={cn(
-          "flex-1 flex flex-col relative", // Removed min-h-[...] to let flexbox control height
+          "flex-1 flex flex-col relative", 
           !isCurrentMonthView && view === "Month" && "bg-muted/30 text-muted-foreground/50",
           !isWorkingDay && view !== "Day" && "bg-muted/40 text-muted-foreground/60",
-          isSelected && isWorkingDay && "ring-1 ring-accent ring-inset z-10", // Subtle ring
+          isSelected && isWorkingDay && "ring-1 ring-accent ring-inset z-10", 
           isToday && isWorkingDay && !isSelected && "bg-accent/5",
-          view !== "Month" && "border-r" // Add right border for week/day columns
+          view !== "Month" && "border-r" 
         )}
         onClick={() => view === "Month" && isWorkingDay && setSelectedDate(dayDate)}
       >
@@ -371,13 +370,12 @@ function AppointmentCalendarComponent({ view, currentDate, filters, workingDaysO
           </div>
         )}
         
-        {/* Hourly slots for Week and Day views */}
         { (view === "Week" || view === "Day") && isWorkingDay && (
             <div className="flex-grow relative">
                 {timeSlots.map((timeSlot, tsIndex) => (
                     <div key={tsIndex} className={cn(ROW_HEIGHT_CLASS, "border-b relative p-1 flex flex-col gap-0.5 overflow-hidden")}>
                         {dayAppointments
-                            .filter(appt => appt.startTime.startsWith(timeSlot.substring(0,2))) // Simplified: matches hour
+                            .filter(appt => appt.startTime.startsWith(timeSlot.substring(0,2))) 
                             .map(appt => renderAppointmentPopover(appt, dayDate))
                         }
                         <Button variant="ghost" size="icon" className="absolute bottom-0 right-0 h-6 w-6 opacity-0 hover:opacity-100 focus:opacity-100 transition-opacity" asChild>
@@ -387,7 +385,6 @@ function AppointmentCalendarComponent({ view, currentDate, filters, workingDaysO
                 ))}
             </div>
         )}
-        {/* For Month view, list appointments directly */}
         { view === "Month" && isWorkingDay && (
             <div className="mt-1 space-y-1 text-xs overflow-y-auto flex-grow p-1">
                 {dayAppointments.map(appt => renderAppointmentPopover(appt, dayDate))}
@@ -398,12 +395,10 @@ function AppointmentCalendarComponent({ view, currentDate, filters, workingDaysO
         )}
         { !isWorkingDay && (view === "Week" || view === "Day") && (
             <div className="flex-grow flex items-center justify-center text-xs text-muted-foreground/70 p-2">
-                 {/* Dia não trabalhado (mostra apenas se for working day) */}
             </div>
         )}
          { !isWorkingDay && view === "Month" && (
             <div className="flex-grow flex items-center justify-center text-xs text-muted-foreground/70 p-2">
-                {/* (Non-working day for month view) */}
             </div>
         )}
       </div>
@@ -441,19 +436,16 @@ function AppointmentCalendarComponent({ view, currentDate, filters, workingDaysO
       : [format(currentDate, "EEEE, d 'de' MMMM", { locale: ptBR })];
 
     return (
-      <div className="flex flex-col h-full"> {/* Ensure parent takes full height */}
-        {/* Headers (Dias da semana) */}
+      <div className="flex flex-col h-full">
         <div className={cn("grid bg-card border-t border-l", view === "Week" ? "grid-cols-[64px_repeat(7,1fr)]" : "grid-cols-[64px_1fr]")}>
-            <div className="h-10 border-b border-r"></div> {/* Canto superior esquerdo vazio */}
+            <div className="h-10 border-b border-r"></div> 
             {dayHeaders.map((header, index) => (
                 <div key={`header-${index}`} className="h-10 py-1 text-center text-xs font-medium text-muted-foreground border-b border-r capitalize flex items-center justify-center">
                     {header}
                 </div>
             ))}
         </div>
-        {/* Conteúdo Principal (Horários e Células dos Dias) */}
-        <div className={cn("flex flex-1 overflow-hidden", view === "Week" ? "grid-cols-[64px_repeat(7,1fr)]" : "grid-cols-[64px_1fr]")}>
-            {/* Coluna de Horários */}
+        <div className={cn("flex flex-1")}>
             <div className="w-16 border-l border-r bg-card flex flex-col shrink-0">
                 {timeSlots.map(time => (
                     <div key={time} className={cn(ROW_HEIGHT_CLASS, "flex items-center justify-center text-xs text-muted-foreground border-b")}>
@@ -461,11 +453,10 @@ function AppointmentCalendarComponent({ view, currentDate, filters, workingDaysO
                     </div>
                 ))}
             </div>
-            {/* Container dos Dias (com scroll horizontal se necessário na visualização semanal) */}
-            <div className="flex-1 grid grid-cols-1 md:grid-cols-1 overflow-x-auto"> {/*  */}
-                <div className={cn("flex min-w-max", view === "Week" && "md:min-w-full")}>
+            <div className="flex-1 flex overflow-x-auto">
+                <div className={cn("flex min-w-max", view === "Week" && "md:min-w-full", "flex-grow")}>
                      {daysToRender.map((day, index) => (
-                       <div key={`day-wrapper-${index}`} className={cn("flex-1", view === "Week" ? "min-w-[140px] md:min-w-0" : "")}>
+                       <div key={`day-wrapper-${index}`} className={cn("flex-1", view === "Week" ? "min-w-[140px] sm:min-w-[160px] md:min-w-0" : "", "flex flex-col")}>
                            {renderDayTimelineCell(day, true, `${view.toLowerCase()}-${index}`)}
                        </div>
                     ))}

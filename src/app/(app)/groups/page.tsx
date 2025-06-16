@@ -1,7 +1,7 @@
 
-"use client"; // Ensure this is a client component
+"use client"; 
 
-import React from 'react'; // Import React if not already imported
+import React from 'react'; 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
@@ -12,16 +12,15 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import type { GroupResource } from '@/app/(app)/groups/[id]/page'; // Import GroupResource type
+import type { GroupResource } from '@/app/(app)/groups/[id]/page'; 
 
-// Mock data for therapeutic groups
 export const mockTherapeuticGroups = [
   {
     id: "grp1",
     name: "Grupo de Apoio à Ansiedade",
     psychologist: "Dr. Silva",
     psychologistId: "psy1",
-    membersCount: 2, // Updated based on participants array
+    membersCount: 2, 
     schedule: "Terças, 18:00 - 19:30",
     dayOfWeek: "tuesday",
     startTime: "18:00",
@@ -43,7 +42,7 @@ export const mockTherapeuticGroups = [
     name: "Habilidades Sociais para Adolescentes",
     psychologist: "Dra. Jones",
     psychologistId: "psy2",
-    membersCount: 2, // Updated based on participants array
+    membersCount: 2, 
     schedule: "Quintas, 16:00 - 17:00",
     dayOfWeek: "thursday",
     startTime: "16:00",
@@ -64,7 +63,7 @@ export const mockTherapeuticGroups = [
     name: "Grupo de Luto e Perdas",
     psychologist: "Dr. Silva",
     psychologistId: "psy1",
-    membersCount: 0, // Updated based on participants array
+    membersCount: 0, 
     schedule: "Segundas, 10:00 - 11:30",
     dayOfWeek: "monday",
     startTime: "10:00",

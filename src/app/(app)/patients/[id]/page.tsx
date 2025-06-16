@@ -75,7 +75,7 @@ const mockPatient = {
   email: "alice@example.com",
   phone: "555-1234",
   dob: "1990-05-15",
-  avatarUrl: "https://placehold.co/150x150/70C1B3/FFFFFF?text=AW", // Serene Green
+  avatarUrl: "https://placehold.co/150x150/70C1B3/FFFFFF?text=AW", 
   dataAiHint: "female avatar",
   nextAppointment: "2024-07-22T10:00:00Z",
   lastSession: "2024-07-15",
@@ -160,8 +160,8 @@ interface PsychologicalDocument {
   id: string;
   name: string;
   type: "Laudo" | "Atestado" | "Declaração" | "Relatório de Avaliação" | "Outro" | "Anamnese";
-  creationDate: string; // ISO date string
-  lastModified?: string; // ISO date string
+  creationDate: string; 
+  lastModified?: string; 
 }
 
 const mockPsychologicalDocumentsList: PsychologicalDocument[] = [
@@ -191,9 +191,9 @@ const mockDocumentTemplates: DocumentTemplate[] = [
 interface SentAnamnesis {
     id: string;
     templateName: string;
-    sentDate: string; // ISO Date
+    sentDate: string; 
     status: "Pendente" | "Preenchida";
-    filledDate?: string; // ISO Date
+    filledDate?: string; 
 }
 
 
@@ -618,7 +618,7 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
       </Card>
 
       <Tabs defaultValue={initialTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-3 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-9">
+        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7 2xl:grid-cols-9">
           <TabsTrigger value="overview">Visão Geral</TabsTrigger>
           <TabsTrigger value="notes">Anotações</TabsTrigger>
           <TabsTrigger value="instruments">Instrumentos</TabsTrigger>

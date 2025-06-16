@@ -41,7 +41,7 @@ const mockOverallStats = {
   avgOccupancyRate: 78,
 };
 
-const mockPsychologistStats = { // Dados para o psicólogo logado (simulado)
+const mockPsychologistStats = { 
     sessionsThisMonth: 52,
     activePatients: 25,
     avgSessionDuration: 55,
@@ -71,8 +71,7 @@ const getOccupancyBadgeVariant = (occupancy: string): "default" | "secondary" | 
 
 
 export default function AnalyticsHubPage() {
-  // Simulação de papel do usuário (em um app real, viria do contexto/hook de autenticação)
-  const userRole: "Admin" | "Psychologist" = "Admin"; // Mude para "Psychologist" para testar a visão
+  const userRole: "Admin" | "Psychologist" = "Admin"; 
 
   return (
     <div className="space-y-6">
@@ -85,7 +84,7 @@ export default function AnalyticsHubPage() {
       </CardDescription>
 
       <Tabs defaultValue="overview" className="w-full">
-        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-6">
+        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
           <TabsTrigger value="overview">Visão Geral</TabsTrigger>
           <TabsTrigger value="clinicPerformance">Desempenho Clínica</TabsTrigger>
           <TabsTrigger value="clinicalAnalysis">Análise Clínica</TabsTrigger>

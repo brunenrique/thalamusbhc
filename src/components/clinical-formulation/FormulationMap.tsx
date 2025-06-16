@@ -18,16 +18,16 @@ import ReactFlow, {
   Panel,
   ReactFlowProvider, 
   NodeMouseEvent,
-  EdgeMouseEvent, // Import EdgeMouseEvent
+  EdgeMouseEvent, 
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 
 import useClinicalStore from '@/stores/clinicalStore';
 import ABCCardNode from './ABCCardNode';
 import SchemaNode from './SchemaNode'; 
-import EdgeLabelModal from './EdgeLabelModal'; 
+// EdgeLabelModal é renderizado na página pai (PatientDetailPage)
 import NodeContextMenu from './NodeContextMenu';
-import MapToolbar from './MapToolbar'; // Import MapToolbar
+import MapToolbar from './MapToolbar'; 
 import type { ClinicalNodeData, ConnectionLabel, SchemaData, ABCCardData, ClinicalNodeType } from '@/types/clinicalTypes';
 import { isABCCardData, isSchemaData } from '@/types/clinicalTypes';
 import { Button } from '../ui/button';
@@ -45,7 +45,7 @@ const initialViewport = { x: 0, y: 0, zoom: 0.9 };
 
 const FormulationMap: React.FC = () => {
   const { 
-    nodes: storeNodes, // Renomear para evitar conflito com o estado local do React Flow (se houver)
+    nodes: storeNodes, 
     edges, 
     onNodesChange: storeOnNodesChange, 
     onEdgesChange: storeOnEdgesChange,
@@ -62,8 +62,9 @@ const FormulationMap: React.FC = () => {
     openContextMenu,
     closeContextMenu,
     isContextMenuOpen,
-    activeColorFilters, // Para o filtro
-    showSchemaNodes,   // Para o filtro
+    activeColorFilters, 
+    showSchemaNodes,   
+    get: getClinicalStoreState, // Adicionando a função get
   } = useClinicalStore();
 
   const { fitView, zoomIn, zoomOut, getViewport, screenToFlowPosition } = useReactFlow();
@@ -77,12 +78,13 @@ const FormulationMap: React.FC = () => {
   const displayedNodes = useMemo(() => {
     return storeNodes.filter(node => {
       if (node.type === 'abcCard' && isABCCardData(node.data)) {
-        return activeColorFilters.length === 0 || activeColorFilters.includes(node.data.color);
+        if (activeColorFilters.length === 0) return false; // Oculta se nenhum filtro de cor estiver ativo
+        return activeColorFilters.includes(node.data.color);
       }
       if (node.type === 'schemaNode') {
         return showSchemaNodes;
       }
-      return true; // Para outros tipos de nós, se houver
+      return true; 
     });
   }, [storeNodes, activeColorFilters, showSchemaNodes]);
 
@@ -94,7 +96,7 @@ const FormulationMap: React.FC = () => {
         target: params.target!,
         sourceHandle: params.sourceHandle,
         targetHandle: params.targetHandle,
-        type: 'smoothstep', // Default edge type
+        type: 'smoothstep', 
         animated: true,
       };
       openLabelEdgeModal(newEdgeBase);
@@ -115,8 +117,8 @@ const FormulationMap: React.FC = () => {
     setIsGeneratingInsights(true);
     setInsights(["Gerando insights... Por favor, aguarde."]); 
     try {
-      const currentCards = get().cards; // Obter estado atual do store
-      const currentSchemas = get().schemas;
+      const currentCards = getClinicalStoreState().cards; 
+      const currentSchemas = getClinicalStoreState().schemas;
       const generated = await runAnalysis(currentCards, currentSchemas);
       setInsights(generated);
       toast({
@@ -154,7 +156,7 @@ const FormulationMap: React.FC = () => {
 
   const onEdgeDoubleClick = useCallback(
     (_event: EdgeMouseEvent, edge: Edge<ConnectionLabel | undefined>) => {
-      openLabelEdgeModal(edge); // Passa a aresta existente para o modal
+      openLabelEdgeModal(edge); 
     },
     [openLabelEdgeModal]
   );
@@ -162,7 +164,7 @@ const FormulationMap: React.FC = () => {
   return (
     <div style={{ height: '100%', width: '100%' }} className="border rounded-md shadow-sm bg-muted/10 relative" onContextMenu={(e) => e.preventDefault()}>
       <ReactFlow
-        nodes={displayedNodes} // Usar os nós filtrados
+        nodes={displayedNodes} 
         edges={edges}
         onNodesChange={storeOnNodesChange}
         onEdgesChange={storeOnEdgesChange}
@@ -177,10 +179,10 @@ const FormulationMap: React.FC = () => {
         selectionMode={SelectionMode.Partial} 
         deleteKeyCode={['Backspace', 'Delete']}
         attributionPosition="bottom-left"
-        className="thalamus-flow"
+        className="thalamus-flow h-full w-full" 
         onNodeContextMenu={handleNodeContextMenu}
         onPaneClick={onPaneClick}
-        onEdgeDoubleClick={onEdgeDoubleClick} // Adicionado handler
+        onEdgeDoubleClick={onEdgeDoubleClick} 
       >
         <Background variant={BackgroundVariant.Dots} gap={16} size={1} />
         <Controls showInteractive={false} className="shadow-md" />
@@ -208,17 +210,13 @@ const FormulationMap: React.FC = () => {
           </Button>
         </Panel>
       </ReactFlow>
-      <EdgeLabelModal />
+      {/* EdgeLabelModal é renderizado em PatientDetailPage agora */}
       <NodeContextMenu />
     </div>
   );
 };
 
 const FormulationMapWrapper: React.FC = () => {
-  // Access Zustand store state getter if needed for `runAnalysis`
-  // For example, if `runAnalysis` needed the most up-to-date state directly
-  const getStoreState = useClinicalStore.getState;
-
   return (
     <ReactFlowProvider>
       <FormulationMap />

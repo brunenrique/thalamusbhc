@@ -16,7 +16,7 @@ import ReactFlow, {
   useReactFlow,
   SelectionMode,
   Panel,
-  ReactFlowProvider, // Import ReactFlowProvider
+  ReactFlowProvider, 
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 
@@ -26,9 +26,9 @@ import SchemaNode from './SchemaNode';
 import EdgeLabelModal from './EdgeLabelModal'; 
 import type { ClinicalNodeData, ConnectionLabel, SchemaData, ABCCardData } from '@/types/clinicalTypes';
 import { Button } from '../ui/button';
-import { Brain, Save, Trash2, ZoomIn, ZoomOut, Maximize, Minimize, Lightbulb } from 'lucide-react'; // Added Lightbulb
-import { runAnalysis } from '@/services/insightEngine'; // Import the insight engine
-import { useToast } from '@/hooks/use-toast'; // Import useToast
+import { Brain, Save, Trash2, ZoomIn, ZoomOut, Maximize, Minimize, Lightbulb } from 'lucide-react'; 
+import { runAnalysis } from '@/services/insightEngine'; 
+import { useToast } from '@/hooks/use-toast'; 
 
 
 const nodeTypes = {
@@ -50,10 +50,10 @@ const FormulationMap: React.FC = () => {
     updateSchemaPosition,
     fetchClinicalData, 
     saveClinicalData, 
-    cards, // Get cards for insight generation
-    schemas, // Get schemas for insight generation
-    setInsights, // Action to set insights in the store
-    addInsight, // Action to add a single insight
+    cards, 
+    schemas, 
+    setInsights, 
+    addInsight, 
   } = useClinicalStore();
 
   const { fitView, zoomIn, zoomOut, getViewport } = useReactFlow();
@@ -103,7 +103,7 @@ const FormulationMap: React.FC = () => {
 
   const handleGenerateInsights = async () => {
     setIsGeneratingInsights(true);
-    setInsights(["Gerando insights... Por favor, aguarde."]); // Feedback imediato
+    setInsights(["Gerando insights... Por favor, aguarde."]); 
     try {
       const generated = await runAnalysis(cards, schemas);
       setInsights(generated);
@@ -126,7 +126,7 @@ const FormulationMap: React.FC = () => {
 
 
   return (
-    <div style={{ height: 'calc(100vh - 220px)', width: '100%' }} className="border rounded-md shadow-sm bg-muted/10 relative">
+    <div style={{ height: '100%', width: '100%' }} className="border rounded-md shadow-sm bg-muted/10 relative">
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -173,7 +173,6 @@ const FormulationMap: React.FC = () => {
   );
 };
 
-// Wrapper com ReactFlowProvider
 const FormulationMapWrapper: React.FC = () => {
   return (
     <ReactFlowProvider>

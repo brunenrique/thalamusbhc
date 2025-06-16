@@ -50,6 +50,11 @@ import { Badge } from "@/components/ui/badge";
 import dynamic from "next/dynamic";
 import { gerarProntuario } from "@/services/prontuarioService";
 
+// Importações para "O Coração Clínico"
+import FormulationMapWrapper from "@/components/clinical-formulation/FormulationMap";
+import SchemaPanel from "@/components/clinical-formulation/SchemaPanel";
+import InsightPanel from "@/components/clinical-formulation/InsightPanel";
+
 const PatientProgressChart = dynamic(() => import("@/components/patients/patient-progress-chart"), {
   loading: () => (
     <div className="h-[350px] w-full flex flex-col items-center justify-center bg-muted/30 rounded-lg p-4">
@@ -956,165 +961,17 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
         </TabsContent>
 
         <TabsContent value="caseStudy" className="mt-8 space-y-6">
-          <Card className="shadow-sm">
-            <CardHeader>
-              <CardTitle className="font-headline flex items-center"><Brain className="mr-2 h-5 w-5 text-primary" /> Estudo de Caso Interativo & Simulação de Supervisão</CardTitle>
-              <CardDescription>Use a IA para simular uma supervisão clínica ou registre suas anotações sobre o caso.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <Alert variant="default" className="bg-amber-50 border-amber-300 text-amber-800 dark:bg-amber-900/30 dark:border-amber-700 dark:text-amber-300">
-                  <AlertTriangle className="h-5 w-5 !text-amber-600 dark:!text-amber-400" />
-                  <AlertTitle className="font-semibold">Atenção à Privacidade</AlertTitle>
-                  <AlertDescription className="text-xs">
-                    Garanta a completa anonimização de todos os dados do paciente antes de submeter qualquer material clínico para análise pela IA. Remova nomes, datas específicas, locais e quaisquer outros detalhes que possam identificar o indivíduo.
-                  </AlertDescription>
-              </Alert>
-              <div className="grid md:grid-cols-2 gap-6">
-                <Card className="bg-muted/30">
-                  <CardHeader>
-                    <CardTitle className="text-lg font-semibold flex items-center">
-                      <Sparkles className="mr-2 h-5 w-5 text-accent" />
-                      Simulação de Supervisão Clínica com IA
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    <Textarea 
-                        placeholder="Insira aqui a transcrição da sessão, relato do caso ou sua dúvida para simulação de supervisão..." 
-                        rows={8}
-                        className="min-h-[150px] bg-background"
-                        value={supervisionInputText}
-                        onChange={(e) => setSupervisionInputText(e.target.value)}
-                        disabled={isSupervisionLoading}
-                    />
-                    <Button 
-                        onClick={handleClinicalSupervisionSubmit} 
-                        disabled={isSupervisionLoading || !supervisionInputText.trim()}
-                        className="w-full bg-accent hover:bg-accent/90 text-accent-foreground"
-                    >
-                      {isSupervisionLoading ? <Sparkles className="mr-2 h-4 w-4 animate-pulse" /> : <Sparkles className="mr-2 h-4 w-4" />}
-                      {isSupervisionLoading ? "Analisando..." : "Analisar com IA Supervisora"}
-                    </Button>
-                    {supervisionError && !isSupervisionLoading && (
-                        <Alert variant="destructive" className="mt-3">
-                            <AlertTriangle className="h-4 w-4" />
-                            <AlertTitle>Erro na Análise</AlertTitle>
-                            <AlertDescription className="text-xs">{supervisionError}</AlertDescription>
-                        </Alert>
-                    )}
-                    {supervisionResponse && !isSupervisionLoading && (
-                        <div className="mt-4 pt-3 border-t">
-                            <h3 className="text-sm font-semibold mb-1.5">Resposta da IA Supervisora:</h3>
-                            <Textarea
-                                value={supervisionResponse}
-                                readOnly
-                                rows={10}
-                                className="min-h-[200px] bg-background text-sm"
-                                placeholder="A análise da IA aparecerá aqui..."
-                            />
-                        </div>
-                    )}
-                    {isSupervisionLoading && (
-                       <div className="mt-4 pt-3 border-t space-y-2">
-                            <Skeleton className="h-5 w-1/3" />
-                            <Skeleton className="h-24 w-full" />
-                        </div>
-                    )}
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg font-semibold">Suas Anotações sobre o Caso</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    <Textarea
-                      placeholder="Digite suas anotações, formulações, hipóteses, ou copie e cole trechos da análise da IA aqui..."
-                      rows={12}
-                      className="min-h-[250px]"
-                      value={caseStudyNotes}
-                      onChange={(e) => setCaseStudyNotes(e.target.value)}
-                    />
-                    <div className="flex justify-between items-center">
-                      <Button variant="outline" disabled size="sm">
-                        <ImageIcon className="mr-2 h-4 w-4" /> Adicionar Imagem
-                      </Button>
-                      <Button onClick={handleSaveCaseStudyNotes} className="bg-accent hover:bg-accent/90 text-accent-foreground">
-                        <Save className="mr-2 h-4 w-4" /> Salvar Anotações do Estudo
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-              
-              <Card className="mt-6">
-                <CardHeader>
-                  <CardTitle className="font-headline flex items-center"><Brain className="mr-2 h-5 w-5 text-primary" /> Insights da IA sobre as Sessões</CardTitle>
-                  <CardDescription>Gere e visualize insights detalhados baseados nas anotações de sessão.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  {!generalPatientInsights && !isLoadingGeneralInsights && !errorGeneralInsights && (
-                    <Button onClick={handleGenerateGeneralPatientInsights} variant="outline" className="w-full sm:w-auto bg-accent hover:bg-accent/90 text-accent-foreground">
-                      <Brain className="mr-2 h-4 w-4" /> Gerar/Atualizar Insights da IA
-                    </Button>
-                  )}
-                  {isLoadingGeneralInsights && (
-                    <div className="space-y-3 p-4 rounded-md bg-muted/30">
-                      <div className="flex items-center space-x-2"><Skeleton className="h-6 w-6 rounded-full" /><Skeleton className="h-4 w-[180px]" /></div>
-                      <Skeleton className="h-4 w-full" /><Skeleton className="h-4 w-4/5" /><Skeleton className="h-4 w-3/5" /><Skeleton className="h-8 w-[200px] mt-2" />
-                    </div>
-                  )}
-                  {errorGeneralInsights && !isLoadingGeneralInsights && (
-                    <Alert variant="destructive">
-                      <AlertTitle>Erro ao Gerar Insights</AlertTitle><AlertDescription>{errorGeneralInsights}</AlertDescription>
-                      <Button onClick={handleGenerateGeneralPatientInsights} variant="outline" size="sm" className="mt-3">Tentar Novamente</Button>
-                    </Alert>
-                  )}
-                  {generalPatientInsights && !isLoadingGeneralInsights && (
-                    <div className="space-y-4 pt-2 p-4 rounded-md bg-muted/30">
-                      {generalPatientInsights.potentialRiskAlerts && generalPatientInsights.potentialRiskAlerts.length > 0 && (
-                        <div>
-                          <h4 className="text-sm font-semibold flex items-center text-destructive mb-1"><ShieldAlertIcon className="mr-2 h-4 w-4" /> Alertas de Risco Potencial:</h4>
-                          <div className="flex flex-wrap gap-1">{generalPatientInsights.potentialRiskAlerts.map((alert, idx) => (<Badge key={idx} variant="destructive">{alert}</Badge>))}</div>
-                        </div>
-                      )}
-                      <div>
-                        <h4 className="text-sm font-semibold flex items-center mb-1"><Tag className="mr-2 h-4 w-4 text-muted-foreground" /> Palavras-chave Identificadas:</h4>
-                        <div className="flex flex-wrap gap-1">{generalPatientInsights.keywords.map((kw) => <Badge key={kw} variant="secondary">{kw}</Badge>)}</div>
-                      </div>
-                      <div>
-                        <h4 className="text-sm font-semibold flex items-center mb-1"><Lightbulb className="mr-2 h-4 w-4 text-muted-foreground" /> Temas Recorrentes:</h4>
-                        <div className="flex flex-wrap gap-1">{generalPatientInsights.themes.map((theme) => <Badge key={theme} variant="outline">{theme}</Badge>)}</div>
-                      </div>
-                      <div>
-                        <h4 className="text-sm font-semibold flex items-center mb-1"><BarChart3Icon className="mr-2 h-4 w-4 text-muted-foreground" /> Evolução de Sintomas Observada:</h4>
-                        <p className="text-sm text-muted-foreground whitespace-pre-wrap">{generalPatientInsights.symptomEvolution}</p>
-                      </div>
-                      {generalPatientInsights.therapeuticMilestones && generalPatientInsights.therapeuticMilestones.length > 0 && (
-                        <div>
-                          <h4 className="text-sm font-semibold flex items-center mb-1"><CheckCircleIcon className="mr-2 h-4 w-4 text-green-600" /> Marcos Terapêuticos Significativos:</h4>
-                          <div className="flex flex-wrap gap-1">{generalPatientInsights.therapeuticMilestones.map((milestone, idx) => (<Badge key={idx} variant="default" className="bg-green-100 text-green-700 border-green-300 hover:bg-green-200">{milestone}</Badge>))}</div>
-                        </div>
-                      )}
-                      {generalPatientInsights.inventoryComparisonInsights && (
-                          <div>
-                              <h4 className="text-sm font-semibold flex items-center mb-1"><BarChart3Icon className="mr-2 h-4 w-4 text-muted-foreground" /> Insights Comparativos (Histórico/Inventários):</h4>
-                              <p className="text-sm text-muted-foreground whitespace-pre-wrap">{generalPatientInsights.inventoryComparisonInsights}</p>
-                          </div>
-                      )}
-                       <div>
-                        <h4 className="text-sm font-semibold flex items-center mb-1"><Lightbulb className="mr-2 h-4 w-4 text-muted-foreground" /> Sugestões e Observações da IA:</h4>
-                        <p className="text-sm text-muted-foreground whitespace-pre-wrap">{generalPatientInsights.suggestiveInsights}</p>
-                      </div>
-                      <div className="flex gap-2 mt-3">
-                        <Button onClick={() => { setGeneralPatientInsights(null); setErrorGeneralInsights(null); }} variant="outline" size="sm">Limpar Insights</Button>
-                         <Button onClick={handleGenerateGeneralPatientInsights} variant="outline" size="sm" className="bg-accent hover:bg-accent/90 text-accent-foreground"><Brain className="mr-2 h-3.5 w-3.5" /> Regenerar Insights</Button>
-                      </div>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </CardContent>
-          </Card>
+            <div className="flex flex-col lg:flex-row gap-4 min-h-[70vh] md:min-h-[600px]">
+                <div className="lg:w-72 xl:w-80 shrink-0">
+                    <SchemaPanel />
+                </div>
+                <div className="flex-grow min-w-0"> {/* Important for ReactFlow to not overflow its parent */}
+                    <FormulationMapWrapper />
+                </div>
+                <div className="lg:w-72 xl:w-80 shrink-0">
+                    <InsightPanel />
+                </div>
+            </div>
         </TabsContent>
         
         <TabsContent value="resources" className="mt-8">

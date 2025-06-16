@@ -54,9 +54,10 @@ import { gerarProntuario } from "@/services/prontuarioService";
 import FormulationMapWrapper from "@/components/clinical-formulation/FormulationMap";
 import SchemaPanel from "@/components/clinical-formulation/SchemaPanel";
 import InsightPanel from "@/components/clinical-formulation/InsightPanel";
-import ABCForm from "@/components/clinical-formulation/ABCForm"; // Importar ABCForm
-import SchemaForm from "@/components/clinical-formulation/SchemaForm"; // Importar SchemaForm
-import EdgeLabelModal from "@/components/clinical-formulation/EdgeLabelModal"; // Importar EdgeLabelModal
+import ABCForm from "@/components/clinical-formulation/ABCForm";
+import SchemaForm from "@/components/clinical-formulation/SchemaForm"; 
+import EdgeLabelModal from "@/components/clinical-formulation/EdgeLabelModal";
+
 
 const PatientProgressChart = dynamic(() => import("@/components/patients/patient-progress-chart"), {
   loading: () => (
@@ -245,11 +246,11 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
   const [isLoadingProgressChart, setIsLoadingProgressChart] = useState(false);
   const [selectedGlobalResource, setSelectedGlobalResource] = useState<string>("");
   
-  const [caseStudyNotes, setCaseStudyNotes] = useState<string>("");
-  const [supervisionInputText, setSupervisionInputText] = useState<string>("");
-  const [supervisionResponse, setSupervisionResponse] = useState<string | null>(null);
-  const [isSupervisionLoading, setIsSupervisionLoading] = useState<boolean>(false);
-  const [supervisionError, setSupervisionError] = useState<string | null>(null);
+  const [caseStudyNotes, setCaseStudyNotes] = useState<string>(""); // Manter este estado se for usado em algum lugar
+  const [supervisionInputText, setSupervisionInputText] = useState<string>(""); // Manter este estado
+  const [supervisionResponse, setSupervisionResponse] = useState<string | null>(null); // Manter este estado
+  const [isSupervisionLoading, setIsSupervisionLoading] = useState<boolean>(false); // Manter este estado
+  const [supervisionError, setSupervisionError] = useState<string | null>(null); // Manter este estado
 
   const [nextSessionsPlan, setNextSessionsPlan] = useState<string>("");
 
@@ -963,12 +964,12 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
             </Card>
         </TabsContent>
 
-        <TabsContent value="caseStudy" className="mt-8">
-             <div className="flex flex-col lg:flex-row gap-4 min-h-[70vh] md:min-h-[600px]">
+        <TabsContent value="caseStudy" className="mt-6">
+            <div className="flex flex-col lg:flex-row gap-4 min-h-[70vh] md:min-h-[600px]">
                 <div className="lg:w-72 xl:w-80 shrink-0">
                     <SchemaPanel />
                 </div>
-                <div className="flex-grow min-w-0">
+                <div className="flex-grow min-w-0 h-full"> {/* Adicionado h-full */}
                     <FormulationMapWrapper />
                 </div>
                 <div className="lg:w-72 xl:w-80 shrink-0">
@@ -976,7 +977,7 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
                 </div>
             </div>
             <ABCForm />
-            <SchemaForm /> {/* Adicionar o SchemaForm aqui */}
+            <SchemaForm />
             <EdgeLabelModal />
         </TabsContent>
         
@@ -1110,6 +1111,9 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
         </TabsContent>
 
       </Tabs>
+      <ABCForm />
+      <SchemaForm prefillRule={useClinicalStore.getState().prefillSchemaRule || undefined} />
+      <EdgeLabelModal />
     </div>
   );
 }

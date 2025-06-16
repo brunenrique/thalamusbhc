@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import useClinicalStore from '@/stores/clinicalStore';
 import type { ConnectionLabel } from '@/types/clinicalTypes';
 import { nanoid } from 'nanoid';
+import type { Edge, Connection } from 'reactflow';
 
 const connectionLabels: ConnectionLabel['label'][] = ['reforça', 'causa', 'evita', 'generaliza para', 'opõe-se a', 'contextualiza'];
 
@@ -17,37 +18,62 @@ const EdgeLabelModal: React.FC = () => {
   const [selectedLabel, setSelectedLabel] = useState<ConnectionLabel['label'] | ''>('');
 
   useEffect(() => {
-    // Reset label when modal opens for a new edge or if pendingEdge changes
     if (isLabelEdgeModalOpen && pendingEdge) {
-      // If the pending edge already has data (e.g., editing an existing edge), pre-fill the label
-      const existingLabelData = pendingEdge.data as ConnectionLabel | undefined;
-      setSelectedLabel(existingLabelData?.label || '');
+      // Check if pendingEdge is a full Edge object (has 'id') and data
+      if ('id' in pendingEdge && pendingEdge.data) {
+        const existingLabelData = pendingEdge.data as ConnectionLabel;
+        setSelectedLabel(existingLabelData.label || '');
+      } else {
+        // New connection or edge without pre-existing label data
+        setSelectedLabel('');
+      }
     } else {
-      setSelectedLabel('');
+      setSelectedLabel(''); // Reset when modal is closed or no pendingEdge
     }
   }, [isLabelEdgeModalOpen, pendingEdge]);
 
   const handleConfirm = () => {
-    if (pendingEdge && selectedLabel) {
-      const labelData: ConnectionLabel = { id: pendingEdge.data?.id || nanoid(), label: selectedLabel };
+    if (!pendingEdge || !selectedLabel) return;
+
+    // Check if pendingEdge is a full Edge object (has 'id')
+    if ('id' in pendingEdge && pendingEdge.id) { // Existing Edge or Edge object from a new connection
+      const edgeToUpdateOrAdd = pendingEdge as Edge<ConnectionLabel | undefined>;
+      const labelData: ConnectionLabel = { 
+          id: edgeToUpdateOrAdd.data?.id || nanoid(), // reuse or create label id
+          label: selectedLabel 
+      };
       
-      // If it's an existing edge being re-labeled (not typical flow for onConnect, but good for future edits)
-      if (pendingEdge.id && pendingEdge.data) {
-         updateEdgeLabel(pendingEdge.id, labelData);
-      } else {
-        // For a new connection from onConnect
-        const newEdge = {
-            ...pendingEdge,
-            id: pendingEdge.id || `edge-${pendingEdge.source}-${pendingEdge.target}-${nanoid(4)}`, // Ensure ID
+      // If it's an existing edge with data, update it
+      if (edgeToUpdateOrAdd.data) {
+        updateEdgeLabel(edgeToUpdateOrAdd.id, labelData);
+      } else { // It's a new edge (e.g. from onConnect, but somehow passed as Edge object, or onEdgeDoubleClick on an unlabeled edge)
+        const newEdge: Edge<ConnectionLabel> = {
+            ...edgeToUpdateOrAdd,
+            id: edgeToUpdateOrAdd.id, // Use existing ID if provided
             data: labelData,
-            label: selectedLabel, // Set the visible label for React Flow
-            ariaLabel: `Conexão de ${pendingEdge.sourceNode?.data.title || 'origem'} para ${pendingEdge.targetNode?.data.title || 'destino'}: ${selectedLabel}`,
+            label: selectedLabel,
+            type: edgeToUpdateOrAdd.type || 'smoothstep', // Default type
+            ariaLabel: `Conexão de ${edgeToUpdateOrAdd.sourceNode?.data.title || 'origem'} para ${edgeToUpdateOrAdd.targetNode?.data.title || 'destino'}: ${selectedLabel}`,
+        };
+        addEdge(newEdge); // Treat as adding a new fully formed edge, or let addEdge handle if it's an update
+      }
+    } else if ('source' in pendingEdge && 'target' in pendingEdge) { // New Connection object from onConnect
+        const connection = pendingEdge as Connection;
+        const labelData: ConnectionLabel = { id: nanoid(), label: selectedLabel };
+        const newEdge: Edge<ConnectionLabel> = {
+            id: `edge-${connection.source}-${connection.target}-${nanoid(4)}`,
+            source: connection.source,
+            target: connection.target,
+            sourceHandle: connection.sourceHandle,
+            targetHandle: connection.targetHandle,
+            data: labelData,
+            label: selectedLabel,
+            type: 'smoothstep', // Or your default edge type
+            ariaLabel: `Conexão de ${connection.sourceNode?.data.title || 'origem'} para ${connection.targetNode?.data.title || 'destino'}: ${selectedLabel}`,
         };
         addEdge(newEdge);
-      }
-      
-      closeLabelEdgeModal();
     }
+    closeLabelEdgeModal();
   };
   
   if (!pendingEdge) return null;

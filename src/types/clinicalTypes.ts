@@ -48,18 +48,19 @@ export interface SchemaData {
 // Tipos para os nós do React Flow
 export type ClinicalNodeType = 'abcCard' | 'schemaNode';
 
+// Base para os dados dos nós, assegurando que sempre haja um ID.
 export interface NodeDataBase { 
   id: string;
 }
 
 export type ClinicalNodeData = ABCCardData | SchemaData;
 
-// Tipo para os dados de um nó ABCCardData (para typeguard)
-export function isABCCardData(data: ClinicalNodeData): data is ABCCardData {
-  return (data as ABCCardData).title !== undefined;
+// Typeguard para ABCCardData
+export function isABCCardData(data: ClinicalNodeData | undefined | null): data is ABCCardData {
+  return !!data && (data as ABCCardData).title !== undefined && (data as ABCCardData).antecedent !== undefined;
 }
 
-// Tipo para os dados de um nó SchemaData (para typeguard)
-export function isSchemaData(data: ClinicalNodeData): data is SchemaData {
-  return (data as SchemaData).rule !== undefined;
+// Typeguard para SchemaData
+export function isSchemaData(data: ClinicalNodeData | undefined | null): data is SchemaData {
+  return !!data && (data as SchemaData).rule !== undefined;
 }

@@ -1,7 +1,7 @@
 
 import { create } from 'zustand';
 import { nanoid } from 'nanoid';
-import type { Edge, Node, OnNodesChange, OnEdgesChange, Viewport, Connection, NodeMouseEvent } from 'reactflow';
+import type { Edge, Node, OnNodesChange, OnEdgesChange, Viewport, Connection, NodeMouseEvent, EdgeMouseEvent } from 'reactflow';
 import { applyNodeChanges, applyEdgeChanges } from 'reactflow';
 import type {
   ABCCardData,
@@ -40,6 +40,8 @@ const initialTemplates: ABCTemplate[] = [
   }
 ];
 
+const allCardColors: ABCCardColor[] = ['default', 'red', 'green', 'blue', 'yellow', 'purple'];
+
 export interface ClinicalState {
   cards: ABCCardData[];
   schemas: SchemaData[];
@@ -53,6 +55,7 @@ export interface ClinicalState {
   editingCardId: string | null; 
   isSchemaFormOpen: boolean;
   editingSchemaId: string | null;
+  prefillSchemaRule: string | null; // Para preencher a regra ao criar novo schema pelo painel
   isLabelEdgeModalOpen: boolean;
   pendingEdge: Edge<ConnectionLabel | undefined> | Connection | null;
   viewport: Viewport;
@@ -61,6 +64,9 @@ export interface ClinicalState {
   contextMenuPosition: { x: number; y: number } | null;
   contextMenuNodeId: string | null;
   contextMenuNodeType: ClinicalNodeType | null;
+
+  activeColorFilters: ABCCardColor[];
+  showSchemaNodes: boolean;
 
 
   addCard: (data: Omit<ABCCardData, 'id' | 'position'>) => void;
@@ -96,6 +102,9 @@ export interface ClinicalState {
   openContextMenu: (nodeId: string, nodeType: ClinicalNodeType, position: { x: number; y: number }) => void;
   closeContextMenu: () => void;
 
+  setColorFilters: (colors: ABCCardColor[]) => void;
+  toggleShowSchemaNodes: () => void;
+
   fetchClinicalData: (patientId: string) => Promise<void>;
   saveClinicalData: (patientId: string) => Promise<void>;
 }
@@ -112,6 +121,7 @@ const useClinicalStore = create<ClinicalState>((set, get) => ({
   editingCardId: null,
   isSchemaFormOpen: false,
   editingSchemaId: null,
+  prefillSchemaRule: null,
   isLabelEdgeModalOpen: false,
   pendingEdge: null,
   viewport: { x: 0, y: 0, zoom: 1 },
@@ -120,6 +130,9 @@ const useClinicalStore = create<ClinicalState>((set, get) => ({
   contextMenuPosition: null,
   contextMenuNodeId: null,
   contextMenuNodeType: null,
+
+  activeColorFilters: [...allCardColors],
+  showSchemaNodes: true,
 
   addCard: (data) => {
     const newCard: ABCCardData = { 
@@ -144,14 +157,14 @@ const useClinicalStore = create<ClinicalState>((set, get) => ({
   updateCard: (cardId, updates) =>
     set((state) => {
       const updatedCards = state.cards.map((card) =>
-        card.id === cardId ? { ...card, ...updates, id: card.id, position: card.position } : card // Preserve ID and position
+        card.id === cardId ? { ...card, ...updates, id: card.id, position: card.position } : card
       );
       const updatedNodes = state.nodes.map((node) =>
         node.id === cardId && node.type === 'abcCard' && isABCCardData(node.data) 
         ? { ...node, data: updatedCards.find(c => c.id === cardId) as ABCCardData } 
         : node
       );
-      return { cards: updatedCards, nodes: updatedNodes };
+      return { cards: updatedCards, nodes: updatedNodes as Node<ClinicalNodeData>[] };
     }),
   deleteCard: (cardId) =>
     set((state) => {
@@ -160,19 +173,21 @@ const useClinicalStore = create<ClinicalState>((set, get) => ({
         linkedCardIds: schema.linkedCardIds.filter(id => id !== cardId)
       }));
        const updatedNodes = state.nodes.filter((node) => node.id !== cardId);
-       updatedNodes.forEach(node => {
+       // Atualiza os dados dos nós de esquema na lista de nós do React Flow
+       const finalNodes = updatedNodes.map(node => {
         if (node.type === 'schemaNode' && isSchemaData(node.data)) {
             const matchingSchema = updatedSchemas.find(s => s.id === node.id);
             if (matchingSchema) {
-                node.data = matchingSchema;
+                return { ...node, data: matchingSchema };
             }
         }
+        return node;
        });
 
       return {
         cards: state.cards.filter((card) => card.id !== cardId),
         schemas: updatedSchemas,
-        nodes: updatedNodes,
+        nodes: finalNodes as Node<ClinicalNodeData>[],
         edges: state.edges.filter((edge) => edge.source !== cardId && edge.target !== cardId),
       };
     }),
@@ -181,7 +196,7 @@ const useClinicalStore = create<ClinicalState>((set, get) => ({
   },
   updateCardPosition: (cardId, position) => 
     set(state => ({
-      nodes: state.nodes.map(node => (node.id === cardId && node.type === 'abcCard') ? {...node, position} : node),
+      nodes: state.nodes.map(node => (node.id === cardId && node.type === 'abcCard') ? {...node, position} : node) as Node<ClinicalNodeData>[],
       cards: state.cards.map(card => card.id === cardId ? {...card, position} : card)
     })),
 
@@ -220,7 +235,7 @@ const useClinicalStore = create<ClinicalState>((set, get) => ({
         }
         return node;
       });
-      return { schemas: updatedSchemas, nodes: updatedNodes };
+      return { schemas: updatedSchemas, nodes: updatedNodes as Node<ClinicalNodeData>[] };
     }),
   deleteSchema: (schemaId) =>
     set((state) => ({
@@ -233,9 +248,19 @@ const useClinicalStore = create<ClinicalState>((set, get) => ({
       const targetSchema = state.schemas.find(s => s.id === schemaId);
       if (targetSchema && !targetSchema.linkedCardIds.includes(cardId)) {
         const newLinkedCardIds = [...targetSchema.linkedCardIds, cardId];
-        get().updateSchema(schemaId, { linkedCardIds: newLinkedCardIds });
+        // Chamada direta a updateSchema para garantir que o nó também seja atualizado
+        const updatedSchemas = state.schemas.map(s => 
+          s.id === schemaId ? { ...s, linkedCardIds: newLinkedCardIds } : s
+        );
+        const updatedNodes = state.nodes.map(n => {
+          if (n.id === schemaId && n.type === 'schemaNode') {
+            return { ...n, data: { ...n.data, linkedCardIds: newLinkedCardIds } as SchemaData };
+          }
+          return n;
+        });
+        return { schemas: updatedSchemas, nodes: updatedNodes as Node<ClinicalNodeData>[] };
       }
-      return {}; 
+      return state;
     });
   },
   unlinkCardFromSchema: (schemaId, cardId) => {
@@ -243,14 +268,24 @@ const useClinicalStore = create<ClinicalState>((set, get) => ({
       const targetSchema = state.schemas.find(s => s.id === schemaId);
       if (targetSchema && targetSchema.linkedCardIds.includes(cardId)) {
         const newLinkedCardIds = targetSchema.linkedCardIds.filter(id => id !== cardId);
-        get().updateSchema(schemaId, { linkedCardIds: newLinkedCardIds });
+        // Chamada direta a updateSchema
+        const updatedSchemas = state.schemas.map(s => 
+          s.id === schemaId ? { ...s, linkedCardIds: newLinkedCardIds } : s
+        );
+        const updatedNodes = state.nodes.map(n => {
+          if (n.id === schemaId && n.type === 'schemaNode') {
+            return { ...n, data: { ...n.data, linkedCardIds: newLinkedCardIds } as SchemaData };
+          }
+          return n;
+        });
+        return { schemas: updatedSchemas, nodes: updatedNodes as Node<ClinicalNodeData>[] };
       }
-      return {}; 
+      return state;
     });
   },
   updateSchemaPosition: (schemaId, position) =>
     set(state => ({
-      nodes: state.nodes.map(node => (node.id === schemaId && node.type === 'schemaNode') ? {...node, position} : node),
+      nodes: state.nodes.map(node => (node.id === schemaId && node.type === 'schemaNode') ? {...node, position} : node) as Node<ClinicalNodeData>[],
       schemas: state.schemas.map(schema => schema.id === schemaId ? {...schema, position} : schema)
     })),
 
@@ -259,7 +294,7 @@ const useClinicalStore = create<ClinicalState>((set, get) => ({
 
   onNodesChange: (changes) => {
     set((state) => ({
-      nodes: applyNodeChanges(changes, state.nodes),
+      nodes: applyNodeChanges(changes, state.nodes) as Node<ClinicalNodeData>[],
     }));
     
     changes.forEach(change => {
@@ -273,13 +308,14 @@ const useClinicalStore = create<ClinicalState>((set, get) => ({
                 }
             }
         } else if (change.type === 'remove') {
-            const nodeToRemove = get().nodes.find(n => n.id === change.id); 
-            if (nodeToRemove) {
-              if (nodeToRemove.type === 'abcCard') {
-                get().deleteCard(change.id);
-              } else if (nodeToRemove.type === 'schemaNode') {
-                get().deleteSchema(change.id);
-              }
+            // A remoção é melhor tratada pela UI (ex: menu de contexto chamando deleteCard/deleteSchema)
+            // para garantir que toda a lógica associada (desvincular, etc.) seja executada.
+            // No entanto, se o React Flow remover um nó diretamente, precisamos espelhar essa remoção.
+            const nodeToRemove = get().cards.find(c => c.id === change.id) || get().schemas.find(s => s.id === change.id);
+            if (nodeToRemove && isABCCardData(nodeToRemove as ClinicalNodeData)) {
+              get().deleteCard(change.id);
+            } else if (nodeToRemove && isSchemaData(nodeToRemove as ClinicalNodeData)) {
+              get().deleteSchema(change.id);
             }
         }
     });
@@ -309,28 +345,17 @@ const useClinicalStore = create<ClinicalState>((set, get) => ({
     set((state) => ({ edges: state.edges.filter(e => e.id !== edgeId) }));
   },
   setViewport: (viewport) => set({ viewport }),
-
+  
   openABCForm: (cardId) => set({ isABCFormOpen: true, editingCardId: cardId || null }),
   closeABCForm: () => set({ isABCFormOpen: false, editingCardId: null, pendingEdge: null }),
   openSchemaForm: (schemaId, prefillRule) => {
-    set({ isSchemaFormOpen: true, editingSchemaId: schemaId || null });
-    if (prefillRule && !schemaId) {
-      // Access the form instance or pass prefill data to the form component itself
-      // This part is tricky as Zustand store doesn't directly interact with form instances.
-      // One way is to pass prefill data through a temporary store state, or have the form component
-      // listen to a specific event or prop that signals prefilling.
-      // For now, the form component will handle its own default/prefill logic based on editingSchemaId.
-      // If `openSchemaForm` is called with `prefillRule` and no `schemaId`, the `SchemaForm`
-      // could potentially pick this up if we stored `prefillRule` in the store as well,
-      // or we rely on the `SchemaPanel` to directly open the form with the new rule in its input.
-      // For simplicity, the `SchemaPanel` now calls `openSchemaForm` with `undefined` for schemaId,
-      // and the `SchemaForm` itself would need to handle setting a default value if a `prefillRule` was somehow passed to it.
-      // The current `SchemaForm` does not accept a `prefillRule` prop.
-      // The `SchemaPanel` now uses `openSchemaForm(undefined, newSchemaRule.trim())`
-      // The `SchemaForm` needs to be adapted to accept this prefill.
-    }
+    set({ 
+      isSchemaFormOpen: true, 
+      editingSchemaId: schemaId || null,
+      prefillSchemaRule: (!schemaId && prefillRule) ? prefillRule : null 
+    });
   },
-  closeSchemaForm: () => set({ isSchemaFormOpen: false, editingSchemaId: null }),
+  closeSchemaForm: () => set({ isSchemaFormOpen: false, editingSchemaId: null, prefillSchemaRule: null }),
   openLabelEdgeModal: (edgeParams) => set({ isLabelEdgeModalOpen: true, pendingEdge: edgeParams }),
   closeLabelEdgeModal: () => set({ isLabelEdgeModalOpen: false, pendingEdge: null }),
   openContextMenu: (nodeId, nodeType, position) => set({
@@ -342,13 +367,15 @@ const useClinicalStore = create<ClinicalState>((set, get) => ({
   closeContextMenu: () => set({
     isContextMenuOpen: false,
   }),
+  setColorFilters: (colors) => set({ activeColorFilters: colors }),
+  toggleShowSchemaNodes: () => set(state => ({ showSchemaNodes: !state.showSchemaNodes })),
 
   fetchClinicalData: async (patientId) => {
     console.info(`Fetching data for patient ${patientId}... (Simulated)`);
     await new Promise(resolve => setTimeout(resolve, 300));
     
     const mockCardsData: Omit<ABCCardData, 'id' | 'position'>[] = [
-      { title: 'Ansiedade Social em Evento X', antecedent: { external: 'Convite para festa importante na empresa.', internal: 'Pensamentos: "Vou fazer papel de bobo", "Ninguém vai querer conversar comigo". Sentimento: Medo (80%), Vergonha (70%). Sensação: Coração acelerado, mãos suando.', emotionIntensity: 80, thoughtBelief: 90 }, behavior: 'Inventou uma desculpa e não foi ao evento.', consequence: { shortTermGain: 'Alívio imediato da ansiedade, evitação do desconforto.', shortTermCost: 'Perdeu oportunidade de networking e integração com colegas.', longTermValueCost: 'Reforçou a crença de inadequação social, isolamento progressivo, desalinhamento com valor de "conexão".' }, tags: ['ansiedade social', 'evitação', 'fobia social'], color: 'red' },
+      { title: 'Ansiedade Social em Evento X', antecedent: { external: 'Convite para festa importante na empresa.', internal: 'Pensamentos: "Vou fazer papel de bobo", "Ninguém vai querer conversar comigo". Sentimento: Medo (80%), Vergonha (70%).', emotionIntensity: 80, thoughtBelief: 90 }, behavior: 'Inventou uma desculpa e não foi ao evento.', consequence: { shortTermGain: 'Alívio imediato da ansiedade, evitação do desconforto.', shortTermCost: 'Perdeu oportunidade de networking e integração com colegas.', longTermValueCost: 'Reforçou a crença de inadequação social, isolamento progressivo, desalinhamento com valor de "conexão".' }, tags: ['ansiedade social', 'evitação', 'fobia social'], color: 'red' },
       { title: 'Conflito com Chefe', antecedent: { external: 'Feedback percebido como injusto do supervisor sobre um projeto.', internal: 'Pensamentos: "Ele não reconhece meu esforço", "Isso é injusto!". Sentimento: Raiva (85%), Frustração (75%).', emotionIntensity: 85 }, behavior: 'Respondeu de forma ríspida e defensiva, levantando a voz.', consequence: { shortTermGain: 'Expressou a raiva momentaneamente, sentiu-se "ouvido" (mesmo que negativamente).', shortTermCost: 'Clima ficou tenso, chefe ficou mais irritado, possível retaliação futura.', longTermValueCost: 'Prejudicou a relação profissional, aumentou o estresse no trabalho, desalinhado com valor de "profissionalismo".' }, tags: ['trabalho', 'conflito', 'raiva', 'comunicação'], color: 'default'}
     ];
     const mockSchemasData: Omit<SchemaData, 'id' | 'linkedCardIds' | 'position'>[] = [

@@ -31,6 +31,7 @@ const signUpSchema = z.object({
   email: z.string().email({ message: "Por favor, insira um endereço de e-mail válido." }),
   password: z.string().min(8, { message: "A senha deve ter pelo menos 8 caracteres." }),
   confirmPassword: z.string(),
+  gender: z.enum(['masculino', 'feminino', 'outro'], { required_error: "Por favor, selecione um gênero." }),
   role: z.enum(["psychologist", "secretary", "admin"], { required_error: "Por favor, selecione uma função." }),
 }).refine((data) => data.password === data.confirmPassword, {
   message: "As senhas não coincidem",
@@ -50,12 +51,15 @@ export default function SignUpForm() {
       email: "",
       password: "",
       confirmPassword: "",
+      gender: undefined, // Initialize as undefined
+      role: undefined, // Initialize as undefined
     },
   });
 
   async function onSubmit(data: SignUpFormValues) {
     setIsLoading(true);
     // Simula chamada de API
+    console.log("Dados do formulário de cadastro:", data);
     await new Promise((resolve) => setTimeout(resolve, 1000));
     
     setIsLoading(false);
@@ -90,6 +94,28 @@ export default function SignUpForm() {
                   <FormControl>
                     <Input placeholder="nome@exemplo.com" {...field} />
                   </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="gender"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Gênero</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione seu gênero" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="masculino">Masculino</SelectItem>
+                      <SelectItem value="feminino">Feminino</SelectItem>
+                      <SelectItem value="outro">Prefiro não informar / Outro</SelectItem>
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}

@@ -6,22 +6,19 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { PlusCircleIcon, Trash2Icon, Link2Icon, ChevronDownIcon, ChevronUpIcon, EditIcon } from 'lucide-react'; // Adicionado EditIcon
+import { PlusCircleIcon, Trash2Icon, Link2Icon, ChevronDownIcon, ChevronUpIcon, EditIcon, Unlink } from 'lucide-react';
 import useClinicalStore from '@/stores/clinicalStore';
 import type { SchemaData } from '@/types/clinicalTypes';
 import { Badge } from '@/components/ui/badge';
 
 const SchemaPanel: React.FC = () => {
-  const { schemas, addSchema, deleteSchema, cards, openABCForm, openSchemaForm } = useClinicalStore(); // Adicionado openSchemaForm
+  const { schemas, addSchema, deleteSchema, cards, openABCForm, openSchemaForm, unlinkCardFromSchema } = useClinicalStore();
   const [newSchemaRule, setNewSchemaRule] = useState('');
   const [expandedSchemaId, setExpandedSchemaId] = useState<string | null>(null);
 
   const handleAddSchema = () => {
     if (newSchemaRule.trim()) {
-      // Chamando openSchemaForm sem ID para indicar criação, mas pré-preenchendo a regra
-      // Ou, se preferir, adicione diretamente e depois permita editar.
-      // Por simplicidade, vamos adicionar diretamente e o usuário pode editar depois.
-      addSchema({ rule: newSchemaRule.trim(), notes: '' });
+      openSchemaForm(undefined, newSchemaRule.trim()); // Pass the rule to prefill
       setNewSchemaRule('');
     }
   };
@@ -92,17 +89,35 @@ const SchemaPanel: React.FC = () => {
                     {schema.linkedCardIds.length > 0 && (
                       <div>
                         <p className="text-[11px] font-medium mb-0.5">Cards Vinculados:</p>
-                        <ul className="list-disc list-inside pl-1 space-y-0.5">
+                        <ul className="space-y-1">
                           {schema.linkedCardIds.map(cardId => {
                             const card = cards.find(c => c.id === cardId);
                             return card ? (
-                              <li key={cardId} className="text-[11px] text-muted-foreground hover:text-accent cursor-pointer" onClick={() => openABCForm(cardId)}>
-                                {card.title}
+                              <li key={cardId} className="text-[11px] text-muted-foreground flex justify-between items-center group/card-link">
+                                <span 
+                                  className="hover:text-accent cursor-pointer truncate"
+                                  onClick={() => openABCForm(cardId)}
+                                  title={`Editar Card: ${card.title}`}
+                                >
+                                  {card.title}
+                                </span>
+                                <Button 
+                                  variant="ghost" 
+                                  size="icon" 
+                                  className="h-5 w-5 opacity-50 group-hover/card-link:opacity-100 text-destructive hover:text-destructive" 
+                                  onClick={() => unlinkCardFromSchema(schema.id, cardId)}
+                                  title={`Desvincular card "${card.title}"`}
+                                >
+                                  <Unlink className="h-3 w-3" />
+                                </Button>
                               </li>
                             ) : null;
                           })}
                         </ul>
                       </div>
+                    )}
+                    {schema.linkedCardIds.length === 0 && (
+                        <p className="text-[11px] text-muted-foreground">Nenhum card ABC vinculado a este esquema.</p>
                     )}
                   </div>
                 )}

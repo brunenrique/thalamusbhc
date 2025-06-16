@@ -20,7 +20,12 @@ const schemaFormValidationSchema = z.object({
 
 type SchemaFormValues = z.infer<typeof schemaFormValidationSchema>;
 
-const SchemaForm: React.FC = () => {
+interface SchemaFormProps {
+  // Prop para preenchimento inicial, se houver. Usado pelo SchemaPanel ao criar novo schema.
+  prefillRule?: string; 
+}
+
+const SchemaForm: React.FC<SchemaFormProps> = ({ prefillRule: initialPrefillRule }) => {
   const { 
     isSchemaFormOpen, 
     closeSchemaForm, 
@@ -41,15 +46,22 @@ const SchemaForm: React.FC = () => {
   });
 
   useEffect(() => {
-    if (editingSchema) {
-      form.reset({
-        rule: editingSchema.rule,
-        notes: editingSchema.notes || '',
-      });
-    } else {
-      form.reset({ rule: '', notes: '' }); // Reset for new schema
+    if (isSchemaFormOpen) {
+      if (editingSchema) {
+        form.reset({
+          rule: editingSchema.rule,
+          notes: editingSchema.notes || '',
+        });
+      } else if (initialPrefillRule) { // Se for criação e tiver prefill
+        form.reset({
+          rule: initialPrefillRule,
+          notes: '',
+        });
+      } else { // Se for criação sem prefill
+        form.reset({ rule: '', notes: '' });
+      }
     }
-  }, [editingSchema, form, isSchemaFormOpen]); // Depend on isSchemaFormOpen to reset on open
+  }, [editingSchema, form, isSchemaFormOpen, initialPrefillRule]);
 
   const onSubmit = (values: SchemaFormValues) => {
     const schemaData: Omit<SchemaData, 'id' | 'linkedCardIds' | 'position'> = {
@@ -66,13 +78,19 @@ const SchemaForm: React.FC = () => {
     closeSchemaForm();
   };
 
+  // Recalcular o título do diálogo com base no estado atual
+  const dialogTitle = editingSchemaId ? 'Editar Esquema/Regra' : 'Novo Esquema/Regra';
+  const dialogDescription = editingSchemaId 
+    ? 'Modifique a regra ou crença e suas anotações.' 
+    : 'Defina uma nova regra ou crença central para o mapa de formulação.';
+
   return (
     <Dialog open={isSchemaFormOpen} onOpenChange={(open) => { if (!open) { form.reset(); closeSchemaForm(); } }}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="font-headline">{editingSchemaId ? 'Editar Esquema/Regra' : 'Novo Esquema/Regra'}</DialogTitle>
+          <DialogTitle className="font-headline">{dialogTitle}</DialogTitle>
           <DialogDescription>
-            {editingSchemaId ? 'Modifique a regra ou crença e suas anotações.' : 'Defina uma nova regra ou crença central para o mapa de formulação.'}
+            {dialogDescription}
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>

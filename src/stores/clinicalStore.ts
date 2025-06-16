@@ -51,20 +51,18 @@ export interface ClinicalState {
 
   isABCFormOpen: boolean;
   editingCardId: string | null; 
-  isSchemaFormOpen: boolean; // Novo
-  editingSchemaId: string | null; // Novo
+  isSchemaFormOpen: boolean;
+  editingSchemaId: string | null;
   isLabelEdgeModalOpen: boolean;
   pendingEdge: Edge<ConnectionLabel | undefined> | Connection | null;
   viewport: Viewport;
 
-  // Context Menu State
   isContextMenuOpen: boolean;
   contextMenuPosition: { x: number; y: number } | null;
   contextMenuNodeId: string | null;
   contextMenuNodeType: ClinicalNodeType | null;
 
 
-  // Ações para cards
   addCard: (data: Omit<ABCCardData, 'id' | 'position'>) => void;
   updateCard: (cardId: string, updates: Partial<Omit<ABCCardData, 'id' | 'position'>>) => void;
   deleteCard: (cardId: string) => void;
@@ -72,19 +70,16 @@ export interface ClinicalState {
   updateCardPosition: (cardId: string, position: { x: number; y: number }) => void;
 
 
-  // Ações para schemas
   addSchema: (data: Omit<SchemaData, 'id' | 'linkedCardIds' | 'position'>) => void;
-  updateSchema: (schemaId: string, updates: Partial<Omit<SchemaData, 'id' | 'position' | 'linkedCardIds'>>) => void;
+  updateSchema: (schemaId: string, updates: Partial<Omit<SchemaData, 'id' | 'position'>>) => void; // linkedCardIds is managed internally
   deleteSchema: (schemaId: string) => void;
   linkCardToSchema: (schemaId: string, cardId: string) => void;
   unlinkCardFromSchema: (schemaId: string, cardId: string) => void;
   updateSchemaPosition: (schemaId: string, position: { x: number; y: number }) => void;
 
-  // Ações para insights
   setInsights: (insights: string[]) => void;
   addInsight: (insight: string) => void;    
 
-  // Ações para React Flow (nodes, edges, viewport)
   onNodesChange: OnNodesChange;
   onEdgesChange: OnEdgesChange;
   addEdge: (edge: Edge<ConnectionLabel | undefined>) => void;
@@ -92,24 +87,21 @@ export interface ClinicalState {
   removeEdge: (edgeId: string) => void;
   setViewport: (viewport: Viewport) => void;
   
-  // Controle de Modais
   openABCForm: (cardId?: string) => void;
   closeABCForm: () => void;
-  openSchemaForm: (schemaId?: string) => void; // Novo
-  closeSchemaForm: () => void; // Novo
+  openSchemaForm: (schemaId?: string, prefillRule?: string) => void;
+  closeSchemaForm: () => void;
   openLabelEdgeModal: (edge: Edge<ConnectionLabel | undefined> | Connection) => void;
   closeLabelEdgeModal: () => void;
   openContextMenu: (nodeId: string, nodeType: ClinicalNodeType, position: { x: number; y: number }) => void;
   closeContextMenu: () => void;
 
-  // Simulação de fetch
   fetchClinicalData: (patientId: string) => Promise<void>;
   saveClinicalData: (patientId: string) => Promise<void>;
 }
 
 
 const useClinicalStore = create<ClinicalState>((set, get) => ({
-  // Estado inicial
   cards: [],
   schemas: [],
   templates: initialTemplates,
@@ -118,8 +110,8 @@ const useClinicalStore = create<ClinicalState>((set, get) => ({
   edges: [],
   isABCFormOpen: false,
   editingCardId: null,
-  isSchemaFormOpen: false, // Novo
-  editingSchemaId: null, // Novo
+  isSchemaFormOpen: false,
+  editingSchemaId: null,
   isLabelEdgeModalOpen: false,
   pendingEdge: null,
   viewport: { x: 0, y: 0, zoom: 1 },
@@ -129,7 +121,6 @@ const useClinicalStore = create<ClinicalState>((set, get) => ({
   contextMenuNodeId: null,
   contextMenuNodeType: null,
 
-  // --- Ações para Cards ---
   addCard: (data) => {
     const newCard: ABCCardData = { 
       ...data, 
@@ -153,10 +144,12 @@ const useClinicalStore = create<ClinicalState>((set, get) => ({
   updateCard: (cardId, updates) =>
     set((state) => {
       const updatedCards = state.cards.map((card) =>
-        card.id === cardId ? { ...card, ...updates, id: card.id } : card
+        card.id === cardId ? { ...card, ...updates, id: card.id, position: card.position } : card // Preserve ID and position
       );
       const updatedNodes = state.nodes.map((node) =>
-        node.id === cardId && node.type === 'abcCard' && isABCCardData(node.data) ? { ...node, data: updatedCards.find(c => c.id === cardId) as ABCCardData } : node
+        node.id === cardId && node.type === 'abcCard' && isABCCardData(node.data) 
+        ? { ...node, data: updatedCards.find(c => c.id === cardId) as ABCCardData } 
+        : node
       );
       return { cards: updatedCards, nodes: updatedNodes };
     }),
@@ -166,18 +159,20 @@ const useClinicalStore = create<ClinicalState>((set, get) => ({
         ...schema,
         linkedCardIds: schema.linkedCardIds.filter(id => id !== cardId)
       }));
-      const updatedSchemaNodes = state.nodes
-        .filter(node => node.type === 'schemaNode')
-        .map(node => {
-            const schemaData = updatedSchemas.find(s => s.id === node.id);
-            return schemaData && isSchemaData(node.data) ? {...node, data: schemaData as SchemaData } : node;
-        });
+       const updatedNodes = state.nodes.filter((node) => node.id !== cardId);
+       updatedNodes.forEach(node => {
+        if (node.type === 'schemaNode' && isSchemaData(node.data)) {
+            const matchingSchema = updatedSchemas.find(s => s.id === node.id);
+            if (matchingSchema) {
+                node.data = matchingSchema;
+            }
+        }
+       });
 
       return {
         cards: state.cards.filter((card) => card.id !== cardId),
         schemas: updatedSchemas,
-        nodes: state.nodes.filter((node) => node.id !== cardId)
-                        .map(node => updatedSchemaNodes.find(usn => usn.id === node.id) || node),
+        nodes: updatedNodes,
         edges: state.edges.filter((edge) => edge.source !== cardId && edge.target !== cardId),
       };
     }),
@@ -190,7 +185,6 @@ const useClinicalStore = create<ClinicalState>((set, get) => ({
       cards: state.cards.map(card => card.id === cardId ? {...card, position} : card)
     })),
 
-  // --- Ações para Schemas ---
   addSchema: (data) => {
     const newSchema: SchemaData = { 
       ...data, 
@@ -215,22 +209,18 @@ const useClinicalStore = create<ClinicalState>((set, get) => ({
   updateSchema: (schemaId, updates) => 
     set((state) => {
       const updatedSchemas = state.schemas.map((schema) =>
-        schema.id === schemaId ? { ...schema, ...updates, id: schema.id, linkedCardIds: schema.linkedCardIds } : schema // Preserve linkedCardIds if not in updates
+        schema.id === schemaId ? { ...schema, ...updates, id: schema.id, position: schema.position, linkedCardIds: 'linkedCardIds' in updates && updates.linkedCardIds !== undefined ? updates.linkedCardIds : schema.linkedCardIds } : schema
       );
-      const finalUpdatedSchemas = state.schemas.map((schema) =>
-        schema.id === schemaId ? { ...schema, ...updates, id: schema.id } : schema
-      );
-
       const updatedNodes = state.nodes.map((node) => {
         if (node.id === schemaId && node.type === 'schemaNode' && isSchemaData(node.data)) {
-          const correspondingSchema = finalUpdatedSchemas.find(s => s.id === schemaId);
+          const correspondingSchema = updatedSchemas.find(s => s.id === schemaId);
           if (correspondingSchema) {
              return { ...node, data: { ...node.data, ...correspondingSchema } };
           }
         }
         return node;
       });
-      return { schemas: finalUpdatedSchemas, nodes: updatedNodes };
+      return { schemas: updatedSchemas, nodes: updatedNodes };
     }),
   deleteSchema: (schemaId) =>
     set((state) => ({
@@ -242,22 +232,20 @@ const useClinicalStore = create<ClinicalState>((set, get) => ({
     set((state) => {
       const targetSchema = state.schemas.find(s => s.id === schemaId);
       if (targetSchema && !targetSchema.linkedCardIds.includes(cardId)) {
-        const updatedSchemaData = { ...targetSchema, linkedCardIds: [...targetSchema.linkedCardIds, cardId] };
-        // Directly call updateSchema which handles node update
-        get().updateSchema(schemaId, { linkedCardIds: updatedSchemaData.linkedCardIds });
+        const newLinkedCardIds = [...targetSchema.linkedCardIds, cardId];
+        get().updateSchema(schemaId, { linkedCardIds: newLinkedCardIds });
       }
-      return {}; // No direct state change here, updateSchema handles it
+      return {}; 
     });
   },
   unlinkCardFromSchema: (schemaId, cardId) => {
      set((state) => {
       const targetSchema = state.schemas.find(s => s.id === schemaId);
       if (targetSchema && targetSchema.linkedCardIds.includes(cardId)) {
-        const updatedSchemaData = { ...targetSchema, linkedCardIds: targetSchema.linkedCardIds.filter(id => id !== cardId) };
-         // Directly call updateSchema which handles node update
-        get().updateSchema(schemaId, { linkedCardIds: updatedSchemaData.linkedCardIds });
+        const newLinkedCardIds = targetSchema.linkedCardIds.filter(id => id !== cardId);
+        get().updateSchema(schemaId, { linkedCardIds: newLinkedCardIds });
       }
-      return {}; // No direct state change here, updateSchema handles it
+      return {}; 
     });
   },
   updateSchemaPosition: (schemaId, position) =>
@@ -266,11 +254,9 @@ const useClinicalStore = create<ClinicalState>((set, get) => ({
       schemas: state.schemas.map(schema => schema.id === schemaId ? {...schema, position} : schema)
     })),
 
-  // --- Ações para Insights ---
   setInsights: (insights) => set({ insights }),
   addInsight: (insight) => set(state => ({ insights: [...state.insights, insight] })),
 
-  // --- Ações para React Flow ---
   onNodesChange: (changes) => {
     set((state) => ({
       nodes: applyNodeChanges(changes, state.nodes),
@@ -287,7 +273,7 @@ const useClinicalStore = create<ClinicalState>((set, get) => ({
                 }
             }
         } else if (change.type === 'remove') {
-            const nodeToRemove = get().nodes.find(n => n.id === change.id); // Find before applyNodeChanges removes it internally
+            const nodeToRemove = get().nodes.find(n => n.id === change.id); 
             if (nodeToRemove) {
               if (nodeToRemove.type === 'abcCard') {
                 get().deleteCard(change.id);
@@ -315,7 +301,7 @@ const useClinicalStore = create<ClinicalState>((set, get) => ({
   },
   updateEdgeLabel: (edgeId, labelData) => {
     set((state) => ({
-      edges: state.edges.map(edge => edge.id === edgeId ? {...edge, data: labelData, label: labelData.label, ariaLabel: labelData.label } : edge)
+      edges: state.edges.map(edge => edge.id === edgeId ? {...edge, data: labelData, label: labelData.label, ariaLabel: `Conexão: ${labelData.label}` } : edge)
     }));
     get().closeLabelEdgeModal(); 
   },
@@ -324,11 +310,27 @@ const useClinicalStore = create<ClinicalState>((set, get) => ({
   },
   setViewport: (viewport) => set({ viewport }),
 
-  // --- Controle de Modais ---
   openABCForm: (cardId) => set({ isABCFormOpen: true, editingCardId: cardId || null }),
   closeABCForm: () => set({ isABCFormOpen: false, editingCardId: null, pendingEdge: null }),
-  openSchemaForm: (schemaId) => set({ isSchemaFormOpen: true, editingSchemaId: schemaId || null }), // Novo
-  closeSchemaForm: () => set({ isSchemaFormOpen: false, editingSchemaId: null }), // Novo
+  openSchemaForm: (schemaId, prefillRule) => {
+    set({ isSchemaFormOpen: true, editingSchemaId: schemaId || null });
+    if (prefillRule && !schemaId) {
+      // Access the form instance or pass prefill data to the form component itself
+      // This part is tricky as Zustand store doesn't directly interact with form instances.
+      // One way is to pass prefill data through a temporary store state, or have the form component
+      // listen to a specific event or prop that signals prefilling.
+      // For now, the form component will handle its own default/prefill logic based on editingSchemaId.
+      // If `openSchemaForm` is called with `prefillRule` and no `schemaId`, the `SchemaForm`
+      // could potentially pick this up if we stored `prefillRule` in the store as well,
+      // or we rely on the `SchemaPanel` to directly open the form with the new rule in its input.
+      // For simplicity, the `SchemaPanel` now calls `openSchemaForm` with `undefined` for schemaId,
+      // and the `SchemaForm` itself would need to handle setting a default value if a `prefillRule` was somehow passed to it.
+      // The current `SchemaForm` does not accept a `prefillRule` prop.
+      // The `SchemaPanel` now uses `openSchemaForm(undefined, newSchemaRule.trim())`
+      // The `SchemaForm` needs to be adapted to accept this prefill.
+    }
+  },
+  closeSchemaForm: () => set({ isSchemaFormOpen: false, editingSchemaId: null }),
   openLabelEdgeModal: (edgeParams) => set({ isLabelEdgeModalOpen: true, pendingEdge: edgeParams }),
   closeLabelEdgeModal: () => set({ isLabelEdgeModalOpen: false, pendingEdge: null }),
   openContextMenu: (nodeId, nodeType, position) => set({
@@ -341,7 +343,6 @@ const useClinicalStore = create<ClinicalState>((set, get) => ({
     isContextMenuOpen: false,
   }),
 
-  // --- Simulação de Fetch/Save ---
   fetchClinicalData: async (patientId) => {
     console.info(`Fetching data for patient ${patientId}... (Simulated)`);
     await new Promise(resolve => setTimeout(resolve, 300));
@@ -371,7 +372,7 @@ const useClinicalStore = create<ClinicalState>((set, get) => ({
     if (schemas[0] && cards[0]) {
         const edgeId = `e-${schemas[0].id}-${cards[0].id}`;
         const labelData: ConnectionLabel = { id: nanoid(), label: 'reforça' };
-        edges.push({ id: edgeId, source: schemas[0].id, target: cards[0].id, type: 'smoothstep', data: labelData, label: labelData.label, animated: true });
+        edges.push({ id: edgeId, source: schemas[0].id, target: cards[0].id, type: 'smoothstep', data: labelData, label: labelData.label, animated: true, ariaLabel: `Conexão: ${labelData.label}` });
     }
     
     set({ cards, schemas, nodes, edges, insights: ["Clique em 'Gerar Insights' para análise."] });

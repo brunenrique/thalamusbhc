@@ -14,9 +14,9 @@ import {
   DropdownMenuSubContent,
   DropdownMenuPortal,
 } from '@/components/ui/dropdown-menu';
-import { Edit, Trash2, Palette, Link2, Check } from 'lucide-react';
+import { Edit, Trash2, Palette, Link2, Check, Unlink } from 'lucide-react';
 import useClinicalStore from '@/stores/clinicalStore';
-import type { ClinicalNodeType, ABCCardColor } from '@/types/clinicalTypes';
+import type { ClinicalNodeType, ABCCardColor, SchemaData } from '@/types/clinicalTypes';
 import { cn } from '@/shared/utils';
 
 const cardColorOptions: { label: string; value: ABCCardColor, style: string }[] = [
@@ -39,7 +39,10 @@ const NodeContextMenu: React.FC = () => {
     deleteCard,
     deleteSchema,
     changeCardColor,
-    cards, // To get current color for checkmark
+    cards,
+    schemas,
+    linkCardToSchema,
+    unlinkCardFromSchema,
   } = useClinicalStore();
 
   if (!isContextMenuOpen || !contextMenuPosition || !contextMenuNodeId || !contextMenuNodeType) {
@@ -47,11 +50,13 @@ const NodeContextMenu: React.FC = () => {
   }
 
   const currentCard = contextMenuNodeType === 'abcCard' ? cards.find(c => c.id === contextMenuNodeId) : null;
+  const currentSchema = contextMenuNodeType === 'schemaNode' ? schemas.find(s => s.id === contextMenuNodeId) : null;
 
   const handleEdit = () => {
     if (contextMenuNodeType === 'abcCard' && contextMenuNodeId) {
       openABCForm(contextMenuNodeId);
-    } else if (contextMenuNodeType === 'schemaNode') {
+    } else if (contextMenuNodeType === 'schemaNode' && contextMenuNodeId) {
+      // TODO: Implement openSchemaForm(contextMenuNodeId)
       console.info("Editar Esquema (ainda não implementado):", contextMenuNodeId);
     }
     closeContextMenu();
@@ -70,17 +75,27 @@ const NodeContextMenu: React.FC = () => {
     if (contextMenuNodeType === 'abcCard' && contextMenuNodeId) {
       changeCardColor(contextMenuNodeId, color);
     }
-    // closeContextMenu(); // Color change should be quick, no need to close immediately unless desired
   };
 
-  const handleLinkToSchema = () => {
-    console.info("Vincular a esquema (ainda não implementado):", contextMenuNodeId);
-    closeContextMenu();
+  const handleToggleLinkToSchema = (schemaId: string) => {
+    if (currentCard) {
+      const schema = schemas.find(s => s.id === schemaId);
+      if (schema && schema.linkedCardIds.includes(currentCard.id)) {
+        unlinkCardFromSchema(schemaId, currentCard.id);
+      } else {
+        linkCardToSchema(schemaId, currentCard.id);
+      }
+    }
   };
-  
-  const handleLinkCardToSchema = () => {
-    console.info("Vincular card a este esquema (ainda não implementado):", contextMenuNodeId);
-    closeContextMenu();
+
+  const handleToggleLinkToCard = (cardId: string) => {
+    if (currentSchema) {
+      if (currentSchema.linkedCardIds.includes(cardId)) {
+        unlinkCardFromSchema(currentSchema.id, cardId);
+      } else {
+        linkCardToSchema(currentSchema.id, cardId);
+      }
+    }
   };
 
   return (
@@ -91,27 +106,27 @@ const NodeContextMenu: React.FC = () => {
         top: contextMenuPosition.y,
         zIndex: 1000,
       }}
-      onContextMenu={(e) => e.preventDefault()} // Prevent native context menu on our custom one
+      onContextMenu={(e) => e.preventDefault()} 
     >
       <DropdownMenu open={isContextMenuOpen} onOpenChange={(open) => !open && closeContextMenu()}>
         <DropdownMenuTrigger asChild> 
             <button style={{ display: 'none' }} aria-hidden="true" />
         </DropdownMenuTrigger>
         <DropdownMenuContent 
-            className="w-56" 
-            onCloseAutoFocus={(e) => e.preventDefault()} // Prevent focus shift on close
-            onPointerDownOutside={closeContextMenu} // Close if clicking outside the menu
+            className="w-60" 
+            onCloseAutoFocus={(e) => e.preventDefault()}
+            onPointerDownOutside={closeContextMenu}
         >
           <DropdownMenuLabel>
-            {contextMenuNodeType === 'abcCard' ? 'Opções do Card ABC' : 'Opções do Esquema'}
+            {contextMenuNodeType === 'abcCard' ? `Card: ${currentCard?.title.substring(0,25) || 'Card ABC'}...` : `Esquema: ${currentSchema?.rule.substring(0,25) || 'Esquema'}...`}
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={handleEdit}>
             <Edit className="mr-2 h-4 w-4" />
-            <span>{contextMenuNodeType === 'abcCard' ? 'Editar Card' : 'Editar Esquema'}</span>
+            <span>{contextMenuNodeType === 'abcCard' ? 'Editar Card' : 'Editar Esquema (Em breve)'}</span>
           </DropdownMenuItem>
 
-          {contextMenuNodeType === 'abcCard' && (
+          {contextMenuNodeType === 'abcCard' && currentCard && (
             <>
               <DropdownMenuSub>
                 <DropdownMenuSubTrigger>
@@ -122,7 +137,7 @@ const NodeContextMenu: React.FC = () => {
                   <DropdownMenuSubContent>
                     {cardColorOptions.map(opt => (
                       <DropdownMenuItem key={opt.value} onClick={() => handleSetColor(opt.value)}>
-                        <div className={cn("w-3 h-3 rounded-full mr-2", opt.style.split(' ')[0])} /> {/* Show color swatch */}
+                        <div className={cn("w-3 h-3 rounded-full mr-2", opt.style.split(' ')[0])} />
                         <span>{opt.label}</span>
                         {currentCard?.color === opt.value && <Check className="ml-auto h-4 w-4" />}
                       </DropdownMenuItem>
@@ -130,18 +145,53 @@ const NodeContextMenu: React.FC = () => {
                   </DropdownMenuSubContent>
                 </DropdownMenuPortal>
               </DropdownMenuSub>
-              <DropdownMenuItem onClick={handleLinkToSchema} disabled>
-                <Link2 className="mr-2 h-4 w-4" />
-                <span>Vincular a Esquema (Em breve)</span>
-              </DropdownMenuItem>
+              
+              <DropdownMenuSub>
+                <DropdownMenuSubTrigger>
+                  <Link2 className="mr-2 h-4 w-4" />
+                  <span>Vincular/Desvincular Esquema</span>
+                </DropdownMenuSubTrigger>
+                <DropdownMenuPortal>
+                  <DropdownMenuSubContent className="max-h-60 overflow-y-auto">
+                    {schemas.length === 0 && <DropdownMenuItem disabled>Nenhum esquema disponível</DropdownMenuItem>}
+                    {schemas.map(schema => {
+                      const isAlreadyLinked = schema.linkedCardIds.includes(currentCard.id);
+                      return (
+                        <DropdownMenuItem key={schema.id} onClick={() => handleToggleLinkToSchema(schema.id)}>
+                          {isAlreadyLinked ? <Unlink className="mr-2 h-3.5 w-3.5 text-destructive" /> : <Link2 className="mr-2 h-3.5 w-3.5 text-green-600" />}
+                          <span className="truncate" title={schema.rule}>{schema.rule}</span>
+                          {isAlreadyLinked && <Check className="ml-auto h-4 w-4 text-accent" />}
+                        </DropdownMenuItem>
+                      );
+                    })}
+                  </DropdownMenuSubContent>
+                </DropdownMenuPortal>
+              </DropdownMenuSub>
             </>
           )}
           
-          {contextMenuNodeType === 'schemaNode' && (
-             <DropdownMenuItem onClick={handleLinkCardToSchema} disabled>
-                <Link2 className="mr-2 h-4 w-4" />
-                <span>Vincular Card (Em breve)</span>
-              </DropdownMenuItem>
+          {contextMenuNodeType === 'schemaNode' && currentSchema && (
+             <DropdownMenuSub>
+                <DropdownMenuSubTrigger>
+                  <Link2 className="mr-2 h-4 w-4" />
+                  <span>Vincular/Desvincular Card</span>
+                </DropdownMenuSubTrigger>
+                <DropdownMenuPortal>
+                  <DropdownMenuSubContent className="max-h-60 overflow-y-auto">
+                     {cards.length === 0 && <DropdownMenuItem disabled>Nenhum card ABC disponível</DropdownMenuItem>}
+                     {cards.map(card => {
+                        const isAlreadyLinked = currentSchema.linkedCardIds.includes(card.id);
+                        return (
+                            <DropdownMenuItem key={card.id} onClick={() => handleToggleLinkToCard(card.id)}>
+                                {isAlreadyLinked ? <Unlink className="mr-2 h-3.5 w-3.5 text-destructive" /> : <Link2 className="mr-2 h-3.5 w-3.5 text-green-600" />}
+                                <span className="truncate" title={card.title}>{card.title}</span>
+                                {isAlreadyLinked && <Check className="ml-auto h-4 w-4 text-accent" />}
+                            </DropdownMenuItem>
+                        );
+                     })}
+                  </DropdownMenuSubContent>
+                </DropdownMenuPortal>
+              </DropdownMenuSub>
           )}
 
           <DropdownMenuSeparator />

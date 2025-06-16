@@ -70,7 +70,7 @@ export interface ClinicalState {
 
   // Ações para schemas
   addSchema: (data: Omit<SchemaData, 'id' | 'linkedCardIds' | 'position'>) => void;
-  updateSchema: (schemaId: string, updates: Partial<Omit<SchemaData, 'id' | 'position'>>) => void;
+  updateSchema: (schemaId: string, updates: Partial<Omit<SchemaData, 'id' | 'position' | 'linkedCardIds'>>) => void;
   deleteSchema: (schemaId: string) => void;
   linkCardToSchema: (schemaId: string, cardId: string) => void;
   unlinkCardFromSchema: (schemaId: string, cardId: string) => void;
@@ -145,7 +145,7 @@ const useClinicalStore = create<ClinicalState>((set, get) => ({
   updateCard: (cardId, updates) =>
     set((state) => {
       const updatedCards = state.cards.map((card) =>
-        card.id === cardId ? { ...card, ...updates, id: card.id } : card // Ensure id is preserved
+        card.id === cardId ? { ...card, ...updates, id: card.id } : card
       );
       const updatedNodes = state.nodes.map((node) =>
         node.id === cardId && node.type === 'abcCard' ? { ...node, data: updatedCards.find(c => c.id === cardId) as ABCCardData } : node
@@ -158,10 +158,18 @@ const useClinicalStore = create<ClinicalState>((set, get) => ({
         ...schema,
         linkedCardIds: schema.linkedCardIds.filter(id => id !== cardId)
       }));
+       const updatedSchemaNodes = state.nodes
+        .filter(node => node.type === 'schemaNode')
+        .map(node => {
+            const schemaData = updatedSchemas.find(s => s.id === node.id);
+            return schemaData ? {...node, data: schemaData as SchemaData } : node;
+        });
+
       return {
         cards: state.cards.filter((card) => card.id !== cardId),
         schemas: updatedSchemas,
-        nodes: state.nodes.filter((node) => node.id !== cardId),
+        nodes: state.nodes.filter((node) => node.id !== cardId)
+                        .map(node => updatedSchemaNodes.find(usn => usn.id === node.id) || node), // Update schema nodes
         edges: state.edges.filter((edge) => edge.source !== cardId && edge.target !== cardId),
       };
     }),
@@ -199,7 +207,7 @@ const useClinicalStore = create<ClinicalState>((set, get) => ({
   updateSchema: (schemaId, updates) => 
     set((state) => {
       const updatedSchemas = state.schemas.map((schema) =>
-        schema.id === schemaId ? { ...schema, ...updates, id: schema.id } : schema // Ensure id is preserved
+        schema.id === schemaId ? { ...schema, ...updates, id: schema.id } : schema
       );
       const updatedNodes = state.nodes.map((node) =>
         node.id === schemaId && node.type === 'schemaNode' ? { ...node, data: updatedSchemas.find(s => s.id === schemaId) as SchemaData } : node
@@ -212,22 +220,26 @@ const useClinicalStore = create<ClinicalState>((set, get) => ({
       nodes: state.nodes.filter((node) => node.id !== schemaId),
       edges: state.edges.filter((edge) => edge.source !== schemaId && edge.target !== schemaId),
     })),
-  linkCardToSchema: (schemaId, cardId) =>
-    set((state) => ({
-      schemas: state.schemas.map((schema) =>
-        schema.id === schemaId && !schema.linkedCardIds.includes(cardId)
-          ? { ...schema, linkedCardIds: [...schema.linkedCardIds, cardId] }
-          : schema
-      ),
-    })),
-  unlinkCardFromSchema: (schemaId, cardId) =>
-    set((state) => ({
-      schemas: state.schemas.map((schema) =>
-        schema.id === schemaId
-          ? { ...schema, linkedCardIds: schema.linkedCardIds.filter((id) => id !== cardId) }
-          : schema
-      ),
-    })),
+  linkCardToSchema: (schemaId, cardId) => {
+    set((state) => {
+      const targetSchema = state.schemas.find(s => s.id === schemaId);
+      if (targetSchema && !targetSchema.linkedCardIds.includes(cardId)) {
+        const updatedSchema = { ...targetSchema, linkedCardIds: [...targetSchema.linkedCardIds, cardId] };
+        get().updateSchema(schemaId, updatedSchema); // Use updateSchema to propagate to nodes
+      }
+      return {}; // updateSchema handles state update
+    });
+  },
+  unlinkCardFromSchema: (schemaId, cardId) => {
+     set((state) => {
+      const targetSchema = state.schemas.find(s => s.id === schemaId);
+      if (targetSchema && targetSchema.linkedCardIds.includes(cardId)) {
+        const updatedSchema = { ...targetSchema, linkedCardIds: targetSchema.linkedCardIds.filter(id => id !== cardId) };
+        get().updateSchema(schemaId, updatedSchema); // Use updateSchema to propagate to nodes
+      }
+      return {}; // updateSchema handles state update
+    });
+  },
   updateSchemaPosition: (schemaId, position) =>
     set(state => ({
       nodes: state.nodes.map(node => (node.id === schemaId && node.type === 'schemaNode') ? {...node, position} : node),
@@ -255,7 +267,8 @@ const useClinicalStore = create<ClinicalState>((set, get) => ({
                 }
             }
         } else if (change.type === 'remove') {
-            const nodeToRemove = get().nodes.find(n => n.id === change.id); // get current nodes before filtering
+            const stateBeforeRemove = get();
+            const nodeToRemove = stateBeforeRemove.nodes.find(n => n.id === change.id);
             if (nodeToRemove) {
               if (nodeToRemove.type === 'abcCard') {
                 get().deleteCard(change.id);
@@ -324,6 +337,7 @@ const useClinicalStore = create<ClinicalState>((set, get) => ({
     const cards: ABCCardData[] = mockCardsData.map((data, i) => ({...data, id: `c${i+1}`, position: { x: 100 + i * 350, y: 100 }}));
     const schemas: SchemaData[] = mockSchemasData.map((data, i) => ({...data, id: `s${i+1}`, linkedCardIds: [], position: { x: 150 + i * 350, y: 450 }}));
     
+    // Simula alguns vínculos
     if (schemas[0] && cards[0]) schemas[0].linkedCardIds.push(cards[0].id);
     if (schemas[1] && cards[1]) schemas[1].linkedCardIds.push(cards[1].id);
 
@@ -345,6 +359,7 @@ const useClinicalStore = create<ClinicalState>((set, get) => ({
   saveClinicalData: async (patientId) => {
     const { cards, schemas, insights, edges, viewport, nodes } = get();
     
+    // Garante que as posições mais recentes dos nós (do React Flow) são salvas nos objetos cards/schemas
     const finalCards = cards.map(card => {
         const node = nodes.find(n => n.id === card.id && n.type === 'abcCard');
         return node && node.position ? { ...card, position: node.position } : card;

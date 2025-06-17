@@ -34,7 +34,7 @@ import SchemaPanel from './SchemaPanel';
 import InsightPanel from './InsightPanel';
 import FormulationGuidePanel from './FormulationGuidePanel';
 import QuickNotesPanel from './QuickNotesPanel';
-import type { ClinicalNodeData, ConnectionLabel, SchemaData, ABCCardData, ClinicalNodeType, QuickNote, CardGroupInfo } from '@/types/clinicalTypes';
+import type { ClinicalNodeData, ConnectionLabel, SchemaData, ABCCardData, ClinicalNodeType, QuickNote, CardGroupInfo, ABCCardColor } from '@/types/clinicalTypes';
 import { isABCCardData, isSchemaData } from '@/types/clinicalTypes';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/shared/utils';
@@ -50,12 +50,25 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+  DropdownMenuCheckboxItem,
+  DropdownMenuSub,
+  DropdownMenuSubTrigger,
+  DropdownMenuSubContent,
+  DropdownMenuPortal
+} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
   PanelLeftOpen, PanelLeftClose, HelpCircle as FormulationGuideIcon, CheckSquare, StickyNote, Maximize, Minimize, ZoomIn, ZoomOut, Settings, ListTree,
-  PlusCircle, Share2, Users, Lightbulb, Save, RotateCcw, GripVertical, GripHorizontal, MessageSquare
+  PlusCircle, Share2, Users, Lightbulb, Save, RotateCcw, GripVertical, GripHorizontal, MessageSquare, Palette, Check
 } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 
@@ -77,6 +90,16 @@ const groupBorderColors = [
     { label: "Rosa", value: "border-pink-500", badgeBg: "bg-pink-500/20" },
 ];
 
+const allCardColors: { label: string; value: ABCCardColor; style: string }[] = [
+  { label: 'Padrão', value: 'default', style: 'bg-card border-border' },
+  { label: 'Alerta (Vermelho)', value: 'red', style: 'bg-red-500/20 border-red-500/40 text-red-800 dark:text-red-300' },
+  { label: 'Positivo (Verde)', value: 'green', style: 'bg-green-500/20 border-green-500/40 text-green-800 dark:text-green-300' },
+  { label: 'Neutro (Azul)', value: 'blue', style: 'bg-blue-500/20 border-blue-500/40 text-blue-800 dark:text-blue-300' },
+  { label: 'Observação (Amarelo)', value: 'yellow', style: 'bg-yellow-500/20 border-yellow-500/40 text-yellow-800 dark:text-yellow-300' },
+  { label: 'Hipótese (Roxo)', value: 'purple', style: 'bg-purple-500/20 border-purple-500/40 text-purple-800 dark:text-purple-300' },
+];
+
+
 const FormulationMap: React.FC = () => {
   const {
     nodes: storeNodes,
@@ -93,8 +116,6 @@ const FormulationMap: React.FC = () => {
     setInsights,
     openContextMenu,
     isContextMenuOpen,
-    toolbarOrientation,
-    toggleToolbarOrientation,
     openABCForm,
     openSchemaForm,
     openQuickNoteForm,
@@ -110,6 +131,12 @@ const FormulationMap: React.FC = () => {
     selectedFlowNodes,
     setSelectedFlowNodes,
     get: getClinicalStore,
+    activeColorFilters,
+    setColorFilters,
+    showSchemaNodes,
+    toggleShowSchemaNodes,
+    toolbarOrientation,
+    toggleToolbarOrientation,
   } = useClinicalStore();
 
   const reactFlowInstance = useReactFlow();
@@ -143,10 +170,7 @@ const FormulationMap: React.FC = () => {
 
   const handleGenerateInsights = async () => {
     setIsGeneratingInsights(true);
-    const currentNodes = reactFlowInstance.getNodes();
-    const currentEdges = reactFlowInstance.getEdges();
     
-    // Simulate insights based on current data in store
     const { cards, schemas, runAnalysis } = getClinicalStore();
     const insightsFromAnalysis = await runAnalysis(cards, schemas);
 
@@ -163,7 +187,7 @@ const FormulationMap: React.FC = () => {
   );
 
   const onPaneClick = useCallback(() => {
-    // useClinicalStore.getState().closeContextMenu();
+    useClinicalStore.getState().closeContextMenu();
   }, []);
 
   const onEdgeDoubleClick = useCallback(
@@ -211,10 +235,50 @@ const FormulationMap: React.FC = () => {
   const commonButtonClass = "h-7 w-7";
   const commonIconClass = "h-3.5 w-3.5";
 
+
+  const filteredNodes = useMemo(() => {
+    let nodesToDisplay = storeNodes;
+
+    // Filter by schema node visibility
+    if (!showSchemaNodes) {
+      nodesToDisplay = nodesToDisplay.filter(node => node.type !== 'schemaNode');
+    }
+
+    // Filter ABC cards by color
+    const allColorsAreActive = activeColorFilters.length === allCardColors.length;
+    if (!allColorsAreActive) {
+      nodesToDisplay = nodesToDisplay.filter(node => {
+        if (node.type === 'abcCard' && isABCCardData(node.data)) {
+          return activeColorFilters.includes(node.data.color);
+        }
+        return true; // Keep non-abcCard nodes (like schemas if shown)
+      });
+    }
+    
+    // Filter by emotion intensity
+    if (emotionIntensityFilter > 0) {
+      nodesToDisplay = nodesToDisplay.filter(node => {
+        if (node.type === 'abcCard' && isABCCardData(node.data)) {
+          return (node.data.antecedent.emotionIntensity ?? 0) >= emotionIntensityFilter;
+        }
+        return true;
+      });
+    }
+    return nodesToDisplay;
+  }, [storeNodes, showSchemaNodes, activeColorFilters, emotionIntensityFilter]);
+
+  const handleColorFilterChange = (colorValue: ABCCardColor, checked: boolean) => {
+    const newFilters = checked
+      ? [...activeColorFilters, colorValue]
+      : activeColorFilters.filter(c => c !== colorValue);
+    setColorFilters(newFilters);
+  };
+
+
   return (
     <div ref={mapContainerRef} className={cn("h-full w-full border rounded-md shadow-sm bg-muted/10 relative")}>
        <ReactFlow
-          nodes={storeNodes || []}
+          nodes={filteredNodes || []}
           edges={storeEdges || []}
           onNodesChange={storeOnNodesChange}
           onEdgesChange={storeOnEdgesChange}
@@ -232,13 +296,19 @@ const FormulationMap: React.FC = () => {
           <Background variant={BackgroundVariant.Dots} gap={16} size={1} />
           <Controls position="bottom-left"/>
           
-          <Panel position={toolbarOrientation === 'horizontal' ? 'top-center' : 'left-center'} className={cn("!m-0 p-0 bg-transparent border-none shadow-none")}>
+          <Panel 
+            position={toolbarOrientation === 'horizontal' ? 'top-center' : 'left-center'} 
+            className={cn(
+              "!m-0 p-0 bg-transparent border-none shadow-none",
+              toolbarOrientation === 'vertical' ? "h-fit" : "w-fit"
+            )}
+          >
             <div
               className={cn(
                 "bg-background/90 backdrop-blur-sm shadow-lg border border-border rounded-lg flex items-center p-1",
                 toolbarOrientation === 'horizontal'
-                  ? "flex-row flex-nowrap gap-1 overflow-x-auto max-w-fit mx-auto"
-                  : "flex-col items-stretch gap-1.5 w-auto p-1.5" // items-stretch for vertical
+                  ? "flex-row flex-nowrap gap-1 overflow-x-auto max-w-[calc(100vw-4rem)]" // Limit width and allow scroll
+                  : "flex-col items-stretch gap-1.5 w-auto p-1.5"
               )}
             >
               <Button variant="ghost" size="icon" className={cn(commonButtonClass, "cursor-pointer")} onClick={toggleToolbarOrientation} title={toolbarOrientation === 'horizontal' ? "Menu Vertical (Esquerda)" : "Menu Horizontal (Topo)"}>
@@ -246,7 +316,8 @@ const FormulationMap: React.FC = () => {
               </Button>
 
               {toolbarOrientation === 'vertical' ? <Separator orientation="horizontal" className="my-0.5 w-full" /> : <Separator orientation="vertical" className="h-5 w-px mx-0.5" />}
-
+              
+              {/* Botões de Painéis Laterais */}
               <Button variant="outline" size="icon" className={commonButtonClass} onClick={toggleSchemaPanelVisibility} title={isSchemaPanelVisible ? "Ocultar Painel de Esquemas" : "Mostrar Painel de Esquemas"}>
                 {isSchemaPanelVisible ? <PanelLeftClose className={commonIconClass} /> : <ListTree className={commonIconClass} />}
               </Button>
@@ -259,6 +330,7 @@ const FormulationMap: React.FC = () => {
 
               {toolbarOrientation === 'vertical' ? <Separator orientation="horizontal" className="my-0.5 w-full" /> : <Separator orientation="vertical" className="h-5 w-px mx-0.5" />}
               
+              {/* Botões de Adicionar Elementos */}
               <Button variant="outline" size="icon" className={commonButtonClass} onClick={() => openABCForm()} title="Novo Card ABC">
                 <PlusCircle className={commonIconClass} />
               </Button>
@@ -311,7 +383,40 @@ const FormulationMap: React.FC = () => {
               </Button>
               
               {toolbarOrientation === 'vertical' ? <Separator orientation="horizontal" className="my-0.5 w-full" /> : <Separator orientation="vertical" className="h-5 w-px mx-0.5" />}
-              
+
+              {/* Filtros */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="icon" className={commonButtonClass} title="Filtrar Cards por Cor">
+                    <Palette className={commonIconClass} />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56">
+                  <DropdownMenuLabel>Filtrar Cards por Cor</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  {allCardColors.map((colorOpt) => (
+                    <DropdownMenuCheckboxItem
+                      key={colorOpt.value}
+                      checked={activeColorFilters.includes(colorOpt.value)}
+                      onCheckedChange={(checked) => handleColorFilterChange(colorOpt.value, !!checked)}
+                    >
+                      <div className={cn("w-3 h-3 rounded-full mr-2 border", colorOpt.style.split(' ')[0], colorOpt.style.split(' ')[1])} />
+                      {colorOpt.label}
+                    </DropdownMenuCheckboxItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              <Button 
+                variant="outline" 
+                size="icon" 
+                className={cn(commonButtonClass, !showSchemaNodes && "opacity-50")} 
+                onClick={toggleShowSchemaNodes} 
+                title={showSchemaNodes ? "Ocultar Esquemas" : "Mostrar Esquemas"}
+              >
+                <ListTree className={commonIconClass} />
+              </Button>
+
               <div className={cn(
                 "flex items-center gap-0.5 p-0.5 border rounded-md bg-muted/30 h-7",
                 toolbarOrientation === 'vertical' && "flex-col w-full py-1 items-stretch"
@@ -331,6 +436,7 @@ const FormulationMap: React.FC = () => {
 
               {toolbarOrientation === 'vertical' ? <Separator orientation="horizontal" className="my-0.5 w-full" /> : <Separator orientation="vertical" className="h-5 w-px mx-0.5" />}
               
+              {/* Botões de Ação */}
               <Button variant="outline" size="icon" onClick={handleGenerateInsights} disabled={isGeneratingInsights} title="Gerar Insights de IA" className={commonButtonClass}>
                 <Lightbulb className={commonIconClass} /> {isGeneratingInsights && <span className="text-[9px] animate-pulse">...</span>}
               </Button>
@@ -340,6 +446,7 @@ const FormulationMap: React.FC = () => {
 
               {toolbarOrientation === 'vertical' ? <Separator orientation="horizontal" className="my-0.5 w-full" /> : <Separator orientation="vertical" className="h-5 w-px mx-0.5" />}
 
+              {/* Controles de Visualização */}
               <Button variant="outline" size="icon" onClick={toggleFullscreenHandler} title={isFullscreen ? "Sair Tela Cheia" : "Tela Cheia"} className={commonButtonClass}>
                 {isFullscreen ? <Minimize className={commonIconClass} /> : <Maximize className={commonIconClass} />}
               </Button>
@@ -367,13 +474,9 @@ const FormulationMap: React.FC = () => {
                 <QuickNotesPanel />
             </Panel>
           )}
-          {/* The InsightPanel can be toggled via a button in the MapToolbar if needed, or be permanently visible.
-              For now, let's assume it's a permanent fixture or controlled elsewhere if it needs to be toggled.
-              If permanent:
           <Panel position="bottom-left" className="!m-0 p-0 shadow-xl border rounded-lg bg-card w-72 h-2/5 max-h-[400px] flex flex-col">
             <InsightPanel />
           </Panel>
-          */}
         </ReactFlow>
       
       {isContextMenuOpen && <NodeContextMenu />}

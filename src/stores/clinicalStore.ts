@@ -36,9 +36,9 @@ const initialFormulationGuideQuestions: FormulationGuideQuestion[] = [
 ];
 
 
-const allCardColors: ABCCardColor[] = ['default', 'red', 'green', 'blue', 'yellow', 'purple'];
+export const allCardColors: ABCCardColor[] = ['default', 'red', 'green', 'blue', 'yellow', 'purple'];
 
-const initialToolbarPosition = { x: 0, y: 0 }; // Não usado para toolbar fixa, mas pode ser usado para outras coisas
+const initialToolbarPosition = { x: 0, y: 0 };
 
 
 export interface ClinicalState {
@@ -131,6 +131,7 @@ export interface ClinicalState {
   closeContextMenu: () => void;
 
   setColorFilters: (colors: ABCCardColor[]) => void;
+  setAllColorFilters: (show: boolean) => void; // Nova ação
   toggleShowSchemaNodes: () => void;
   toggleSchemaPanelVisibility: () => void;
   toggleFormulationGuidePanelVisibility: () => void;
@@ -489,6 +490,7 @@ const useClinicalStore = create<ClinicalState>((set, get) => ({
   }),
 
   setColorFilters: (colors) => set({ activeColorFilters: colors }),
+  setAllColorFilters: (show) => set({ activeColorFilters: show ? [...allCardColors] : [] }),
   toggleShowSchemaNodes: () => set(state => ({ showSchemaNodes: !state.showSchemaNodes })),
   toggleSchemaPanelVisibility: () => set(state => ({ isSchemaPanelVisible: !state.isSchemaPanelVisible })),
   toggleFormulationGuidePanelVisibility: () => set(state => ({ isFormulationGuidePanelVisible: !state.isFormulationGuidePanelVisible })),

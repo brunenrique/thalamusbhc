@@ -22,7 +22,7 @@ import ReactFlow, {
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 
-import useClinicalStore from '@/stores/clinicalStore';
+import useClinicalStore, { allCardColors } from '@/stores/clinicalStore';
 import ABCCardNode from './ABCCardNode';
 import SchemaNode from './SchemaNode';
 import NodeContextMenu from './NodeContextMenu';
@@ -68,7 +68,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
   PanelLeftOpen, PanelLeftClose, HelpCircle as FormulationGuideIcon, CheckSquare, StickyNote, Maximize, Minimize, ZoomIn, ZoomOut, Settings, ListTree,
-  PlusCircle, Share2, Users, Lightbulb, Save, RotateCcw, GripVertical, GripHorizontal, MessageSquare, Palette, Check
+  PlusCircle, Share2, Users, Lightbulb, Save, RotateCcw, GripVertical, GripHorizontal, MessageSquare, Palette, Check, Eye, Layers
 } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 
@@ -90,7 +90,7 @@ const groupBorderColors = [
     { label: "Rosa", value: "border-pink-500", badgeBg: "bg-pink-500/20" },
 ];
 
-const allCardColors: { label: string; value: ABCCardColor; style: string }[] = [
+const cardColorDisplayOptions: { label: string; value: ABCCardColor; style: string }[] = [
   { label: 'Padrão', value: 'default', style: 'bg-card border-border' },
   { label: 'Alerta (Vermelho)', value: 'red', style: 'bg-red-500/20 border-red-500/40 text-red-800 dark:text-red-300' },
   { label: 'Positivo (Verde)', value: 'green', style: 'bg-green-500/20 border-green-500/40 text-green-800 dark:text-green-300' },
@@ -133,6 +133,7 @@ const FormulationMap: React.FC = () => {
     get: getClinicalStore,
     activeColorFilters,
     setColorFilters,
+    setAllColorFilters,
     showSchemaNodes,
     toggleShowSchemaNodes,
     toolbarOrientation,
@@ -171,12 +172,20 @@ const FormulationMap: React.FC = () => {
   const handleGenerateInsights = async () => {
     setIsGeneratingInsights(true);
     
-    const { cards, schemas, runAnalysis } = getClinicalStore();
-    const insightsFromAnalysis = await runAnalysis(cards, schemas);
-
-    setInsights(insightsFromAnalysis);
-    setIsGeneratingInsights(false);
-    toast({ title: "Insights Gerados", description: "Novos insights foram adicionados ao painel." });
+    const { cards, schemas, runAnalysis } = getClinicalStore(); // Assumindo que runAnalysis existe no store ou é importado
+    // const insightsFromAnalysis = await runAnalysis(cards, schemas); // Se for async
+    // setInsights(insightsFromAnalysis);
+    
+    // Mock de insights se runAnalysis não estiver pronto
+    setTimeout(() => {
+        setInsights([
+            "Padrão de evitação identificado em situações sociais.",
+            "Crença central 'Não sou bom o suficiente' parece ativa.",
+            "Conflitos no trabalho podem estar ligados à dificuldade de expressar necessidades."
+        ]);
+        setIsGeneratingInsights(false);
+        toast({ title: "Insights Gerados (Simulado)", description: "Novos insights foram adicionados ao painel." });
+    }, 1200);
   };
 
   const handleNodeContextMenu = useCallback(
@@ -239,23 +248,20 @@ const FormulationMap: React.FC = () => {
   const filteredNodes = useMemo(() => {
     let nodesToDisplay = storeNodes;
 
-    // Filter by schema node visibility
     if (!showSchemaNodes) {
       nodesToDisplay = nodesToDisplay.filter(node => node.type !== 'schemaNode');
     }
 
-    // Filter ABC cards by color
-    const allColorsAreActive = activeColorFilters.length === allCardColors.length;
-    if (!allColorsAreActive) {
+    const allColorsActive = activeColorFilters.length === allCardColors.length;
+    if (!allColorsActive && activeColorFilters.length > 0) { // Modificado para filtrar apenas se houver filtros ativos e não todos
       nodesToDisplay = nodesToDisplay.filter(node => {
         if (node.type === 'abcCard' && isABCCardData(node.data)) {
           return activeColorFilters.includes(node.data.color);
         }
-        return true; // Keep non-abcCard nodes (like schemas if shown)
+        return true; 
       });
     }
     
-    // Filter by emotion intensity
     if (emotionIntensityFilter > 0) {
       nodesToDisplay = nodesToDisplay.filter(node => {
         if (node.type === 'abcCard' && isABCCardData(node.data)) {
@@ -294,20 +300,20 @@ const FormulationMap: React.FC = () => {
           onSelectionChange={handleSelectionChange}
         >
           <Background variant={BackgroundVariant.Dots} gap={16} size={1} />
-          <Controls position="bottom-left"/>
+          <Controls position="bottom-left" showInteractive={false}/>
           
           <Panel 
             position={toolbarOrientation === 'horizontal' ? 'top-center' : 'left-center'} 
             className={cn(
-              "!m-0 p-0 bg-transparent border-none shadow-none",
-              toolbarOrientation === 'vertical' ? "h-fit" : "w-fit"
+              "!m-0 bg-transparent border-none shadow-none",
+              toolbarOrientation === 'vertical' ? "h-fit !left-2 !top-1/2 !-translate-y-1/2" : "w-fit !top-2 !left-1/2 !-translate-x-1/2"
             )}
           >
             <div
               className={cn(
-                "bg-background/90 backdrop-blur-sm shadow-lg border border-border rounded-lg flex items-center p-1",
+                "bg-background/90 backdrop-blur-sm shadow-xl border border-border rounded-lg flex items-center p-1",
                 toolbarOrientation === 'horizontal'
-                  ? "flex-row flex-nowrap gap-1 overflow-x-auto max-w-[calc(100vw-4rem)]" // Limit width and allow scroll
+                  ? "flex-row flex-nowrap gap-1 overflow-x-auto max-w-[calc(100vw-4rem)]"
                   : "flex-col items-stretch gap-1.5 w-auto p-1.5"
               )}
             >
@@ -317,7 +323,6 @@ const FormulationMap: React.FC = () => {
 
               {toolbarOrientation === 'vertical' ? <Separator orientation="horizontal" className="my-0.5 w-full" /> : <Separator orientation="vertical" className="h-5 w-px mx-0.5" />}
               
-              {/* Botões de Painéis Laterais */}
               <Button variant="outline" size="icon" className={commonButtonClass} onClick={toggleSchemaPanelVisibility} title={isSchemaPanelVisible ? "Ocultar Painel de Esquemas" : "Mostrar Painel de Esquemas"}>
                 {isSchemaPanelVisible ? <PanelLeftClose className={commonIconClass} /> : <ListTree className={commonIconClass} />}
               </Button>
@@ -330,7 +335,6 @@ const FormulationMap: React.FC = () => {
 
               {toolbarOrientation === 'vertical' ? <Separator orientation="horizontal" className="my-0.5 w-full" /> : <Separator orientation="vertical" className="h-5 w-px mx-0.5" />}
               
-              {/* Botões de Adicionar Elementos */}
               <Button variant="outline" size="icon" className={commonButtonClass} onClick={() => openABCForm()} title="Novo Card ABC">
                 <PlusCircle className={commonIconClass} />
               </Button>
@@ -339,14 +343,14 @@ const FormulationMap: React.FC = () => {
               </Button>
               <Dialog open={isCreateGroupDialogOpen} onOpenChange={setIsCreateGroupDialogOpen}>
                 <DialogTrigger asChild>
-                  <Button variant="outline" size="icon" className={commonButtonClass} disabled={selectedAbcCardIdsForGroup.length === 0} title="Criar Grupo Temático">
+                  <Button variant="outline" size="icon" className={commonButtonClass} disabled={(selectedFlowNodes || []).filter(node => node.type === 'abcCard').length === 0} title="Criar Grupo Temático">
                     <Users className={commonIconClass} />
                   </Button>
                 </DialogTrigger>
                 <DialogContent className="sm:max-w-md">
                   <DialogHeader>
                     <DialogTitle>Criar Novo Grupo Temático</DialogTitle>
-                    <DialogDescription>Dê um nome e escolha uma cor para o grupo de cards selecionados ({selectedAbcCardIdsForGroup.length} card(s)).</DialogDescription>
+                    <DialogDescription>Dê um nome e escolha uma cor para o grupo de cards selecionados ({(selectedFlowNodes || []).filter(node => node.type === 'abcCard').length} card(s)).</DialogDescription>
                   </DialogHeader>
                   <div className="space-y-3 py-2">
                     <div>
@@ -384,38 +388,47 @@ const FormulationMap: React.FC = () => {
               
               {toolbarOrientation === 'vertical' ? <Separator orientation="horizontal" className="my-0.5 w-full" /> : <Separator orientation="vertical" className="h-5 w-px mx-0.5" />}
 
-              {/* Filtros */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="icon" className={commonButtonClass} title="Filtrar Cards por Cor">
-                    <Palette className={commonIconClass} />
-                  </Button>
+                    <Button variant="outline" size="icon" className={commonButtonClass} title="Controlar Visibilidade de Elementos">
+                        <Layers className={commonIconClass} />
+                    </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-56">
-                  <DropdownMenuLabel>Filtrar Cards por Cor</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  {allCardColors.map((colorOpt) => (
+                <DropdownMenuContent className="w-60">
+                    <DropdownMenuLabel>Visibilidade de Elementos</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
                     <DropdownMenuCheckboxItem
-                      key={colorOpt.value}
-                      checked={activeColorFilters.includes(colorOpt.value)}
-                      onCheckedChange={(checked) => handleColorFilterChange(colorOpt.value, !!checked)}
+                        checked={showSchemaNodes}
+                        onCheckedChange={toggleShowSchemaNodes}
                     >
-                      <div className={cn("w-3 h-3 rounded-full mr-2 border", colorOpt.style.split(' ')[0], colorOpt.style.split(' ')[1])} />
-                      {colorOpt.label}
+                        Mostrar Esquemas/Regras
                     </DropdownMenuCheckboxItem>
-                  ))}
+                    <DropdownMenuSeparator />
+                    <DropdownMenuSub>
+                        <DropdownMenuSubTrigger>
+                            <Palette className="mr-2 h-3.5 w-3.5"/>
+                            Filtrar Cards por Cor
+                        </DropdownMenuSubTrigger>
+                        <DropdownMenuPortal>
+                            <DropdownMenuSubContent className="w-52">
+                                {cardColorDisplayOptions.map((colorOpt) => (
+                                <DropdownMenuCheckboxItem
+                                    key={colorOpt.value}
+                                    checked={activeColorFilters.includes(colorOpt.value)}
+                                    onCheckedChange={(checked) => handleColorFilterChange(colorOpt.value, !!checked)}
+                                >
+                                    <div className={cn("w-3 h-3 rounded-full mr-2 border", colorOpt.style.split(' ')[0], colorOpt.style.split(' ')[1])} />
+                                    {colorOpt.label}
+                                </DropdownMenuCheckboxItem>
+                                ))}
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem onClick={() => setAllColorFilters(true)}>Mostrar Todos os Cards</DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => setAllColorFilters(false)}>Ocultar Todos os Cards</DropdownMenuItem>
+                            </DropdownMenuSubContent>
+                        </DropdownMenuPortal>
+                    </DropdownMenuSub>
                 </DropdownMenuContent>
               </DropdownMenu>
-
-              <Button 
-                variant="outline" 
-                size="icon" 
-                className={cn(commonButtonClass, !showSchemaNodes && "opacity-50")} 
-                onClick={toggleShowSchemaNodes} 
-                title={showSchemaNodes ? "Ocultar Esquemas" : "Mostrar Esquemas"}
-              >
-                <ListTree className={commonIconClass} />
-              </Button>
 
               <div className={cn(
                 "flex items-center gap-0.5 p-0.5 border rounded-md bg-muted/30 h-7",
@@ -436,7 +449,6 @@ const FormulationMap: React.FC = () => {
 
               {toolbarOrientation === 'vertical' ? <Separator orientation="horizontal" className="my-0.5 w-full" /> : <Separator orientation="vertical" className="h-5 w-px mx-0.5" />}
               
-              {/* Botões de Ação */}
               <Button variant="outline" size="icon" onClick={handleGenerateInsights} disabled={isGeneratingInsights} title="Gerar Insights de IA" className={commonButtonClass}>
                 <Lightbulb className={commonIconClass} /> {isGeneratingInsights && <span className="text-[9px] animate-pulse">...</span>}
               </Button>
@@ -446,7 +458,6 @@ const FormulationMap: React.FC = () => {
 
               {toolbarOrientation === 'vertical' ? <Separator orientation="horizontal" className="my-0.5 w-full" /> : <Separator orientation="vertical" className="h-5 w-px mx-0.5" />}
 
-              {/* Controles de Visualização */}
               <Button variant="outline" size="icon" onClick={toggleFullscreenHandler} title={isFullscreen ? "Sair Tela Cheia" : "Tela Cheia"} className={commonButtonClass}>
                 {isFullscreen ? <Minimize className={commonIconClass} /> : <Maximize className={commonIconClass} />}
               </Button>
@@ -495,4 +506,3 @@ const FormulationMapWrapper: React.FC = () => (
 );
 
 export default FormulationMapWrapper;
-

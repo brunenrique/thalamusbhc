@@ -38,6 +38,9 @@ const initialFormulationGuideQuestions: FormulationGuideQuestion[] = [
 
 const allCardColors: ABCCardColor[] = ['default', 'red', 'green', 'blue', 'yellow', 'purple'];
 
+const initialToolbarPosition = { x: 0, y: 0 }; // Não usado para toolbar fixa, mas pode ser usado para outras coisas
+
+
 export interface ClinicalState {
   cards: ABCCardData[];
   schemas: SchemaData[];
@@ -71,11 +74,12 @@ export interface ClinicalState {
   isFormulationGuidePanelVisible: boolean;
   isQuickNotesPanelVisible: boolean;
   emotionIntensityFilter: number;
-  toolbarOrientation: 'horizontal' | 'vertical'; // Novo estado
+  toolbarOrientation: 'horizontal' | 'vertical';
+  
 
   isQuickNoteFormOpen: boolean;
   quickNoteFormTarget: { cardId?: string; defaultText?: string; noteIdToEdit?: string } | null;
-  selectedFlowNodes?: Node[]; // Para rastrear nós selecionados no React Flow
+  selectedFlowNodes?: Node[];
 
 
   addCard: (data: Omit<ABCCardData, 'id' | 'position' | 'groupInfo'>) => void;
@@ -132,7 +136,8 @@ export interface ClinicalState {
   toggleFormulationGuidePanelVisibility: () => void;
   toggleQuickNotesPanelVisibility: () => void;
   setEmotionIntensityFilter: (intensity: number) => void;
-  toggleToolbarOrientation: () => void; // Nova ação
+  toggleToolbarOrientation: () => void;
+  
 
 
   fetchClinicalData: (patientId: string) => Promise<void>;
@@ -169,11 +174,13 @@ const useClinicalStore = create<ClinicalState>((set, get) => ({
 
   activeColorFilters: [...allCardColors],
   showSchemaNodes: true,
-  isSchemaPanelVisible: false, 
+  isSchemaPanelVisible: false,
   isFormulationGuidePanelVisible: false,
   isQuickNotesPanelVisible: false,
   emotionIntensityFilter: 0,
-  toolbarOrientation: 'horizontal', // Valor padrão
+  toolbarOrientation: 'horizontal',
+  
+
 
   isQuickNoteFormOpen: false,
   quickNoteFormTarget: null,
@@ -487,16 +494,19 @@ const useClinicalStore = create<ClinicalState>((set, get) => ({
   toggleFormulationGuidePanelVisibility: () => set(state => ({ isFormulationGuidePanelVisible: !state.isFormulationGuidePanelVisible })),
   toggleQuickNotesPanelVisibility: () => set(state => ({ isQuickNotesPanelVisible: !state.isQuickNotesPanelVisible })),
   setEmotionIntensityFilter: (intensity: number) => set({ emotionIntensityFilter: intensity }),
-  toggleToolbarOrientation: () => set(state => ({ toolbarOrientation: state.toolbarOrientation === 'horizontal' ? 'vertical' : 'horizontal' })),
+  toggleToolbarOrientation: () => set(state => ({ 
+      toolbarOrientation: state.toolbarOrientation === 'horizontal' ? 'vertical' : 'horizontal' 
+  })),
+  
 
 
   fetchClinicalData: async (patientId) => {
-    
+    // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 300));
 
     const mockCardsData: Omit<ABCCardData, 'id' | 'position' | 'groupInfo'>[] = [
       { title: 'Ansiedade Social em Evento X', antecedent: { external: 'Convite para festa importante na empresa.', internal: 'Pensamentos: "Vou fazer papel de bobo", "Ninguém vai querer conversar comigo". Sentimento: Medo (80%), Vergonha (70%).', emotionIntensity: 80, thoughtBelief: 90 }, behavior: 'Inventou uma desculpa e não foi ao evento.', consequence: { shortTermGain: 'Alívio imediato da ansiedade, evitação do desconforto.', shortTermCost: 'Perdeu oportunidade de networking e integração com colegas.', longTermValueCost: 'Reforçou a crença de inadequação social, isolamento progressivo, desalinhamento com valor de "conexão".' }, tags: ['ansiedade social', 'evitação', 'fobia social'], color: 'red' },
-      { title: 'Conflito com Chefe', antecedent: { external: 'Feedback percebido como injusto do supervisor sobre um projeto.', internal: 'Pensamentos: "Ele não reconhece meu esforço", "Isso é injusto!". Sentimento: Raiva (85%), Frustração (75%).', emotionIntensity: 85 }, behavior: 'Respondeu de forma ríspida e defensiva, levantando a voz.', consequence: { shortTermGain: 'Expressou a raiva momentaneamente, sentiu-se "ouvido" (mesmo que negativamente).', shortTermCost: 'Clima ficou tenso, chefe ficou mais irritado, possível retaliação futura.', longTermValueCost: 'Prejudicou a relação profissional, aumentou o estresse no trabalho, desalinhado com valor de "profissionalismo".' }, tags: ['trabalho', 'conflito', 'raiva', 'comunicação'], color: 'default'}
+      { title: 'Conflito com Chefe', antecedent: { external: 'Feedback percebido como injusto do supervisor sobre um projeto.', internal: 'Pensamentos: "Ele não reconhece meu esforço", "Isso é injusto!". Sentimento: Raiva (85%), Frustração (75%).', emotionIntensity: 85, thoughtBelief: 90 }, behavior: 'Respondeu de forma ríspida e defensiva, levantando a voz.', consequence: { shortTermGain: 'Expressou a raiva momentaneamente, sentiu-se "ouvido" (mesmo que negativamente).', shortTermCost: 'Clima ficou tenso, chefe ficou mais irritado, possível retaliação futura.', longTermValueCost: 'Prejudicou a relação profissional, aumentou o estresse no trabalho, desalinhado com valor de "profissionalismo".' }, tags: ['trabalho', 'conflito', 'raiva', 'comunicação'], color: 'default'}
     ];
     const mockSchemasData: Omit<SchemaData, 'id' | 'linkedCardIds' | 'position'>[] = [
       { rule: 'Se eu me expor socialmente, serei julgado(a) e rejeitado(a).', notes: 'Origem provável em experiências de bullying na adolescência.'},
@@ -506,6 +516,7 @@ const useClinicalStore = create<ClinicalState>((set, get) => ({
     const cards: ABCCardData[] = mockCardsData.map((data, i) => ({...data, id: `c${i+1}`, position: { x: 100 + i * 350, y: 100 }}));
     const schemas: SchemaData[] = mockSchemasData.map((data, i) => ({...data, id: `s${i+1}`, linkedCardIds: [], position: { x: 150 + i * 350, y: 450 }}));
 
+    // Link some data for testing
     if (schemas[0] && cards[0]) schemas[0].linkedCardIds.push(cards[0].id);
     if (schemas[1] && cards[1]) schemas[1].linkedCardIds.push(cards[1].id);
 
@@ -522,6 +533,11 @@ const useClinicalStore = create<ClinicalState>((set, get) => ({
         edges.push({ id: edgeId, source: schemas[0].id, target: cards[0].id, type: 'smoothstep', data: labelData, label: labelData.label, animated: true, ariaLabel: `Conexão: ${labelData.label}` });
     }
 
+    // Initialize formulationGuideAnswers based on initialFormulationGuideQuestions
+    const initialAnswers = initialFormulationGuideQuestions.reduce((acc, q) => {
+      acc[q.id] = false;
+      return acc;
+    }, {} as Record<string, boolean>);
     
     set({
         cards,
@@ -535,7 +551,8 @@ const useClinicalStore = create<ClinicalState>((set, get) => ({
         isFormulationGuidePanelVisible: false,
         isQuickNotesPanelVisible: false,
         emotionIntensityFilter: 0,
-        formulationGuideAnswers: initialFormulationGuideQuestions.reduce((acc, q) => ({...acc, [q.id]: false}), {}),
+        toolbarOrientation: 'horizontal',
+        formulationGuideAnswers: initialAnswers,
         quickNotes: [
             {id: nanoid(), text: "Paciente mencionou medo intenso de julgamento ao descrever o evento X.", createdAt: new Date(Date.now() - 86400000).toISOString(), linkedCardId: cards[0]?.id },
             {id: nanoid(), text: "Verificar se o esquema de 'inadequação' está ativo em situações de trabalho.", createdAt: new Date().toISOString(), title: "Hipótese de Esquema"}
@@ -544,8 +561,10 @@ const useClinicalStore = create<ClinicalState>((set, get) => ({
     });
   },
   saveClinicalData: async (patientId) => {
-    const { cards, schemas, insights, edges, viewport, nodes, formulationGuideAnswers, quickNotes, cardGroups } = get();
+    // Get current state
+    const { cards, schemas, insights, edges, viewport, nodes, formulationGuideAnswers, quickNotes, cardGroups, toolbarOrientation } = get();
 
+    // Ensure positions are updated in the main data arrays
     const finalCards = cards.map(card => {
         const node = nodes.find(n => n.id === card.id && n.type === 'abcCard');
         return node && node.position ? { ...card, position: node.position } : card;
@@ -555,7 +574,18 @@ const useClinicalStore = create<ClinicalState>((set, get) => ({
         return node && node.position ? { ...schema, position: node.position } : schema;
     });
 
-    
+    // Data to be saved
+    // console.log("Saving data for patient:", patientId, {
+    //   cards: finalCards,
+    //   schemas: finalSchemas,
+    //   edges,
+    //   viewport,
+    //   insights,
+    //   formulationGuideAnswers,
+    //   quickNotes,
+    //   cardGroups,
+    //   toolbarOrientation,
+    // });
     await new Promise(resolve => setTimeout(resolve, 300));
     get().addInsight(`Estudo salvo com sucesso em ${new Date().toLocaleTimeString()}. (Simulado)`);
   },

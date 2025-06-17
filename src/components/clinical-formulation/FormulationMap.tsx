@@ -5,9 +5,9 @@ import React, { useCallback, useState, useEffect, useMemo, useRef } from 'react'
 import ReactFlow, {
   Controls,
   Background,
-  useNodesState,
-  useEdgesState,
-  addEdge as rfAddEdge,
+  // useNodesState, // Commented out as we get nodes from store directly now
+  // useEdgesState, // Commented out as we get edges from store directly now
+  // addEdge as rfAddEdge, // Store manages edges
   type Connection,
   type Edge,
   type Node,
@@ -25,16 +25,21 @@ import 'reactflow/dist/style.css';
 import useClinicalStore, { allCardColors } from '@/stores/clinicalStore';
 import ABCCardNode from './ABCCardNode';
 import SchemaNode from './SchemaNode';
-import NodeContextMenu from './NodeContextMenu';
-import ABCForm from './ABCForm';
-import SchemaForm from './SchemaForm';
-import EdgeLabelModal from './EdgeLabelModal';
-import QuickNoteForm from './QuickNoteForm';
-import SchemaPanel from './SchemaPanel';
+// import NodeContextMenu from './NodeContextMenu'; // Commented out
+// import ABCForm from './ABCForm'; // Commented out
+// import SchemaForm from './SchemaForm'; // Commented out
+// import EdgeLabelModal from './EdgeLabelModal'; // Commented out
+// import QuickNoteForm from './QuickNoteForm'; // Commented out
+// import SchemaPanel from './SchemaPanel'; // Commented out
+// import InsightPanel from './InsightPanel'; // Commented out - this is different from the side panel
+// import FormulationGuidePanel from './FormulationGuidePanel'; // Commented out
+// import QuickNotesPanel from './QuickNotesPanel'; // Commented out
+
+// Keep InsightPanel (bottom-left) as it's less complex and part of the core view
 import InsightPanel from './InsightPanel';
-import FormulationGuidePanel from './FormulationGuidePanel';
-import QuickNotesPanel from './QuickNotesPanel';
-import type { ClinicalNodeData, ConnectionLabel, SchemaData, ABCCardData, ClinicalNodeType, QuickNote, CardGroupInfo, ABCCardColor } from '@/types/clinicalTypes';
+
+
+import type { ClinicalNodeData, ConnectionLabel, SchemaData, ABCCardData, ClinicalNodeType, QuickNote, CardGroupInfo, ABCCardColor, FormulationGuideQuestion } from '@/types/clinicalTypes';
 import { isABCCardData, isSchemaData } from '@/types/clinicalTypes';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/shared/utils';
@@ -130,6 +135,7 @@ const FormulationMap: React.FC = () => {
     toolbarOrientation,
     toggleToolbarOrientation,
     setEmotionIntensityFilter,
+    formulationGuideQuestions: initialFormulationGuideQuestions,
   } = useClinicalStore();
 
   const reactFlowInstance = useReactFlow();
@@ -145,10 +151,11 @@ const FormulationMap: React.FC = () => {
   // Get data for the active tab
   const activeTabData = useMemo(() => {
     if (!activeTabId || !formulationTabData[activeTabId]) {
-      return getDefaultFormulationTabData(); // Fallback, though store should initialize it
+      return getDefaultFormulationTabData(initialFormulationGuideQuestions);
     }
     return formulationTabData[activeTabId];
-  }, [activeTabId, formulationTabData]);
+  }, [activeTabId, formulationTabData, initialFormulationGuideQuestions]);
+
 
   useEffect(() => {
     const handleFullscreenChange = () => setIsFullscreen(!!document.fullscreenElement);
@@ -183,7 +190,7 @@ const FormulationMap: React.FC = () => {
             "Padrão de evitação identificado em situações sociais simuladas.",
             "Crença central 'Não sou bom o suficiente' parece ativa (simulado).",
         ];
-        setInsights(currentInsights); // This will update insights for the active tab
+        setInsights(currentInsights); 
         setIsGeneratingInsights(false);
         toast({ title: "Insights Gerados (Simulado)", description: "Novos insights foram adicionados ao painel." });
     }, 1200);
@@ -281,7 +288,6 @@ const FormulationMap: React.FC = () => {
     setColorFilters(newFilters);
   };
 
-  // Default data to prevent errors if activeTabData is somehow undefined briefly
   const currentNodes = filteredNodes || [];
   const currentEdges = activeTabData.edges || [];
   const currentViewport = activeTabData.viewport || { x:0, y:0, zoom:1 };
@@ -304,7 +310,7 @@ const FormulationMap: React.FC = () => {
           proOptions={{ hideAttribution: true }}
           selectionMode={SelectionMode.Partial}
           onSelectionChange={handleSelectionChange}
-          fitView={currentNodes.length === 0} // Fit view if no nodes (e.g. new tab)
+          fitView={currentNodes.length === 0} 
         >
           <Background variant={BackgroundVariant.Dots} gap={16} size={1} />
           <Controls position="bottom-left" showInteractive={false}/>
@@ -320,7 +326,7 @@ const FormulationMap: React.FC = () => {
               className={cn(
                 "bg-background/90 backdrop-blur-sm shadow-xl border border-border rounded-lg flex items-center p-1",
                 toolbarOrientation === 'horizontal'
-                  ? "flex-row flex-nowrap items-center gap-1 overflow-x-auto max-w-[calc(100vw-4rem)]" // Force single line & scroll
+                  ? "flex-row flex-nowrap items-center gap-1 overflow-x-auto max-w-[calc(100vw-4rem)]"
                   : "flex-col items-stretch gap-1.5 w-auto p-1.5"
               )}
             >
@@ -477,6 +483,8 @@ const FormulationMap: React.FC = () => {
             </div>
           </Panel>
 
+          {/*
+          // Temporarily commented out side panels and modals for debugging
           {isSchemaPanelVisible && (
             <Panel position="top-left" className="!m-0 p-0 shadow-xl border rounded-lg bg-card w-72 h-[calc(100%-5rem)] flex flex-col">
                 <SchemaPanel />
@@ -492,22 +500,26 @@ const FormulationMap: React.FC = () => {
                 <QuickNotesPanel />
             </Panel>
           )}
+          */}
           <Panel position="bottom-left" className="!m-0 p-0 shadow-xl border rounded-lg bg-card w-72 h-2/5 max-h-[400px] flex flex-col">
             <InsightPanel />
           </Panel>
         </ReactFlow>
       
+      {/*
+      // Temporarily commented out modals for debugging
       {isContextMenuOpen && <NodeContextMenu />}
       <QuickNoteForm />
       <ABCForm />
       <SchemaForm prefillRule={useClinicalStore.getState().prefillSchemaRule || undefined}/>
       <EdgeLabelModal />
+      */}
     </div>
   );
 };
 
 // Helper to initialize tab data, this could be more sophisticated
-const getDefaultFormulationTabData = (): TabSpecificFormulationData => ({
+const getDefaultFormulationTabData = (initialFormulationGuideQuestions: FormulationGuideQuestion[]): TabSpecificFormulationData => ({
   cards: [],
   schemas: [],
   nodes: [],
@@ -533,3 +545,4 @@ const FormulationMapWrapper: React.FC = () => (
 );
 
 export default FormulationMapWrapper;
+    

@@ -3,9 +3,8 @@
 
 import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import GroupForm from "@/components/forms/group-form";
+import GroupForm, { type GroupFormValues } from "@/components/forms/group-form";
 import { mockTherapeuticGroups } from "@/app/(app)/groups/page";
-import type { GroupFormValues } from "@/components/forms/group-form";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Users, Edit, FileWarning } from "lucide-react";

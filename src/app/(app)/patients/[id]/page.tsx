@@ -49,8 +49,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import dynamic from "next/dynamic";
 import { gerarProntuario } from "@/services/prontuarioService";
-import useClinicalStore, { type ClinicalTab } from '@/stores/clinicalStore'; // Merged duplicate import
-
 import ChainAnalysisBuilder from '@/components/clinical-tools/ChainAnalysisBuilder';
 import ActMatrixBuilder from '@/components/clinical-tools/ActMatrixBuilder';
 import HexaflexTool from '@/components/clinical-tools/HexaflexTool';

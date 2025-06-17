@@ -4,8 +4,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import CaseFormulationModelForm from "@/components/forms/case-formulation-model-form";
-import type { CaseFormulationTemplate } from "@/app/(app)/tools/case-formulation-models/page"; // Import type
-import { mockCaseFormulationTemplates } from "@/app/(app)/tools/case-formulation-models/page"; // Import mock data
+import { type CaseFormulationTemplate, mockCaseFormulationTemplates } from "@/app/(app)/tools/case-formulation-models/page"; // Import type and mock data
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Network, Edit, FileWarning } from "lucide-react";

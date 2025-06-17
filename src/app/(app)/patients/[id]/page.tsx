@@ -5,7 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Mail, Phone, CalendarDays, Edit, FileText, Brain, CheckCircle, Clock, MessageSquare, Trash2, Users as UsersIconLucide, Home as HomeIconLucide, Share2, UploadCloud, Calendar as CalendarIconShad, Lightbulb, Tag, BarChart3 as BarChart3Icon, ShieldAlert as ShieldAlertIcon, CheckCircle as CheckCircleIcon, TrendingUp, BookOpen, Activity, Users2, ClipboardList, Target, ListChecks, PlusCircle, Archive, AlertTriangle, History as HistoryIcon, Bot, Image as ImageIcon, Save, CalendarCheck, FileArchive, Eye, Pencil, FilePlus2, ClipboardEdit, Send, Sparkles, ArrowLeft } from "lucide-react";
+import { Mail, Phone, CalendarDays, Edit, FileText, Brain, CheckCircle, Clock, MessageSquare, Trash2, Users as UsersIconLucide, Home as HomeIconLucide, Share2, UploadCloud, Calendar as CalendarIconShad, Lightbulb, Tag, BarChart3 as BarChart3Icon, ShieldAlert as ShieldAlertIcon, CheckCircle as CheckCircleIcon, TrendingUp, BookOpen, Activity, Users2, ClipboardList, Target, ListChecks, PlusCircle, Archive, AlertTriangle, History as HistoryIcon, Bot, Image as ImageIcon, Save, CalendarCheck, FileArchive, Eye, Pencil, FilePlus2, ClipboardEdit, Send, Sparkles, ArrowLeft, ExternalLink } from "lucide-react";
 import CopyButton from "@/components/ui/copy-button";
 import Link from "next/link";
 import { useRouter, useSearchParams, useParams } from "next/navigation";
@@ -81,7 +81,7 @@ const mockGlobalClinicResources = [
 ];
 
 
-const mockPatient = {
+export const mockPatient = {
   id: "1",
   name: "Alice Wonderland",
   email: "alice@example.com",
@@ -748,9 +748,18 @@ export default function PatientDetailPage() {
           </Card>
         </TabsContent>
         
-        <TabsContent value="caseStudy" className="mt-0 flex-grow flex flex-col min-h-0">
-            <TabsBar />
-            <div className="flex-grow min-h-0 relative"> {/* Removido mt-2 */}
+        <TabsContent value="caseStudy" className="mt-2 flex-grow flex flex-col min-h-0">
+            <div className="flex justify-between items-center mb-2">
+                <TabsBar />
+                {activeTabId && (
+                <Button variant="outline" size="sm" asChild>
+                    <Link href={`/clinical-map/${patient.id}/${activeTabId}`} target="_blank" rel="noopener noreferrer">
+                        <ExternalLink className="mr-2 h-4 w-4" /> Abrir Mapa em Tela Cheia
+                    </Link>
+                </Button>
+                )}
+            </div>
+            <div className="flex-grow min-h-0 relative">
                 {renderActiveTabContent()}
             </div>
         </TabsContent>

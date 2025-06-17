@@ -63,7 +63,7 @@ const SchemaForm: React.FC<SchemaFormProps> = ({ prefillRule: initialPrefillRule
   }, [editingSchema, form, isSchemaFormOpen, initialPrefillRule]);
 
   const onSubmit = (values: SchemaFormValues) => {
-    const schemaData: Omit<SchemaData, 'id' | 'linkedCardIds' | 'position'> = {
+    const schemaData: Omit<SchemaData, 'id' | 'linkedCardIds' | 'position' | 'tabId'> = {
       rule: values.rule,
       notes: values.notes,
     };
@@ -91,24 +91,7 @@ const SchemaForm: React.FC<SchemaFormProps> = ({ prefillRule: initialPrefillRule
             {dialogDescription}
           </DialogDescription>
         </DialogHeader>
-
-        {/* Simplified Content for Debugging */}
-        <div className="p-4">
-          <p>Schema Form Content Here. (Debug Mode)</p>
-          <p>Is Form Open (from store): {isSchemaFormOpen.toString()}</p>
-          <p>Editing Schema ID (from store): {editingSchemaId || 'None'}</p>
-        </div>
         
-        <DialogFooter>
-          <DialogClose asChild>
-            <Button type="button" variant="outline">Cancelar</Button>
-          </DialogClose>
-          <Button type="button" onClick={() => onSubmit(form.getValues())} className="bg-accent hover:bg-accent/90 text-accent-foreground">
-            {editingSchemaId ? 'Salvar Alterações (Debug)' : 'Adicionar Esquema (Debug)'}
-          </Button>
-        </DialogFooter>
-
-        {/* Original Form - Commented out for debugging modal visibility
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 p-1">
             <FormField control={form.control} name="rule" render={({ field }) => (
@@ -135,7 +118,6 @@ const SchemaForm: React.FC<SchemaFormProps> = ({ prefillRule: initialPrefillRule
             </DialogFooter>
           </form>
         </Form>
-        */}
       </DialogContent>
     </Dialog>
   );

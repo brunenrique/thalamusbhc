@@ -1,9 +1,11 @@
-
 "use client";
 
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 import usePageView from "@/hooks/use-page-view";
+import useSessionTimeout from "@/hooks/use-session-timeout";
+import { auth } from "@/lib/firebase";
+import { signOut } from "firebase/auth";
 import { useRouter } from "next/navigation";
 
 const headLinks = [
@@ -20,10 +22,20 @@ export default function RootLayout({
 }>) {
   usePageView();
   const router = useRouter();
+
+  useSessionTimeout(async () => {
+    await signOut(auth);
+    await fetch('/api/logout', { method: 'POST' });
+    router.push("/login");
+  });
+
   return (
     <html lang="pt-BR" suppressHydrationWarning>
       <head>
-        {headLinks.map(link => { const { itemKey, ...rest } = link; return <link key={itemKey} {...rest} />; })}
+        {headLinks.map(link => {
+          const { itemKey, ...rest } = link;
+          return <link key={itemKey} {...rest} />;
+        })}
       </head>
       <body className="font-body antialiased">
         {children}
@@ -32,5 +44,3 @@ export default function RootLayout({
     </html>
   );
 }
-
-    

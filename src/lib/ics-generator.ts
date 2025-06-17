@@ -49,7 +49,7 @@ export function generateICS(appointmentsByDate: AppointmentsByDate, specificDate
       const dtStart = formatToICSDateTime(dateKey, appointment.startTime);
       const dtEnd = formatToICSDateTime(dateKey, appointment.endTime);
       
-      let summary = appointment.type === 'Blocked Slot' 
+      const summary = appointment.type === 'Blocked Slot' 
         ? `Bloqueio: ${appointment.blockReason || 'Horário Bloqueado'}` 
         : `Consulta: ${appointment.patient}`;
       

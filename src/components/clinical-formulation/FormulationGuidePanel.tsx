@@ -8,7 +8,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { HelpCircle, X } from 'lucide-react'; // Adicionado X
-import useClinicalStore from '@/stores/clinicalStore';
+import { useClinicalStore } from '@/stores/clinicalStore';
 
 const FormulationGuidePanel: React.FC = () => {
   const { formulationGuideQuestions, formulationGuideAnswers, toggleFormulationQuestionAnswer, toggleFormulationGuidePanelVisibility } = useClinicalStore();

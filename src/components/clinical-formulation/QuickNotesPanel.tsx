@@ -6,7 +6,7 @@ import { CardHeader, CardTitle, CardDescription, CardContent } from '@/component
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { StickyNote, Edit, Trash2, PlusCircle, Link as LinkIcon, X } from 'lucide-react'; // Adicionado X
-import useClinicalStore from '@/stores/clinicalStore';
+import { useClinicalStore } from '@/stores/clinicalStore';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import {

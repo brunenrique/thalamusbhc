@@ -22,7 +22,7 @@ import ReactFlow, {
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 
-import useClinicalStore, { allCardColors } from '@/stores/clinicalStore';
+import { useClinicalStore, allCardColors } from '@/stores/clinicalStore';
 import ABCCardNode from './ABCCardNode';
 import SchemaNode from './SchemaNode';
 import NodeContextMenu from './NodeContextMenu';

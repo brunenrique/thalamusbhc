@@ -4,7 +4,7 @@
 import React, { useState, useEffect } from 'react'; // Adicionado useState e useEffect
 import { Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription, DialogClose } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import useClinicalStore from '@/stores/clinicalStore';
+import { useClinicalStore } from '@/stores/clinicalStore';
 
 const ABCForm: React.FC = () => {
   const { isABCFormOpen, closeABCForm, editingCardId } = useClinicalStore();

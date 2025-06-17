@@ -5,7 +5,7 @@ import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Brain, LightbulbIcon } from 'lucide-react';
-import useClinicalStore from '@/stores/clinicalStore';
+import { useClinicalStore } from '@/stores/clinicalStore';
 import { Badge } from '@/components/ui/badge';
 
 const InsightPanel: React.FC = () => {

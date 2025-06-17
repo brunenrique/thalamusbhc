@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import useClinicalStore from '@/stores/clinicalStore';
+import { useClinicalStore } from '@/stores/clinicalStore';
 import type { SchemaData } from '@/types/clinicalTypes';
 
 const schemaFormValidationSchema = z.object({

@@ -4,7 +4,7 @@
 import React, { useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import FormulationMapWrapper from '@/components/clinical-formulation/FormulationMap';
-import useClinicalStore from '@/stores/clinicalStore';
+import { useClinicalStore } from '@/stores/clinicalStore';
 import { APP_ROUTES } from '@/lib/routes'; // Ensure APP_ROUTES is correctly imported if used
 import { mockPatient } from '@/app/(app)/patients/[id]/page'; // Ensure mockPatient is correctly imported if used
 

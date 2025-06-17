@@ -50,11 +50,17 @@ import { Badge } from "@/components/ui/badge";
 import dynamic from "next/dynamic";
 import { gerarProntuario } from "@/services/prontuarioService";
 import useClinicalStore from '@/stores/clinicalStore';
-import ABCForm from "@/components/clinical-formulation/ABCForm";
-import SchemaForm from "@/components/clinical-formulation/SchemaForm";
-import EdgeLabelModal from "@/components/clinical-formulation/EdgeLabelModal";
-import FormulationMapWrapper from "@/components/clinical-formulation/FormulationMap";
+import TabsBar from '@/components/layout/TabsBar'; // Import TabsBar
+// Placeholder for clinical tools - create these files if they don't exist
+import ChainAnalysisBuilder from '@/components/clinical-tools/ChainAnalysisBuilder';
+import ActMatrixBuilder from '@/components/clinical-tools/ActMatrixBuilder';
+import HexaflexTool from '@/components/clinical-tools/HexaflexTool';
 
+
+const FormulationMapWrapper = dynamic(() => import("@/components/clinical-formulation/FormulationMap"), {
+  loading: () => <Skeleton className="w-full h-[600px] rounded-md bg-muted/30" />,
+  ssr: false,
+});
 
 const PatientProgressChart = dynamic(() => import("@/components/patients/patient-progress-chart"), {
   loading: () => (
@@ -212,8 +218,17 @@ export default function PatientDetailPage() {
   const { toast } = useToast();
   const searchParams = useSearchParams();
   const initialTab = searchParams.get('tab') || "overview";
+  
+  const { tabs, activeTabId, setActiveTab, fetchClinicalData } = useClinicalStore();
+  const activeClinicalTab = useMemo(() => tabs.find(t => t.id === activeTabId), [tabs, activeTabId]);
 
   const prefillRuleFromStore = useClinicalStore(state => state.prefillSchemaRule);
+
+  useEffect(() => {
+    if (activeTabId) {
+      fetchClinicalData(patientId, activeTabId);
+    }
+  }, [activeTabId, patientId, fetchClinicalData]);
 
 
   if (!patient) {
@@ -363,9 +378,9 @@ export default function PatientDetailPage() {
     const summaryForInsights = mostRecentNote.summary;
 
     try {
-      // Simulate API call
+      
       await new Promise(resolve => setTimeout(resolve, 1500));
-      // Mocked insights based on the structure of GenerateSessionInsightsOutput
+      
       setGeneralPatientInsights({
         keywords: mostRecentNote.keywords || ["Tópico Simul." , "Outro Tópico"],
         themes: mostRecentNote.themes || ["Tema Simulado A", "Tema Simulado B"],
@@ -409,7 +424,7 @@ export default function PatientDetailPage() {
   }, [sessionNotes, patient.id, toast]);
 
   const handleSaveCaseStudyNotes = useCallback(() => {
-    // Simula salvar notas de estudo de caso
+    
     toast({
       title: "Anotações Salvas (Simulado)",
       description: "Suas anotações do estudo de caso foram salvas com sucesso.",
@@ -456,7 +471,7 @@ export default function PatientDetailPage() {
 
 
   const handleSaveNextSessionsPlan = useCallback(() => {
-    // Simula salvar plano das próximas sessões
+    
     toast({
       title: "Planejamento Salvo (Simulado)",
       description: "O planejamento para as próximas sessões foi salvo.",
@@ -537,6 +552,23 @@ export default function PatientDetailPage() {
     ? format(new Date(patient.lastSession), "P", { locale: ptBR })
     : "N/A", [patient.lastSession]);
 
+  const renderActiveTabContent = () => {
+    if (!activeClinicalTab) {
+      return <div className="p-6 text-center text-muted-foreground">Nenhuma aba selecionada ou dados para exibir.</div>;
+    }
+    switch (activeClinicalTab.type) {
+      case 'formulation':
+        return <FormulationMapWrapper />;
+      case 'chain':
+        return <ChainAnalysisBuilder tabId={activeClinicalTab.id} />;
+      case 'matrix':
+        return <ActMatrixBuilder tabId={activeClinicalTab.id} />;
+      case 'hexaflex':
+        return <HexaflexTool tabId={activeClinicalTab.id} />;
+      default:
+        return <div className="p-6 text-center">Tipo de aba desconhecido: {activeClinicalTab.title}</div>;
+    }
+  };
 
   return (
     <div className="flex flex-col h-full space-y-6">
@@ -716,9 +748,10 @@ export default function PatientDetailPage() {
           </Card>
         </TabsContent>
         
-        <TabsContent value="caseStudy" className="mt-6 flex flex-col flex-grow min-h-[80vh]">
-            <div className="flex-grow min-h-0 h-full w-full">
-                <FormulationMapWrapper />
+        <TabsContent value="caseStudy" className="mt-0 flex-grow flex flex-col min-h-0">
+            <TabsBar />
+            <div className="flex-grow min-h-0 relative mt-2"> 
+                {renderActiveTabContent()}
             </div>
         </TabsContent>
 
@@ -907,9 +940,6 @@ export default function PatientDetailPage() {
             </Card>
         </TabsContent>
       </Tabs>
-      <ABCForm />
-      <SchemaForm prefillRule={prefillRuleFromStore || undefined} />
-      <EdgeLabelModal />
     </div>
   );
 }

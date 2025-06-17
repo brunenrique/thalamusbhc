@@ -19,17 +19,18 @@ export type ABCCardColor = 'default' | 'red' | 'green' | 'blue' | 'yellow' | 'pu
 export interface CardGroupInfo {
   id: string;
   name: string;
-  color: string; // Tailwind border color class, e.g., "border-red-500"
+  color: string; 
 }
 
 export interface ABCCardData {
   id: string;
+  tabId: string; // Added tabId
   title: string;
   antecedent: {
     external: string;
     internal: string;
-    thoughtBelief?: number; // Intensity 0-100
-    emotionIntensity?: number; // Intensity 0-100
+    thoughtBelief?: number; 
+    emotionIntensity?: number; 
   };
   behavior: string;
   consequence: {
@@ -41,11 +42,12 @@ export interface ABCCardData {
   color: ABCCardColor;
   notes?: string;
   position?: XYPosition;
-  groupInfo?: CardGroupInfo; // Added for card grouping
+  groupInfo?: CardGroupInfo; 
 }
 
 export interface SchemaData {
   id: string;
+  tabId: string; // Added tabId
   rule: string;
   linkedCardIds: string[];
   notes?: string;
@@ -55,41 +57,51 @@ export interface SchemaData {
 export interface FormulationGuideQuestion {
   id: string;
   text: string;
-  // 'answered' state will be managed in the store by answers Record
 }
 
 export interface QuickNote {
   id: string;
+  tabId: string; // Added tabId
   text: string;
-  linkedCardId?: string; // ID of an ABCCardNode
-  createdAt: string; // ISO date string
-  position?: XYPosition; // For potential future rendering on map
-  title?: string; // Optional title for the note
+  linkedCardId?: string; 
+  createdAt: string; 
+  position?: XYPosition; 
+  title?: string; 
 }
 
-export interface CardGroup { // Definition of a group
+export interface CardGroup { 
   id: string;
+  tabId: string; // Added tabId
   name: string;
-  color: string; // Tailwind border color class like "border-red-500" or "bg-red-500/10" for badge
+  color: string; 
 }
 
 
-// Tipos para os nós do React Flow
 export type ClinicalNodeType = 'abcCard' | 'schemaNode';
 
-// Base para os dados dos nós, assegurando que sempre haja um ID.
 export interface NodeDataBase {
   id: string;
+  tabId: string; // Ensure all node data includes tabId
 }
 
-export type ClinicalNodeData = ABCCardData | SchemaData;
+export type ClinicalNodeData = (ABCCardData | SchemaData) & NodeDataBase;
 
-// Typeguard para ABCCardData
+
 export function isABCCardData(data: ClinicalNodeData | undefined | null): data is ABCCardData {
   return !!data && (data as ABCCardData).title !== undefined && (data as ABCCardData).antecedent !== undefined;
 }
 
-// Typeguard para SchemaData
+
 export function isSchemaData(data: ClinicalNodeData | undefined | null): data is SchemaData {
   return !!data && (data as SchemaData).rule !== undefined;
+}
+
+// New ClinicalTab type
+export type ClinicalTabType = 'formulation' | 'chain' | 'matrix' | 'hexaflex' | 'custom';
+
+export interface ClinicalTab {
+  id: string;
+  type: ClinicalTabType;
+  title: string;
+  createdAt: string; // ISO date string
 }

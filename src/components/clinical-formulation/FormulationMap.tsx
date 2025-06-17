@@ -78,8 +78,6 @@ const nodeTypes = {
   schemaNode: SchemaNode,
 };
 
-const initialViewport = { x: 0, y: 0, zoom: 0.9 };
-
 const groupBorderColors = [
     { label: "Vermelho", value: "border-red-500", badgeBg: "bg-red-500/20" },
     { label: "Verde", value: "border-green-500", badgeBg: "bg-green-500/20" },
@@ -102,16 +100,13 @@ const cardColorDisplayOptions: { label: string; value: ABCCardColor; style: stri
 
 const FormulationMap: React.FC = () => {
   const {
-    nodes: storeNodes,
-    edges: storeEdges,
+    formulationTabData,
+    activeTabId,
     onNodesChange: storeOnNodesChange,
     onEdgesChange: storeOnEdgesChange,
     addEdge: storeAddEdge,
     openLabelEdgeModal,
     setViewport: storeSetViewport,
-    updateCardPosition,
-    updateSchemaPosition,
-    fetchClinicalData,
     saveClinicalData,
     setInsights,
     openContextMenu,
@@ -125,19 +120,16 @@ const FormulationMap: React.FC = () => {
     toggleFormulationGuidePanelVisibility,
     isQuickNotesPanelVisible,
     toggleQuickNotesPanelVisibility,
-    emotionIntensityFilter,
-    setEmotionIntensityFilter,
     createGroupFromSelectedNodes,
     selectedFlowNodes,
     setSelectedFlowNodes,
     get: getClinicalStore,
-    activeColorFilters,
     setColorFilters,
     setAllColorFilters,
-    showSchemaNodes,
     toggleShowSchemaNodes,
     toolbarOrientation,
     toggleToolbarOrientation,
+    setEmotionIntensityFilter,
   } = useClinicalStore();
 
   const reactFlowInstance = useReactFlow();
@@ -150,12 +142,19 @@ const FormulationMap: React.FC = () => {
   const [newGroupName, setNewGroupName] = useState("");
   const [newGroupColor, setNewGroupColor] = useState(groupBorderColors[0].value);
 
+  // Get data for the active tab
+  const activeTabData = useMemo(() => {
+    if (!activeTabId || !formulationTabData[activeTabId]) {
+      return getDefaultFormulationTabData(); // Fallback, though store should initialize it
+    }
+    return formulationTabData[activeTabId];
+  }, [activeTabId, formulationTabData]);
+
   useEffect(() => {
-    fetchClinicalData('mockPatientId');
     const handleFullscreenChange = () => setIsFullscreen(!!document.fullscreenElement);
     document.addEventListener('fullscreenchange', handleFullscreenChange);
     return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
-  }, [fetchClinicalData]);
+  }, []);
 
   const onConnectInternal = useCallback(
     (params: Connection | Edge) => {
@@ -165,24 +164,26 @@ const FormulationMap: React.FC = () => {
   );
 
   const handleSaveLayout = () => {
-    saveClinicalData('mockPatientId');
-    toast({ title: "Layout Salvo", description: "O layout do mapa foi salvo com sucesso." });
+    if (activeTabId) {
+      saveClinicalData('mockPatientId', activeTabId);
+      toast({ title: "Layout Salvo", description: "O layout do mapa foi salvo com sucesso." });
+    }
   };
 
   const handleGenerateInsights = async () => {
+    if (!activeTabId) return;
     setIsGeneratingInsights(true);
     
-    const { cards, schemas, runAnalysis } = getClinicalStore(); // Assumindo que runAnalysis existe no store ou é importado
-    // const insightsFromAnalysis = await runAnalysis(cards, schemas); // Se for async
-    // setInsights(insightsFromAnalysis);
+    const { cards, schemas } = activeTabData; 
     
-    // Mock de insights se runAnalysis não estiver pronto
     setTimeout(() => {
-        setInsights([
-            "Padrão de evitação identificado em situações sociais.",
-            "Crença central 'Não sou bom o suficiente' parece ativa.",
-            "Conflitos no trabalho podem estar ligados à dificuldade de expressar necessidades."
-        ]);
+        const currentInsights = [
+            `Análise para ${getClinicalStore().tabs.find(t => t.id === activeTabId)?.title || 'aba atual'}:`,
+            `Total de ${cards.length} cards e ${schemas.length} esquemas.`,
+            "Padrão de evitação identificado em situações sociais simuladas.",
+            "Crença central 'Não sou bom o suficiente' parece ativa (simulado).",
+        ];
+        setInsights(currentInsights); // This will update insights for the active tab
         setIsGeneratingInsights(false);
         toast({ title: "Insights Gerados (Simulado)", description: "Novos insights foram adicionados ao painel." });
     }, 1200);
@@ -246,51 +247,56 @@ const FormulationMap: React.FC = () => {
 
 
   const filteredNodes = useMemo(() => {
-    let nodesToDisplay = storeNodes;
+    let nodesToDisplay = activeTabData.nodes;
 
-    if (!showSchemaNodes) {
+    if (!activeTabData.showSchemaNodes) {
       nodesToDisplay = nodesToDisplay.filter(node => node.type !== 'schemaNode');
     }
 
-    const allColorsActive = activeColorFilters.length === allCardColors.length;
-    if (!allColorsActive && activeColorFilters.length > 0) { // Modificado para filtrar apenas se houver filtros ativos e não todos
+    const allColorsActive = activeTabData.activeColorFilters.length === allCardColors.length;
+    if (!allColorsActive && activeTabData.activeColorFilters.length > 0) { 
       nodesToDisplay = nodesToDisplay.filter(node => {
         if (node.type === 'abcCard' && isABCCardData(node.data)) {
-          return activeColorFilters.includes(node.data.color);
+          return activeTabData.activeColorFilters.includes(node.data.color);
         }
         return true; 
       });
     }
     
-    if (emotionIntensityFilter > 0) {
+    if (activeTabData.emotionIntensityFilter > 0) {
       nodesToDisplay = nodesToDisplay.filter(node => {
         if (node.type === 'abcCard' && isABCCardData(node.data)) {
-          return (node.data.antecedent.emotionIntensity ?? 0) >= emotionIntensityFilter;
+          return (node.data.antecedent.emotionIntensity ?? 0) >= activeTabData.emotionIntensityFilter;
         }
         return true;
       });
     }
     return nodesToDisplay;
-  }, [storeNodes, showSchemaNodes, activeColorFilters, emotionIntensityFilter]);
+  }, [activeTabData.nodes, activeTabData.showSchemaNodes, activeTabData.activeColorFilters, activeTabData.emotionIntensityFilter]);
 
   const handleColorFilterChange = (colorValue: ABCCardColor, checked: boolean) => {
     const newFilters = checked
-      ? [...activeColorFilters, colorValue]
-      : activeColorFilters.filter(c => c !== colorValue);
+      ? [...activeTabData.activeColorFilters, colorValue]
+      : activeTabData.activeColorFilters.filter(c => c !== colorValue);
     setColorFilters(newFilters);
   };
+
+  // Default data to prevent errors if activeTabData is somehow undefined briefly
+  const currentNodes = filteredNodes || [];
+  const currentEdges = activeTabData.edges || [];
+  const currentViewport = activeTabData.viewport || { x:0, y:0, zoom:1 };
 
 
   return (
     <div ref={mapContainerRef} className={cn("h-full w-full border rounded-md shadow-sm bg-muted/10 relative")}>
        <ReactFlow
-          nodes={filteredNodes || []}
-          edges={storeEdges || []}
+          nodes={currentNodes}
+          edges={currentEdges}
           onNodesChange={storeOnNodesChange}
           onEdgesChange={storeOnEdgesChange}
           onConnect={onConnectInternal}
           nodeTypes={nodeTypes}
-          fitView
+          defaultViewport={currentViewport}
           onMoveEnd={(_event, viewport) => storeSetViewport(viewport)}
           onNodeContextMenu={handleNodeContextMenu}
           onPaneClick={onPaneClick}
@@ -298,6 +304,7 @@ const FormulationMap: React.FC = () => {
           proOptions={{ hideAttribution: true }}
           selectionMode={SelectionMode.Partial}
           onSelectionChange={handleSelectionChange}
+          fitView={currentNodes.length === 0} // Fit view if no nodes (e.g. new tab)
         >
           <Background variant={BackgroundVariant.Dots} gap={16} size={1} />
           <Controls position="bottom-left" showInteractive={false}/>
@@ -313,7 +320,7 @@ const FormulationMap: React.FC = () => {
               className={cn(
                 "bg-background/90 backdrop-blur-sm shadow-xl border border-border rounded-lg flex items-center p-1",
                 toolbarOrientation === 'horizontal'
-                  ? "flex-row flex-nowrap gap-1 overflow-x-auto max-w-[calc(100vw-4rem)]"
+                  ? "flex-row flex-nowrap items-center gap-1 overflow-x-auto max-w-[calc(100vw-4rem)]" // Force single line & scroll
                   : "flex-col items-stretch gap-1.5 w-auto p-1.5"
               )}
             >
@@ -398,7 +405,7 @@ const FormulationMap: React.FC = () => {
                     <DropdownMenuLabel>Visibilidade de Elementos</DropdownMenuLabel>
                     <DropdownMenuSeparator />
                     <DropdownMenuCheckboxItem
-                        checked={showSchemaNodes}
+                        checked={activeTabData.showSchemaNodes}
                         onCheckedChange={toggleShowSchemaNodes}
                     >
                         Mostrar Esquemas/Regras
@@ -414,7 +421,7 @@ const FormulationMap: React.FC = () => {
                                 {cardColorDisplayOptions.map((colorOpt) => (
                                 <DropdownMenuCheckboxItem
                                     key={colorOpt.value}
-                                    checked={activeColorFilters.includes(colorOpt.value)}
+                                    checked={activeTabData.activeColorFilters.includes(colorOpt.value)}
                                     onCheckedChange={(checked) => handleColorFilterChange(colorOpt.value, !!checked)}
                                 >
                                     <div className={cn("w-3 h-3 rounded-full mr-2 border", colorOpt.style.split(' ')[0], colorOpt.style.split(' ')[1])} />
@@ -436,12 +443,12 @@ const FormulationMap: React.FC = () => {
               )}>
                 <Slider
                   min={0} max={100} step={10}
-                  value={[emotionIntensityFilter]}
+                  value={[activeTabData.emotionIntensityFilter]}
                   onValueChange={(value) => setEmotionIntensityFilter(value[0])}
                   className={cn("w-16", toolbarOrientation === 'vertical' && "w-full h-2 my-1 px-1")}
-                  title={`Filtrar por Intensidade Emocional (Antecedente) >= ${emotionIntensityFilter}`}
+                  title={`Filtrar por Intensidade Emocional (Antecedente) >= ${activeTabData.emotionIntensityFilter}`}
                 />
-                <span className={cn("text-[9px] text-muted-foreground w-4 text-right px-0.5", toolbarOrientation === 'vertical' && "text-center w-full")}>{emotionIntensityFilter}</span>
+                <span className={cn("text-[9px] text-muted-foreground w-4 text-right px-0.5", toolbarOrientation === 'vertical' && "text-center w-full")}>{activeTabData.emotionIntensityFilter}</span>
                 <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => setEmotionIntensityFilter(0)} title="Resetar filtro de intensidade">
                   <RotateCcw className="h-2.5 w-2.5"/>
                 </Button>
@@ -498,6 +505,26 @@ const FormulationMap: React.FC = () => {
     </div>
   );
 };
+
+// Helper to initialize tab data, this could be more sophisticated
+const getDefaultFormulationTabData = (): TabSpecificFormulationData => ({
+  cards: [],
+  schemas: [],
+  nodes: [],
+  edges: [],
+  viewport: { x: 0, y: 0, zoom: 1 },
+  insights: ["Clique em 'Gerar Insights' para análise."],
+  formulationGuideAnswers: initialFormulationGuideQuestions.reduce((acc, q) => {
+    acc[q.id] = false;
+    return acc;
+  }, {} as Record<string, boolean>),
+  quickNotes: [],
+  cardGroups: [],
+  activeColorFilters: [...allCardColors],
+  showSchemaNodes: true,
+  emotionIntensityFilter: 0,
+});
+
 
 const FormulationMapWrapper: React.FC = () => (
   <ReactFlowProvider>

@@ -30,17 +30,32 @@ import FormulationGuidePanel from './FormulationGuidePanel';
 import QuickNotesPanel from './QuickNotesPanel';
 import QuickNoteForm from './QuickNoteForm';
 import NodeContextMenu from './NodeContextMenu';
-import MapToolbar from './MapToolbar'; // Toolbar de ações
+// MapToolbar.tsx is removed, its content will be integrated here
 import type { ClinicalNodeData, ConnectionLabel, SchemaData, ABCCardData, ClinicalNodeType, QuickNote } from '@/types/clinicalTypes';
 import { isABCCardData, isSchemaData } from '@/types/clinicalTypes';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/shared/utils';
 import { Button } from '@/components/ui/button';
-import { PanelLeftOpen, PanelLeftClose, HelpCircle, StickyNote, Maximize, Minimize, ZoomIn, ZoomOut, Settings, ListTree, CheckSquare } from 'lucide-react';
+import { 
+    PanelLeftOpen, PanelLeftClose, HelpCircle, StickyNote, Maximize, Minimize, ZoomIn, ZoomOut, Settings, ListTree, CheckSquare,
+    PlusCircle, Share2, Users, Lightbulb, Save, RotateCcw, GripVertical 
+} from 'lucide-react';
 import ABCForm from './ABCForm';
 import SchemaForm from './SchemaForm';
 import EdgeLabelModal from './EdgeLabelModal';
-
+import { Slider } from '@/components/ui/slider';
+import { Label } from '@/components/ui/label';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 
 const nodeTypes = {
   abcCard: ABCCardNode,
@@ -49,6 +64,17 @@ const nodeTypes = {
 
 const initialViewport = { x: 0, y: 0, zoom: 0.9 };
 
+const groupBorderColors = [
+    { label: "Vermelho", value: "border-red-500", badgeBg: "bg-red-500/20" },
+    { label: "Verde", value: "border-green-500", badgeBg: "bg-green-500/20" },
+    { label: "Azul", value: "border-blue-500", badgeBg: "bg-blue-500/20" },
+    { label: "Amarelo", value: "border-yellow-500", badgeBg: "bg-yellow-500/20" },
+    { label: "Roxo", value: "border-purple-500", badgeBg: "bg-purple-500/20" },
+    { label: "Ciano", value: "border-cyan-500", badgeBg: "bg-cyan-500/20" },
+    { label: "Rosa", value: "border-pink-500", badgeBg: "bg-pink-500/20" },
+];
+
+
 const FormulationMap: React.FC = () => {
   const {
     nodes: storeNodes,
@@ -56,7 +82,7 @@ const FormulationMap: React.FC = () => {
     onNodesChange: storeOnNodesChange,
     onEdgesChange: storeOnEdgesChange,
     openLabelEdgeModal,
-    setViewport,
+    setViewport: storeSetViewport,
     updateCardPosition,
     updateSchemaPosition,
     fetchClinicalData,
@@ -74,16 +100,27 @@ const FormulationMap: React.FC = () => {
     isQuickNotesPanelVisible,
     toggleQuickNotesPanelVisibility,
     emotionIntensityFilter,
+    setEmotionIntensityFilter,
     get: getClinicalStoreState,
     prefillSchemaRule,
+    openABCForm,
+    openSchemaForm,
+    openQuickNoteForm,
+    createGroupFromSelectedNodes,
+    selectedFlowNodes: storeSelectedFlowNodes, // Renamed to avoid conflict
   } = useClinicalStore();
 
-  const { fitView, zoomIn, zoomOut, getViewport, getNodes, getEdges } = useReactFlow();
+  const { fitView, zoomIn, zoomOut, getViewport, getNodes, getEdges: rfGetEdges } = useReactFlow();
   const { toast } = useToast();
   const [isGeneratingInsights, setIsGeneratingInsights] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const mapContainerRef = useRef<HTMLDivElement>(null);
-  const [selectedFlowNodes, setSelectedFlowNodes] = useState<Node[]>([]);
+  const [selectedFlowNodes, setSelectedFlowNodes] = useState<Node[]>(storeSelectedFlowNodes || []);
+
+  // States moved from MapToolbar
+  const [isCreateGroupDialogOpen, setIsCreateGroupDialogOpen] = useState(false);
+  const [newGroupName, setNewGroupName] = useState("");
+  const [newGroupColor, setNewGroupColor] = useState(groupBorderColors[0].value);
 
    useEffect(() => {
     useClinicalStore.setState({ selectedFlowNodes });
@@ -130,7 +167,7 @@ const FormulationMap: React.FC = () => {
   );
 
   const handleSaveLayout = () => {
-    setViewport(getViewport());
+    storeSetViewport(getViewport());
     const currentFlowNodes = getNodes();
     currentFlowNodes.forEach(flowNode => {
         if (flowNode.type === 'abcCard') {
@@ -205,21 +242,34 @@ const FormulationMap: React.FC = () => {
 
   const handleSelectionChange = useCallback((params: OnSelectionChangeParams) => {
     setSelectedFlowNodes(params.nodes);
-     useClinicalStore.setState({ selectedFlowNodes: params.nodes });
+    useClinicalStore.setState({ selectedFlowNodes: params.nodes });
   }, []);
+
+  // Logic from MapToolbar
+  const selectedAbcCardIds = (selectedFlowNodes || [])
+    .filter(node => node.type === 'abcCard')
+    .map(node => node.id);
+
+  const handleCreateGroup = () => {
+    if (!newGroupName.trim()) {
+      toast({ title: "Nome do Grupo", description: "Por favor, insira um nome para o grupo.", variant: "destructive"});
+      return;
+    }
+    if (selectedAbcCardIds.length < 1) {
+      toast({ title: "Seleção de Cards", description: "Selecione pelo menos um card ABC para agrupar.", variant: "destructive"});
+      return;
+    }
+    createGroupFromSelectedNodes(newGroupName, newGroupColor, selectedAbcCardIds);
+    toast({ title: "Grupo Criado", description: `Grupo "${newGroupName}" criado com os cards selecionados.`});
+    setNewGroupName("");
+    setNewGroupColor(groupBorderColors[0].value);
+    setIsCreateGroupDialogOpen(false);
+  };
 
 
   return (
     <div ref={mapContainerRef} className={cn("h-full w-full border rounded-md shadow-sm bg-muted/10 relative", isFullscreen && "fixed inset-0 z-[100] bg-background")} onContextMenu={(e) => e.preventDefault()}>
       
-      <Panel position="top-center" className="p-1">
-         <MapToolbar
-            onGenerateInsights={handleGenerateInsights}
-            onSaveLayout={handleSaveLayout}
-            isGeneratingInsights={isGeneratingInsights}
-          />
-      </Panel>
-
       <ReactFlow
         nodes={displayedNodes}
         edges={edges}
@@ -230,7 +280,7 @@ const FormulationMap: React.FC = () => {
         fitView
         fitViewOptions={{ padding: 0.2, duration: 300 }}
         defaultViewport={initialViewport}
-        onMoveEnd={(_event, viewport) => setViewport(viewport)}
+        onMoveEnd={(_event, viewport) => storeSetViewport(viewport)}
         minZoom={0.1}
         maxZoom={2}
         selectionMode={SelectionMode.Partial}
@@ -244,30 +294,116 @@ const FormulationMap: React.FC = () => {
       >
         <Background variant={BackgroundVariant.Dots} gap={16} size={1} />
         
-        <Panel position="top-right" className="p-1">
-          <div className="flex flex-wrap items-center gap-1 bg-background/90 backdrop-blur-sm p-1 rounded-lg shadow-md border border-border">
-            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={toggleSchemaPanelVisibility} title={isSchemaPanelVisible ? "Ocultar Painel de Esquemas" : "Mostrar Painel de Esquemas"}>
-              {isSchemaPanelVisible ? <PanelLeftClose className="h-3.5 w-3.5" /> : <ListTree className="h-3.5 w-3.5" />}
-            </Button>
-            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={toggleFormulationGuidePanelVisibility} title={isFormulationGuidePanelVisible ? "Ocultar Guia de Formulação" : "Mostrar Guia de Formulação"}>
-              <CheckSquare className="h-3.5 w-3.5" />
-            </Button>
-            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={toggleQuickNotesPanelVisibility} title={isQuickNotesPanelVisible ? "Ocultar Notas Rápidas" : "Mostrar Notas Rápidas"}>
-              <StickyNote className="h-3.5 w-3.5" />
-            </Button>
-             <Button variant="ghost" size="icon" onClick={toggleFullscreen} title={isFullscreen ? "Sair da Tela Cheia" : "Tela Cheia"} className="h-7 w-7">
-              {isFullscreen ? <Minimize className="h-3.5 w-3.5" /> : <Maximize className="h-3.5 w-3.5" />}
-            </Button>
-            <Button variant="ghost" size="icon" onClick={() => zoomIn({ duration: 300 })} title="Aumentar Zoom" className="h-7 w-7">
-              <ZoomIn className="h-3.5 w-3.5" />
-            </Button>
-            <Button variant="ghost" size="icon" onClick={() => zoomOut({ duration: 300 })} title="Diminuir Zoom" className="h-7 w-7">
-              <ZoomOut className="h-3.5 w-3.5" />
-            </Button>
-          </div>
+        <Panel position="top-center" className="p-1">
+            <div className="flex items-center flex-wrap gap-1 p-1.5 rounded-lg bg-background/90 backdrop-blur-sm shadow-md border border-border">
+                {/* Toggle Panels */}
+                <Button variant="outline" size="icon" className="h-7 w-7" onClick={toggleSchemaPanelVisibility} title={isSchemaPanelVisible ? "Ocultar Painel de Esquemas" : "Mostrar Painel de Esquemas"}>
+                    {isSchemaPanelVisible ? <PanelLeftClose className="h-3.5 w-3.5" /> : <ListTree className="h-3.5 w-3.5" />}
+                </Button>
+                <Button variant="outline" size="icon" className="h-7 w-7" onClick={toggleFormulationGuidePanelVisibility} title={isFormulationGuidePanelVisible ? "Ocultar Guia de Formulação" : "Mostrar Guia de Formulação"}>
+                    <CheckSquare className="h-3.5 w-3.5" />
+                </Button>
+                <Button variant="outline" size="icon" className="h-7 w-7" onClick={toggleQuickNotesPanelVisibility} title={isQuickNotesPanelVisible ? "Ocultar Notas Rápidas" : "Mostrar Notas Rápidas"}>
+                    <StickyNote className="h-3.5 w-3.5" />
+                </Button>
+
+                <div className="h-5 w-px bg-border mx-1"></div>
+
+                {/* Action Buttons */}
+                <Button variant="outline" size="icon" className="h-7 w-7" onClick={() => openABCForm()} title="Novo Card ABC">
+                    <PlusCircle className="h-3.5 w-3.5" />
+                </Button>
+                <Button variant="outline" size="icon" className="h-7 w-7" onClick={() => openSchemaForm()} title="Novo Esquema/Regra">
+                    <Share2 className="h-3.5 w-3.5" />
+                </Button>
+                 <Dialog open={isCreateGroupDialogOpen} onOpenChange={setIsCreateGroupDialogOpen}>
+                    <DialogTrigger asChild>
+                    <Button variant="outline" size="icon" className="h-7 w-7" disabled={(selectedFlowNodes || []).filter(node => node.type === 'abcCard').length === 0} title="Criar Grupo Temático">
+                        <Users className="h-3.5 w-3.5" />
+                    </Button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-md">
+                        <DialogHeader>
+                            <DialogTitle>Criar Novo Grupo Temático</DialogTitle>
+                            <DialogDescription>Dê um nome e escolha uma cor para o grupo de cards selecionados ({(selectedFlowNodes || []).filter(node => node.type === 'abcCard').length} card(s)).</DialogDescription>
+                        </DialogHeader>
+                        <div className="space-y-3 py-2">
+                            <div>
+                            <Label htmlFor="group-name-map-toolbar-unified">Nome do Grupo</Label>
+                            <Input id="group-name-map-toolbar-unified" value={newGroupName} onChange={(e) => setNewGroupName(e.target.value)} placeholder="Ex: Ciclo de Evitação"/>
+                            </div>
+                            <div>
+                            <Label htmlFor="group-color-map-toolbar-unified">Cor da Borda do Grupo</Label>
+                            <Select value={newGroupColor} onValueChange={setNewGroupColor}>
+                                <SelectTrigger id="group-color-map-toolbar-unified">
+                                <SelectValue placeholder="Escolha uma cor" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                {groupBorderColors.map(color => (
+                                    <SelectItem key={color.value} value={color.value}>
+                                    <div className="flex items-center gap-2">
+                                        <span className={`w-3 h-3 rounded-full ${color.badgeBg} border ${color.value}`}></span>
+                                        {color.label}
+                                    </div>
+                                    </SelectItem>
+                                ))}
+                                </SelectContent>
+                            </Select>
+                            </div>
+                        </div>
+                        <DialogFooter>
+                            <Button variant="outline" onClick={() => setIsCreateGroupDialogOpen(false)}>Cancelar</Button>
+                            <Button onClick={handleCreateGroup} className="bg-accent hover:bg-accent/90 text-accent-foreground">Criar Grupo</Button>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
+                <Button variant="outline" size="icon" className="h-7 w-7" onClick={() => openQuickNoteForm()} title="Adicionar Nota Rápida ao Mapa">
+                    <StickyNote className="h-3.5 w-3.5" />
+                </Button>
+                
+                <div className="h-5 w-px bg-border mx-1"></div>
+
+                {/* Intensity Filter */}
+                <div className="flex items-center gap-0.5 p-0.5 border rounded-md bg-muted/30 h-7">
+                    <Slider
+                    min={0} max={100} step={10}
+                    value={[emotionIntensityFilter]}
+                    onValueChange={(value) => setEmotionIntensityFilter(value[0])}
+                    className="w-16" 
+                    title={`Filtrar cards com intensidade emocional (antecedente) >= ${emotionIntensityFilter}`}
+                    />
+                    <span className="text-[9px] text-muted-foreground w-4 text-right px-0.5">{emotionIntensityFilter}</span>
+                    <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => setEmotionIntensityFilter(0)} title="Resetar filtro de intensidade">
+                    <RotateCcw className="h-2.5 w-2.5"/>
+                    </Button>
+                </div>
+
+                <div className="h-5 w-px bg-border mx-1"></div>
+                
+                {/* AI & Save */}
+                <Button variant="outline" size="icon" onClick={handleGenerateInsights} disabled={isGeneratingInsights} title="Gerar Insights de IA" className="h-7 w-7">
+                    <Lightbulb className="h-3.5 w-3.5" /> {isGeneratingInsights && <span className="text-[9px] animate-pulse">...</span>}
+                </Button>
+                <Button variant="default" size="icon" onClick={handleSaveLayout} className="bg-accent hover:bg-accent/90 text-accent-foreground h-7 w-7" title="Salvar estudo de caso">
+                    <Save className="h-3.5 w-3.5" />
+                </Button>
+
+                <div className="h-5 w-px bg-border mx-1"></div>
+
+                {/* View Controls */}
+                <Button variant="outline" size="icon" onClick={toggleFullscreen} title={isFullscreen ? "Sair da Tela Cheia" : "Tela Cheia"} className="h-7 w-7">
+                    {isFullscreen ? <Minimize className="h-3.5 w-3.5" /> : <Maximize className="h-3.5 w-3.5" />}
+                </Button>
+                <Button variant="outline" size="icon" onClick={() => zoomIn({ duration: 300 })} title="Aumentar Zoom" className="h-7 w-7">
+                    <ZoomIn className="h-3.5 w-3.5" />
+                </Button>
+                <Button variant="outline" size="icon" onClick={() => zoomOut({ duration: 300 })} title="Diminuir Zoom" className="h-7 w-7">
+                    <ZoomOut className="h-3.5 w-3.5" />
+                </Button>
+            </div>
         </Panel>
         
-        <Controls showInteractive={false} className="shadow-md !left-2 !bottom-2 !right-auto !top-auto" />
+        <Controls showInteractive={false} className="shadow-md !bottom-2 !left-2" position="bottom-left" />
 
         {isSchemaPanelVisible && (
             <Panel position="left-center" className="m-2 !z-10 w-72 max-w-xs max-h-[calc(100vh-6rem)] bg-card border rounded-lg shadow-xl flex flex-col">
@@ -304,3 +440,4 @@ const FormulationMapWrapper: React.FC = () => {
 }
 
 export default FormulationMapWrapper;
+

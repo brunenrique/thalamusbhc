@@ -1,6 +1,5 @@
 import React from 'react';
-import { BaseCard } from '../types/clinicalTypes'; // Adjust the import path as needed
-import { ABCCard } from '../types/clinicalTypes'; // Adjust the import path as needed
+import { BaseCard, ABCCard } from '../types/clinicalTypes'; // Adjust the import path as needed
 
 // Assuming these components exist. Create placeholder components if needed.
 import ABCCardNode from '../cards/ABC/ABCCardNode';

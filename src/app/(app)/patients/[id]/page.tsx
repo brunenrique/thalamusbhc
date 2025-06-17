@@ -49,7 +49,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import dynamic from "next/dynamic";
 import { gerarProntuario } from "@/services/prontuarioService";
-import useClinicalStore from '@/stores/clinicalStore';
 import useClinicalStore, { type ClinicalTab } from '@/stores/clinicalStore';
 // Placeholder for clinical tools - create these files if they don't exist
 import ChainAnalysisBuilder from '@/components/clinical-tools/ChainAnalysisBuilder';

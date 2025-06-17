@@ -7,8 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Network, FileWarning } from "lucide-react";
 import Link from "next/link";
-import type { CaseFormulationTemplate } from "@/app/(app)/tools/case-formulation-models/page";
-import { mockCaseFormulationTemplates } from "@/app/(app)/tools/case-formulation-models/page";
+import { type CaseFormulationTemplate, mockCaseFormulationTemplates } from "@/app/(app)/tools/case-formulation-models/page";
 
 export default function CaseFormulationModelDetailPage() {
   const params = useParams();

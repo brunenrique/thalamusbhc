@@ -2,7 +2,7 @@
 "use client"
 
 import React from "react"; // Added React import
-import { Pie, PieChart, ResponsiveContainer, Cell } from "recharts"
+import { Pie, PieChart, ResponsiveContainer, Cell, Label } from "recharts"
 import {
   ChartConfig,
   ChartContainer,
@@ -11,7 +11,6 @@ import {
   ChartLegend,
   ChartLegendContent,
 } from "@/components/ui/chart"
-import { Label } from "recharts";
 
 const chartData = [
   { problem: "Ansiedade", count: 275, fill: "var(--color-anxiety)" },

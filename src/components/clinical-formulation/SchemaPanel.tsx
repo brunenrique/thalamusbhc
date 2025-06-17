@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'; // Removido Card de @/components/ui/card
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'; // Removido Card de @/components/ui/card; Adicionado Card aqui para consistência
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -10,7 +10,6 @@ import { PlusCircleIcon, Trash2Icon, Link2Icon, ChevronDownIcon, ChevronUpIcon, 
 import useClinicalStore from '@/stores/clinicalStore';
 import type { SchemaData } from '@/types/clinicalTypes';
 import { Badge } from '../ui/badge';
-import { Card } from "@/components/ui/card"; // Adicionado Card aqui para consistência
 
 const SchemaPanel: React.FC = () => {
   const { schemas, openSchemaForm, deleteSchema, cards, openABCForm, unlinkCardFromSchema, toggleSchemaPanelVisibility } = useClinicalStore();

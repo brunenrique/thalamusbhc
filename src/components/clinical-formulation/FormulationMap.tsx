@@ -41,8 +41,20 @@ import QuickNoteForm from './QuickNoteForm';
 import MapPanelContainer from '../map/MapPanelContainer';
 
 
-import type { ClinicalNodeData, ConnectionLabel, SchemaData, ABCCardData, ClinicalNodeType, QuickNote, CardGroupInfo, ABCCardColor, FormulationGuideQuestion, TabSpecificFormulationData } from '@/types/clinicalTypes';
-import { isABCCardData, isSchemaData } from '@/types/clinicalTypes';
+import {
+  type ClinicalNodeData,
+  type ConnectionLabel,
+  type SchemaData,
+  type ABCCardData,
+  type ClinicalNodeType,
+  type QuickNote,
+  type CardGroupInfo,
+  type ABCCardColor,
+  type FormulationGuideQuestion,
+  type TabSpecificFormulationData,
+  isABCCardData,
+  isSchemaData,
+} from '@/types/clinicalTypes';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/shared/utils';
 import { Button } from '@/components/ui/button';

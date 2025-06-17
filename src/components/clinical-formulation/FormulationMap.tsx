@@ -30,11 +30,16 @@ import FormulationGuidePanel from './FormulationGuidePanel';
 import QuickNotesPanel from './QuickNotesPanel';
 import QuickNoteForm from './QuickNoteForm';
 import NodeContextMenu from './NodeContextMenu';
-import MapToolbar from './MapToolbar';
+import MapToolbar from './MapToolbar'; // Toolbar de ações
 import type { ClinicalNodeData, ConnectionLabel, SchemaData, ABCCardData, ClinicalNodeType, QuickNote } from '@/types/clinicalTypes';
 import { isABCCardData, isSchemaData } from '@/types/clinicalTypes';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/shared/utils';
+import { Button } from '@/components/ui/button';
+import { PanelLeftOpen, PanelLeftClose, HelpCircle, StickyNote, Maximize, Minimize, ZoomIn, ZoomOut, Settings, ListTree, CheckSquare } from 'lucide-react';
+import ABCForm from './ABCForm';
+import SchemaForm from './SchemaForm';
+import EdgeLabelModal from './EdgeLabelModal';
 
 
 const nodeTypes = {
@@ -63,10 +68,14 @@ const FormulationMap: React.FC = () => {
     activeColorFilters,
     showSchemaNodes,
     isSchemaPanelVisible,
+    toggleSchemaPanelVisibility,
     isFormulationGuidePanelVisible,
+    toggleFormulationGuidePanelVisibility,
     isQuickNotesPanelVisible,
+    toggleQuickNotesPanelVisibility,
     emotionIntensityFilter,
     get: getClinicalStoreState,
+    prefillSchemaRule,
   } = useClinicalStore();
 
   const { fitView, zoomIn, zoomOut, getViewport, getNodes, getEdges } = useReactFlow();
@@ -75,6 +84,10 @@ const FormulationMap: React.FC = () => {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const [selectedFlowNodes, setSelectedFlowNodes] = useState<Node[]>([]);
+
+   useEffect(() => {
+    useClinicalStore.setState({ selectedFlowNodes });
+  }, [selectedFlowNodes]);
 
 
   useEffect(() => {
@@ -88,7 +101,7 @@ const FormulationMap: React.FC = () => {
   }, [fetchClinicalData]);
 
   const displayedNodes = useMemo(() => {
-    const filtered = storeNodes.filter(node => {
+    return storeNodes.filter(node => {
       if (node.type === 'abcCard' && isABCCardData(node.data)) {
         const colorMatch = activeColorFilters.length === 0 || activeColorFilters.includes(node.data.color);
         const intensityMatch = emotionIntensityFilter === 0 || (node.data.antecedent.emotionIntensity ?? 0) >= emotionIntensityFilter;
@@ -99,7 +112,6 @@ const FormulationMap: React.FC = () => {
       }
       return true;
     });
-    return filtered;
   }, [storeNodes, activeColorFilters, showSchemaNodes, emotionIntensityFilter]);
 
   const onConnect = useCallback(
@@ -137,8 +149,6 @@ const FormulationMap: React.FC = () => {
     try {
       const currentCards = getClinicalStoreState().cards;
       const currentSchemas = getClinicalStoreState().schemas;
-      // Removido: const generated = await runAnalysis(currentCards, currentSchemas);
-      // Simulação de uma análise que não depende de runAnalysis
       await new Promise(resolve => setTimeout(resolve, 1000));
       const generated = [`Análise simulada: ${currentCards.length} cards e ${currentSchemas.length} esquemas.`];
       setInsights(generated);
@@ -195,10 +205,21 @@ const FormulationMap: React.FC = () => {
 
   const handleSelectionChange = useCallback((params: OnSelectionChangeParams) => {
     setSelectedFlowNodes(params.nodes);
+     useClinicalStore.setState({ selectedFlowNodes: params.nodes });
   }, []);
+
 
   return (
     <div ref={mapContainerRef} className={cn("h-full w-full border rounded-md shadow-sm bg-muted/10 relative", isFullscreen && "fixed inset-0 z-[100] bg-background")} onContextMenu={(e) => e.preventDefault()}>
+      
+      <Panel position="top-center" className="p-1">
+         <MapToolbar
+            onGenerateInsights={handleGenerateInsights}
+            onSaveLayout={handleSaveLayout}
+            isGeneratingInsights={isGeneratingInsights}
+          />
+      </Panel>
+
       <ReactFlow
         nodes={displayedNodes}
         edges={edges}
@@ -214,51 +235,62 @@ const FormulationMap: React.FC = () => {
         maxZoom={2}
         selectionMode={SelectionMode.Partial}
         deleteKeyCode={['Backspace', 'Delete']}
-        attributionPosition="bottom-left"
-        className="h-full w-full"
         onNodeContextMenu={handleNodeContextMenu}
         onPaneClick={onPaneClick}
         onEdgeDoubleClick={onEdgeDoubleClick}
         onSelectionChange={handleSelectionChange}
         proOptions={{ hideAttribution: true }}
+        className="h-full w-full"
       >
         <Background variant={BackgroundVariant.Dots} gap={16} size={1} />
-        <Controls showInteractive={false} className="shadow-md !right-2 !top-2 !left-auto !bottom-auto" />
         
-        <Panel position="top-center" className="p-1">
-            <MapToolbar
-                toggleFullscreen={toggleFullscreen}
-                isFullscreen={isFullscreen}
-                handleZoomIn={() => zoomIn({ duration: 300 })}
-                handleZoomOut={() => zoomOut({ duration: 300 })}
-                handleGenerateInsights={handleGenerateInsights}
-                isGeneratingInsights={isGeneratingInsights}
-                handleSaveLayout={handleSaveLayout}
-                selectedFlowNodes={selectedFlowNodes}
-            />
+        <Panel position="top-right" className="p-1">
+          <div className="flex flex-wrap items-center gap-1 bg-background/90 backdrop-blur-sm p-1 rounded-lg shadow-md border border-border">
+            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={toggleSchemaPanelVisibility} title={isSchemaPanelVisible ? "Ocultar Painel de Esquemas" : "Mostrar Painel de Esquemas"}>
+              {isSchemaPanelVisible ? <PanelLeftClose className="h-3.5 w-3.5" /> : <ListTree className="h-3.5 w-3.5" />}
+            </Button>
+            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={toggleFormulationGuidePanelVisibility} title={isFormulationGuidePanelVisible ? "Ocultar Guia de Formulação" : "Mostrar Guia de Formulação"}>
+              <CheckSquare className="h-3.5 w-3.5" />
+            </Button>
+            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={toggleQuickNotesPanelVisibility} title={isQuickNotesPanelVisible ? "Ocultar Notas Rápidas" : "Mostrar Notas Rápidas"}>
+              <StickyNote className="h-3.5 w-3.5" />
+            </Button>
+             <Button variant="ghost" size="icon" onClick={toggleFullscreen} title={isFullscreen ? "Sair da Tela Cheia" : "Tela Cheia"} className="h-7 w-7">
+              {isFullscreen ? <Minimize className="h-3.5 w-3.5" /> : <Maximize className="h-3.5 w-3.5" />}
+            </Button>
+            <Button variant="ghost" size="icon" onClick={() => zoomIn({ duration: 300 })} title="Aumentar Zoom" className="h-7 w-7">
+              <ZoomIn className="h-3.5 w-3.5" />
+            </Button>
+            <Button variant="ghost" size="icon" onClick={() => zoomOut({ duration: 300 })} title="Diminuir Zoom" className="h-7 w-7">
+              <ZoomOut className="h-3.5 w-3.5" />
+            </Button>
+          </div>
         </Panel>
+        
+        <Controls showInteractive={false} className="shadow-md !left-2 !bottom-2 !right-auto !top-auto" />
 
         {isSchemaPanelVisible && (
             <Panel position="left-center" className="m-2 !z-10 w-72 max-w-xs max-h-[calc(100vh-6rem)] bg-card border rounded-lg shadow-xl flex flex-col">
                 <SchemaPanel />
             </Panel>
         )}
-
         {isFormulationGuidePanelVisible && (
             <Panel position="right-center" className="m-2 !z-10 w-72 max-w-xs max-h-[calc(100vh-6rem)] bg-card border rounded-lg shadow-xl flex flex-col">
                 <FormulationGuidePanel />
             </Panel>
         )}
-
         {isQuickNotesPanelVisible && (
             <Panel position="bottom-right" className="m-2 !z-10 w-80 max-w-sm max-h-[40vh] bg-card border rounded-lg shadow-xl flex flex-col">
                 <QuickNotesPanel />
             </Panel>
         )}
-
       </ReactFlow>
+      
       <NodeContextMenu />
       <QuickNoteForm />
+      <ABCForm />
+      <SchemaForm prefillRule={prefillSchemaRule || undefined} />
+      <EdgeLabelModal />
     </div>
   );
 };
@@ -272,4 +304,3 @@ const FormulationMapWrapper: React.FC = () => {
 }
 
 export default FormulationMapWrapper;
-

@@ -6,19 +6,11 @@ import { Button } from '@/components/ui/button';
 import {
   PlusCircle,
   Share2,
-  PanelLeftOpen,
-  PanelLeftClose,
-  // ListChecks, // Replaced by HelpCircle for FormulationGuide
+  Users,
   StickyNote,
-  Maximize,
-  Minimize,
-  ZoomIn,
-  ZoomOut,
   Lightbulb,
   Save,
   RotateCcw,
-  Users,
-  HelpCircle, // Para o Guia de Formulação
 } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
 import { Label } from '@/components/ui/label';
@@ -37,17 +29,6 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { useToast } from '@/hooks/use-toast';
 
-interface MapToolbarProps {
-  toggleFullscreen: () => void;
-  isFullscreen: boolean;
-  handleZoomIn: () => void;
-  handleZoomOut: () => void;
-  handleGenerateInsights: () => void;
-  isGeneratingInsights: boolean;
-  handleSaveLayout: () => void;
-  selectedFlowNodes: Node[];
-}
-
 const groupBorderColors = [
     { label: "Vermelho", value: "border-red-500", badgeBg: "bg-red-500/20" },
     { label: "Verde", value: "border-green-500", badgeBg: "bg-green-500/20" },
@@ -58,38 +39,37 @@ const groupBorderColors = [
     { label: "Rosa", value: "border-pink-500", badgeBg: "bg-pink-500/20" },
 ];
 
+interface MapToolbarProps {
+  onGenerateInsights: () => Promise<void>;
+  onSaveLayout: () => void;
+  isGeneratingInsights: boolean;
+}
 
-export default function MapToolbar({
-  toggleFullscreen,
-  isFullscreen,
-  handleZoomIn,
-  handleZoomOut,
-  handleGenerateInsights,
-  isGeneratingInsights,
-  handleSaveLayout,
-  selectedFlowNodes,
-}: MapToolbarProps) {
+export default function MapToolbar({ onGenerateInsights, onSaveLayout, isGeneratingInsights }: MapToolbarProps) {
   const {
     openABCForm,
     openSchemaForm,
-    isSchemaPanelVisible,
-    toggleSchemaPanelVisibility,
-    isFormulationGuidePanelVisible,
-    toggleFormulationGuidePanelVisibility,
-    isQuickNotesPanelVisible,
-    toggleQuickNotesPanelVisibility,
     emotionIntensityFilter,
     setEmotionIntensityFilter,
     openQuickNoteForm,
     createGroupFromSelectedNodes,
-  } = useClinicalStore();
+    selectedFlowNodes,
+  } = useClinicalStore(state => ({
+    openABCForm: state.openABCForm,
+    openSchemaForm: state.openSchemaForm,
+    emotionIntensityFilter: state.emotionIntensityFilter,
+    setEmotionIntensityFilter: state.setEmotionIntensityFilter,
+    openQuickNoteForm: state.openQuickNoteForm,
+    createGroupFromSelectedNodes: state.createGroupFromSelectedNodes,
+    selectedFlowNodes: state.selectedFlowNodes,
+  }));
 
   const { toast } = useToast();
   const [isCreateGroupDialogOpen, setIsCreateGroupDialogOpen] = useState(false);
   const [newGroupName, setNewGroupName] = useState("");
   const [newGroupColor, setNewGroupColor] = useState(groupBorderColors[0].value);
 
-  const selectedAbcCardIds = selectedFlowNodes
+  const selectedAbcCardIds = (selectedFlowNodes || [])
     .filter(node => node.type === 'abcCard')
     .map(node => node.id);
 
@@ -109,48 +89,35 @@ export default function MapToolbar({
     setIsCreateGroupDialogOpen(false);
   };
 
-  const commonButtonClass = "h-7 w-7";
-  const commonIconClass = "h-3.5 w-3.5";
-
   return (
-    <div className="flex items-center gap-1 bg-background/90 backdrop-blur-sm p-1 rounded-lg shadow-md border border-border">
-      <Button variant="ghost" size="icon" className={commonButtonClass} onClick={toggleSchemaPanelVisibility} title={isSchemaPanelVisible ? "Ocultar Painel de Esquemas" : "Mostrar Painel de Esquemas"}>
-        {isSchemaPanelVisible ? <PanelLeftClose className={commonIconClass} /> : <PanelLeftOpen className={commonIconClass} />}
+    <div className="flex items-center gap-1 p-1.5 rounded-lg bg-background/90 backdrop-blur-sm shadow-md border border-border">
+      
+      <Button variant="outline" size="icon" className="h-7 w-7" onClick={() => openABCForm()} title="Novo Card ABC">
+        <PlusCircle className="h-3.5 w-3.5" />
       </Button>
-      <Button variant="ghost" size="icon" className={commonButtonClass} onClick={toggleFormulationGuidePanelVisibility} title={isFormulationGuidePanelVisible ? "Ocultar Guia de Formulação" : "Mostrar Guia de Formulação"}>
-        <HelpCircle className={commonIconClass} />
+      <Button variant="outline" size="icon" className="h-7 w-7" onClick={() => openSchemaForm()} title="Novo Esquema/Regra">
+        <Share2 className="h-3.5 w-3.5" />
       </Button>
-      <Button variant="ghost" size="icon" className={commonButtonClass} onClick={toggleQuickNotesPanelVisibility} title={isQuickNotesPanelVisible ? "Ocultar Notas Rápidas" : "Mostrar Notas Rápidas"}>
-        <StickyNote className={commonIconClass} />
-      </Button>
-
-      <Button variant="ghost" size="icon" className={commonButtonClass} onClick={() => openABCForm()} title="Novo Card ABC">
-        <PlusCircle className={commonIconClass} />
-      </Button>
-      <Button variant="ghost" size="icon" className={commonButtonClass} onClick={() => openSchemaForm()} title="Novo Esquema/Regra">
-        <Share2 className={commonIconClass} />
-      </Button>
-
       <Dialog open={isCreateGroupDialogOpen} onOpenChange={setIsCreateGroupDialogOpen}>
         <DialogTrigger asChild>
-          <Button variant="ghost" size="icon" className={commonButtonClass} disabled={selectedAbcCardIds.length === 0} title="Criar Grupo Temático">
-            <Users className={commonIconClass} />
+          <Button variant="outline" size="icon" className="h-7 w-7" disabled={selectedAbcCardIds.length === 0} title="Criar Grupo Temático">
+            <Users className="h-3.5 w-3.5" />
           </Button>
         </DialogTrigger>
         <DialogContent className="sm:max-w-md">
-          <DialogHeader>
+           <DialogHeader>
             <DialogTitle>Criar Novo Grupo Temático</DialogTitle>
             <DialogDescription>Dê um nome e escolha uma cor para o grupo de cards selecionados ({selectedAbcCardIds.length} card(s)).</DialogDescription>
           </DialogHeader>
           <div className="space-y-3 py-2">
             <div>
-              <Label htmlFor="group-name">Nome do Grupo</Label>
-              <Input id="group-name" value={newGroupName} onChange={(e) => setNewGroupName(e.target.value)} placeholder="Ex: Ciclo de Evitação"/>
+              <Label htmlFor="group-name-map-toolbar">Nome do Grupo</Label>
+              <Input id="group-name-map-toolbar" value={newGroupName} onChange={(e) => setNewGroupName(e.target.value)} placeholder="Ex: Ciclo de Evitação"/>
             </div>
             <div>
-              <Label htmlFor="group-color">Cor da Borda do Grupo</Label>
+              <Label htmlFor="group-color-map-toolbar">Cor da Borda do Grupo</Label>
               <Select value={newGroupColor} onValueChange={setNewGroupColor}>
-                <SelectTrigger id="group-color">
+                <SelectTrigger id="group-color-map-toolbar">
                   <SelectValue placeholder="Escolha uma cor" />
                 </SelectTrigger>
                 <SelectContent>
@@ -173,41 +140,29 @@ export default function MapToolbar({
         </DialogContent>
       </Dialog>
 
-      <Button variant="ghost" size="icon" className={commonButtonClass} onClick={() => openQuickNoteForm()} title="Adicionar Nota Rápida ao Mapa">
-        <StickyNote className={commonIconClass} />
+      <Button variant="outline" size="icon" className="h-7 w-7" onClick={() => openQuickNoteForm()} title="Adicionar Nota Rápida ao Mapa">
+        <StickyNote className="h-3.5 w-3.5" />
       </Button>
-
-      <div className="flex items-center gap-1 p-1 border rounded-md bg-muted/50 h-7">
+      
+      <div className="flex items-center gap-0.5 p-0.5 border rounded-md bg-muted/30 h-7">
         <Slider
-          id="emotion-intensity-slider"
-          min={0}
-          max={100}
-          step={10}
+          min={0} max={100} step={10}
           value={[emotionIntensityFilter]}
           onValueChange={(value) => setEmotionIntensityFilter(value[0])}
-          className="w-20"
-          title={`Filtrar cards com intensidade emocional no antecedente >= ${emotionIntensityFilter}`}
+          className="w-20" 
+          title={`Filtrar cards com intensidade emocional (antecedente) >= ${emotionIntensityFilter}`}
         />
-        <span className="text-xs text-muted-foreground w-5 text-right">{emotionIntensityFilter}</span>
+        <span className="text-[9px] text-muted-foreground w-4 text-right px-0.5">{emotionIntensityFilter}</span>
         <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => setEmotionIntensityFilter(0)} title="Resetar filtro de intensidade">
-            <RotateCcw className="h-3 w-3"/>
+          <RotateCcw className="h-2.5 w-2.5"/>
         </Button>
       </div>
 
-      <Button variant="ghost" size="icon" onClick={toggleFullscreen} title={isFullscreen ? "Sair da Tela Cheia" : "Tela Cheia"} className={commonButtonClass}>
-        {isFullscreen ? <Minimize className={commonIconClass} /> : <Maximize className={commonIconClass} />}
+      <Button variant="outline" size="icon" onClick={onGenerateInsights} disabled={isGeneratingInsights} title="Gerar Insights de IA" className="h-7 w-7">
+        <Lightbulb className="h-3.5 w-3.5" /> {isGeneratingInsights && <span className="text-xs animate-pulse">...</span>}
       </Button>
-      <Button variant="ghost" size="icon" onClick={handleZoomIn} title="Aumentar Zoom" className={commonButtonClass}>
-        <ZoomIn className={commonIconClass} />
-      </Button>
-      <Button variant="ghost" size="icon" onClick={handleZoomOut} title="Diminuir Zoom" className={commonButtonClass}>
-        <ZoomOut className={commonIconClass} />
-      </Button>
-      <Button variant="ghost" size="icon" onClick={handleGenerateInsights} disabled={isGeneratingInsights} title="Gerar Insights de IA" className={commonButtonClass}>
-        <Lightbulb className={commonIconClass} /> {isGeneratingInsights && <span className="text-xs ml-0.5">...</span>}
-      </Button>
-      <Button variant="default" size="icon" onClick={handleSaveLayout} className="bg-accent hover:bg-accent/90 text-accent-foreground h-7 w-7" title="Salvar estudo de caso">
-        <Save className={commonIconClass} />
+      <Button variant="default" size="icon" onClick={onSaveLayout} className="bg-accent hover:bg-accent/90 text-accent-foreground h-7 w-7" title="Salvar estudo de caso">
+        <Save className="h-3.5 w-3.5" />
       </Button>
     </div>
   );

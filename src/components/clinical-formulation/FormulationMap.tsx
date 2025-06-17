@@ -330,7 +330,7 @@ const FormulationMap: React.FC = () => {
           <Background variant={BackgroundVariant.Dots} gap={16} size={1} />
           <Controls position="bottom-left" showInteractive={false}/>
           
-          {/* MapToolbar is now commented out for debugging
+          
           <Panel 
             position={toolbarOrientation === 'horizontal' ? 'top-center' : 'left-center'} 
             className={cn(
@@ -498,8 +498,9 @@ const FormulationMap: React.FC = () => {
               </Button>
             </div>
           </Panel>
-          */}
           
+          
+          {/* 
           {isSchemaPanelVisible && (
             <Panel position="top-left" className="!m-0 p-0 shadow-xl border rounded-lg bg-card w-72 h-[calc(100%-5rem)] flex flex-col">
                 <SchemaPanel />
@@ -515,19 +516,22 @@ const FormulationMap: React.FC = () => {
                 <QuickNotesPanel />
             </Panel>
           )}
+          */}
           
-          {/* InsightPanel is now commented out for debugging
+          {/* 
           <Panel position="bottom-left" className="!m-0 p-0 shadow-xl border rounded-lg bg-card w-72 h-2/5 max-h-[400px] flex flex-col">
             <InsightPanel />
           </Panel>
           */}
         </ReactFlow>
       
+      {/*
       {isContextMenuOpen && <NodeContextMenu />}
       <QuickNoteForm />
       <ABCForm />
       <SchemaForm prefillRule={useClinicalStore.getState().prefillSchemaRule || undefined}/>
       <EdgeLabelModal />
+      */}
     </div>
   );
 };

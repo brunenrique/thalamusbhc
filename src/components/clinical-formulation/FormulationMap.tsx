@@ -19,6 +19,7 @@ import ReactFlow, {
   ReactFlowProvider,
   NodeMouseEvent,
   EdgeMouseEvent,
+  OnSelectionChangeParams,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 
@@ -26,11 +27,15 @@ import useClinicalStore from '@/stores/clinicalStore';
 import ABCCardNode from './ABCCardNode';
 import SchemaNode from './SchemaNode';
 import SchemaPanel from './SchemaPanel';
+import FormulationGuidePanel from './FormulationGuidePanel'; // New
+import QuickNotesPanel from './QuickNotesPanel'; // New
+import QuickNoteForm from './QuickNoteForm'; // New
 import NodeContextMenu from './NodeContextMenu';
-import type { ClinicalNodeData, ConnectionLabel, SchemaData, ABCCardData, ClinicalNodeType } from '@/types/clinicalTypes';
+import MapToolbar from './MapToolbar'; // Toolbar will be used here
+import type { ClinicalNodeData, ConnectionLabel, SchemaData, ABCCardData, ClinicalNodeType, QuickNote } from '@/types/clinicalTypes';
 import { isABCCardData, isSchemaData } from '@/types/clinicalTypes';
 import { Button } from '../ui/button';
-import { Save, Maximize, Minimize, ZoomIn, ZoomOut, Lightbulb, PlusCircle, Share2, PanelLeftOpen, PanelLeftClose, ListTree } from 'lucide-react';
+import { Save, Maximize, Minimize, ZoomIn, ZoomOut, Lightbulb, PlusCircle, Share2, PanelLeftOpen, PanelLeftClose, ListChecks, StickyNote, SlidersHorizontal } from 'lucide-react';
 import { runAnalysis } from '@/services/insightEngine';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/shared/utils';
@@ -61,18 +66,20 @@ const FormulationMap: React.FC = () => {
     isContextMenuOpen,
     activeColorFilters,
     showSchemaNodes,
-    openABCForm, 
-    openSchemaForm, 
     isSchemaPanelVisible,
-    toggleSchemaPanelVisibility,
+    isFormulationGuidePanelVisible, // New
+    isQuickNotesPanelVisible, // New
+    emotionIntensityFilter, // New
     get: getClinicalStoreState,
   } = useClinicalStore();
 
-  const { fitView, zoomIn, zoomOut, getViewport } = useReactFlow();
+  const { fitView, zoomIn, zoomOut, getViewport, getNodes, getEdges } = useReactFlow();
   const { toast } = useToast();
   const [isGeneratingInsights, setIsGeneratingInsights] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const mapContainerRef = useRef<HTMLDivElement>(null);
+  const [selectedFlowNodes, setSelectedFlowNodes] = useState<Node[]>([]);
+
 
   useEffect(() => {
     fetchClinicalData('mockPatientId');
@@ -88,17 +95,18 @@ const FormulationMap: React.FC = () => {
   const displayedNodes = useMemo(() => {
     const filtered = storeNodes.filter(node => {
       if (node.type === 'abcCard' && isABCCardData(node.data)) {
-        if (activeColorFilters.length === 0) return true; 
-        return activeColorFilters.includes(node.data.color);
+        const colorMatch = activeColorFilters.length === 0 || activeColorFilters.includes(node.data.color);
+        const intensityMatch = emotionIntensityFilter === 0 || (node.data.antecedent.emotionIntensity ?? 0) >= emotionIntensityFilter;
+        return colorMatch && intensityMatch;
       }
       if (node.type === 'schemaNode') {
         return showSchemaNodes;
       }
       return true;
     });
-    console.log("LOG: Displayed nodes recalculate. Count:", filtered.length, "Filters:", activeColorFilters, "Show Schemas:", showSchemaNodes);
+    // console.log("LOG: Displayed nodes recalculate. Count:", filtered.length, "Filters:", activeColorFilters, "Show Schemas:", showSchemaNodes, "Emotion Filter:", emotionIntensityFilter);
     return filtered;
-  }, [storeNodes, activeColorFilters, showSchemaNodes]);
+  }, [storeNodes, activeColorFilters, showSchemaNodes, emotionIntensityFilter]);
 
   const onConnect = useCallback(
     (params: Connection | Edge) => {
@@ -117,7 +125,17 @@ const FormulationMap: React.FC = () => {
 
   const handleSaveLayout = () => {
     setViewport(getViewport());
+    // Update nodes in store with current positions from ReactFlow instance
+    const currentFlowNodes = getNodes();
+    currentFlowNodes.forEach(flowNode => {
+        if (flowNode.type === 'abcCard') {
+            getClinicalStoreState().updateCardPosition(flowNode.id, flowNode.position);
+        } else if (flowNode.type === 'schemaNode') {
+            getClinicalStoreState().updateSchemaPosition(flowNode.id, flowNode.position);
+        }
+    });
     saveClinicalData('mockPatientId');
+    toast({ title: "Estudo Salvo", description: "O layout e os dados do estudo de caso foram salvos." });
   };
 
   const handleGenerateInsights = async () => {
@@ -179,6 +197,14 @@ const FormulationMap: React.FC = () => {
     }
   };
 
+  const handleSelectionChange = useCallback((params: OnSelectionChangeParams) => {
+    setSelectedFlowNodes(params.nodes);
+  }, []);
+
+
+  // console.log("LOG: Rendering FormulationMap. Nodes to pass to ReactFlow:", displayedNodes.length, "Edges:", edges.length);
+
+
   return (
     <div ref={mapContainerRef} className={cn("h-full w-full border rounded-md shadow-sm bg-muted/10 relative", isFullscreen && "fixed inset-0 z-[100] bg-background")} onContextMenu={(e) => e.preventDefault()}>
       <ReactFlow
@@ -189,7 +215,7 @@ const FormulationMap: React.FC = () => {
         onConnect={onConnect}
         nodeTypes={nodeTypes}
         fitView
-        fitViewOptions={{ padding: 0.1, duration: 300 }}
+        fitViewOptions={{ padding: 0.2, duration: 300 }}
         defaultViewport={initialViewport}
         onMoveEnd={(_event, viewport) => setViewport(viewport)}
         minZoom={0.1}
@@ -201,50 +227,52 @@ const FormulationMap: React.FC = () => {
         onNodeContextMenu={handleNodeContextMenu}
         onPaneClick={onPaneClick}
         onEdgeDoubleClick={onEdgeDoubleClick}
+        onSelectionChange={handleSelectionChange}
       >
         <Background variant={BackgroundVariant.Dots} gap={16} size={1} />
         <Controls showInteractive={false} className="shadow-md" />
-        <MiniMap nodeStrokeWidth={3} zoomable pannable className="shadow-md rounded-md border" />
+        <MiniMap nodeStrokeWidth={3} zoomable pannable className="shadow-md rounded-md border !bg-background/80 backdrop-blur-sm" />
 
         <Panel position="top-center" className="p-1.5">
-          <div className="flex items-center flex-wrap gap-1.5 bg-background/90 backdrop-blur-sm p-1.5 rounded-lg shadow-md border border-border">
-            <Button variant="outline" size="icon" className="h-8 w-8" onClick={toggleSchemaPanelVisibility} title={isSchemaPanelVisible ? "Ocultar Painel de Esquemas" : "Mostrar Painel de Esquemas"}>
-              {isSchemaPanelVisible ? <PanelLeftClose className="h-4 w-4" /> : <PanelLeftOpen className="h-4 w-4" />}
-            </Button>
-             <Button variant="outline" size="sm" className="h-8 px-2.5" onClick={() => openABCForm()} title="Novo Card ABC">
-                <PlusCircle className="h-4 w-4 mr-1" /> Card
-              </Button>
-              <Button variant="outline" size="sm" className="h-8 px-2.5" onClick={() => openSchemaForm()} title="Novo Esquema/Regra">
-                <Share2 className="h-4 w-4 mr-1" /> Esquema
-              </Button>
-            <Button variant="outline" size="icon" onClick={toggleFullscreen} title={isFullscreen ? "Sair da Tela Cheia" : "Tela Cheia"} className="h-8 w-8">
-                {isFullscreen ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" />}
-            </Button>
-            <Button variant="outline" size="icon" onClick={() => zoomIn({ duration: 300 })} title="Aumentar Zoom" className="h-8 w-8">
-                <ZoomIn className="h-4 w-4" />
-            </Button>
-            <Button variant="outline" size="icon" onClick={() => zoomOut({ duration: 300 })} title="Diminuir Zoom" className="h-8 w-8">
-                <ZoomOut className="h-4 w-4" />
-            </Button>
-            <Button variant="outline" size="sm" onClick={handleGenerateInsights} disabled={isGeneratingInsights} title="Gerar Insights de IA" className="h-8 px-2.5">
-                <Lightbulb className="h-4 w-4 mr-1" /> {isGeneratingInsights ? "..." : "IA"}
-            </Button>
-            <Button variant="default" size="sm" onClick={handleSaveLayout} className="bg-accent hover:bg-accent/90 text-accent-foreground h-8 px-2.5" title="Salvar estudo de caso">
-                <Save className="h-4 w-4 mr-1" /> Salvar
-            </Button>
-          </div>
+            <MapToolbar
+                toggleFullscreen={toggleFullscreen}
+                isFullscreen={isFullscreen}
+                handleZoomIn={() => zoomIn({ duration: 300 })}
+                handleZoomOut={() => zoomOut({ duration: 300 })}
+                handleGenerateInsights={handleGenerateInsights}
+                isGeneratingInsights={isGeneratingInsights}
+                handleSaveLayout={handleSaveLayout}
+                selectedFlowNodes={selectedFlowNodes}
+            />
         </Panel>
 
         {isSchemaPanelVisible && (
-            <Panel position="left-center" className="m-2 !z-10"> {/* Aumentado z-index */}
-                <div className="w-72 max-w-xs max-h-[calc(100vh-6rem)] bg-card border rounded-lg shadow-xl flex flex-col">
+            <Panel position="left-center" className="m-2 !z-10">
+                <div className="w-72 max-w-xs max-h-[calc(100vh-8rem)] bg-card border rounded-lg shadow-xl flex flex-col">
                     <SchemaPanel />
+                </div>
+            </Panel>
+        )}
+
+        {isFormulationGuidePanelVisible && (
+            <Panel position="right-center" className="m-2 !z-10">
+                 <div className="w-72 max-w-xs max-h-[calc(100vh-8rem)] bg-card border rounded-lg shadow-xl flex flex-col">
+                    <FormulationGuidePanel />
+                </div>
+            </Panel>
+        )}
+
+        {isQuickNotesPanelVisible && (
+            <Panel position="bottom-left" className="m-2 !z-10">
+                 <div className="w-80 max-w-sm max-h-[40vh] bg-card border rounded-lg shadow-xl flex flex-col">
+                    <QuickNotesPanel />
                 </div>
             </Panel>
         )}
 
       </ReactFlow>
       <NodeContextMenu />
+      <QuickNoteForm />
     </div>
   );
 };
@@ -258,4 +286,3 @@ const FormulationMapWrapper: React.FC = () => {
 }
 
 export default FormulationMapWrapper;
-

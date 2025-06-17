@@ -6,7 +6,7 @@ import { Handle, Position, NodeProps, useReactFlow } from 'reactflow';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Edit3Icon, Trash2Icon, PaletteIcon, LinkIcon as LinkIconLucide, ExternalLinkIcon } from 'lucide-react';
+import { Edit3Icon, Trash2Icon, PaletteIcon, LinkIcon as LinkIconLucide, ExternalLinkIcon, Users } from 'lucide-react';
 import useClinicalStore from '@/stores/clinicalStore';
 import type { ABCCardData, ABCCardColor } from '@/types/clinicalTypes';
 import { cn } from '@/shared/utils';
@@ -20,9 +20,20 @@ const cardColorStyles: Record<ABCCardColor, string> = {
   purple: 'bg-purple-500/10 border-purple-500/30 text-purple-900 dark:bg-purple-900/20 dark:border-purple-700/50 dark:text-purple-200',
 };
 
+const groupColorToBorderClass: Record<string, string> = {
+    "border-red-500": "border-red-500",
+    "border-green-500": "border-green-500",
+    "border-blue-500": "border-blue-500",
+    "border-yellow-500": "border-yellow-500",
+    "border-purple-500": "border-purple-500",
+    "border-cyan-500": "border-cyan-500",
+    "border-pink-500": "border-pink-500",
+};
+
+
 const ABCCardNode: React.FC<NodeProps<ABCCardData>> = ({ data, id, selected }) => {
   const { schemas } = useClinicalStore();
-  console.log("LOG: Rendering ABCCardNode, ID:", id, "Data:", data);
+  // console.log("LOG: Rendering ABCCardNode, ID:", id, "Data:", data);
 
   const isLinkedToSchema = schemas.some(schema => schema.linkedCardIds.includes(id));
 
@@ -43,6 +54,9 @@ const ABCCardNode: React.FC<NodeProps<ABCCardData>> = ({ data, id, selected }) =
                             data.color === 'purple' ? 'bg-purple-500' :
                             'bg-primary';
 
+  const groupBorderStyle = data.groupInfo ? groupColorToBorderClass[data.groupInfo.color] || 'border-primary' : '';
+
+
   const IntensityBar = ({ value, label }: { value?: number; label: string }) => (
     <div className={cn("text-xs", textColorClass)}>
       <span className="font-medium">{label}: </span>
@@ -56,9 +70,10 @@ const ABCCardNode: React.FC<NodeProps<ABCCardData>> = ({ data, id, selected }) =
   return (
     <Card
       className={cn(
-        "w-72 shadow-md hover:shadow-lg transition-shadow duration-150 react-flow__node-default", // Added react-flow__node-default for potential default styles if needed
+        "w-72 shadow-md hover:shadow-lg transition-shadow duration-150 react-flow__node-default",
         cardStyle,
-        selected && "ring-2 ring-accent ring-offset-2"
+        selected && "ring-2 ring-accent ring-offset-2",
+        data.groupInfo && `${groupBorderStyle} border-2` // Apply group border
       )}
       style={{minWidth: '280px', maxWidth: '320px'}}
     >
@@ -70,8 +85,16 @@ const ABCCardNode: React.FC<NodeProps<ABCCardData>> = ({ data, id, selected }) =
       <CardHeader className="p-3 space-y-1">
         <div className="flex justify-between items-start">
             <CardTitle className={cn("text-sm font-semibold line-clamp-2 leading-tight", textColorClass)}>{data.title}</CardTitle>
-            {isLinkedToSchema && <LinkIconLucide className="h-3 w-3 text-muted-foreground flex-shrink-0" title="Vinculado a um Esquema" />}
+            <div className="flex items-center gap-1.5">
+                {data.groupInfo && <Users className="h-3 w-3 text-muted-foreground flex-shrink-0" title={`Grupo: ${data.groupInfo.name}`} />}
+                {isLinkedToSchema && <LinkIconLucide className="h-3 w-3 text-muted-foreground flex-shrink-0" title="Vinculado a um Esquema" />}
+            </div>
         </div>
+        {data.groupInfo && (
+            <Badge variant="outline" className={cn("text-[9px] px-1.5 py-0.5 w-fit", data.groupInfo.color.replace('border-', 'text-').replace('-500', '-700 dark:text-'.concat(data.groupInfo.color.split('-')[1]).concat('-300')), data.groupInfo.color.replace('border-','bg-').concat('/10'))} title={data.groupInfo.name}>
+                {data.groupInfo.name}
+            </Badge>
+        )}
       </CardHeader>
       <CardContent className="p-3 text-xs space-y-2">
         <div className={textColorClass}>
@@ -99,7 +122,6 @@ const ABCCardNode: React.FC<NodeProps<ABCCardData>> = ({ data, id, selected }) =
           </div>
         )}
       </CardContent>
-      {/* CardFooter pode ser removido se não houver ações diretas no card */}
     </Card>
   );
 };

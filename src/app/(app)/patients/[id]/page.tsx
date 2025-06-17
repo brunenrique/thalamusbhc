@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Mail, Phone, CalendarDays, Edit, FileText, Brain, CheckCircle, Clock, MessageSquare, Trash2, Users as UsersIconLucide, Home as HomeIconLucide, Share2, UploadCloud, Calendar as CalendarIconShad, Lightbulb, Tag, BarChart3 as BarChart3Icon, ShieldAlert as ShieldAlertIcon, CheckCircle as CheckCircleIcon, TrendingUp, BookOpen, Activity, Users2, ClipboardList, Target, ListChecks, PlusCircle, Archive, AlertTriangle, History as HistoryIcon, Bot, Image as ImageIcon, Save, CalendarCheck, FileArchive, Eye, Pencil, FilePlus2, ClipboardEdit, Send, Sparkles } from "lucide-react";
 import CopyButton from "@/components/ui/copy-button";
 import Link from "next/link";
-import { useRouter, useSearchParams, useParams } from "next/navigation"; 
+import { useRouter, useSearchParams, useParams } from "next/navigation";
 import PatientTimeline from "@/components/patients/patient-timeline";
 import SessionNoteCard from "@/components/patients/session-note-card";
 import ResourceCard from "@/components/resources/resource-card";
@@ -53,9 +53,8 @@ import useClinicalStore from '@/stores/clinicalStore';
 
 // Importações para "O Coração Clínico"
 import FormulationMapWrapper from "@/components/clinical-formulation/FormulationMap";
-// SchemaPanel será renderizado dentro do FormulationMapWrapper
 import ABCForm from "@/components/clinical-formulation/ABCForm";
-import SchemaForm from "@/components/clinical-formulation/SchemaForm"; 
+import SchemaForm from "@/components/clinical-formulation/SchemaForm";
 import EdgeLabelModal from "@/components/clinical-formulation/EdgeLabelModal";
 
 
@@ -84,7 +83,7 @@ const mockPatient = {
   email: "alice@example.com",
   phone: "555-1234",
   dob: "1990-05-15",
-  avatarUrl: "https://placehold.co/150x150/70C1B3/FFFFFF?text=AW", 
+  avatarUrl: "https://placehold.co/150x150/70C1B3/FFFFFF?text=AW",
   dataAiHint: "female avatar",
   nextAppointment: "2024-07-22T10:00:00Z",
   lastSession: "2024-07-15",
@@ -169,8 +168,8 @@ interface PsychologicalDocument {
   id: string;
   name: string;
   type: "Laudo" | "Atestado" | "Declaração" | "Relatório de Avaliação" | "Outro" | "Anamnese";
-  creationDate: string; 
-  lastModified?: string; 
+  creationDate: string;
+  lastModified?: string;
 }
 
 const mockPsychologicalDocumentsList: PsychologicalDocument[] = [
@@ -200,17 +199,17 @@ const mockDocumentTemplates: DocumentTemplate[] = [
 interface SentAnamnesis {
     id: string;
     templateName: string;
-    sentDate: string; 
+    sentDate: string;
     status: "Pendente" | "Preenchida";
-    filledDate?: string; 
+    filledDate?: string;
 }
 
 
 export default function PatientDetailPage() {
-  const pageParams = useParams(); 
-  const patientId = pageParams.id as string; 
+  const pageParams = useParams();
+  const patientId = pageParams.id as string;
 
-  const patient = mockPatient; 
+  const patient = mockPatient;
   const router = useRouter();
   const { toast } = useToast();
   const searchParams = useSearchParams();
@@ -251,18 +250,18 @@ export default function PatientDetailPage() {
   const [currentProgressData, setCurrentProgressData] = useState<Array<{ date: Date; score: number }>>([]);
   const [isLoadingProgressChart, setIsLoadingProgressChart] = useState(false);
   const [selectedGlobalResource, setSelectedGlobalResource] = useState<string>("");
-  
-  const [caseStudyNotes, setCaseStudyNotes] = useState<string>(""); 
-  const [supervisionInputText, setSupervisionInputText] = useState<string>(""); 
-  const [supervisionResponse, setSupervisionResponse] = useState<string | null>(null); 
-  const [isSupervisionLoading, setIsSupervisionLoading] = useState<boolean>(false); 
-  const [supervisionError, setSupervisionError] = useState<string | null>(null); 
+
+  const [caseStudyNotes, setCaseStudyNotes] = useState<string>("");
+  const [supervisionInputText, setSupervisionInputText] = useState<string>("");
+  const [supervisionResponse, setSupervisionResponse] = useState<string | null>(null);
+  const [isSupervisionLoading, setIsSupervisionLoading] = useState<boolean>(false);
+  const [supervisionError, setSupervisionError] = useState<string | null>(null);
 
   const [nextSessionsPlan, setNextSessionsPlan] = useState<string>("");
 
   const [isCreateDocumentDialogOpen, setIsCreateDocumentDialogOpen] = useState(false);
   const [selectedDocumentTemplateId, setSelectedDocumentTemplateId] = useState<string>("");
-  
+
   const [anamnesisText, setAnamnesisText] = useState<string>("");
   const [selectedAnamnesisTemplateIdToSent, setSelectedAnamnesisTemplateIdToSent] = useState<string>("");
   const [patientWhatsApp, setPatientWhatsApp] = useState<string>(patient.phone || "");
@@ -541,7 +540,7 @@ export default function PatientDetailPage() {
       <Button variant="outline" asChild className="mb-4 self-start">
         <Link href="/patients">← Voltar para Pacientes</Link>
       </Button>
-      
+
       <Card className="shadow-md overflow-hidden">
         <CardHeader className="bg-muted/30 p-6">
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
@@ -704,7 +703,6 @@ export default function PatientDetailPage() {
                     </div>
                   )}
                 </CardContent>
-            </Card>
              <Card>
                 <CardHeader>
                     <CardTitle className="font-headline flex items-center"><MessageSquare className="mr-2 h-5 w-5 text-primary"/>Últimas Anotações de Sessão</CardTitle>
@@ -819,7 +817,7 @@ export default function PatientDetailPage() {
                     <CardDescription>Registre aqui as informações da anamnese coletadas diretamente.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <Textarea 
+                    <Textarea
                         placeholder="Digite o histórico do paciente, queixa principal, histórico familiar, social, de saúde, etc..."
                         rows={15}
                         className="min-h-[300px]"
@@ -882,7 +880,7 @@ export default function PatientDetailPage() {
                 </CardContent>
             </Card>
         </TabsContent>
-        
+
         <TabsContent value="planning" className="mt-8 space-y-6">
             <Card className="shadow-sm">
                 <CardHeader className="flex flex-row justify-between items-center">
@@ -970,12 +968,12 @@ export default function PatientDetailPage() {
             </Card>
         </TabsContent>
 
-        <TabsContent value="caseStudy" className="mt-6 flex flex-col flex-grow min-h-[80vh]">
+        <TabsContent value="caseStudy" className="mt-6 flex flex-col flex-grow min-h-[80vh] h-full">
             <div className="flex-grow h-full w-full">
               <FormulationMapWrapper />
             </div>
         </TabsContent>
-        
+
         <TabsContent value="resources" className="mt-8">
           <Card className="shadow-sm">
             <CardHeader className="flex flex-row justify-between items-center">
@@ -1066,7 +1064,7 @@ export default function PatientDetailPage() {
                         <div>
                           <h4 className="font-medium text-sm">{doc.name}</h4>
                           <p className="text-xs text-muted-foreground">
-                            Tipo: <Badge variant="outline" className="text-xs">{doc.type}</Badge> | 
+                            Tipo: <Badge variant="outline" className="text-xs">{doc.type}</Badge> |
                             Criado em: {format(new Date(doc.creationDate), "P", { locale: ptBR })}
                             {doc.lastModified && ` | Modificado em: ${format(new Date(doc.lastModified), "P", { locale: ptBR })}`}
                           </p>
@@ -1092,7 +1090,7 @@ export default function PatientDetailPage() {
             </CardContent>
           </Card>
         </TabsContent>
-        
+
         <TabsContent value="timeline" className="mt-8">
             <Card className="shadow-sm">
                 <CardHeader>
@@ -1113,7 +1111,3 @@ export default function PatientDetailPage() {
     </div>
   );
 }
-    
-
-    
-

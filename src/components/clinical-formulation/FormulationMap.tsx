@@ -11,7 +11,6 @@ import ReactFlow, {
   type Connection,
   type Edge,
   type Node,
-  MiniMap,
   BackgroundVariant,
   useReactFlow,
   SelectionMode,
@@ -225,8 +224,7 @@ const FormulationMap: React.FC = () => {
       >
         <Background variant={BackgroundVariant.Dots} gap={16} size={1} />
         <Controls showInteractive={false} className="shadow-md !right-2 !top-2 !left-auto !bottom-auto" />
-        <MiniMap nodeStrokeWidth={3} zoomable pannable className="shadow-md rounded-md border !bg-background/80 backdrop-blur-sm !left-2 !bottom-2" />
-
+        
         <Panel position="top-center" className="p-1">
             <MapToolbar
                 toggleFullscreen={toggleFullscreen}

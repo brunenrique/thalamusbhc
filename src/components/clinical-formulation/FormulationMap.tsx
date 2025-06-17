@@ -30,6 +30,10 @@ import ABCForm from './ABCForm';
 import SchemaForm from './SchemaForm';
 import EdgeLabelModal from './EdgeLabelModal';
 import QuickNoteForm from './QuickNoteForm';
+import SchemaPanel from './SchemaPanel';
+import InsightPanel from './InsightPanel';
+import FormulationGuidePanel from './FormulationGuidePanel';
+import QuickNotesPanel from './QuickNotesPanel';
 import type { ClinicalNodeData, ConnectionLabel, SchemaData, ABCCardData, ClinicalNodeType, QuickNote, CardGroupInfo } from '@/types/clinicalTypes';
 import { isABCCardData, isSchemaData } from '@/types/clinicalTypes';
 import { useToast } from '@/hooks/use-toast';
@@ -53,6 +57,8 @@ import {
   PanelLeftOpen, PanelLeftClose, HelpCircle as FormulationGuideIcon, CheckSquare, StickyNote, Maximize, Minimize, ZoomIn, ZoomOut, Settings, ListTree,
   PlusCircle, Share2, Users, Lightbulb, Save, RotateCcw, GripVertical, GripHorizontal, MessageSquare
 } from 'lucide-react';
+import { Card } from '@/components/ui/card';
+
 
 const nodeTypes = {
   abcCard: ABCCardNode,
@@ -71,7 +77,6 @@ const groupBorderColors = [
     { label: "Rosa", value: "border-pink-500", badgeBg: "bg-pink-500/20" },
 ];
 
-
 const FormulationMap: React.FC = () => {
   const {
     nodes: storeNodes,
@@ -87,7 +92,7 @@ const FormulationMap: React.FC = () => {
     saveClinicalData,
     setInsights,
     openContextMenu,
-    isContextMenuOpen, // Needed for NodeContextMenu
+    isContextMenuOpen,
     toolbarOrientation,
     toggleToolbarOrientation,
     openABCForm,
@@ -104,6 +109,7 @@ const FormulationMap: React.FC = () => {
     createGroupFromSelectedNodes,
     selectedFlowNodes,
     setSelectedFlowNodes,
+    get: getClinicalStore,
   } = useClinicalStore();
 
   const reactFlowInstance = useReactFlow();
@@ -115,7 +121,6 @@ const FormulationMap: React.FC = () => {
   const [isCreateGroupDialogOpen, setIsCreateGroupDialogOpen] = useState(false);
   const [newGroupName, setNewGroupName] = useState("");
   const [newGroupColor, setNewGroupColor] = useState(groupBorderColors[0].value);
-
 
   useEffect(() => {
     fetchClinicalData('mockPatientId');
@@ -140,14 +145,12 @@ const FormulationMap: React.FC = () => {
     setIsGeneratingInsights(true);
     const currentNodes = reactFlowInstance.getNodes();
     const currentEdges = reactFlowInstance.getEdges();
-    // Basic insights, replace with actual AI call
-    const insights = [
-        `Análise com ${currentNodes.length} nós e ${currentEdges.length} conexões.`,
-        "Observado padrão de comportamento X relacionado ao antecedente Y.",
-        "Esquema Z parece influenciar múltiplos cards.",
-    ];
-    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate AI processing
-    setInsights(insights);
+    
+    // Simulate insights based on current data in store
+    const { cards, schemas, runAnalysis } = getClinicalStore();
+    const insightsFromAnalysis = await runAnalysis(cards, schemas);
+
+    setInsights(insightsFromAnalysis);
     setIsGeneratingInsights(false);
     toast({ title: "Insights Gerados", description: "Novos insights foram adicionados ao painel." });
   };
@@ -235,7 +238,7 @@ const FormulationMap: React.FC = () => {
                 "bg-background/90 backdrop-blur-sm shadow-lg border border-border rounded-lg flex items-center p-1",
                 toolbarOrientation === 'horizontal'
                   ? "flex-row flex-nowrap gap-1 overflow-x-auto max-w-fit mx-auto"
-                  : "flex-col gap-1.5 w-auto p-1.5"
+                  : "flex-col items-stretch gap-1.5 w-auto p-1.5" // items-stretch for vertical
               )}
             >
               <Button variant="ghost" size="icon" className={cn(commonButtonClass, "cursor-pointer")} onClick={toggleToolbarOrientation} title={toolbarOrientation === 'horizontal' ? "Menu Vertical (Esquerda)" : "Menu Horizontal (Topo)"}>
@@ -275,20 +278,20 @@ const FormulationMap: React.FC = () => {
                   </DialogHeader>
                   <div className="space-y-3 py-2">
                     <div>
-                      <Label htmlFor="group-name-toolbar-map">Nome do Grupo</Label>
-                      <Input id="group-name-toolbar-map" value={newGroupName} onChange={(e) => setNewGroupName(e.target.value)} placeholder="Ex: Ciclo de Evitação"/>
+                      <Label htmlFor="group-name-map-toolbar">Nome do Grupo</Label>
+                      <Input id="group-name-map-toolbar" value={newGroupName} onChange={(e) => setNewGroupName(e.target.value)} placeholder="Ex: Ciclo de Evitação"/>
                     </div>
                     <div>
-                      <Label htmlFor="group-color-toolbar-map">Cor da Borda do Grupo</Label>
+                      <Label htmlFor="group-color-map-toolbar">Cor da Borda do Grupo</Label>
                       <Select value={newGroupColor} onValueChange={setNewGroupColor}>
-                        <SelectTrigger id="group-color-toolbar-map">
+                        <SelectTrigger id="group-color-map-toolbar">
                           <SelectValue placeholder="Escolha uma cor" />
                         </SelectTrigger>
                         <SelectContent>
                           {groupBorderColors.map(color => (
                             <SelectItem key={color.value} value={color.value}>
                               <div className="flex items-center gap-2">
-                                <span className={`w-3 h-3 rounded-full ${color.badgeBg} border ${color.value}`}></span>
+                                <span className={cn("w-3 h-3 rounded-full border", color.value, color.badgeBg)}></span>
                                 {color.label}
                               </div>
                             </SelectItem>
@@ -348,7 +351,31 @@ const FormulationMap: React.FC = () => {
               </Button>
             </div>
           </Panel>
+
+          {isSchemaPanelVisible && (
+            <Panel position="top-left" className="!m-0 p-0 shadow-xl border rounded-lg bg-card w-72 h-[calc(100%-5rem)] flex flex-col">
+                <SchemaPanel />
+            </Panel>
+          )}
+          {isFormulationGuidePanelVisible && (
+            <Panel position="top-right" className="!m-0 p-0 shadow-xl border rounded-lg bg-card w-72 h-[calc(100%-5rem)] flex flex-col">
+                <FormulationGuidePanel />
+            </Panel>
+          )}
+          {isQuickNotesPanelVisible && (
+             <Panel position="bottom-right" className="!m-0 p-0 shadow-xl border rounded-lg bg-card w-72 h-2/5 max-h-[400px] flex flex-col">
+                <QuickNotesPanel />
+            </Panel>
+          )}
+          {/* The InsightPanel can be toggled via a button in the MapToolbar if needed, or be permanently visible.
+              For now, let's assume it's a permanent fixture or controlled elsewhere if it needs to be toggled.
+              If permanent:
+          <Panel position="bottom-left" className="!m-0 p-0 shadow-xl border rounded-lg bg-card w-72 h-2/5 max-h-[400px] flex flex-col">
+            <InsightPanel />
+          </Panel>
+          */}
         </ReactFlow>
+      
       {isContextMenuOpen && <NodeContextMenu />}
       <QuickNoteForm />
       <ABCForm />
@@ -365,3 +392,4 @@ const FormulationMapWrapper: React.FC = () => (
 );
 
 export default FormulationMapWrapper;
+

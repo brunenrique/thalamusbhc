@@ -138,11 +138,14 @@ const FormulationMap: React.FC = () => {
     try {
       const currentCards = getClinicalStoreState().cards;
       const currentSchemas = getClinicalStoreState().schemas;
-      const generated = await runAnalysis(currentCards, currentSchemas);
+      // Removido: const generated = await runAnalysis(currentCards, currentSchemas);
+      // Simulação de uma análise que não depende de runAnalysis
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      const generated = [`Análise simulada: ${currentCards.length} cards e ${currentSchemas.length} esquemas.`];
       setInsights(generated);
       toast({
-        title: "Insights Gerados",
-        description: "A análise foi concluída e os insights foram atualizados.",
+        title: "Insights Gerados (Simulado)",
+        description: "A análise simulada foi concluída e os insights foram atualizados.",
       });
     } catch (error) {
       console.error("Erro ao gerar insights:", error);
@@ -218,9 +221,10 @@ const FormulationMap: React.FC = () => {
         onPaneClick={onPaneClick}
         onEdgeDoubleClick={onEdgeDoubleClick}
         onSelectionChange={handleSelectionChange}
+        proOptions={{ hideAttribution: true }}
       >
         <Background variant={BackgroundVariant.Dots} gap={16} size={1} />
-        <Controls showInteractive={false} className="shadow-md !left-auto !right-2 !bottom-auto !top-20" />
+        <Controls showInteractive={false} className="shadow-md !right-2 !top-2 !left-auto !bottom-auto" />
         <MiniMap nodeStrokeWidth={3} zoomable pannable className="shadow-md rounded-md border !bg-background/80 backdrop-blur-sm !left-2 !bottom-2" />
 
         <Panel position="top-center" className="p-1">
@@ -237,26 +241,20 @@ const FormulationMap: React.FC = () => {
         </Panel>
 
         {isSchemaPanelVisible && (
-            <Panel position="left-center" className="m-2 !z-10">
-                <div className="w-72 max-w-xs max-h-[calc(100vh-6rem)] bg-card border rounded-lg shadow-xl flex flex-col">
-                    <SchemaPanel />
-                </div>
+            <Panel position="left-center" className="m-2 !z-10 w-72 max-w-xs max-h-[calc(100vh-6rem)] bg-card border rounded-lg shadow-xl flex flex-col">
+                <SchemaPanel />
             </Panel>
         )}
 
         {isFormulationGuidePanelVisible && (
-            <Panel position="right-center" className="m-2 !z-10">
-                 <div className="w-72 max-w-xs max-h-[calc(100vh-6rem)] bg-card border rounded-lg shadow-xl flex flex-col">
-                    <FormulationGuidePanel />
-                </div>
+            <Panel position="right-center" className="m-2 !z-10 w-72 max-w-xs max-h-[calc(100vh-6rem)] bg-card border rounded-lg shadow-xl flex flex-col">
+                <FormulationGuidePanel />
             </Panel>
         )}
 
         {isQuickNotesPanelVisible && (
-            <Panel position="bottom-right" className="m-2 !z-10">
-                 <div className="w-80 max-w-sm max-h-[40vh] bg-card border rounded-lg shadow-xl flex flex-col">
-                    <QuickNotesPanel />
-                </div>
+            <Panel position="bottom-right" className="m-2 !z-10 w-80 max-w-sm max-h-[40vh] bg-card border rounded-lg shadow-xl flex flex-col">
+                <QuickNotesPanel />
             </Panel>
         )}
 
@@ -276,3 +274,4 @@ const FormulationMapWrapper: React.FC = () => {
 }
 
 export default FormulationMapWrapper;
+

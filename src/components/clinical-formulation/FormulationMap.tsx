@@ -525,13 +525,13 @@ const FormulationMap: React.FC = () => {
           */}
         </ReactFlow>
       
-      {/*
+      
       {isContextMenuOpen && <NodeContextMenu />}
       <QuickNoteForm />
       <ABCForm />
       <SchemaForm prefillRule={useClinicalStore.getState().prefillSchemaRule || undefined}/>
       <EdgeLabelModal />
-      */}
+      
     </div>
   );
 };

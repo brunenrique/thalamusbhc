@@ -750,7 +750,7 @@ export default function PatientDetailPage() {
         
         <TabsContent value="caseStudy" className="mt-0 flex-grow flex flex-col min-h-0">
             <TabsBar />
-            <div className="flex-grow min-h-0 relative mt-2"> 
+            <div className="flex-grow min-h-0 relative"> {/* Removido mt-2 */}
                 {renderActiveTabContent()}
             </div>
         </TabsContent>

@@ -117,39 +117,6 @@ const ABCForm: React.FC = () => {
     }
   }, [editingCard, form, isABCFormOpen]);
 
-  const handleTemplateChange = (templateId: string) => {
-    setSelectedTemplateId(templateId);
-    const template = templates.find(t => t.id === templateId);
-    if (template && !editingCardId) {
-      form.setValue('antecedentExternal', template.antecedentGuide);
-      form.setValue('antecedentInternal', "Pensamentos/Sentimentos: ");
-      form.setValue('behavior', template.behaviorGuide);
-      form.setValue('consequenceShortTermGain', "Alívio Imediato: ");
-      form.setValue('consequenceShortTermCost', "Custo Imediato: ");
-      form.setValue('consequenceLongTermValueCost', template.consequenceGuide);
-      if (!form.getValues('title')) {
-        form.setValue('title', `Análise: ${template.name}`);
-      }
-    }
-  };
-
-  const handleAddTag = (tagToAdd?: string) => {
-    const tag = (tagToAdd || tagInput).trim().toLowerCase();
-    if (tag && !currentTags.includes(tag)) {
-      const newTags = [...currentTags, tag];
-      setCurrentTags(newTags);
-      form.setValue('tags', newTags);
-    }
-    if (!tagToAdd) { // Limpa o input apenas se não veio de um clique de sugestão
-        setTagInput('');
-    }
-  };
-
-  const handleRemoveTag = (tagToRemove: string) => {
-    const newTags = currentTags.filter(tag => tag !== tagToRemove);
-    setCurrentTags(newTags);
-    form.setValue('tags', newTags);
-  };
 
   const onSubmit = (values: ABCFormValues) => {
     const cardData: Omit<ABCCardData, 'id' | 'position'> = {
@@ -191,6 +158,25 @@ const ABCForm: React.FC = () => {
             Preencha os campos abaixo para descrever a situação.
           </DialogDescription>
         </DialogHeader>
+        
+        {/* Simplified Content for Debugging */}
+        <div className="p-4">
+          <p>ABC Form Content Here. (Debug Mode)</p>
+          <p>Is Form Open (from store): {isABCFormOpen.toString()}</p>
+          <p>Editing Card ID (from store): {editingCardId || 'None'}</p>
+        </div>
+
+        <DialogFooter>
+          <DialogClose asChild>
+            <Button type="button" variant="outline">Cancelar</Button>
+          </DialogClose>
+          {/* Dummy button for testing submission logic if needed, or remove if only testing visibility */}
+          <Button type="button" onClick={() => onSubmit(form.getValues())} className="bg-accent hover:bg-accent/90 text-accent-foreground">
+            {editingCardId ? 'Salvar Alterações (Debug)' : 'Adicionar Card (Debug)'}
+          </Button>
+        </DialogFooter>
+        
+        {/* Original Form - Commented out for debugging modal visibility
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 p-1">
             {!editingCardId && (
@@ -379,6 +365,7 @@ const ABCForm: React.FC = () => {
             </DialogFooter>
           </form>
         </Form>
+        */}
       </DialogContent>
     </Dialog>
   );

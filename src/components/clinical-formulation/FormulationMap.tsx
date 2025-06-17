@@ -27,16 +27,13 @@ import useClinicalStore from '@/stores/clinicalStore';
 import ABCCardNode from './ABCCardNode';
 import SchemaNode from './SchemaNode';
 import SchemaPanel from './SchemaPanel';
-import FormulationGuidePanel from './FormulationGuidePanel'; // New
-import QuickNotesPanel from './QuickNotesPanel'; // New
-import QuickNoteForm from './QuickNoteForm'; // New
+import FormulationGuidePanel from './FormulationGuidePanel';
+import QuickNotesPanel from './QuickNotesPanel';
+import QuickNoteForm from './QuickNoteForm';
 import NodeContextMenu from './NodeContextMenu';
-import MapToolbar from './MapToolbar'; // Toolbar will be used here
+import MapToolbar from './MapToolbar';
 import type { ClinicalNodeData, ConnectionLabel, SchemaData, ABCCardData, ClinicalNodeType, QuickNote } from '@/types/clinicalTypes';
 import { isABCCardData, isSchemaData } from '@/types/clinicalTypes';
-import { Button } from '../ui/button';
-import { Save, Maximize, Minimize, ZoomIn, ZoomOut, Lightbulb, PlusCircle, Share2, PanelLeftOpen, PanelLeftClose, ListChecks, StickyNote, SlidersHorizontal } from 'lucide-react';
-import { runAnalysis } from '@/services/insightEngine';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/shared/utils';
 
@@ -67,9 +64,9 @@ const FormulationMap: React.FC = () => {
     activeColorFilters,
     showSchemaNodes,
     isSchemaPanelVisible,
-    isFormulationGuidePanelVisible, // New
-    isQuickNotesPanelVisible, // New
-    emotionIntensityFilter, // New
+    isFormulationGuidePanelVisible,
+    isQuickNotesPanelVisible,
+    emotionIntensityFilter,
     get: getClinicalStoreState,
   } = useClinicalStore();
 
@@ -83,7 +80,6 @@ const FormulationMap: React.FC = () => {
 
   useEffect(() => {
     fetchClinicalData('mockPatientId');
-    console.log("LOG: FormulationMap mounted, fetchClinicalData called.");
 
     const handleFullscreenChange = () => {
       setIsFullscreen(!!document.fullscreenElement);
@@ -104,7 +100,6 @@ const FormulationMap: React.FC = () => {
       }
       return true;
     });
-    // console.log("LOG: Displayed nodes recalculate. Count:", filtered.length, "Filters:", activeColorFilters, "Show Schemas:", showSchemaNodes, "Emotion Filter:", emotionIntensityFilter);
     return filtered;
   }, [storeNodes, activeColorFilters, showSchemaNodes, emotionIntensityFilter]);
 
@@ -125,7 +120,6 @@ const FormulationMap: React.FC = () => {
 
   const handleSaveLayout = () => {
     setViewport(getViewport());
-    // Update nodes in store with current positions from ReactFlow instance
     const currentFlowNodes = getNodes();
     currentFlowNodes.forEach(flowNode => {
         if (flowNode.type === 'abcCard') {
@@ -201,10 +195,6 @@ const FormulationMap: React.FC = () => {
     setSelectedFlowNodes(params.nodes);
   }, []);
 
-
-  // console.log("LOG: Rendering FormulationMap. Nodes to pass to ReactFlow:", displayedNodes.length, "Edges:", edges.length);
-
-
   return (
     <div ref={mapContainerRef} className={cn("h-full w-full border rounded-md shadow-sm bg-muted/10 relative", isFullscreen && "fixed inset-0 z-[100] bg-background")} onContextMenu={(e) => e.preventDefault()}>
       <ReactFlow
@@ -230,10 +220,10 @@ const FormulationMap: React.FC = () => {
         onSelectionChange={handleSelectionChange}
       >
         <Background variant={BackgroundVariant.Dots} gap={16} size={1} />
-        <Controls showInteractive={false} className="shadow-md" />
-        <MiniMap nodeStrokeWidth={3} zoomable pannable className="shadow-md rounded-md border !bg-background/80 backdrop-blur-sm" />
+        <Controls showInteractive={false} className="shadow-md !left-auto !right-2 !bottom-auto !top-20" />
+        <MiniMap nodeStrokeWidth={3} zoomable pannable className="shadow-md rounded-md border !bg-background/80 backdrop-blur-sm !left-2 !bottom-2" />
 
-        <Panel position="top-center" className="p-1.5">
+        <Panel position="top-center" className="p-1">
             <MapToolbar
                 toggleFullscreen={toggleFullscreen}
                 isFullscreen={isFullscreen}
@@ -248,7 +238,7 @@ const FormulationMap: React.FC = () => {
 
         {isSchemaPanelVisible && (
             <Panel position="left-center" className="m-2 !z-10">
-                <div className="w-72 max-w-xs max-h-[calc(100vh-8rem)] bg-card border rounded-lg shadow-xl flex flex-col">
+                <div className="w-72 max-w-xs max-h-[calc(100vh-6rem)] bg-card border rounded-lg shadow-xl flex flex-col">
                     <SchemaPanel />
                 </div>
             </Panel>
@@ -256,14 +246,14 @@ const FormulationMap: React.FC = () => {
 
         {isFormulationGuidePanelVisible && (
             <Panel position="right-center" className="m-2 !z-10">
-                 <div className="w-72 max-w-xs max-h-[calc(100vh-8rem)] bg-card border rounded-lg shadow-xl flex flex-col">
+                 <div className="w-72 max-w-xs max-h-[calc(100vh-6rem)] bg-card border rounded-lg shadow-xl flex flex-col">
                     <FormulationGuidePanel />
                 </div>
             </Panel>
         )}
 
         {isQuickNotesPanelVisible && (
-            <Panel position="bottom-left" className="m-2 !z-10">
+            <Panel position="bottom-right" className="m-2 !z-10">
                  <div className="w-80 max-w-sm max-h-[40vh] bg-card border rounded-lg shadow-xl flex flex-col">
                     <QuickNotesPanel />
                 </div>

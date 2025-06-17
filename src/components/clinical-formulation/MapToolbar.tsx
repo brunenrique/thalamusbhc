@@ -8,7 +8,7 @@ import {
   Share2,
   PanelLeftOpen,
   PanelLeftClose,
-  ListChecks,
+  // ListChecks, // Replaced by HelpCircle for FormulationGuide
   StickyNote,
   Maximize,
   Minimize,
@@ -16,9 +16,9 @@ import {
   ZoomOut,
   Lightbulb,
   Save,
-  SlidersHorizontal,
   RotateCcw,
-  Users, // Placeholder for Grouping
+  Users,
+  HelpCircle, // Para o Guia de Formulação
 } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
 import { Label } from '@/components/ui/label';
@@ -45,7 +45,7 @@ interface MapToolbarProps {
   handleGenerateInsights: () => void;
   isGeneratingInsights: boolean;
   handleSaveLayout: () => void;
-  selectedFlowNodes: Node[]; // Nodes currently selected in React Flow
+  selectedFlowNodes: Node[];
 }
 
 const groupBorderColors = [
@@ -98,7 +98,7 @@ export default function MapToolbar({
       toast({ title: "Nome do Grupo", description: "Por favor, insira um nome para o grupo.", variant: "destructive"});
       return;
     }
-    if (selectedAbcCardIds.length < 1) { // Allow grouping even a single card
+    if (selectedAbcCardIds.length < 1) {
       toast({ title: "Seleção de Cards", description: "Selecione pelo menos um card ABC para agrupar.", variant: "destructive"});
       return;
     }
@@ -109,29 +109,32 @@ export default function MapToolbar({
     setIsCreateGroupDialogOpen(false);
   };
 
+  const commonButtonClass = "h-7 w-7";
+  const commonIconClass = "h-3.5 w-3.5";
+
   return (
-    <div className="flex items-center flex-wrap gap-1.5 bg-background/90 backdrop-blur-sm p-1.5 rounded-lg shadow-md border border-border">
-      <Button variant="outline" size="icon" className="h-8 w-8" onClick={toggleSchemaPanelVisibility} title={isSchemaPanelVisible ? "Ocultar Painel de Esquemas" : "Mostrar Painel de Esquemas"}>
-        {isSchemaPanelVisible ? <PanelLeftClose className="h-4 w-4" /> : <PanelLeftOpen className="h-4 w-4" />}
+    <div className="flex items-center gap-1 bg-background/90 backdrop-blur-sm p-1 rounded-lg shadow-md border border-border">
+      <Button variant="ghost" size="icon" className={commonButtonClass} onClick={toggleSchemaPanelVisibility} title={isSchemaPanelVisible ? "Ocultar Painel de Esquemas" : "Mostrar Painel de Esquemas"}>
+        {isSchemaPanelVisible ? <PanelLeftClose className={commonIconClass} /> : <PanelLeftOpen className={commonIconClass} />}
       </Button>
-      <Button variant="outline" size="icon" className="h-8 w-8" onClick={toggleFormulationGuidePanelVisibility} title={isFormulationGuidePanelVisible ? "Ocultar Guia de Formulação" : "Mostrar Guia de Formulação"}>
-        <ListChecks className="h-4 w-4" />
+      <Button variant="ghost" size="icon" className={commonButtonClass} onClick={toggleFormulationGuidePanelVisibility} title={isFormulationGuidePanelVisible ? "Ocultar Guia de Formulação" : "Mostrar Guia de Formulação"}>
+        <HelpCircle className={commonIconClass} />
       </Button>
-      <Button variant="outline" size="icon" className="h-8 w-8" onClick={toggleQuickNotesPanelVisibility} title={isQuickNotesPanelVisible ? "Ocultar Notas Rápidas" : "Mostrar Notas Rápidas"}>
-        <StickyNote className="h-4 w-4" />
+      <Button variant="ghost" size="icon" className={commonButtonClass} onClick={toggleQuickNotesPanelVisibility} title={isQuickNotesPanelVisible ? "Ocultar Notas Rápidas" : "Mostrar Notas Rápidas"}>
+        <StickyNote className={commonIconClass} />
       </Button>
 
-      <Button variant="outline" size="sm" className="h-8 px-2.5" onClick={() => openABCForm()} title="Novo Card ABC">
-        <PlusCircle className="h-4 w-4 mr-1" /> <span className="hidden sm:inline">Card</span>
+      <Button variant="ghost" size="icon" className={commonButtonClass} onClick={() => openABCForm()} title="Novo Card ABC">
+        <PlusCircle className={commonIconClass} />
       </Button>
-      <Button variant="outline" size="sm" className="h-8 px-2.5" onClick={() => openSchemaForm()} title="Novo Esquema/Regra">
-        <Share2 className="h-4 w-4 mr-1" /> <span className="hidden sm:inline">Esquema</span>
+      <Button variant="ghost" size="icon" className={commonButtonClass} onClick={() => openSchemaForm()} title="Novo Esquema/Regra">
+        <Share2 className={commonIconClass} />
       </Button>
 
       <Dialog open={isCreateGroupDialogOpen} onOpenChange={setIsCreateGroupDialogOpen}>
         <DialogTrigger asChild>
-          <Button variant="outline" size="sm" className="h-8 px-2.5" disabled={selectedAbcCardIds.length === 0} title="Criar Grupo Temático com Cards Selecionados">
-            <Users className="h-4 w-4 mr-1" /> <span className="hidden sm:inline">Grupo</span>
+          <Button variant="ghost" size="icon" className={commonButtonClass} disabled={selectedAbcCardIds.length === 0} title="Criar Grupo Temático">
+            <Users className={commonIconClass} />
           </Button>
         </DialogTrigger>
         <DialogContent className="sm:max-w-md">
@@ -170,12 +173,11 @@ export default function MapToolbar({
         </DialogContent>
       </Dialog>
 
-      <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => openQuickNoteForm()} title="Adicionar Nota Rápida ao Mapa">
-        <StickyNote className="h-4 w-4" />
+      <Button variant="ghost" size="icon" className={commonButtonClass} onClick={() => openQuickNoteForm()} title="Adicionar Nota Rápida ao Mapa">
+        <StickyNote className={commonIconClass} />
       </Button>
 
-      <div className="flex items-center gap-1.5 p-1.5 border rounded-md bg-background">
-        <Label htmlFor="emotion-intensity-slider" className="text-xs text-muted-foreground whitespace-nowrap hidden md:inline">Int. Emoção (Ant.):</Label>
+      <div className="flex items-center gap-1 p-1 border rounded-md bg-muted/50 h-7">
         <Slider
           id="emotion-intensity-slider"
           min={0}
@@ -183,29 +185,29 @@ export default function MapToolbar({
           step={10}
           value={[emotionIntensityFilter]}
           onValueChange={(value) => setEmotionIntensityFilter(value[0])}
-          className="w-20 md:w-24"
+          className="w-20"
           title={`Filtrar cards com intensidade emocional no antecedente >= ${emotionIntensityFilter}`}
         />
-        <span className="text-xs text-muted-foreground w-6 text-right">{emotionIntensityFilter}</span>
-        <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setEmotionIntensityFilter(0)} title="Resetar filtro de intensidade">
+        <span className="text-xs text-muted-foreground w-5 text-right">{emotionIntensityFilter}</span>
+        <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => setEmotionIntensityFilter(0)} title="Resetar filtro de intensidade">
             <RotateCcw className="h-3 w-3"/>
         </Button>
       </div>
 
-      <Button variant="outline" size="icon" onClick={toggleFullscreen} title={isFullscreen ? "Sair da Tela Cheia" : "Tela Cheia"} className="h-8 w-8">
-        {isFullscreen ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" />}
+      <Button variant="ghost" size="icon" onClick={toggleFullscreen} title={isFullscreen ? "Sair da Tela Cheia" : "Tela Cheia"} className={commonButtonClass}>
+        {isFullscreen ? <Minimize className={commonIconClass} /> : <Maximize className={commonIconClass} />}
       </Button>
-      <Button variant="outline" size="icon" onClick={handleZoomIn} title="Aumentar Zoom" className="h-8 w-8">
-        <ZoomIn className="h-4 w-4" />
+      <Button variant="ghost" size="icon" onClick={handleZoomIn} title="Aumentar Zoom" className={commonButtonClass}>
+        <ZoomIn className={commonIconClass} />
       </Button>
-      <Button variant="outline" size="icon" onClick={handleZoomOut} title="Diminuir Zoom" className="h-8 w-8">
-        <ZoomOut className="h-4 w-4" />
+      <Button variant="ghost" size="icon" onClick={handleZoomOut} title="Diminuir Zoom" className={commonButtonClass}>
+        <ZoomOut className={commonIconClass} />
       </Button>
-      <Button variant="outline" size="sm" onClick={handleGenerateInsights} disabled={isGeneratingInsights} title="Gerar Insights de IA" className="h-8 px-2.5">
-        <Lightbulb className="h-4 w-4 mr-1" /> {isGeneratingInsights ? "..." : "IA"}
+      <Button variant="ghost" size="icon" onClick={handleGenerateInsights} disabled={isGeneratingInsights} title="Gerar Insights de IA" className={commonButtonClass}>
+        <Lightbulb className={commonIconClass} /> {isGeneratingInsights && <span className="text-xs ml-0.5">...</span>}
       </Button>
-      <Button variant="default" size="sm" onClick={handleSaveLayout} className="bg-accent hover:bg-accent/90 text-accent-foreground h-8 px-2.5" title="Salvar estudo de caso">
-        <Save className="h-4 w-4 mr-1" /> <span className="hidden lg:inline">Salvar</span>
+      <Button variant="default" size="icon" onClick={handleSaveLayout} className="bg-accent hover:bg-accent/90 text-accent-foreground h-7 w-7" title="Salvar estudo de caso">
+        <Save className={commonIconClass} />
       </Button>
     </div>
   );

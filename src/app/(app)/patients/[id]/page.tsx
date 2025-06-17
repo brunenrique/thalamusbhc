@@ -717,7 +717,7 @@ export default function PatientDetailPage() {
         </TabsContent>
         
         <TabsContent value="caseStudy" className="mt-6 flex flex-col flex-grow min-h-[80vh]">
-            <div className="flex-grow h-full w-full">
+            <div className="flex-grow min-h-0 h-full w-full">
                 <FormulationMapWrapper />
             </div>
         </TabsContent>
@@ -857,11 +857,9 @@ export default function PatientDetailPage() {
                 </CardContent>
             </Card>
 
-            {/* Seção de Anamnese (Preenchimento pelo Profissional e Envio ao Paciente) */}
             <Card>
                 <CardHeader><CardTitle className="font-headline">Anamnese</CardTitle></CardHeader>
                 <CardContent className="space-y-6">
-                    {/* Sub-seção para preenchimento pelo profissional */}
                     <Card className="bg-muted/20 p-4">
                         <CardTitle className="text-lg font-semibold mb-2">Preenchimento pelo Profissional</CardTitle>
                         <Textarea 
@@ -874,7 +872,6 @@ export default function PatientDetailPage() {
                         <Button onClick={handleSaveAnamnesisText} className="bg-accent hover:bg-accent/90 text-accent-foreground" size="sm"><Save className="mr-2 h-4 w-4"/>Salvar Anamnese (Profissional)</Button>
                     </Card>
 
-                    {/* Sub-seção para envio ao paciente */}
                     <Card className="bg-muted/20 p-4">
                         <CardTitle className="text-lg font-semibold mb-2">Enviar Anamnese para o Paciente Preencher</CardTitle>
                         <div className="grid sm:grid-cols-2 gap-4 mb-3">
@@ -916,6 +913,4 @@ export default function PatientDetailPage() {
     </div>
   );
 }
-    
-
     

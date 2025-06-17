@@ -68,12 +68,12 @@ export interface ClinicalState {
   activeColorFilters: ABCCardColor[];
   showSchemaNodes: boolean;
   isSchemaPanelVisible: boolean;
-  isFormulationGuidePanelVisible: boolean; // New
-  isQuickNotesPanelVisible: boolean; // New
-  emotionIntensityFilter: number; // New for filter
+  isFormulationGuidePanelVisible: boolean;
+  isQuickNotesPanelVisible: boolean;
+  emotionIntensityFilter: number;
 
-  isQuickNoteFormOpen: boolean; // New
-  quickNoteFormTarget: { cardId?: string; defaultText?: string; noteIdToEdit?: string } | null; // New
+  isQuickNoteFormOpen: boolean;
+  quickNoteFormTarget: { cardId?: string; defaultText?: string; noteIdToEdit?: string } | null;
 
 
   addCard: (data: Omit<ABCCardData, 'id' | 'position' | 'groupInfo'>) => void;
@@ -92,19 +92,19 @@ export interface ClinicalState {
   setInsights: (insights: string[]) => void;
   addInsight: (insight: string) => void;
 
-  toggleFormulationQuestionAnswer: (questionId: string) => void; // New
+  toggleFormulationQuestionAnswer: (questionId: string) => void;
 
-  addQuickNote: (noteData: Omit<QuickNote, 'id' | 'createdAt'>) => void; // Modified
-  updateQuickNote: (noteId: string, updates: Partial<Omit<QuickNote, 'id' | 'createdAt'>>) => void; // New
-  deleteQuickNote: (noteId: string) => void; // New
-  openQuickNoteForm: (target?: { cardId?: string; defaultText?: string; noteIdToEdit?: string }) => void; // Modified
-  closeQuickNoteForm: () => void; // New
+  addQuickNote: (noteData: Omit<QuickNote, 'id' | 'createdAt'>) => void;
+  updateQuickNote: (noteId: string, updates: Partial<Omit<QuickNote, 'id' | 'createdAt'>>) => void;
+  deleteQuickNote: (noteId: string) => void;
+  openQuickNoteForm: (target?: { cardId?: string; defaultText?: string; noteIdToEdit?: string }) => void;
+  closeQuickNoteForm: () => void;
 
-  createGroupFromSelectedNodes: (groupName: string, groupColor: string, selectedCardIds: string[]) => void; // New
-  assignCardToGroup: (cardId: string, groupInfo: CardGroupInfo | null) => void; // New
-  removeCardFromItsGroup: (cardId: string) => void; // New
-  deleteGroupAndUngroupCards: (groupId: string) => void; // New
-  getCardGroups: () => CardGroup[]; // New to fetch group definitions
+  createGroupFromSelectedNodes: (groupName: string, groupColor: string, selectedCardIds: string[]) => void;
+  assignCardToGroup: (cardId: string, groupInfo: CardGroupInfo | null) => void;
+  removeCardFromItsGroup: (cardId: string) => void;
+  deleteGroupAndUngroupCards: (groupId: string) => void;
+  getCardGroups: () => CardGroup[];
 
 
   onNodesChange: OnNodesChange;
@@ -126,9 +126,9 @@ export interface ClinicalState {
   setColorFilters: (colors: ABCCardColor[]) => void;
   toggleShowSchemaNodes: () => void;
   toggleSchemaPanelVisibility: () => void;
-  toggleFormulationGuidePanelVisibility: () => void; // New
-  toggleQuickNotesPanelVisibility: () => void; // New
-  setEmotionIntensityFilter: (intensity: number) => void; // New
+  toggleFormulationGuidePanelVisibility: () => void;
+  toggleQuickNotesPanelVisibility: () => void;
+  setEmotionIntensityFilter: (intensity: number) => void;
 
 
   fetchClinicalData: (patientId: string) => Promise<void>;
@@ -165,10 +165,10 @@ const useClinicalStore = create<ClinicalState>((set, get) => ({
 
   activeColorFilters: [...allCardColors],
   showSchemaNodes: true,
-  isSchemaPanelVisible: true,
-  isFormulationGuidePanelVisible: false, // Init as false
-  isQuickNotesPanelVisible: false, // Init as false
-  emotionIntensityFilter: 0, // Default to show all (intensity >= 0)
+  isSchemaPanelVisible: false, // Alterado para iniciar oculto
+  isFormulationGuidePanelVisible: false,
+  isQuickNotesPanelVisible: false,
+  emotionIntensityFilter: 0,
 
   isQuickNoteFormOpen: false,
   quickNoteFormTarget: null,
@@ -225,7 +225,7 @@ const useClinicalStore = create<ClinicalState>((set, get) => ({
 
       return {
         cards: state.cards.filter((card) => card.id !== cardId),
-        quickNotes: state.quickNotes.filter(note => note.linkedCardId !== cardId), // Also remove linked quick notes
+        quickNotes: state.quickNotes.map(note => note.linkedCardId === cardId ? {...note, linkedCardId: undefined} : note),
         schemas: updatedSchemas,
         nodes: finalNodes as Node<ClinicalNodeData>[],
         edges: state.edges.filter((edge) => edge.source !== cardId && edge.target !== cardId),
@@ -372,7 +372,7 @@ const useClinicalStore = create<ClinicalState>((set, get) => ({
       };
     });
   },
-  assignCardToGroup: (cardId, groupInfo) => { // Used by context menu
+  assignCardToGroup: (cardId, groupInfo) => {
     get().updateCard(cardId, { groupInfo: groupInfo || undefined });
   },
   removeCardFromItsGroup: (cardId) => {
@@ -398,6 +398,7 @@ const useClinicalStore = create<ClinicalState>((set, get) => ({
   },
   getCardGroups: () => get().cardGroups,
 
+
   onNodesChange: (changes) => {
     set((state) => ({
       nodes: applyNodeChanges(changes, state.nodes) as Node<ClinicalNodeData>[],
@@ -414,7 +415,6 @@ const useClinicalStore = create<ClinicalState>((set, get) => ({
                 }
             }
         } else if (change.type === 'remove') {
-            // Check node type before calling specific delete to avoid errors if it's an edge
             const nodeToDelete = get().nodes.find(n => n.id === change.id);
             if (nodeToDelete) {
                 if (nodeToDelete.type === 'abcCard') {
@@ -483,7 +483,7 @@ const useClinicalStore = create<ClinicalState>((set, get) => ({
 
 
   fetchClinicalData: async (patientId) => {
-    console.log(`LOG: Fetching clinical data for patient ${patientId}... (Simulated)`);
+    // console.log(`LOG: Fetching clinical data for patient ${patientId}... (Simulated)`);
     await new Promise(resolve => setTimeout(resolve, 300));
 
     const mockCardsData: Omit<ABCCardData, 'id' | 'position' | 'groupInfo'>[] = [
@@ -514,8 +514,8 @@ const useClinicalStore = create<ClinicalState>((set, get) => ({
         edges.push({ id: edgeId, source: schemas[0].id, target: cards[0].id, type: 'smoothstep', data: labelData, label: labelData.label, animated: true, ariaLabel: `Conexão: ${labelData.label}` });
     }
 
-    console.log("LOG: Initial nodes to set:", nodes);
-    console.log("LOG: Initial edges to set:", edges);
+    // console.log("LOG: Initial nodes to set:", nodes);
+    // console.log("LOG: Initial edges to set:", edges);
     set({
         cards,
         schemas,
@@ -524,7 +524,7 @@ const useClinicalStore = create<ClinicalState>((set, get) => ({
         insights: ["Clique em 'Gerar Insights' para análise."],
         activeColorFilters: [...allCardColors],
         showSchemaNodes: true,
-        isSchemaPanelVisible: true,
+        isSchemaPanelVisible: false, // Painel de Esquemas inicia oculto
         isFormulationGuidePanelVisible: false,
         isQuickNotesPanelVisible: false,
         emotionIntensityFilter: 0,
@@ -548,18 +548,18 @@ const useClinicalStore = create<ClinicalState>((set, get) => ({
         return node && node.position ? { ...schema, position: node.position } : schema;
     });
 
-    console.log(`LOG: Saving data for patient ${patientId}: (Simulated)`, {
-      patientId,
-      cards: finalCards,
-      schemas: finalSchemas,
-      insights,
-      edges,
-      viewport,
-      formulationGuideAnswers,
-      quickNotes,
-      cardGroups,
-      savedAt: new Date().toISOString()
-    });
+    // console.log(`LOG: Saving data for patient ${patientId}: (Simulated)`, {
+    //   patientId,
+    //   cards: finalCards,
+    //   schemas: finalSchemas,
+    //   insights,
+    //   edges,
+    //   viewport,
+    //   formulationGuideAnswers,
+    //   quickNotes,
+    //   cardGroups,
+    //   savedAt: new Date().toISOString()
+    // });
     await new Promise(resolve => setTimeout(resolve, 300));
     get().addInsight(`Estudo salvo com sucesso em ${new Date().toLocaleTimeString()}. (Simulado)`);
   },

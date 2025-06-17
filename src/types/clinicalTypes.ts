@@ -33,9 +33,7 @@ export interface CardGroupInfo {
   color: string; 
 }
 
-export interface ABCCardData {
-  id: string;
-  tabId: string; // Added tabId
+export interface ABCCardData extends BaseCard {
   title: string;
   antecedent: {
     external: string;

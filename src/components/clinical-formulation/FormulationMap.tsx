@@ -26,6 +26,7 @@ import useClinicalStore, { allCardColors } from '@/stores/clinicalStore';
 import ABCCardNode from './ABCCardNode';
 import SchemaNode from './SchemaNode';
 import NodeContextMenu from './NodeContextMenu';
+import CardRouter from '../map/CardRouter';
 // import ABCForm from './ABCForm'; // Will use the simplified version
 // import SchemaForm from './SchemaForm'; // Will use the full version (was working)
 import EdgeLabelModal from './EdgeLabelModal';
@@ -37,6 +38,7 @@ import EdgeLabelModal from './EdgeLabelModal';
 import ABCForm from './ABCForm';
 import SchemaForm from './SchemaForm';
 import QuickNoteForm from './QuickNoteForm';
+import MapPanelContainer from '../map/MapPanelContainer';
 
 
 import type { ClinicalNodeData, ConnectionLabel, SchemaData, ABCCardData, ClinicalNodeType, QuickNote, CardGroupInfo, ABCCardColor, FormulationGuideQuestion, TabSpecificFormulationData } from '@/types/clinicalTypes';
@@ -79,8 +81,7 @@ import { Card } from '@/components/ui/card';
 
 
 const nodeTypes = {
-  abcCard: ABCCardNode,
-  schemaNode: SchemaNode,
+ abcCard: CardRouter, // Will route based on type
 };
 
 const groupBorderColors = [
@@ -311,7 +312,7 @@ const FormulationMap: React.FC = () => {
        <ReactFlow
           nodes={currentNodes}
           edges={currentEdges}
-          onNodesChange={storeOnNodesChange}
+ onNodesChange={storeOnNodesChange as any} // Cast needed because CardRouter is generic
           onEdgesChange={storeOnEdgesChange}
           onConnect={onConnectInternal}
           nodeTypes={nodeTypes}
@@ -528,6 +529,7 @@ const FormulationMap: React.FC = () => {
       <SchemaForm prefillRule={useClinicalStore.getState().prefillSchemaRule || undefined}/> {/* Uses full version */}
       <EdgeLabelModal />
       
+ <MapPanelContainer />
     </div>
   );
 };

@@ -33,7 +33,7 @@ import QuickNoteForm from './QuickNoteForm';
 // import SchemaPanel from './SchemaPanel'; // SchemaPanel comentado para depuração
 import InsightPanel from './InsightPanel'; 
 // import FormulationGuidePanel from './FormulationGuidePanel'; // FormulationGuidePanel comentado para depuração
-import QuickNotesPanel from './QuickNotesPanel';
+// import QuickNotesPanel from './QuickNotesPanel'; // QuickNotesPanel comentado para depuração
 
 
 import type { ClinicalNodeData, ConnectionLabel, SchemaData, ABCCardData, ClinicalNodeType, QuickNote, CardGroupInfo, ABCCardColor, FormulationGuideQuestion, TabSpecificFormulationData } from '@/types/clinicalTypes';
@@ -507,11 +507,11 @@ const FormulationMap: React.FC = () => {
                 <FormulationGuidePanel />
             </Panel>
           )} */}
-          {isQuickNotesPanelVisible && (
+          {/* {isQuickNotesPanelVisible && (
              <Panel position="bottom-right" className="!m-0 p-0 shadow-xl border rounded-lg bg-card w-72 h-2/5 max-h-[400px] flex flex-col">
                 <QuickNotesPanel />
             </Panel>
-          )}
+          )} */}
           
           <Panel position="bottom-left" className="!m-0 p-0 shadow-xl border rounded-lg bg-card w-72 h-2/5 max-h-[400px] flex flex-col">
             <InsightPanel />

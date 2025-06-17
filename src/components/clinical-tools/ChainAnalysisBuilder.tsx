@@ -3,7 +3,7 @@
 
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { BarChartSteps } from 'lucide-react';
+import { Workflow } from 'lucide-react'; // Changed from BarChartSteps to Workflow
 
 interface ChainAnalysisBuilderProps {
   tabId: string;
@@ -14,7 +14,7 @@ export default function ChainAnalysisBuilder({ tabId }: ChainAnalysisBuilderProp
     <Card className="h-full flex flex-col">
       <CardHeader>
         <CardTitle className="font-headline flex items-center">
-          <BarChartSteps className="mr-2 h-6 w-6 text-primary" />
+          <Workflow className="mr-2 h-6 w-6 text-primary" /> {/* Changed icon here */}
           Análise em Cadeia (DBT)
         </CardTitle>
         <CardDescription>Ferramenta para Análise em Cadeia - Em Desenvolvimento (Aba ID: {tabId})</CardDescription>
@@ -27,3 +27,4 @@ export default function ChainAnalysisBuilder({ tabId }: ChainAnalysisBuilderProp
     </Card>
   );
 }
+

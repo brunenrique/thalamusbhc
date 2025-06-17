@@ -12,7 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { PlusCircle, X, Edit2, Brain, BarChartSteps, ListTree, Wand2 } from 'lucide-react';
+import { PlusCircle, X, Edit2, Brain, Workflow, ListTree, Wand2 } from 'lucide-react'; // Changed BarChartSteps to Workflow
 import useClinicalStore from '@/stores/clinicalStore';
 import type { ClinicalTab, ClinicalTabType } from '@/types/clinicalTypes';
 import { cn } from '@/shared/utils';
@@ -31,9 +31,9 @@ import {
 const getTabIcon = (type: ClinicalTabType) => {
   switch (type) {
     case 'formulation': return <Brain className="h-3.5 w-3.5 mr-1.5" />;
-    case 'chain': return <BarChartSteps className="h-3.5 w-3.5 mr-1.5" />;
-    case 'matrix': return <ListTree className="h-3.5 w-3.5 mr-1.5" />; // Placeholder
-    case 'hexaflex': return <Wand2 className="h-3.5 w-3.5 mr-1.5" />; // Placeholder
+    case 'chain': return <Workflow className="h-3.5 w-3.5 mr-1.5" />; // Changed BarChartSteps to Workflow
+    case 'matrix': return <ListTree className="h-3.5 w-3.5 mr-1.5" />; 
+    case 'hexaflex': return <Wand2 className="h-3.5 w-3.5 mr-1.5" />; 
     default: return <Brain className="h-3.5 w-3.5 mr-1.5" />;
   }
 };
@@ -195,4 +195,3 @@ export default function TabsBar() {
     </div>
   );
 }
-

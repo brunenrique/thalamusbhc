@@ -52,6 +52,7 @@ import { gerarProntuario } from "@/services/prontuarioService";
 import ChainAnalysisBuilder from '@/components/clinical-tools/ChainAnalysisBuilder';
 import ActMatrixBuilder from '@/components/clinical-tools/ActMatrixBuilder';
 import HexaflexTool from '@/components/clinical-tools/HexaflexTool';
+import { useClinicalStore } from '@/stores/clinicalStore';
 
 
 const FormulationMapWrapper = dynamic(() => import("@/components/clinical-formulation/FormulationMap"), {

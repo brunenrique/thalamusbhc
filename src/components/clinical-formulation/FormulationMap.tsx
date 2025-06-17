@@ -30,7 +30,6 @@ import FormulationGuidePanel from './FormulationGuidePanel';
 import QuickNotesPanel from './QuickNotesPanel';
 import QuickNoteForm from './QuickNoteForm';
 import NodeContextMenu from './NodeContextMenu';
-// MapToolbar.tsx is removed, its content will be integrated here
 import type { ClinicalNodeData, ConnectionLabel, SchemaData, ABCCardData, ClinicalNodeType, QuickNote } from '@/types/clinicalTypes';
 import { isABCCardData, isSchemaData } from '@/types/clinicalTypes';
 import { useToast } from '@/hooks/use-toast';
@@ -38,7 +37,7 @@ import { cn } from '@/shared/utils';
 import { Button } from '@/components/ui/button';
 import { 
     PanelLeftOpen, PanelLeftClose, HelpCircle, StickyNote, Maximize, Minimize, ZoomIn, ZoomOut, Settings, ListTree, CheckSquare,
-    PlusCircle, Share2, Users, Lightbulb, Save, RotateCcw, GripVertical 
+    PlusCircle, Share2, Users, Lightbulb, Save, RotateCcw, GripVertical, GripHorizontal 
 } from 'lucide-react';
 import ABCForm from './ABCForm';
 import SchemaForm from './SchemaForm';
@@ -56,6 +55,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import { Separator } from '@/components/ui/separator';
 
 const nodeTypes = {
   abcCard: ABCCardNode,
@@ -107,7 +107,9 @@ const FormulationMap: React.FC = () => {
     openSchemaForm,
     openQuickNoteForm,
     createGroupFromSelectedNodes,
-    selectedFlowNodes: storeSelectedFlowNodes, // Renamed to avoid conflict
+    selectedFlowNodes: storeSelectedNodes,
+    toolbarOrientation, 
+    toggleToolbarOrientation,
   } = useClinicalStore();
 
   const { fitView, zoomIn, zoomOut, getViewport, getNodes, getEdges: rfGetEdges } = useReactFlow();
@@ -115,12 +117,12 @@ const FormulationMap: React.FC = () => {
   const [isGeneratingInsights, setIsGeneratingInsights] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const mapContainerRef = useRef<HTMLDivElement>(null);
-  const [selectedFlowNodes, setSelectedFlowNodes] = useState<Node[]>(storeSelectedFlowNodes || []);
-
-  // States moved from MapToolbar
+  
+  const [selectedFlowNodes, setSelectedFlowNodes] = useState<Node[]>(storeSelectedNodes || []);
   const [isCreateGroupDialogOpen, setIsCreateGroupDialogOpen] = useState(false);
   const [newGroupName, setNewGroupName] = useState("");
   const [newGroupColor, setNewGroupColor] = useState(groupBorderColors[0].value);
+
 
    useEffect(() => {
     useClinicalStore.setState({ selectedFlowNodes });
@@ -245,7 +247,6 @@ const FormulationMap: React.FC = () => {
     useClinicalStore.setState({ selectedFlowNodes: params.nodes });
   }, []);
 
-  // Logic from MapToolbar
   const selectedAbcCardIds = (selectedFlowNodes || [])
     .filter(node => node.type === 'abcCard')
     .map(node => node.id);
@@ -294,22 +295,35 @@ const FormulationMap: React.FC = () => {
       >
         <Background variant={BackgroundVariant.Dots} gap={16} size={1} />
         
-        <Panel position="top-center" className="p-1">
-            <div className="flex items-center flex-wrap gap-1 p-1.5 rounded-lg bg-background/90 backdrop-blur-sm shadow-md border border-border">
-                {/* Toggle Panels */}
-                <Button variant="outline" size="icon" className="h-7 w-7" onClick={toggleSchemaPanelVisibility} title={isSchemaPanelVisible ? "Ocultar Painel de Esquemas" : "Mostrar Painel de Esquemas"}>
+         <Panel 
+          position={toolbarOrientation === 'horizontal' ? 'top-center' : 'left-center'} 
+          className="p-1 bg-background/90 backdrop-blur-sm shadow-md border border-border rounded-lg !z-20"
+        >
+            <div className={cn(
+                "flex items-center gap-1",
+                toolbarOrientation === 'horizontal' 
+                    ? "flex-row flex-nowrap overflow-x-auto" 
+                    : "flex-col w-auto p-0.5" 
+            )}>
+                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={toggleToolbarOrientation} title={toolbarOrientation === 'horizontal' ? "Menu Vertical" : "Menu Horizontal"}>
+                    {toolbarOrientation === 'horizontal' ? <GripVertical className="h-3.5 w-3.5" /> : <GripHorizontal className="h-3.5 w-3.5" />}
+                </Button>
+
+                {toolbarOrientation === 'vertical' && <Separator orientation="horizontal" className="my-0.5 w-full" />}
+
+                <Button variant="outline" size="icon" className="h-7 w-7" onClick={toggleSchemaPanelVisibility} title={isSchemaPanelVisible ? "Ocultar Esquemas" : "Mostrar Esquemas"}>
                     {isSchemaPanelVisible ? <PanelLeftClose className="h-3.5 w-3.5" /> : <ListTree className="h-3.5 w-3.5" />}
                 </Button>
-                <Button variant="outline" size="icon" className="h-7 w-7" onClick={toggleFormulationGuidePanelVisibility} title={isFormulationGuidePanelVisible ? "Ocultar Guia de Formulação" : "Mostrar Guia de Formulação"}>
+                <Button variant="outline" size="icon" className="h-7 w-7" onClick={toggleFormulationGuidePanelVisibility} title={isFormulationGuidePanelVisible ? "Ocultar Guia" : "Mostrar Guia"}>
                     <CheckSquare className="h-3.5 w-3.5" />
                 </Button>
-                <Button variant="outline" size="icon" className="h-7 w-7" onClick={toggleQuickNotesPanelVisibility} title={isQuickNotesPanelVisible ? "Ocultar Notas Rápidas" : "Mostrar Notas Rápidas"}>
+                <Button variant="outline" size="icon" className="h-7 w-7" onClick={toggleQuickNotesPanelVisibility} title={isQuickNotesPanelVisible ? "Ocultar Notas" : "Mostrar Notas"}>
                     <StickyNote className="h-3.5 w-3.5" />
                 </Button>
 
-                <div className="h-5 w-px bg-border mx-1"></div>
-
-                {/* Action Buttons */}
+                {toolbarOrientation === 'vertical' && <Separator orientation="horizontal" className="my-0.5 w-full" />}
+                {toolbarOrientation === 'horizontal' && <div className="h-5 w-px bg-border mx-0.5"></div>}
+                
                 <Button variant="outline" size="icon" className="h-7 w-7" onClick={() => openABCForm()} title="Novo Card ABC">
                     <PlusCircle className="h-3.5 w-3.5" />
                 </Button>
@@ -329,13 +343,13 @@ const FormulationMap: React.FC = () => {
                         </DialogHeader>
                         <div className="space-y-3 py-2">
                             <div>
-                            <Label htmlFor="group-name-map-toolbar-unified">Nome do Grupo</Label>
-                            <Input id="group-name-map-toolbar-unified" value={newGroupName} onChange={(e) => setNewGroupName(e.target.value)} placeholder="Ex: Ciclo de Evitação"/>
+                            <Label htmlFor="group-name-toolbar">Nome do Grupo</Label>
+                            <Input id="group-name-toolbar" value={newGroupName} onChange={(e) => setNewGroupName(e.target.value)} placeholder="Ex: Ciclo de Evitação"/>
                             </div>
                             <div>
-                            <Label htmlFor="group-color-map-toolbar-unified">Cor da Borda do Grupo</Label>
+                            <Label htmlFor="group-color-toolbar">Cor da Borda do Grupo</Label>
                             <Select value={newGroupColor} onValueChange={setNewGroupColor}>
-                                <SelectTrigger id="group-color-map-toolbar-unified">
+                                <SelectTrigger id="group-color-toolbar">
                                 <SelectValue placeholder="Escolha uma cor" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -357,41 +371,44 @@ const FormulationMap: React.FC = () => {
                         </DialogFooter>
                     </DialogContent>
                 </Dialog>
-                <Button variant="outline" size="icon" className="h-7 w-7" onClick={() => openQuickNoteForm()} title="Adicionar Nota Rápida ao Mapa">
+                <Button variant="outline" size="icon" className="h-7 w-7" onClick={() => openQuickNoteForm()} title="Adicionar Nota Rápida">
                     <StickyNote className="h-3.5 w-3.5" />
                 </Button>
                 
-                <div className="h-5 w-px bg-border mx-1"></div>
-
-                {/* Intensity Filter */}
-                <div className="flex items-center gap-0.5 p-0.5 border rounded-md bg-muted/30 h-7">
+                {toolbarOrientation === 'vertical' && <Separator orientation="horizontal" className="my-0.5 w-full" />}
+                {toolbarOrientation === 'horizontal' && <div className="h-5 w-px bg-border mx-0.5"></div>}
+                
+                <div className={cn(
+                    "flex items-center gap-0.5 p-0.5 border rounded-md bg-muted/30 h-7",
+                    toolbarOrientation === 'vertical' && "flex-col w-full py-1 items-stretch"
+                )}>
                     <Slider
-                    min={0} max={100} step={10}
-                    value={[emotionIntensityFilter]}
-                    onValueChange={(value) => setEmotionIntensityFilter(value[0])}
-                    className="w-16" 
-                    title={`Filtrar cards com intensidade emocional (antecedente) >= ${emotionIntensityFilter}`}
+                        min={0} max={100} step={10}
+                        value={[emotionIntensityFilter]}
+                        onValueChange={(value) => setEmotionIntensityFilter(value[0])}
+                        className={cn("w-16", toolbarOrientation === 'vertical' && "w-full h-2 my-1 px-1")}
+                        title={`Intensidade Emocional (Antecedente) >= ${emotionIntensityFilter}`}
                     />
-                    <span className="text-[9px] text-muted-foreground w-4 text-right px-0.5">{emotionIntensityFilter}</span>
-                    <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => setEmotionIntensityFilter(0)} title="Resetar filtro de intensidade">
-                    <RotateCcw className="h-2.5 w-2.5"/>
+                    <span className={cn("text-[9px] text-muted-foreground w-4 text-right px-0.5", toolbarOrientation === 'vertical' && "text-center w-full")}>{emotionIntensityFilter}</span>
+                    <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => setEmotionIntensityFilter(0)} title="Resetar filtro">
+                        <RotateCcw className="h-2.5 w-2.5"/>
                     </Button>
                 </div>
 
-                <div className="h-5 w-px bg-border mx-1"></div>
+                {toolbarOrientation === 'vertical' && <Separator orientation="horizontal" className="my-0.5 w-full" />}
+                {toolbarOrientation === 'horizontal' && <div className="h-5 w-px bg-border mx-0.5"></div>}
                 
-                {/* AI & Save */}
                 <Button variant="outline" size="icon" onClick={handleGenerateInsights} disabled={isGeneratingInsights} title="Gerar Insights de IA" className="h-7 w-7">
                     <Lightbulb className="h-3.5 w-3.5" /> {isGeneratingInsights && <span className="text-[9px] animate-pulse">...</span>}
                 </Button>
-                <Button variant="default" size="icon" onClick={handleSaveLayout} className="bg-accent hover:bg-accent/90 text-accent-foreground h-7 w-7" title="Salvar estudo de caso">
+                <Button variant="default" size="icon" onClick={handleSaveLayout} className="bg-accent hover:bg-accent/90 text-accent-foreground h-7 w-7" title="Salvar Estudo">
                     <Save className="h-3.5 w-3.5" />
                 </Button>
 
-                <div className="h-5 w-px bg-border mx-1"></div>
+                {toolbarOrientation === 'vertical' && <Separator orientation="horizontal" className="my-0.5 w-full" />}
+                {toolbarOrientation === 'horizontal' && <div className="h-5 w-px bg-border mx-0.5"></div>}
 
-                {/* View Controls */}
-                <Button variant="outline" size="icon" onClick={toggleFullscreen} title={isFullscreen ? "Sair da Tela Cheia" : "Tela Cheia"} className="h-7 w-7">
+                <Button variant="outline" size="icon" onClick={toggleFullscreen} title={isFullscreen ? "Sair Tela Cheia" : "Tela Cheia"} className="h-7 w-7">
                     {isFullscreen ? <Minimize className="h-3.5 w-3.5" /> : <Maximize className="h-3.5 w-3.5" />}
                 </Button>
                 <Button variant="outline" size="icon" onClick={() => zoomIn({ duration: 300 })} title="Aumentar Zoom" className="h-7 w-7">
@@ -440,4 +457,3 @@ const FormulationMapWrapper: React.FC = () => {
 }
 
 export default FormulationMapWrapper;
-

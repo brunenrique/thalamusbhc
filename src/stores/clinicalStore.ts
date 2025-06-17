@@ -71,9 +71,11 @@ export interface ClinicalState {
   isFormulationGuidePanelVisible: boolean;
   isQuickNotesPanelVisible: boolean;
   emotionIntensityFilter: number;
+  toolbarOrientation: 'horizontal' | 'vertical'; // Novo estado
 
   isQuickNoteFormOpen: boolean;
   quickNoteFormTarget: { cardId?: string; defaultText?: string; noteIdToEdit?: string } | null;
+  selectedFlowNodes?: Node[]; // Para rastrear nós selecionados no React Flow
 
 
   addCard: (data: Omit<ABCCardData, 'id' | 'position' | 'groupInfo'>) => void;
@@ -105,6 +107,7 @@ export interface ClinicalState {
   removeCardFromItsGroup: (cardId: string) => void;
   deleteGroupAndUngroupCards: (groupId: string) => void;
   getCardGroups: () => CardGroup[];
+  setSelectedFlowNodes: (nodes: Node[]) => void;
 
 
   onNodesChange: OnNodesChange;
@@ -129,6 +132,7 @@ export interface ClinicalState {
   toggleFormulationGuidePanelVisibility: () => void;
   toggleQuickNotesPanelVisibility: () => void;
   setEmotionIntensityFilter: (intensity: number) => void;
+  toggleToolbarOrientation: () => void; // Nova ação
 
 
   fetchClinicalData: (patientId: string) => Promise<void>;
@@ -165,13 +169,15 @@ const useClinicalStore = create<ClinicalState>((set, get) => ({
 
   activeColorFilters: [...allCardColors],
   showSchemaNodes: true,
-  isSchemaPanelVisible: false, // Alterado para iniciar oculto
+  isSchemaPanelVisible: false, 
   isFormulationGuidePanelVisible: false,
   isQuickNotesPanelVisible: false,
   emotionIntensityFilter: 0,
+  toolbarOrientation: 'horizontal', // Valor padrão
 
   isQuickNoteFormOpen: false,
   quickNoteFormTarget: null,
+  selectedFlowNodes: [],
 
 
   addCard: (data) => {
@@ -397,6 +403,7 @@ const useClinicalStore = create<ClinicalState>((set, get) => ({
     });
   },
   getCardGroups: () => get().cardGroups,
+  setSelectedFlowNodes: (nodes) => set({ selectedFlowNodes: nodes }),
 
 
   onNodesChange: (changes) => {
@@ -480,10 +487,11 @@ const useClinicalStore = create<ClinicalState>((set, get) => ({
   toggleFormulationGuidePanelVisibility: () => set(state => ({ isFormulationGuidePanelVisible: !state.isFormulationGuidePanelVisible })),
   toggleQuickNotesPanelVisibility: () => set(state => ({ isQuickNotesPanelVisible: !state.isQuickNotesPanelVisible })),
   setEmotionIntensityFilter: (intensity: number) => set({ emotionIntensityFilter: intensity }),
+  toggleToolbarOrientation: () => set(state => ({ toolbarOrientation: state.toolbarOrientation === 'horizontal' ? 'vertical' : 'horizontal' })),
 
 
   fetchClinicalData: async (patientId) => {
-    // console.log(`LOG: Fetching clinical data for patient ${patientId}... (Simulated)`);
+    
     await new Promise(resolve => setTimeout(resolve, 300));
 
     const mockCardsData: Omit<ABCCardData, 'id' | 'position' | 'groupInfo'>[] = [
@@ -514,8 +522,7 @@ const useClinicalStore = create<ClinicalState>((set, get) => ({
         edges.push({ id: edgeId, source: schemas[0].id, target: cards[0].id, type: 'smoothstep', data: labelData, label: labelData.label, animated: true, ariaLabel: `Conexão: ${labelData.label}` });
     }
 
-    // console.log("LOG: Initial nodes to set:", nodes);
-    // console.log("LOG: Initial edges to set:", edges);
+    
     set({
         cards,
         schemas,
@@ -524,7 +531,7 @@ const useClinicalStore = create<ClinicalState>((set, get) => ({
         insights: ["Clique em 'Gerar Insights' para análise."],
         activeColorFilters: [...allCardColors],
         showSchemaNodes: true,
-        isSchemaPanelVisible: false, // Painel de Esquemas inicia oculto
+        isSchemaPanelVisible: false, 
         isFormulationGuidePanelVisible: false,
         isQuickNotesPanelVisible: false,
         emotionIntensityFilter: 0,
@@ -548,18 +555,7 @@ const useClinicalStore = create<ClinicalState>((set, get) => ({
         return node && node.position ? { ...schema, position: node.position } : schema;
     });
 
-    // console.log(`LOG: Saving data for patient ${patientId}: (Simulated)`, {
-    //   patientId,
-    //   cards: finalCards,
-    //   schemas: finalSchemas,
-    //   insights,
-    //   edges,
-    //   viewport,
-    //   formulationGuideAnswers,
-    //   quickNotes,
-    //   cardGroups,
-    //   savedAt: new Date().toISOString()
-    // });
+    
     await new Promise(resolve => setTimeout(resolve, 300));
     get().addInsight(`Estudo salvo com sucesso em ${new Date().toLocaleTimeString()}. (Simulado)`);
   },

@@ -745,20 +745,15 @@ export default function PatientDetailPage() {
           </Card>
         </TabsContent>
         
-        <TabsContent value="caseStudy" className="mt-2 flex-grow flex flex-col min-h-0">
-            <div className="flex justify-between items-center mb-2">
-                <TabsBar />
-                {activeTabId && (
-                <Button variant="outline" size="sm" asChild>
-                    <Link href={`/clinical-map/${patient.id}/${activeTabId}`} target="_blank" rel="noopener noreferrer">
-                        <ExternalLink className="mr-2 h-4 w-4" /> Abrir Mapa em Tela Cheia
-                    </Link>
-                </Button>
-                )}
-            </div>
-            <div className="flex-grow min-h-0 relative">
-                {renderActiveTabContent()}
-            </div>
+        <TabsContent value="caseStudy" className="mt-6">
+            <Card>
+                <CardHeader>
+                    <CardTitle className="font-headline">O Coração Clínico</CardTitle>
+                </CardHeader>
+                <CardContent className="p-6 text-center text-muted-foreground">
+                    Funcionalidade em desenvolvimento.
+                </CardContent>
+            </Card>
         </TabsContent>
 
         <TabsContent value="timeline" className="mt-6">

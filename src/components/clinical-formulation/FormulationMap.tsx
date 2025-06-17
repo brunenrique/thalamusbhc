@@ -35,7 +35,7 @@ import EdgeLabelModal from './EdgeLabelModal';
 // import InsightPanel from '../map/InsightPanel'; // KEEP COMMENTED
 // import FormulationGuidePanel from './FormulationGuidePanel'; // KEEP COMMENTED
 // import QuickNotesPanel from '../map/QuickNotesPanel'; // KEEP COMMENTED
-import ABCForm from './ABCForm';
+import ABCForm from '../cards/ABC/ABCForm';
 import SchemaForm from './SchemaForm';
 import QuickNoteForm from './QuickNoteForm';
 import MapPanelContainer from '../map/MapPanelContainer';

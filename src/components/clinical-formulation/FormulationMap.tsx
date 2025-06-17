@@ -32,9 +32,9 @@ import CardRouter from '../map/CardRouter';
 import EdgeLabelModal from './EdgeLabelModal';
 // import QuickNoteForm from './QuickNoteForm'; // Will use the simplified version
 // import SchemaPanel from './SchemaPanel'; // KEEP COMMENTED
-// import InsightPanel from './InsightPanel'; // KEEP COMMENTED
+// import InsightPanel from '../map/InsightPanel'; // KEEP COMMENTED
 // import FormulationGuidePanel from './FormulationGuidePanel'; // KEEP COMMENTED
-// import QuickNotesPanel from './QuickNotesPanel'; // KEEP COMMENTED
+// import QuickNotesPanel from '../map/QuickNotesPanel'; // KEEP COMMENTED
 import ABCForm from './ABCForm';
 import SchemaForm from './SchemaForm';
 import QuickNoteForm from './QuickNoteForm';

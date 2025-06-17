@@ -20,7 +20,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@/components/ui/dropdown-menu"
 import { Archive, Filter, Plus } from "lucide-react"; // Example icons
 
 export function MapToolbar() {
@@ -132,9 +132,11 @@ export function MapToolbar() {
               <div className="flex flex-col w-full">
                 <Label>Labels</Label>
                 {labels.map((label) => (
-                  <div key={label.id} className="flex items-center space-x-2">
+ <div
+ key={label.id}
+ className="flex items-center space-x-2"
+ >
                     <Switch
-                      id={`filterLabel-${label.id}`}
                       checked={filters.labels?.includes(label.id) || false}
                       onCheckedChange={(checked) => {
                         const currentLabels = filters.labels || [];
@@ -152,7 +154,9 @@ export function MapToolbar() {
                           );
                         }
                       }}
+ id={`filterLabel-${label.id}`}
                     />
+
                     <Label htmlFor={`filterLabel-${label.id}`}>{label.text}</Label>
                   </div>
                 ))}
@@ -165,7 +169,6 @@ export function MapToolbar() {
                 <Label htmlFor="filterArchived">Show Archived</Label>
                 <Switch
                   id="filterArchived"
-                  checked={filters.showArchived || false}
                   onCheckedChange={(checked) =>
                     handleFilterChange("showArchived", checked)
                   }
@@ -178,7 +181,7 @@ export function MapToolbar() {
 
       {/* Archived Cards Section (Optional - could be a separate button or part of filters) */}
       <div className="flex items-center gap-2 ml-auto">
-         <Label htmlFor="archiveButton">
+ <Label htmlFor="archiveButton">
           <Archive className="h-4 w-4" />
         </Label>
         <DropdownMenu>

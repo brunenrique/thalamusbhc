@@ -3,10 +3,10 @@ import { BaseCard } from '../types/clinicalTypes'; // Adjust the import path as 
 import { ABCCard } from '../types/clinicalTypes'; // Adjust the import path as needed
 
 // Assuming these components exist. Create placeholder components if needed.
-import ABCCardNode from './ABCCardNode';
-import ChainCardNode from './ChainCardNode';
-import MatrixCardNode from './MatrixCardNode';
-import GenericCardNode from './GenericCardNode';
+import ABCCardNode from '/home/user/studio/src/components/cards/ABC/ABCCardNode';
+import ChainCardNode from '/home/user/studio/src/components/cards/Chain/ChainCardNode';
+import MatrixCardNode from '/home/user/studio/src/components/cards/Matrix/MatrixCardNode';
+import GenericCardNode from '/home/user/studio/src/components/cards/Generic/GenericCardNode';
 
 interface CardRouterProps {
   card: BaseCard;

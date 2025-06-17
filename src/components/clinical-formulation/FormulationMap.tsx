@@ -31,12 +31,9 @@ import SchemaForm from './SchemaForm';
 import EdgeLabelModal from './EdgeLabelModal';
 import QuickNoteForm from './QuickNoteForm';
 import SchemaPanel from './SchemaPanel';
-// import InsightPanel from './InsightPanel'; // Temporarily commenting this out for debugging
+import InsightPanel from './InsightPanel'; 
 import FormulationGuidePanel from './FormulationGuidePanel';
 import QuickNotesPanel from './QuickNotesPanel';
-
-// Keep InsightPanel (bottom-left) as it's part of the core view - actually, let's comment it out too.
-// import InsightPanel from './InsightPanel';
 
 
 import type { ClinicalNodeData, ConnectionLabel, SchemaData, ABCCardData, ClinicalNodeType, QuickNote, CardGroupInfo, ABCCardColor, FormulationGuideQuestion, TabSpecificFormulationData } from '@/types/clinicalTypes';
@@ -500,7 +497,6 @@ const FormulationMap: React.FC = () => {
           </Panel>
           
           
-          {/* 
           {isSchemaPanelVisible && (
             <Panel position="top-left" className="!m-0 p-0 shadow-xl border rounded-lg bg-card w-72 h-[calc(100%-5rem)] flex flex-col">
                 <SchemaPanel />
@@ -516,13 +512,10 @@ const FormulationMap: React.FC = () => {
                 <QuickNotesPanel />
             </Panel>
           )}
-          */}
           
-          {/* 
           <Panel position="bottom-left" className="!m-0 p-0 shadow-xl border rounded-lg bg-card w-72 h-2/5 max-h-[400px] flex flex-col">
             <InsightPanel />
           </Panel>
-          */}
         </ReactFlow>
       
       

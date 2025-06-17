@@ -513,9 +513,11 @@ const FormulationMap: React.FC = () => {
             </Panel>
           )} */}
           
-          {/* <Panel position="bottom-left" className="!m-0 p-0 shadow-xl border rounded-lg bg-card w-72 h-2/5 max-h-[400px] flex flex-col">
+          {/* 
+          <Panel position="bottom-left" className="!m-0 p-0 shadow-xl border rounded-lg bg-card w-72 h-2/5 max-h-[400px] flex flex-col">
             <InsightPanel />
-          </Panel> */}
+          </Panel> 
+          */}
         </ReactFlow>
       
       

@@ -49,8 +49,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import dynamic from "next/dynamic";
 import { gerarProntuario } from "@/services/prontuarioService";
-import useClinicalStore, { type ClinicalTab } from '@/stores/clinicalStore';
-// Placeholder for clinical tools - create these files if they don't exist
 import ChainAnalysisBuilder from '@/components/clinical-tools/ChainAnalysisBuilder';
 import ActMatrixBuilder from '@/components/clinical-tools/ActMatrixBuilder';
 import HexaflexTool from '@/components/clinical-tools/HexaflexTool';
@@ -218,7 +216,7 @@ export default function PatientDetailPage() {
   const searchParams = useSearchParams();
   const initialTab = searchParams.get('tab') || "overview";
   
-  const { tabs, activeTabId, setActiveTab, fetchClinicalData } = useClinicalStore();
+  const { tabs, activeTabId, setActiveTab, fetchClinicalData } = useClinicalStore(state => state);
   const activeClinicalTab = useMemo(() => tabs.find(t => t.id === activeTabId), [tabs, activeTabId]) as ClinicalTab | undefined;
 
   const prefillRuleFromStore = useClinicalStore(state => state.prefillSchemaRule);

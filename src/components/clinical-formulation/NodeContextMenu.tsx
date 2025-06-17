@@ -15,7 +15,7 @@ import {
   DropdownMenuPortal,
 } from '@/components/ui/dropdown-menu';
 import { Edit, Trash2, Palette, Link2, Check, Unlink, Users as UsersIcon, Tag } from 'lucide-react';
-import useClinicalStore from '@/stores/clinicalStore';
+import { useClinicalStore } from '@/stores/clinicalStore';
 import type { ClinicalNodeType, ABCCardColor, SchemaData, ABCCardData } from '@/types/clinicalTypes';
 import { cn } from '@/shared/utils';
 

@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Edit3Icon, Trash2Icon, PaletteIcon, LinkIcon as LinkIconLucide, ExternalLinkIcon, Users } from 'lucide-react';
-import useClinicalStore from '@/stores/clinicalStore';
+import { useClinicalStore } from '@/stores/clinicalStore';
 import type { ABCCardData, ABCCardColor } from '@/types/clinicalTypes';
 import { cn } from '@/shared/utils';
 import { highlightKeywords } from '@/utils/highlightKeywords';

@@ -13,7 +13,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { PlusCircle, X, Edit2, Brain, Workflow, ListTree, Wand2 } from 'lucide-react'; // Changed BarChartSteps to Workflow
-import useClinicalStore from '@/stores/clinicalStore';
+import { useClinicalStore } from '@/stores/clinicalStore';
 import type { ClinicalTab, ClinicalTabType } from '@/types/clinicalTypes';
 import { cn } from '@/shared/utils';
 import {

@@ -1,5 +1,5 @@
 import React from 'react';
-import useClinicalStore from '@/stores/clinicalStore';
+import { useClinicalStore } from '@/stores/clinicalStore';
 
 // Placeholder components (create these files)
 const HexaflexPanel: React.FC = () => (

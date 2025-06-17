@@ -6,7 +6,7 @@ import { Handle, Position, NodeProps } from 'reactflow';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Link2Icon } from 'lucide-react';
-import useClinicalStore from '@/stores/clinicalStore';
+import { useClinicalStore } from '@/stores/clinicalStore';
 import type { SchemaData } from '@/types/clinicalTypes';
 import { cn } from '@/shared/utils';
 

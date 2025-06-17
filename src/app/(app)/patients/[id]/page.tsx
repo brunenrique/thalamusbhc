@@ -5,7 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Mail, Phone, CalendarDays, Edit, FileText, Brain, CheckCircle, Clock, MessageSquare, Trash2, Users as UsersIconLucide, Home as HomeIconLucide, Share2, UploadCloud, Calendar as CalendarIconShad, Lightbulb, Tag, BarChart3 as BarChart3Icon, ShieldAlert as ShieldAlertIcon, CheckCircle as CheckCircleIcon, TrendingUp, BookOpen, Activity, Users2, ClipboardList, Target, ListChecks, PlusCircle, Archive, AlertTriangle, History as HistoryIcon, Bot, Image as ImageIcon, Save, CalendarCheck, FileArchive, Eye, Pencil, FilePlus2, ClipboardEdit, Send, Sparkles } from "lucide-react";
+import { Mail, Phone, CalendarDays, Edit, FileText, Brain, CheckCircle, Clock, MessageSquare, Trash2, Users as UsersIconLucide, Home as HomeIconLucide, Share2, UploadCloud, Calendar as CalendarIconShad, Lightbulb, Tag, BarChart3 as BarChart3Icon, ShieldAlert as ShieldAlertIcon, CheckCircle as CheckCircleIcon, TrendingUp, BookOpen, Activity, Users2, ClipboardList, Target, ListChecks, PlusCircle, Archive, AlertTriangle, History as HistoryIcon, Bot, Image as ImageIcon, Save, CalendarCheck, FileArchive, Eye, Pencil, FilePlus2, ClipboardEdit, Send, Sparkles, ArrowLeft } from "lucide-react";
 import CopyButton from "@/components/ui/copy-button";
 import Link from "next/link";
 import { useRouter, useSearchParams, useParams } from "next/navigation";
@@ -49,13 +49,17 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import dynamic from "next/dynamic";
 import { gerarProntuario } from "@/services/prontuarioService";
-import useClinicalStore from '@/stores/clinicalStore'; // Ensure this import is correct and present
+import useClinicalStore from '@/stores/clinicalStore'; 
 
 // Importações para "O Coração Clínico"
-import FormulationMapWrapper from "@/components/clinical-formulation/FormulationMap";
 import ABCForm from "@/components/clinical-formulation/ABCForm";
 import SchemaForm from "@/components/clinical-formulation/SchemaForm";
-import EdgeLabelModal from "@/components/clinical-formulation/EdgeLabelModal"; // Modal for editing edge labels
+import EdgeLabelModal from "@/components/clinical-formulation/EdgeLabelModal";
+import FormulationMapWrapper from "@/components/clinical-formulation/FormulationMap";
+import SchemaPanel from "@/components/clinical-formulation/SchemaPanel";
+// InsightPanel é removido conforme solicitado anteriormente
+// import InsightPanel from "@/components/clinical-formulation/InsightPanel";
+
 
 const PatientProgressChart = dynamic(() => import("@/components/patients/patient-progress-chart"), {
   loading: () => (
@@ -533,13 +537,119 @@ export default function PatientDetailPage() {
   const formattedLastSession = useMemo(() => patient.lastSession
     ? format(new Date(patient.lastSession), "P", { locale: ptBR })
     : "N/A", [patient.lastSession]);
-  // SIMPLIFIED JSX FOR DEBUGGING THE PARSING ERROR
+
   return (
     <div className="flex flex-col h-full space-y-6">
-      <p>Patient Detail Page - Test Content</p>
-      <ABCForm />
-      <SchemaForm prefillRule={prefillRuleFromStore || undefined} />
-      <EdgeLabelModal />
+      <Button variant="outline" asChild className="mb-4 self-start">
+        <Link href="/patients"><ArrowLeft className="mr-2 h-4 w-4" /> Voltar para Pacientes</Link>
+      </Button>
+      
+      <Card className="shadow-lg overflow-hidden">
+        <CardHeader className="bg-muted/30 p-6">
+          <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
+            <Avatar className="h-24 w-24 sm:h-28 sm:w-28 border-4 border-background shadow-lg">
+              <AvatarImage src={patient.avatarUrl} alt={patient.name} data-ai-hint={patient.dataAiHint}/>
+              <AvatarFallback className="text-3xl bg-primary text-primary-foreground font-semibold">
+                {getInitials(patient.name)}
+              </AvatarFallback>
+            </Avatar>
+            <div className="flex-1 text-center sm:text-left">
+              <h1 className="text-3xl font-headline font-bold">{patient.name}</h1>
+              <div className="flex items-center justify-center sm:justify-start text-sm text-muted-foreground mt-1">
+                <Mail className="mr-1.5 h-4 w-4 opacity-70" /> {patient.email}
+                <CopyButton value={patient.email} className="ml-1 h-6 w-6" />
+                <span className="mx-2">|</span>
+                <Phone className="mr-1.5 h-4 w-4 opacity-70" /> {patient.phone}
+                <CopyButton value={patient.phone} className="ml-1 h-6 w-6" />
+              </div>
+            </div>
+            <div className="flex flex-col sm:flex-row gap-2 mt-4 sm:mt-0 self-center sm:self-start">
+              <Button variant="outline" asChild>
+                <Link href={`/patients/${patient.id}/edit`}>
+                  <Edit className="mr-2 h-4 w-4" /> Editar
+                </Link>
+              </Button>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="outline" className="text-amber-600 hover:text-amber-700 hover:border-amber-500 dark:text-amber-400 dark:hover:text-amber-300 dark:hover:border-amber-400">
+                    <Archive className="mr-2 h-4 w-4" /> Arquivar
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader><AlertDialogTitle>Arquivar Paciente?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Arquivar remove o paciente das listas ativas, mas mantém o histórico. Deseja continuar?
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleArchivePatient} className="bg-amber-500 hover:bg-amber-600 text-white">Arquivar</AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+               <AlertDialog>
+                <AlertDialogTrigger asChild>
+                    <Button variant="destructive" className="bg-destructive/90 hover:bg-destructive text-destructive-foreground">
+                        <Trash2 className="mr-2 h-4 w-4" /> Excluir
+                    </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                    <AlertDialogHeader><AlertDialogTitle>Excluir Paciente?</AlertDialogTitle>
+                    <AlertDialogDescription>Esta ação é irreversível e todos os dados de {patient.name} serão perdidos. Confirma exclusão?</AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleDeletePatient} className="bg-destructive hover:bg-destructive/90">Excluir Permanentemente</AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+                </AlertDialog>
+            </div>
+          </div>
+        </CardHeader>
+      </Card>
+
+      <Tabs defaultValue={initialTab} className="w-full flex flex-col flex-grow">
+        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
+          <TabsTrigger value="overview"><HomeIconLucide className="mr-1.5 h-4 w-4"/>Visão Geral</TabsTrigger>
+          <TabsTrigger value="caseStudy"><Brain className="mr-1.5 h-4 w-4"/>O Coração Clínico</TabsTrigger>
+          <TabsTrigger value="timeline"><HistoryIcon className="mr-1.5 h-4 w-4"/>Linha do Tempo</TabsTrigger>
+          <TabsTrigger value="assessments"><ClipboardList className="mr-1.5 h-4 w-4"/>Avaliações</TabsTrigger>
+          <TabsTrigger value="resources"><Share2 className="mr-1.5 h-4 w-4"/>Recursos</TabsTrigger>
+          <TabsTrigger value="documents"><FileArchive className="mr-1.5 h-4 w-4"/>Documentos</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="overview" className="mt-6 space-y-6">
+          <Card>
+            <CardHeader><CardTitle className="font-headline">Informações Gerais</CardTitle></CardHeader>
+            <CardContent className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <InfoDisplay label="Data de Nascimento" value={formattedDob} icon={CalendarDays} />
+              <InfoDisplay label="Psicólogo(a) Designado(a)" value={patient.assignedPsychologist} icon={UsersIconLucide} />
+              <InfoDisplay label="Endereço" value={patient.address || "Não informado"} icon={HomeIconLucide} />
+              <InfoDisplay label="Próxima Consulta" value={formattedNextAppointment} icon={CalendarCheck} />
+              <InfoDisplay label="Última Sessão" value={formattedLastSession} icon={Clock} />
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="caseStudy" className="mt-6 flex flex-col flex-grow min-h-[80vh]">
+            <div className="flex flex-col lg:flex-row gap-4 flex-grow h-full w-full">
+                 {/* SchemaPanel foi movido para dentro do FormulationMap como um Painel Flutuante */}
+                <div className="flex-grow min-w-0 h-full">
+                    <FormulationMapWrapper />
+                </div>
+                 {/* InsightPanel foi removido conforme solicitado */}
+            </div>
+            <ABCForm />
+            <SchemaForm prefillRule={prefillRuleFromStore || undefined} />
+            <EdgeLabelModal />
+        </TabsContent>
+
+        <TabsContent value="timeline" className="mt-6"><PatientTimeline patientId={patient.id} /></TabsContent>
+        <TabsContent value="assessments" className="mt-6 space-y-6">Conteúdo das Avaliações aqui...</TabsContent>
+        <TabsContent value="resources" className="mt-6 space-y-6">Conteúdo dos Recursos aqui...</TabsContent>
+        <TabsContent value="documents" className="mt-6 space-y-6">Conteúdo dos Documentos aqui...</TabsContent>
+      </Tabs>
     </div>
   );
 }
+    

@@ -217,13 +217,18 @@ export default function PatientDetailPage() {
   const searchParams = useSearchParams();
   const initialTab = searchParams.get('tab') || "overview";
   
-  const { tabs, activeTabId, setActiveTab, fetchClinicalData } = useClinicalStore(state => state);
-  const activeClinicalTab = useMemo(() => tabs.find(t => t.id === activeTabId), [tabs, activeTabId]) as ClinicalTab | undefined;
-
-  const prefillRuleFromStore = useClinicalStore(state => state.prefillSchemaRule);
+  const clinicalStore = useClinicalStore() as any;
+  const tabs: ClinicalTab[] = clinicalStore.tabs ?? [];
+  const activeTabId: string | undefined = clinicalStore.activeTabId;
+  const setActiveTab: ((id: string) => void) | undefined = clinicalStore.setActiveTab;
+  const fetchClinicalData: ((patientId: string, tabId: string) => void) | undefined = clinicalStore.fetchClinicalData;
+  const activeClinicalTab = useMemo(
+    () => tabs.find((t: ClinicalTab) => t.id === activeTabId),
+    [tabs, activeTabId]
+  ) as ClinicalTab | undefined;
 
   useEffect(() => {
-    if (activeTabId) {
+    if (activeTabId && typeof fetchClinicalData === 'function') {
       fetchClinicalData(patientId, activeTabId);
     }
   }, [activeTabId, patientId, fetchClinicalData]);

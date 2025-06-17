@@ -49,16 +49,11 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import dynamic from "next/dynamic";
 import { gerarProntuario } from "@/services/prontuarioService";
-import useClinicalStore from '@/stores/clinicalStore'; 
-
-// Importações para "O Coração Clínico"
+import useClinicalStore from '@/stores/clinicalStore';
 import ABCForm from "@/components/clinical-formulation/ABCForm";
 import SchemaForm from "@/components/clinical-formulation/SchemaForm";
 import EdgeLabelModal from "@/components/clinical-formulation/EdgeLabelModal";
 import FormulationMapWrapper from "@/components/clinical-formulation/FormulationMap";
-import SchemaPanel from "@/components/clinical-formulation/SchemaPanel";
-// InsightPanel é removido conforme solicitado anteriormente
-// import InsightPanel from "@/components/clinical-formulation/InsightPanel";
 
 
 const PatientProgressChart = dynamic(() => import("@/components/patients/patient-progress-chart"), {
@@ -368,7 +363,9 @@ export default function PatientDetailPage() {
     const summaryForInsights = mostRecentNote.summary;
 
     try {
+      // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1500));
+      // Mocked insights based on the structure of GenerateSessionInsightsOutput
       setGeneralPatientInsights({
         keywords: mostRecentNote.keywords || ["Tópico Simul." , "Outro Tópico"],
         themes: mostRecentNote.themes || ["Tema Simulado A", "Tema Simulado B"],
@@ -412,6 +409,7 @@ export default function PatientDetailPage() {
   }, [sessionNotes, patient.id, toast]);
 
   const handleSaveCaseStudyNotes = useCallback(() => {
+    // Simula salvar notas de estudo de caso
     toast({
       title: "Anotações Salvas (Simulado)",
       description: "Suas anotações do estudo de caso foram salvas com sucesso.",
@@ -458,6 +456,7 @@ export default function PatientDetailPage() {
 
 
   const handleSaveNextSessionsPlan = useCallback(() => {
+    // Simula salvar plano das próximas sessões
     toast({
       title: "Planejamento Salvo (Simulado)",
       description: "O planejamento para as próximas sessões foi salvo.",
@@ -537,6 +536,7 @@ export default function PatientDetailPage() {
   const formattedLastSession = useMemo(() => patient.lastSession
     ? format(new Date(patient.lastSession), "P", { locale: ptBR })
     : "N/A", [patient.lastSession]);
+
 
   return (
     <div className="flex flex-col h-full space-y-6">
@@ -629,27 +629,293 @@ export default function PatientDetailPage() {
               <InfoDisplay label="Última Sessão" value={formattedLastSession} icon={Clock} />
             </CardContent>
           </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle className="font-headline">Últimas Anotações de Sessão</CardTitle>
+              <Button variant="link" className="p-0 h-auto text-accent" asChild>
+                <Link href={`/patients/${patient.id}?tab=timeline`}>Ver todas as anotações</Link>
+              </Button>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {sessionNotes.length > 0 ? (
+                sessionNotes.slice(0, 2).map(note => <SessionNoteCard key={note.id} note={note} patientName={patient.name} therapistName={patient.assignedPsychologist} />)
+              ) : <p className="text-muted-foreground">Nenhuma anotação de sessão encontrada.</p>}
+            </CardContent>
+          </Card>
+           <Card>
+            <CardHeader>
+              <CardTitle className="font-headline">Objetivos Terapêuticos</CardTitle>
+              <Dialog>
+                <DialogTrigger asChild><Button variant="outline" size="sm"><PlusCircle className="mr-2 h-4 w-4"/> Novo Objetivo</Button></DialogTrigger>
+                <DialogContent><DialogHeader><DialogTitle>Novo Objetivo Terapêutico (Simulado)</DialogTitle><DialogDescription>Funcionalidade em desenvolvimento.</DialogDescription></DialogHeader></DialogContent>
+              </Dialog>
+            </CardHeader>
+            <CardContent>
+              {mockTherapeuticGoals.length > 0 ? (
+                <ul className="space-y-3">
+                  {mockTherapeuticGoals.map(goal => (
+                    <li key={goal.id} className="p-3 border rounded-md bg-muted/30">
+                      <div className="flex justify-between items-start">
+                        <h4 className="font-medium text-sm">{goal.title}</h4>
+                        <Badge variant={goal.status === "Alcançado" ? "default" : goal.status === "Em Pausa" ? "outline" : "secondary"}>{goal.status}</Badge>
+                      </div>
+                      {goal.description && <p className="text-xs text-muted-foreground mt-1">{goal.description}</p>}
+                      {goal.targetDate && <p className="text-xs text-muted-foreground mt-0.5">Meta: {format(new Date(goal.targetDate), "P", {locale: ptBR})}</p>}
+                    </li>
+                  ))}
+                </ul>
+              ) : <p className="text-muted-foreground">Nenhum objetivo terapêutico definido.</p>}
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle className="font-headline">Tarefas e Exercícios do Paciente</CardTitle>
+            </CardHeader>
+            <CardContent>
+               {mockPatientTasks.length > 0 ? (
+                <ul className="space-y-3">
+                  {mockPatientTasks.map(task => (
+                    <li key={task.id} className="p-3 border rounded-md bg-muted/30">
+                      <div className="flex justify-between items-start">
+                        <h4 className="font-medium text-sm">{task.description}</h4>
+                        <Badge variant={task.status === "Concluído" ? "default" : task.status === "Sugerido" ? "outline" : "secondary"}>{task.status}</Badge>
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-1">Categoria: {task.category} | Proposto em: {task.dateProposed !== "N/A" ? format(new Date(task.dateProposed), "P", {locale: ptBR}) : "N/A"}</p>
+                      {task.details && <p className="text-xs text-muted-foreground mt-0.5 italic">{task.details}</p>}
+                    </li>
+                  ))}
+                </ul>
+              ) : <p className="text-muted-foreground">Nenhuma tarefa ou exercício atribuído.</p>}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="font-headline">Progresso em Instrumentos</CardTitle>
+              <Select value={selectedProgressInstrument} onValueChange={setSelectedProgressInstrument}>
+                <SelectTrigger className="w-[280px] mt-2 h-9">
+                  <SelectValue placeholder="Selecione um instrumento" />
+                </SelectTrigger>
+                <SelectContent>
+                  {mockAvailableInstrumentsForProgress.map(inst => (
+                    <SelectItem key={inst.id} value={inst.id}>{inst.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </CardHeader>
+            <CardContent className="h-[350px] p-0">
+              {isLoadingProgressChart ? (
+                <div className="h-full w-full flex flex-col items-center justify-center bg-muted/30 rounded-lg p-4">
+                  <Skeleton className="h-6 w-1/2 mb-2" />
+                  <Skeleton className="h-4/5 w-full" />
+                </div>
+              ) : (
+                <PatientProgressChart data={currentProgressData} instrumentName={mockAvailableInstrumentsForProgress.find(i=>i.id === selectedProgressInstrument)?.name || "Instrumento"} />
+              )}
+            </CardContent>
+          </Card>
         </TabsContent>
         
         <TabsContent value="caseStudy" className="mt-6 flex flex-col flex-grow min-h-[80vh]">
-            <div className="flex flex-col lg:flex-row gap-4 flex-grow h-full w-full">
-                 {/* SchemaPanel foi movido para dentro do FormulationMap como um Painel Flutuante */}
-                <div className="flex-grow min-w-0 h-full">
-                    <FormulationMapWrapper />
-                </div>
-                 {/* InsightPanel foi removido conforme solicitado */}
+            <div className="flex-grow h-full w-full">
+                <FormulationMapWrapper />
             </div>
-            <ABCForm />
-            <SchemaForm prefillRule={prefillRuleFromStore || undefined} />
-            <EdgeLabelModal />
         </TabsContent>
 
-        <TabsContent value="timeline" className="mt-6"><PatientTimeline patientId={patient.id} /></TabsContent>
-        <TabsContent value="assessments" className="mt-6 space-y-6">Conteúdo das Avaliações aqui...</TabsContent>
-        <TabsContent value="resources" className="mt-6 space-y-6">Conteúdo dos Recursos aqui...</TabsContent>
-        <TabsContent value="documents" className="mt-6 space-y-6">Conteúdo dos Documentos aqui...</TabsContent>
+        <TabsContent value="timeline" className="mt-6">
+            <Card>
+                <CardHeader><CardTitle className="font-headline">Linha do Tempo do Paciente</CardTitle></CardHeader>
+                <CardContent><PatientTimeline patientId={patient.id} /></CardContent>
+            </Card>
+        </TabsContent>
+
+        <TabsContent value="assessments" className="mt-6 space-y-6">
+            <Card>
+                <CardHeader className="flex-row justify-between items-center">
+                    <CardTitle className="font-headline">Avaliações e Inventários</CardTitle>
+                    <Dialog>
+                        <DialogTrigger asChild><Button variant="outline"><PlusCircle className="mr-2 h-4 w-4"/>Atribuir Novo</Button></DialogTrigger>
+                        <DialogContent className="sm:max-w-md">
+                            <DialogHeader><DialogTitle>Atribuir Inventário/Escala</DialogTitle><DialogDescription>Selecione o modelo e a data de envio.</DialogDescription></DialogHeader>
+                            <div className="grid gap-4 py-4">
+                                <div className="space-y-1"><Label htmlFor="inventoryTemplate">Modelo</Label>
+                                <Select value={selectedInventoryTemplate} onValueChange={setSelectedInventoryTemplate}>
+                                    <SelectTrigger id="inventoryTemplate"><SelectValue placeholder="Selecione um modelo"/></SelectTrigger>
+                                    <SelectContent>{mockInventoryTemplates.map(t => <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>)}</SelectContent>
+                                </Select>
+                                </div>
+                                <div className="space-y-1"><Label htmlFor="inventorySendDate">Data de Envio</Label>
+                                <Popover><PopoverTrigger asChild>
+                                    <Button variant="outline" className="w-full justify-start text-left font-normal">
+                                    {inventorySendDate ? format(inventorySendDate, "P", {locale:ptBR}) : <span>Escolha uma data</span>}
+                                    <CalendarIconShad className="ml-auto h-4 w-4 opacity-50"/></Button>
+                                </PopoverTrigger><PopoverContent className="w-auto p-0"><Calendar mode="single" selected={inventorySendDate} onSelect={setInventorySendDate} initialFocus locale={ptBR}/></PopoverContent></Popover>
+                                </div>
+                            </div>
+                            <DialogFooter><Button onClick={handleAssignInventory} className="bg-accent hover:bg-accent/90 text-accent-foreground" disabled={!selectedInventoryTemplate || !inventorySendDate}>Atribuir</Button></DialogFooter>
+                        </DialogContent>
+                    </Dialog>
+                </CardHeader>
+                <CardContent>
+                    {assessments.length > 0 ? (
+                        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            {assessments.map(asm => <AssessmentCard key={asm.id} assessment={asm} />)}
+                        </div>
+                    ) : <p className="text-muted-foreground">Nenhuma avaliação ou inventário atribuído.</p>}
+                </CardContent>
+            </Card>
+        </TabsContent>
+        
+        <TabsContent value="resources" className="mt-6 space-y-6">
+            <Card>
+                <CardHeader className="flex-row justify-between items-center">
+                    <CardTitle className="font-headline">Recursos Compartilhados com {patient.name}</CardTitle>
+                    <Dialog>
+                        <DialogTrigger asChild><Button variant="outline"><UploadCloud className="mr-2 h-4 w-4"/>Compartilhar da Clínica</Button></DialogTrigger>
+                        <DialogContent className="sm:max-w-md">
+                            <DialogHeader><DialogTitle>Compartilhar Recurso da Clínica</DialogTitle><DialogDescription>Selecione um recurso da biblioteca da clínica para compartilhar com {patient.name}.</DialogDescription></DialogHeader>
+                            <div className="grid gap-4 py-4">
+                                <div className="space-y-1"><Label htmlFor="clinicResource">Recurso da Clínica</Label>
+                                <Select value={selectedGlobalResource} onValueChange={setSelectedGlobalResource}>
+                                    <SelectTrigger id="clinicResource"><SelectValue placeholder="Selecione um recurso global"/></SelectTrigger>
+                                    <SelectContent>{mockGlobalClinicResources.map(r => <SelectItem key={r.id} value={r.id}>{r.name} ({r.type}, {r.size})</SelectItem>)}</SelectContent>
+                                </Select>
+                                </div>
+                                <div className="space-y-1"><Label htmlFor="resourceShareNotes">Observações (Opcional)</Label>
+                                <Textarea id="resourceShareNotes" value={resourceShareNotes} onChange={e => setResourceShareNotes(e.target.value)} placeholder="Ex: Material para a próxima sessão."/></div>
+                            </div>
+                            <DialogFooter><Button onClick={handleShareResource} className="bg-accent hover:bg-accent/90 text-accent-foreground" disabled={!selectedGlobalResource}>Compartilhar Recurso</Button></DialogFooter>
+                        </DialogContent>
+                    </Dialog>
+                </CardHeader>
+                 <CardContent>
+                    {patientResources.length > 0 ? (
+                        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {patientResources.map(res => <ResourceCard key={res.id} resource={res} isGlobalList={false}/>)}
+                        </div>
+                    ) : <p className="text-muted-foreground">Nenhum recurso compartilhado com este paciente ainda.</p>}
+                </CardContent>
+            </Card>
+        </TabsContent>
+
+        <TabsContent value="documents" className="mt-6 space-y-6">
+            <Card>
+                <CardHeader className="flex-row justify-between items-center">
+                    <CardTitle className="font-headline">Documentos Psicológicos</CardTitle>
+                    <Dialog open={isCreateDocumentDialogOpen} onOpenChange={setIsCreateDocumentDialogOpen}>
+                        <DialogTrigger asChild>
+                            <Button variant="outline"><FilePlus2 className="mr-2 h-4 w-4"/>Criar Documento</Button>
+                        </DialogTrigger>
+                        <DialogContent className="sm:max-w-md">
+                            <DialogHeader>
+                                <DialogTitle>Criar Novo Documento para {patient.name}</DialogTitle>
+                                <DialogDescription>Selecione um modelo para iniciar ou crie um documento em branco.</DialogDescription>
+                            </DialogHeader>
+                             <div className="grid gap-4 py-4">
+                                <div className="space-y-1">
+                                    <Label htmlFor="documentTemplate">Modelo de Documento</Label>
+                                    <Select value={selectedDocumentTemplateId} onValueChange={setSelectedDocumentTemplateId}>
+                                        <SelectTrigger id="documentTemplate"><SelectValue placeholder="Selecione um modelo de documento"/></SelectTrigger>
+                                        <SelectContent>{mockDocumentTemplates.map(t => <SelectItem key={t.id} value={t.id}>{t.name} ({t.type})</SelectItem>)}</SelectContent>
+                                    </Select>
+                                </div>
+                            </div>
+                            <DialogFooter>
+                                <Button variant="outline" onClick={() => setIsCreateDocumentDialogOpen(false)}>Cancelar</Button>
+                                <Button onClick={handleCreateDocument} className="bg-accent hover:bg-accent/90 text-accent-foreground" disabled={!selectedDocumentTemplateId}>Criar com Modelo</Button>
+                            </DialogFooter>
+                        </DialogContent>
+                    </Dialog>
+                </CardHeader>
+                <CardContent>
+                    {psychologicalDocuments.length > 0 ? (
+                        <ul className="space-y-3">
+                            {psychologicalDocuments.map(doc => (
+                                <li key={doc.id} className="p-3 border rounded-md flex items-center justify-between hover:bg-muted/30">
+                                    <div>
+                                        <p className="font-medium text-sm flex items-center">
+                                            {doc.type === "Laudo" && <FileText className="mr-1.5 h-4 w-4 text-blue-500"/>}
+                                            {doc.type === "Atestado" && <ClipboardEdit className="mr-1.5 h-4 w-4 text-green-500"/>}
+                                            {doc.type === "Declaração" && <Pencil className="mr-1.5 h-4 w-4 text-yellow-600"/>}
+                                            {doc.type === "Relatório de Avaliação" && <BarChart3Icon className="mr-1.5 h-4 w-4 text-purple-500"/>}
+                                            {doc.type === "Anamnese" && <BookOpen className="mr-1.5 h-4 w-4 text-orange-500"/>}
+                                            {doc.name}
+                                        </p>
+                                        <p className="text-xs text-muted-foreground">
+                                            Criado em: {format(new Date(doc.creationDate), "P", {locale:ptBR})}
+                                            {doc.lastModified && ` | Modificado em: ${format(new Date(doc.lastModified), "P", {locale:ptBR})}`}
+                                        </p>
+                                    </div>
+                                    <div className="flex gap-1">
+                                        <Button variant="ghost" size="icon" className="h-7 w-7" title="Visualizar/Editar"><Eye className="h-4 w-4"/></Button>
+                                        <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:text-destructive" title="Excluir"><Trash2 className="h-4 w-4"/></Button>
+                                    </div>
+                                </li>
+                            ))}
+                        </ul>
+                    ) : <p className="text-muted-foreground">Nenhum documento psicológico criado para este paciente.</p>}
+                </CardContent>
+            </Card>
+
+            {/* Seção de Anamnese (Preenchimento pelo Profissional e Envio ao Paciente) */}
+            <Card>
+                <CardHeader><CardTitle className="font-headline">Anamnese</CardTitle></CardHeader>
+                <CardContent className="space-y-6">
+                    {/* Sub-seção para preenchimento pelo profissional */}
+                    <Card className="bg-muted/20 p-4">
+                        <CardTitle className="text-lg font-semibold mb-2">Preenchimento pelo Profissional</CardTitle>
+                        <Textarea 
+                            value={anamnesisText} 
+                            onChange={(e) => setAnamnesisText(e.target.value)}
+                            placeholder="Digite aqui as informações da anamnese coletadas durante a sessão..."
+                            rows={8}
+                            className="mb-2"
+                        />
+                        <Button onClick={handleSaveAnamnesisText} className="bg-accent hover:bg-accent/90 text-accent-foreground" size="sm"><Save className="mr-2 h-4 w-4"/>Salvar Anamnese (Profissional)</Button>
+                    </Card>
+
+                    {/* Sub-seção para envio ao paciente */}
+                    <Card className="bg-muted/20 p-4">
+                        <CardTitle className="text-lg font-semibold mb-2">Enviar Anamnese para o Paciente Preencher</CardTitle>
+                        <div className="grid sm:grid-cols-2 gap-4 mb-3">
+                             <div className="space-y-1">
+                                <Label htmlFor="anamnesisTemplate">Modelo de Anamnese</Label>
+                                <Select value={selectedAnamnesisTemplateIdToSent} onValueChange={setSelectedAnamnesisTemplateIdToSent}>
+                                    <SelectTrigger id="anamnesisTemplate"><SelectValue placeholder="Selecione um modelo de anamnese"/></SelectTrigger>
+                                    <SelectContent>{anamnesisTemplates.map(t => <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>)}</SelectContent>
+                                </Select>
+                            </div>
+                            <div className="space-y-1">
+                                <Label htmlFor="patientWhatsApp">WhatsApp do Paciente (para envio do link)</Label>
+                                <Input id="patientWhatsApp" value={patientWhatsApp} onChange={(e) => setPatientWhatsApp(e.target.value)} placeholder="(XX) XXXXX-XXXX"/>
+                            </div>
+                        </div>
+                        <Button onClick={handleSendAnamnesisLink} className="bg-accent hover:bg-accent/90 text-accent-foreground" size="sm" disabled={!selectedAnamnesisTemplateIdToSent || !patientWhatsApp}><Send className="mr-2 h-4 w-4"/>Enviar Link da Anamnese</Button>
+                        
+                        {sentAnamneses.length > 0 && (
+                            <div className="mt-4">
+                                <h4 className="text-sm font-medium mb-1.5">Anamneses Enviadas Recentemente:</h4>
+                                <ul className="space-y-1.5 text-xs">
+                                    {sentAnamneses.slice(0,3).map(sa => (
+                                        <li key={sa.id} className="flex justify-between items-center p-1.5 border rounded-sm bg-background">
+                                            <span>{sa.templateName} (Enviada: {format(new Date(sa.sentDate), "P p", {locale:ptBR})})</span>
+                                            <Badge variant={sa.status === "Preenchida" ? "default" : "secondary"}>{sa.status}</Badge>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        )}
+                    </Card>
+                </CardContent>
+            </Card>
+        </TabsContent>
       </Tabs>
+      <ABCForm />
+      <SchemaForm prefillRule={prefillRuleFromStore || undefined} />
+      <EdgeLabelModal />
     </div>
   );
 }
+    
+
     

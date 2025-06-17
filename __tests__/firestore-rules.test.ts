@@ -1,5 +1,4 @@
-import { initializeTestEnvironment, assertSucceeds } from '@firebase/rules-unit-testing';
-import { readFileSync } from 'fs';
+import { initializeTestEnvironment, assertSucceeds } from '@firebase/rules-unit-testing'
 import { Firestore } from 'firebase/firestore';
 import fetch from 'node-fetch';
 

@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -16,6 +16,7 @@ import { Badge } from '@/components/ui/badge';
 import { XIcon, PlusCircleIcon } from 'lucide-react';
 import useClinicalStore from '@/stores/clinicalStore';
 import type { ABCCardData, ABCTemplate } from '@/types/clinicalTypes';
+import { useTagSuggestions } from '@/hooks/useTagSuggestions'; // Importar o novo hook
 
 const abcFormSchema = z.object({
   title: z.string().min(3, { message: "O título deve ter pelo menos 3 caracteres." }),
@@ -52,7 +53,7 @@ const ABCForm: React.FC = () => {
 
   const form = useForm<ABCFormValues>({
     resolver: zodResolver(abcFormSchema),
-    defaultValues: { // Valores padrão robustos
+    defaultValues: {
       title: '',
       antecedentExternal: '',
       antecedentInternal: '',
@@ -67,6 +68,16 @@ const ABCForm: React.FC = () => {
       notes: '',
     },
   });
+
+  const antecedentExternalValue = form.watch('antecedentExternal');
+  const antecedentInternalValue = form.watch('antecedentInternal');
+  const behaviorValue = form.watch('behavior');
+
+  const tagSuggestions = useTagSuggestions(
+    `${antecedentExternalValue} ${antecedentInternalValue}`,
+    behaviorValue,
+    currentTags
+  );
 
   useEffect(() => {
     if (editingCard) {
@@ -85,9 +96,9 @@ const ABCForm: React.FC = () => {
         notes: editingCard.notes || '',
       });
       setCurrentTags(editingCard.tags || []);
-      setSelectedTemplateId(''); 
-    } else { 
-      form.reset({ 
+      setSelectedTemplateId('');
+    } else {
+      form.reset({
         title: '',
         antecedentExternal: '',
         antecedentInternal: '',
@@ -101,20 +112,20 @@ const ABCForm: React.FC = () => {
         color: 'default',
         notes: '',
       });
-      setCurrentTags([]); 
-      setSelectedTemplateId(''); 
+      setCurrentTags([]);
+      setSelectedTemplateId('');
     }
   }, [editingCard, form, isABCFormOpen]);
 
   const handleTemplateChange = (templateId: string) => {
     setSelectedTemplateId(templateId);
     const template = templates.find(t => t.id === templateId);
-    if (template && !editingCardId) { 
+    if (template && !editingCardId) {
       form.setValue('antecedentExternal', template.antecedentGuide);
-      form.setValue('antecedentInternal', "Pensamentos/Sentimentos: "); 
+      form.setValue('antecedentInternal', "Pensamentos/Sentimentos: ");
       form.setValue('behavior', template.behaviorGuide);
-      form.setValue('consequenceShortTermGain', "Alívio Imediato: "); 
-      form.setValue('consequenceShortTermCost', "Custo Imediato: "); 
+      form.setValue('consequenceShortTermGain', "Alívio Imediato: ");
+      form.setValue('consequenceShortTermCost', "Custo Imediato: ");
       form.setValue('consequenceLongTermValueCost', template.consequenceGuide);
       if (!form.getValues('title')) {
         form.setValue('title', `Análise: ${template.name}`);
@@ -122,13 +133,16 @@ const ABCForm: React.FC = () => {
     }
   };
 
-  const handleAddTag = () => {
-    if (tagInput && !currentTags.includes(tagInput.trim().toLowerCase())) {
-      const newTags = [...currentTags, tagInput.trim().toLowerCase()];
+  const handleAddTag = (tagToAdd?: string) => {
+    const tag = (tagToAdd || tagInput).trim().toLowerCase();
+    if (tag && !currentTags.includes(tag)) {
+      const newTags = [...currentTags, tag];
       setCurrentTags(newTags);
       form.setValue('tags', newTags);
     }
-    setTagInput('');
+    if (!tagToAdd) { // Limpa o input apenas se não veio de um clique de sugestão
+        setTagInput('');
+    }
   };
 
   const handleRemoveTag = (tagToRemove: string) => {
@@ -143,8 +157,8 @@ const ABCForm: React.FC = () => {
       antecedent: {
         external: values.antecedentExternal,
         internal: values.antecedentInternal,
-        thoughtBelief: values.antecedentThoughtBelief ?? 0, // Garantir que não seja undefined
-        emotionIntensity: values.antecedentEmotionIntensity ?? 0, // Garantir que não seja undefined
+        thoughtBelief: values.antecedentThoughtBelief ?? 0,
+        emotionIntensity: values.antecedentEmotionIntensity ?? 0,
       },
       behavior: values.behavior,
       consequence: {
@@ -295,13 +309,28 @@ const ABCForm: React.FC = () => {
                     <Input
                         value={tagInput}
                         onChange={(e) => setTagInput(e.target.value)}
-                        placeholder="Ex: ansiedade, evitação"
+                        placeholder="Ex: ansiedade, evitação. Pressione Enter para adicionar."
                         onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ',') { e.preventDefault(); handleAddTag();}}}
                     />
-                    <Button type="button" variant="outline" size="icon" onClick={handleAddTag} aria-label="Adicionar tag">
+                    <Button type="button" variant="outline" size="icon" onClick={() => handleAddTag()} aria-label="Adicionar tag">
                         <PlusCircleIcon className="h-4 w-4"/>
                     </Button>
                 </div>
+                {tagSuggestions.length > 0 && (
+                  <div className="flex flex-wrap gap-1 mt-2 border p-2 rounded-md bg-muted/30">
+                    <span className="text-xs text-muted-foreground mr-1">Sugestões:</span>
+                    {tagSuggestions.map(suggestion => (
+                      <Badge
+                        key={suggestion}
+                        variant="outline"
+                        className="text-xs cursor-pointer hover:bg-accent hover:text-accent-foreground"
+                        onClick={() => handleAddTag(suggestion)}
+                      >
+                        {suggestion}
+                      </Badge>
+                    ))}
+                  </div>
+                )}
                 <div className="flex flex-wrap gap-1 mt-2">
                     {currentTags.map(tag => (
                     <Badge key={tag} variant="secondary" className="text-xs">

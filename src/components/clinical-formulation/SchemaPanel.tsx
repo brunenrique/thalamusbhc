@@ -2,17 +2,18 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'; // Removido Card de @/components/ui/card
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { PlusCircleIcon, Trash2Icon, Link2Icon, ChevronDownIcon, ChevronUpIcon, EditIcon, Unlink } from 'lucide-react';
+import { PlusCircleIcon, Trash2Icon, Link2Icon, ChevronDownIcon, ChevronUpIcon, EditIcon, Unlink, X } from 'lucide-react'; // Adicionado X
 import useClinicalStore from '@/stores/clinicalStore';
 import type { SchemaData } from '@/types/clinicalTypes';
-import { Badge } from '@/components/ui/badge';
+import { Badge } from '../ui/badge';
+import { Card } from "@/components/ui/card"; // Adicionado Card aqui para consistência
 
 const SchemaPanel: React.FC = () => {
-  const { schemas, openSchemaForm, deleteSchema, cards, openABCForm, unlinkCardFromSchema } = useClinicalStore();
+  const { schemas, openSchemaForm, deleteSchema, cards, openABCForm, unlinkCardFromSchema, toggleSchemaPanelVisibility } = useClinicalStore();
   const [newSchemaRule, setNewSchemaRule] = useState('');
   const [expandedSchemaId, setExpandedSchemaId] = useState<string | null>(null);
 
@@ -28,14 +29,17 @@ const SchemaPanel: React.FC = () => {
   };
 
   return (
-    // Removido o Card envolvente principal, pois o Panel do React Flow fornecerá o contêiner
-    // O estilo de Card será aplicado ao Panel no FormulationMap.tsx
     <>
-      <CardHeader className="p-3 border-b sticky top-0 bg-card z-10">
-        <CardTitle className="font-headline text-base">Esquemas e Regras</CardTitle>
-        <CardDescription className="text-xs">
-          Crenças centrais e regras.
-        </CardDescription>
+      <CardHeader className="p-3 border-b sticky top-0 bg-card z-10 flex flex-row justify-between items-center">
+        <div>
+          <CardTitle className="font-headline text-base">Esquemas e Regras</CardTitle>
+          <CardDescription className="text-xs">
+            Crenças centrais e regras.
+          </CardDescription>
+        </div>
+        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={toggleSchemaPanelVisibility} aria-label="Fechar painel de esquemas">
+            <X className="h-4 w-4" />
+        </Button>
       </CardHeader>
       <CardContent className="p-3 flex-grow overflow-hidden flex flex-col">
         <div className="flex gap-2 mb-2">
@@ -47,8 +51,8 @@ const SchemaPanel: React.FC = () => {
             className="h-8 text-xs"
             onKeyPress={(e) => { if (e.key === 'Enter') handleAddSchema(); }}
           />
-          <Button onClick={handleAddSchema} size="sm" className="bg-accent hover:bg-accent/90 text-accent-foreground shrink-0 h-8 px-2">
-            <PlusCircleIcon className="h-3.5 w-3.5 mr-1" /> Add
+          <Button onClick={handleAddSchema} size="sm" className="bg-accent hover:bg-accent/90 text-accent-foreground shrink-0 h-8 px-2 text-xs">
+            <PlusCircleIcon className="h-3 w-3 mr-1" /> Add
           </Button>
         </div>
         

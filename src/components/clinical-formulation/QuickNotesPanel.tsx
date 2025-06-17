@@ -2,10 +2,10 @@
 "use client";
 
 import React from 'react';
-import { CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
+import { CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'; // Removido CardFooter
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { StickyNote, Edit, Trash2, PlusCircle, Link as LinkIcon } from 'lucide-react';
+import { StickyNote, Edit, Trash2, PlusCircle, Link as LinkIcon, X } from 'lucide-react'; // Adicionado X
 import useClinicalStore from '@/stores/clinicalStore';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -23,12 +23,12 @@ import {
 import { Badge } from '../ui/badge';
 
 const QuickNotesPanel: React.FC = () => {
-  const { quickNotes, deleteQuickNote, openQuickNoteForm, cards } = useClinicalStore();
+  const { quickNotes, deleteQuickNote, openQuickNoteForm, cards, toggleQuickNotesPanelVisibility } = useClinicalStore();
 
   return (
     <>
       <CardHeader className="p-3 border-b sticky top-0 bg-card z-10 flex-row justify-between items-center">
-        <div>
+        <div className="flex-1">
           <CardTitle className="font-headline text-base flex items-center">
             <StickyNote className="h-4 w-4 mr-2 text-accent" />
             Anotações Rápidas
@@ -37,10 +37,14 @@ const QuickNotesPanel: React.FC = () => {
             Observações e lembretes.
           </CardDescription>
         </div>
-        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openQuickNoteForm()}>
-            <PlusCircle className="h-4 w-4" />
-            <span className="sr-only">Adicionar Nova Anotação Rápida</span>
-        </Button>
+        <div className="flex items-center">
+            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openQuickNoteForm()} aria-label="Adicionar Nova Anotação Rápida">
+                <PlusCircle className="h-4 w-4" />
+            </Button>
+            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={toggleQuickNotesPanelVisibility} aria-label="Fechar painel de anotações rápidas">
+                <X className="h-4 w-4" />
+            </Button>
+        </div>
       </CardHeader>
       <CardContent className="p-0 flex-grow overflow-hidden">
         <ScrollArea className="h-full p-3">

@@ -10,6 +10,8 @@ import { Edit3Icon, Trash2Icon, PaletteIcon, LinkIcon as LinkIconLucide, Externa
 import useClinicalStore from '@/stores/clinicalStore';
 import type { ABCCardData, ABCCardColor } from '@/types/clinicalTypes';
 import { cn } from '@/shared/utils';
+import { highlightKeywords } from '@/utils/highlightKeywords';
+import { CLINICAL_KEYWORDS } from '@/constants/keywords';
 
 const cardColorStyles: Record<ABCCardColor, string> = {
   default: 'bg-card border-border text-card-foreground',
@@ -67,6 +69,8 @@ const ABCCardNode: React.FC<NodeProps<ABCCardData>> = ({ data, id, selected }) =
     </div>
   );
 
+  const highlightClassName = "bg-yellow-100 dark:bg-yellow-700/30 dark:text-yellow-300 rounded px-0.5 font-medium";
+
   return (
     <Card
       className={cn(
@@ -99,8 +103,8 @@ const ABCCardNode: React.FC<NodeProps<ABCCardData>> = ({ data, id, selected }) =
       <CardContent className="p-3 text-xs space-y-2">
         <div className={textColorClass}>
           <p className="font-medium">A:</p>
-          <p className="pl-2 opacity-90 line-clamp-2">Ext: {data.antecedent.external}</p>
-          <p className="pl-2 opacity-90 line-clamp-2">Int: {data.antecedent.internal}</p>
+          <p className="pl-2 opacity-90 line-clamp-2">Ext: {highlightKeywords(data.antecedent.external, CLINICAL_KEYWORDS, highlightClassName)}</p>
+          <p className="pl-2 opacity-90 line-clamp-2">Int: {highlightKeywords(data.antecedent.internal, CLINICAL_KEYWORDS, highlightClassName)}</p>
           <div className="pl-2 mt-0.5 space-y-0.5">
              <IntensityBar value={data.antecedent.thoughtBelief} label="Crença" />
              <IntensityBar value={data.antecedent.emotionIntensity} label="Emoção" />
@@ -108,13 +112,13 @@ const ABCCardNode: React.FC<NodeProps<ABCCardData>> = ({ data, id, selected }) =
         </div>
         <div className={textColorClass}>
           <p className="font-medium">B:</p>
-          <p className="pl-2 opacity-90 line-clamp-2">{data.behavior}</p>
+          <p className="pl-2 opacity-90 line-clamp-2">{highlightKeywords(data.behavior, CLINICAL_KEYWORDS, highlightClassName)}</p>
         </div>
         <div className={textColorClass}>
           <p className="font-medium">C:</p>
-          <p className="pl-2 opacity-90 line-clamp-2">Curto (Ganho): {data.consequence.shortTermGain}</p>
-          <p className="pl-2 opacity-90 line-clamp-2">Curto (Custo): {data.consequence.shortTermCost}</p>
-          <p className="pl-2 opacity-90 line-clamp-2">Longo Prazo (Valores): {data.consequence.longTermValueCost}</p>
+          <p className="pl-2 opacity-90 line-clamp-2">Curto (Ganho): {highlightKeywords(data.consequence.shortTermGain, CLINICAL_KEYWORDS, highlightClassName)}</p>
+          <p className="pl-2 opacity-90 line-clamp-2">Curto (Custo): {highlightKeywords(data.consequence.shortTermCost, CLINICAL_KEYWORDS, highlightClassName)}</p>
+          <p className="pl-2 opacity-90 line-clamp-2">Longo Prazo (Valores): {highlightKeywords(data.consequence.longTermValueCost, CLINICAL_KEYWORDS, highlightClassName)}</p>
         </div>
         {data.tags && data.tags.length > 0 && (
           <div className="flex flex-wrap gap-1 pt-1">

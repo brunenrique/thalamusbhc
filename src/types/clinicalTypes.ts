@@ -1,6 +1,17 @@
 
 import type { XYPosition } from 'reactflow';
 
+export interface BaseCard {
+  id: string;
+  type: string;
+  title: string;
+  sessionNumber?: number;
+  sessionDate?: string; // Consider using ISO date string
+  archived?: boolean;
+  createdAt: string; // ISO date string
+  updatedAt: string; // ISO date string
+}
+
 export interface ConnectionLabel {
   id: string;
   label: 'reforça' | 'causa' | 'evita' | 'generaliza para' | 'opõe-se a' | 'contextualiza';

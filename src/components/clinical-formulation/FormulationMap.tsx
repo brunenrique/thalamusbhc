@@ -26,14 +26,17 @@ import useClinicalStore, { allCardColors } from '@/stores/clinicalStore';
 import ABCCardNode from './ABCCardNode';
 import SchemaNode from './SchemaNode';
 import NodeContextMenu from './NodeContextMenu';
+// import ABCForm from './ABCForm'; // Will use the simplified version
+// import SchemaForm from './SchemaForm'; // Will use the full version (was working)
+import EdgeLabelModal from './EdgeLabelModal';
+// import QuickNoteForm from './QuickNoteForm'; // Will use the simplified version
+// import SchemaPanel from './SchemaPanel'; // KEEP COMMENTED
+// import InsightPanel from './InsightPanel'; // KEEP COMMENTED
+// import FormulationGuidePanel from './FormulationGuidePanel'; // KEEP COMMENTED
+// import QuickNotesPanel from './QuickNotesPanel'; // KEEP COMMENTED
 import ABCForm from './ABCForm';
 import SchemaForm from './SchemaForm';
-import EdgeLabelModal from './EdgeLabelModal';
 import QuickNoteForm from './QuickNoteForm';
-// import SchemaPanel from './SchemaPanel'; // SchemaPanel comentado para depuração
-// import InsightPanel from './InsightPanel'; 
-// import FormulationGuidePanel from './FormulationGuidePanel'; // FormulationGuidePanel comentado para depuração
-// import QuickNotesPanel from './QuickNotesPanel'; // QuickNotesPanel comentado para depuração
 
 
 import type { ClinicalNodeData, ConnectionLabel, SchemaData, ABCCardData, ClinicalNodeType, QuickNote, CardGroupInfo, ABCCardColor, FormulationGuideQuestion, TabSpecificFormulationData } from '@/types/clinicalTypes';
@@ -116,11 +119,11 @@ const FormulationMap: React.FC = () => {
     openABCForm,
     openSchemaForm,
     openQuickNoteForm,
-    isSchemaPanelVisible,
+    isSchemaPanelVisible, // State exists, but panel component is commented
     toggleSchemaPanelVisibility,
-    isFormulationGuidePanelVisible,
+    isFormulationGuidePanelVisible, // State exists, but panel component is commented
     toggleFormulationGuidePanelVisibility,
-    isQuickNotesPanelVisible,
+    isQuickNotesPanelVisible, // State exists, but panel component is commented
     toggleQuickNotesPanelVisibility,
     createGroupFromSelectedNodes,
     selectedFlowNodes,
@@ -161,10 +164,8 @@ const FormulationMap: React.FC = () => {
         showSchemaNodes: true,
         emotionIntensityFilter: 0,
       };
-      // console.warn(`No data for activeTabId: ${activeTabId}. Using default. FormulationTabData:`, formulationTabData);
       return defaultData as TabSpecificFormulationData;
     }
-    // console.log(`Data for activeTabId: ${activeTabId}`, formulationTabData[activeTabId]);
     return formulationTabData[activeTabId];
   }, [activeTabId, formulationTabData, initialFormulationGuideQuestions]);
 
@@ -229,7 +230,7 @@ const FormulationMap: React.FC = () => {
     if (!mapContainerRef.current) return;
     if (!document.fullscreenElement) {
       mapContainerRef.current.requestFullscreen().catch(err => {
-        console.error(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
+        console.error("Error attempting to enable full-screen mode: " + err.message + " (" + err.name + ")");
       });
     } else {
       document.exitFullscreen();
@@ -497,23 +498,23 @@ const FormulationMap: React.FC = () => {
           </Panel>
           
           
-          {/* {isSchemaPanelVisible && (
+          {/* 
+          // Panels are kept commented out as per debugging steps
+          {isSchemaPanelVisible && (
             <Panel position="top-left" className="!m-0 p-0 shadow-xl border rounded-lg bg-card w-72 h-[calc(100%-5rem)] flex flex-col">
                 <SchemaPanel />
             </Panel>
-          )} */}
-          {/* {isFormulationGuidePanelVisible && (
+          )}
+          {isFormulationGuidePanelVisible && (
             <Panel position="top-right" className="!m-0 p-0 shadow-xl border rounded-lg bg-card w-72 h-[calc(100%-5rem)] flex flex-col">
                 <FormulationGuidePanel />
             </Panel>
-          )} */}
-          {/* {isQuickNotesPanelVisible && (
+          )}
+          {isQuickNotesPanelVisible && (
              <Panel position="bottom-right" className="!m-0 p-0 shadow-xl border rounded-lg bg-card w-72 h-2/5 max-h-[400px] flex flex-col">
                 <QuickNotesPanel />
             </Panel>
-          )} */}
-          
-          {/* 
+          )}
           <Panel position="bottom-left" className="!m-0 p-0 shadow-xl border rounded-lg bg-card w-72 h-2/5 max-h-[400px] flex flex-col">
             <InsightPanel />
           </Panel> 
@@ -522,9 +523,9 @@ const FormulationMap: React.FC = () => {
       
       
       <NodeContextMenu />
-      <QuickNoteForm />
-      <ABCForm />
-      <SchemaForm prefillRule={useClinicalStore.getState().prefillSchemaRule || undefined}/>
+      <QuickNoteForm /> {/* Uses simplified version */}
+      <ABCForm /> {/* Uses simplified version */}
+      <SchemaForm prefillRule={useClinicalStore.getState().prefillSchemaRule || undefined}/> {/* Uses full version */}
       <EdgeLabelModal />
       
     </div>
@@ -538,6 +539,4 @@ const FormulationMapWrapper: React.FC = () => (
 );
 
 export default FormulationMapWrapper;
-    
 
-    

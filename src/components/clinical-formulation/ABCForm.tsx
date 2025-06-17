@@ -13,7 +13,7 @@ const ABCForm: React.FC = () => {
     <Dialog open={isABCFormOpen} onOpenChange={(open) => { if (!open) closeABCForm(); }}>
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
-          <DialogTitle className="font-headline">{editingCardId ? 'Editar Card ABC (Simples)' : 'Novo Card ABC (Simples)'}</DialogTitle>
+          <DialogTitle className="font-headline">{editingCardId ? 'Editar Card ABC (Simplificado)' : 'Novo Card ABC (Simplificado)'}</DialogTitle>
           <DialogDescription>
             Teste de formulário ABC simplificado.
           </DialogDescription>
@@ -21,7 +21,7 @@ const ABCForm: React.FC = () => {
         
         <div className="py-4">
             <p>Conteúdo Simplificado do Formulário ABC.</p>
-            <p>Se você vê isso, o mecanismo de abertura do diálogo está funcionando.</p>
+            <p>Se você vê isso, o diálogo está abrindo.</p>
         </div>
 
         <DialogFooter>

@@ -15,12 +15,11 @@ const QuickNoteForm: React.FC = () => {
 
   const noteToEdit = quickNoteFormTarget?.noteIdToEdit;
 
-
   return (
     <Dialog open={isQuickNoteFormOpen} onOpenChange={(open) => { if (!open) closeQuickNoteForm(); }}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="font-headline">{noteToEdit ? "Editar Anotação Rápida (Simples)" : "Nova Anotação Rápida (Simples)"}</DialogTitle>
+          <DialogTitle className="font-headline">{noteToEdit ? "Editar Anotação Rápida (Simplificada)" : "Nova Anotação Rápida (Simplificada)"}</DialogTitle>
           <DialogDescription>
             Teste de formulário de anotação rápida simplificado.
           </DialogDescription>
@@ -28,6 +27,7 @@ const QuickNoteForm: React.FC = () => {
         
         <div className="py-4">
             <p>Conteúdo Simplificado do Formulário de Anotação Rápida.</p>
+            <p>Se você vê isto, o diálogo está abrindo.</p>
         </div>
         
         <DialogFooter>

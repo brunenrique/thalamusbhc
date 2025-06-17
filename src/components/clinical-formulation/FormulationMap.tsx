@@ -30,9 +30,9 @@ import ABCForm from './ABCForm';
 import SchemaForm from './SchemaForm';
 import EdgeLabelModal from './EdgeLabelModal';
 import QuickNoteForm from './QuickNoteForm';
-import SchemaPanel from './SchemaPanel';
+// import SchemaPanel from './SchemaPanel'; // SchemaPanel comentado para depuração
 import InsightPanel from './InsightPanel'; 
-import FormulationGuidePanel from './FormulationGuidePanel';
+// import FormulationGuidePanel from './FormulationGuidePanel'; // FormulationGuidePanel comentado para depuração
 import QuickNotesPanel from './QuickNotesPanel';
 
 
@@ -502,20 +502,20 @@ const FormulationMap: React.FC = () => {
                 <SchemaPanel />
             </Panel>
           )} */}
-          {isFormulationGuidePanelVisible && (
+          {/* {isFormulationGuidePanelVisible && (
             <Panel position="top-right" className="!m-0 p-0 shadow-xl border rounded-lg bg-card w-72 h-[calc(100%-5rem)] flex flex-col">
                 <FormulationGuidePanel />
             </Panel>
-          )}
+          )} */}
           {isQuickNotesPanelVisible && (
              <Panel position="bottom-right" className="!m-0 p-0 shadow-xl border rounded-lg bg-card w-72 h-2/5 max-h-[400px] flex flex-col">
                 <QuickNotesPanel />
             </Panel>
           )}
           
-          {/* <Panel position="bottom-left" className="!m-0 p-0 shadow-xl border rounded-lg bg-card w-72 h-2/5 max-h-[400px] flex flex-col">
+          <Panel position="bottom-left" className="!m-0 p-0 shadow-xl border rounded-lg bg-card w-72 h-2/5 max-h-[400px] flex flex-col">
             <InsightPanel />
-          </Panel> */}
+          </Panel>
         </ReactFlow>
       
       

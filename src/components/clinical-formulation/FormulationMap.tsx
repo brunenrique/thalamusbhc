@@ -31,7 +31,7 @@ import SchemaForm from './SchemaForm';
 import EdgeLabelModal from './EdgeLabelModal';
 import QuickNoteForm from './QuickNoteForm';
 // import SchemaPanel from './SchemaPanel'; // SchemaPanel comentado para depuração
-import InsightPanel from './InsightPanel'; 
+// import InsightPanel from './InsightPanel'; 
 // import FormulationGuidePanel from './FormulationGuidePanel'; // FormulationGuidePanel comentado para depuração
 // import QuickNotesPanel from './QuickNotesPanel'; // QuickNotesPanel comentado para depuração
 
@@ -513,9 +513,9 @@ const FormulationMap: React.FC = () => {
             </Panel>
           )} */}
           
-          <Panel position="bottom-left" className="!m-0 p-0 shadow-xl border rounded-lg bg-card w-72 h-2/5 max-h-[400px] flex flex-col">
+          {/* <Panel position="bottom-left" className="!m-0 p-0 shadow-xl border rounded-lg bg-card w-72 h-2/5 max-h-[400px] flex flex-col">
             <InsightPanel />
-          </Panel>
+          </Panel> */}
         </ReactFlow>
       
       

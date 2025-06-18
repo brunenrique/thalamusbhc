@@ -15,7 +15,12 @@ interface StatsCardProps {
 
 function StatsCardComponent({ title, value, icon, trend, href }: StatsCardProps) {
   const cardContent = (
-    <Card className={cn("shadow-sm hover:shadow-md transition-shadow", href && "cursor-pointer")}>
+    <Card
+      className={cn(
+        "shadow-sm hover:shadow-md transition-shadow",
+        href && "cursor-pointer hover:bg-zinc-50 transition-colors"
+      )}
+    >
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-sm font-medium text-muted-foreground">{title}</CardTitle>
         {icon}

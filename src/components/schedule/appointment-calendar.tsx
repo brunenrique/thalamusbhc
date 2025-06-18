@@ -242,7 +242,7 @@ function AppointmentCalendarComponent({ view, currentDate, filters, workingDaysO
       <PopoverTrigger asChild>
         <div
           className={cn(
-            "w-full p-1.5 rounded cursor-pointer shadow-sm transition-all leading-tight",
+            "w-full p-1.5 rounded cursor-pointer shadow-sm transition-colors leading-tight hover:bg-zinc-50",
             "flex items-center gap-1.5 text-xs",
             getStatusStyles(appt.status, appt.isGroupSession)
           )}

@@ -2,6 +2,7 @@
 "use client";
 
 import React from 'react';
+import DOMPurify from 'dompurify';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -45,7 +46,10 @@ export default function MessageItem({ message, isOwnMessage }: MessageItemProps)
         {!isOwnMessage && (
           <p className="text-xs font-semibold mb-0.5 text-accent">{message.senderName}</p>
         )}
-        <p className="whitespace-pre-wrap break-words">{message.text}</p>
+        <p
+          className="whitespace-pre-wrap break-words"
+          dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(message.text) }}
+        />
         <p className={cn("text-xs mt-1", isOwnMessage ? "text-primary-foreground/70 text-right" : "text-muted-foreground text-left")}>
           {formattedTimestamp}
         </p>

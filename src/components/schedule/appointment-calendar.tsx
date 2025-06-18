@@ -372,8 +372,8 @@ function AppointmentCalendarComponent({ view, currentDate, filters, workingDaysO
         
         { (view === "Week" || view === "Day") && isWorkingDay && (
             <div className="flex-grow relative">
-                {timeSlots.map((timeSlot, tsIndex) => (
-                    <div key={tsIndex} className={cn(ROW_HEIGHT_CLASS, "border-b relative p-1 flex flex-col gap-0.5 overflow-hidden")}>
+                {timeSlots.map((timeSlot) => (
+                    <div key={timeSlot} className={cn(ROW_HEIGHT_CLASS, "border-b relative p-1 flex flex-col gap-0.5 overflow-hidden")}> 
                         {dayAppointments
                             .filter(appt => appt.startTime.startsWith(timeSlot.substring(0,2))) 
                             .map(appt => renderAppointmentPopover(appt, dayDate))
@@ -456,7 +456,7 @@ function AppointmentCalendarComponent({ view, currentDate, filters, workingDaysO
             <div className="flex-1 flex overflow-x-auto" tabIndex={0}>
                 <div className={cn("flex min-w-max", view === "Week" && "md:min-w-full", "flex-grow")}>
                      {daysToRender.map((day, index) => (
-                       <div key={`day-wrapper-${index}`} className={cn("flex-1", view === "Week" ? "min-w-[140px] sm:min-w-[160px] md:min-w-0" : "", "flex flex-col")}>
+                       <div key={day.toISOString()} className={cn("flex-1", view === "Week" ? "min-w-[140px] sm:min-w-[160px] md:min-w-0" : "", "flex flex-col")}> 
                            {renderDayTimelineCell(day, true, `${view.toLowerCase()}-${index}`)}
                        </div>
                     ))}

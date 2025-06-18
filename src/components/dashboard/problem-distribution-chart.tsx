@@ -73,8 +73,8 @@ export function ProblemDistributionChart({ data = chartData }: { data?: typeof c
             innerRadius={60}
             strokeWidth={5}
           >
-            {data.map((entry, index) => (
-              <Cell key={`cell-${index}`} fill={entry.fill} />
+            {data.map((entry) => (
+              <Cell key={entry.problem} fill={entry.fill} />
             ))}
              <Label
               content={({ viewBox }) => {

@@ -125,7 +125,7 @@ export default function SidebarNav({ currentPath, userRole = "Admin" }: SidebarN
 
       if (item.href && item.href !== "#" && visibleSubItems.length > 0) {
          return (
-            <SidebarMenuItem key={`${item.label}-${index}-group`}>
+            <SidebarMenuItem key={item.href || item.label}>
               <ButtonComponent
                 asChild
                 isActive={
@@ -153,7 +153,7 @@ export default function SidebarNav({ currentPath, userRole = "Admin" }: SidebarN
       }
        if (visibleSubItems.length > 0) {
         return (
-            <SidebarMenuItem key={`${item.label}-${index}-group`}>
+            <SidebarMenuItem key={item.href || item.label}>
                  <ButtonComponent
                     isActive={isActive}
                     tooltip={(state as string) === "collapsed" ? item.label : undefined}
@@ -172,7 +172,7 @@ export default function SidebarNav({ currentPath, userRole = "Admin" }: SidebarN
 
     if (!item.href || item.href === "#") {
          return (
-            <SidebarMenuItem key={`${item.label}-${index}`}>
+            <SidebarMenuItem key={item.href || item.label}>
                 <ButtonComponent
                     isActive={isActive}
                     tooltip={state === "collapsed" ? item.label : undefined}
@@ -187,7 +187,7 @@ export default function SidebarNav({ currentPath, userRole = "Admin" }: SidebarN
     }
 
     return (
-      <SidebarMenuItem key={`${item.label}-${index}`}>
+      <SidebarMenuItem key={item.href || item.label}>
         <ButtonComponent
           asChild
           isActive={isActive}

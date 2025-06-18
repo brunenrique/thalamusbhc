@@ -72,7 +72,8 @@ export default function AppLayout({ children }: AppLayoutProps) {
 
   return (
     <SidebarProvider defaultOpen={defaultOpen} open={defaultOpen} onOpenChange={(open) => setDefaultOpen(open)}>
-      <Sidebar collapsible="icon" variant="floating" side="left"> {/* Changed variant to "floating" */}
+      <Sidebar collapsible="icon" variant="floating" side="left" asChild>
+        <nav className="flex flex-col" role="navigation">
         <SidebarHeader className="p-4">
           <Link href="/dashboard" className="flex items-center gap-2 group-data-[collapsible=icon]:justify-center">
             <Brain className="w-8 h-8 text-sidebar-primary" />
@@ -85,12 +86,16 @@ export default function AppLayout({ children }: AppLayoutProps) {
         <SidebarFooter className="p-2 group-data-[collapsible=icon]:hidden">
           {/* Footer content if any, e.g., version */}
         </SidebarFooter>
+        </nav>
       </Sidebar>
       <SidebarInset>
-        <AppHeader />
-        <main className="flex-1 p-4 md:p-6 lg:p-8 overflow-auto min-w-0">
+        <header role="banner">
+          <AppHeader />
+        </header>
+        <main role="main" className="flex-1 p-4 md:p-6 lg:p-8 overflow-auto min-w-0">
           {children}
         </main>
+        <footer role="contentinfo" className="sr-only" />
         <ChatFloatingButton />
         <ChatWindow />
       </SidebarInset>

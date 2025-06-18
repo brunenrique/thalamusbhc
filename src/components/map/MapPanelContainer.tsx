@@ -18,9 +18,14 @@ const ActMatrixPanel: React.FC = () => (
 
 const MapPanelContainer: React.FC = () => {
   const activePanel = useClinicalStore((state) => state.activePanel);
-
+  
   return (
-    <div className="absolute top-0 right-0 bottom-0 z-10 pointer-events-none">
+    <div
+      className="absolute top-0 right-0 bottom-0 z-10 pointer-events-none"
+      role="complementary"
+      aria-expanded={!!activePanel}
+      aria-controls="painel-mapa"
+    >
       {/* Use pointer-events-auto on the actual panels if needed */}
       {(() => {
         switch (activePanel) {

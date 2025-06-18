@@ -48,8 +48,9 @@ function NotificationItemComponent({ notification }: NotificationItemProps) {
   };
 
   return (
-    <Card className={cn(
-      "shadow-sm transition-all duration-200 ease-in-out",
+    <Card
+      className={cn(
+        "shadow-sm transition-all duration-200 ease-in-out",
       notification.read ? "bg-card opacity-70 hover:opacity-100" : "bg-secondary/50 hover:bg-secondary/70",
       "border-l-4",
       notification.read ? "border-transparent" : 
@@ -57,7 +58,10 @@ function NotificationItemComponent({ notification }: NotificationItemProps) {
         notification.type === "appointment_reminder" ? "border-blue-500" :
         notification.type === "assessment_completed" ? "border-green-500" :
         "border-primary"
-    )}>
+    )}
+      role="alert"
+      tabIndex={0}
+    >
       <CardContent className="p-4">
         <div className="flex items-start gap-4">
           <div className="flex-shrink-0 pt-0.5">{getIcon()}</div>
@@ -69,19 +73,30 @@ function NotificationItemComponent({ notification }: NotificationItemProps) {
           </div>
           <div className="flex flex-col sm:flex-row items-center gap-1.5">
             {notification.link && (
-              <Button variant="ghost" size="sm" asChild className="h-7 px-2 text-accent">
+              <Button
+                variant="ghost"
+                size="sm"
+                asChild
+                className="h-7 px-2 text-accent"
+                aria-label="Ver detalhes"
+              >
                 <Link href={notification.link}>
                   <ExternalLink className="mr-1 h-3.5 w-3.5" /> Ver
                 </Link>
               </Button>
             )}
             {!notification.read && (
-              <Button variant="outline" size="sm" className="h-7 px-2">
+              <Button variant="outline" size="sm" className="h-7 px-2" aria-label="Marcar como lida">
                 <Check className="mr-1 h-3.5 w-3.5" /> Marcar como lida
               </Button>
             )}
              {notification.read && (
-              <Button variant="ghost" size="sm" className="h-7 px-2 text-muted-foreground hover:text-foreground">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-7 px-2 text-muted-foreground hover:text-foreground"
+                aria-label="Dispensar notificação"
+              >
                 <X className="mr-1 h-3.5 w-3.5" /> Dispensar
               </Button>
             )}

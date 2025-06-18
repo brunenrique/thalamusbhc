@@ -39,7 +39,10 @@ const HexaflexPanel: React.FC = () => {
   const currentSection = SECTIONS.find(s => s.key === activeSection);
 
   return (
-    <div className="p-4 border-l border-border bg-background w-80 pointer-events-auto overflow-auto min-w-0 flex">
+    <div
+      className="p-4 border-l border-border bg-background w-80 pointer-events-auto overflow-auto min-w-0 flex"
+      aria-labelledby="titulo-hexaflex"
+    >
       <div className="relative w-56 h-56 rounded-full border flex-shrink-0 mx-auto">
         {SECTIONS.map((s, idx) => (
           <button
@@ -53,7 +56,9 @@ const HexaflexPanel: React.FC = () => {
       </div>
       {currentSection && (
         <div className="ml-4 flex-1">
-          <h4 className="font-semibold mb-1">{currentSection.label}</h4>
+          <h4 id="titulo-hexaflex" className="font-semibold mb-1">
+            {currentSection.label}
+          </h4>
           <p className="text-sm mb-2">{currentSection.explanation}</p>
           <textarea
             className="w-full border rounded p-2 text-sm"

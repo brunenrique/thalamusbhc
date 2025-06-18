@@ -3,6 +3,25 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Cross-browser defaults */
+html {
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  -webkit-user-select: auto;
+  -ms-user-select: auto;
+  user-select: auto;
+}
+
+.backdrop-blur-sm {
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+}
+
+
 body {
   font-family: 'Inter', sans-serif;
 }

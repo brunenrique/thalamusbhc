@@ -30,7 +30,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="pt-BR" suppressHydrationWarning>
       <head>
-        {headLinks.map(link => {
+        <title>Thalamus - Plataforma de Gestão para Psicólogos</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        {headLinks.map((link) => {
           const { itemKey, ...rest } = link;
           return <link key={itemKey} {...rest} />;
         })}

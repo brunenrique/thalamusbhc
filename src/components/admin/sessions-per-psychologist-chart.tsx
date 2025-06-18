@@ -27,7 +27,11 @@ const chartConfig = {
 
 export function SessionsPerPsychologistChart({ data }: SessionsPerPsychologistChartProps) {
   if (!data || data.length === 0) {
-    return <p className="text-center text-sm text-muted-foreground">Sem dados de sessões por psicólogo.</p>;
+    return (
+      <p className="text-center text-sm text-muted-foreground">
+        Nenhuma sessão registrada.
+      </p>
+    );
   }
 
   return (

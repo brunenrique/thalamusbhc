@@ -38,15 +38,22 @@ export default function ForgotPasswordForm() {
 
   async function onSubmit(data: ForgotPasswordFormValues) {
     setIsLoading(true);
-    // Simula chamada de API
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    
-    setIsLoading(false);
-    toast({
-      title: "E-mail de Redefinição de Senha Enviado",
-      description: "Se uma conta existir para este e-mail, um link de redefinição foi enviado.",
-    });
-    form.reset();
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      toast({
+        title: "E-mail de Redefinição de Senha Enviado",
+        description: "Se uma conta existir para este e-mail, um link de redefinição foi enviado.",
+      });
+      form.reset();
+    } catch (error) {
+      toast({
+        title: "Erro ao Enviar E-mail",
+        description: "Não foi possível enviar o e-mail. Tente novamente.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   return (
@@ -61,7 +68,12 @@ export default function ForgotPasswordForm() {
                 <FormItem>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input placeholder="nome@exemplo.com" {...field} />
+                    <Input
+                      type="email"
+                      autoComplete="email"
+                      placeholder="nome@exemplo.com"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

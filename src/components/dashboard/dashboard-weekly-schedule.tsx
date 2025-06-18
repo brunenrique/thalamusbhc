@@ -9,6 +9,7 @@ import Link from "next/link";
 import AppointmentCalendar, { type AppointmentsByDate, getInitialMockAppointments } from "@/components/schedule/appointment-calendar";
 import { format, startOfWeek, addDays, subDays } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { eachDayOfInterval } from 'date-fns';
 
 export default function DashboardWeeklySchedule() {
   const [currentDate, setCurrentDate] = useState<Date | null>(null);
@@ -60,6 +61,17 @@ export default function DashboardWeeklySchedule() {
     // dateFrom and dateTo are implicitly handled by the week view of AppointmentCalendar
   };
 
+  const sessionsThisWeek = React.useMemo(() => {
+    if (!currentDate) return [] as any[];
+    const start = startOfWeek(currentDate, { weekStartsOn: 1 });
+    const end = addDays(start, 6);
+    const days = eachDayOfInterval({ start, end });
+    return days.flatMap(d => {
+      const key = format(d, 'yyyy-MM-dd');
+      return appointmentsData[key] || [];
+    });
+  }, [currentDate, appointmentsData]);
+
   return (
     <Card className="shadow-sm">
       <CardHeader className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
@@ -81,14 +93,20 @@ export default function DashboardWeeklySchedule() {
           </Button>
         </div>
       </CardHeader>
-      <CardContent className="h-[500px] p-0 sm:p-1 md:p-2"> {/* Adjusted padding for denser view */}
-        <AppointmentCalendar
-          view="Week"
-          currentDate={currentDate}
-          filters={dashboardFilters} // Pass simplified or default filters
-          onAppointmentsUpdate={handleAppointmentsUpdate}
-        />
-      </CardContent>
+      {sessionsThisWeek.length ? (
+        <CardContent className="h-[500px] p-0 sm:p-1 md:p-2"> {/* Adjusted padding for denser view */}
+          <AppointmentCalendar
+            view="Week"
+            currentDate={currentDate}
+            filters={dashboardFilters}
+            onAppointmentsUpdate={handleAppointmentsUpdate}
+          />
+        </CardContent>
+      ) : (
+        <CardContent className="h-[200px] flex items-center justify-center">
+          <p>Sem sessões esta semana.</p>
+        </CardContent>
+      )}
     </Card>
   );
 }

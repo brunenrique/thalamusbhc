@@ -24,7 +24,7 @@ const InsightPanel: React.FC = () => {
         </CardDescription>
       </CardHeader>
       <CardContent className="p-0 flex-grow overflow-auto min-w-0">
-        <ScrollArea className="h-full p-4">
+        <ScrollArea className="h-full max-h-72 p-4 overflow-y-auto">
           {/* {isLoadingInsights && <p className="text-sm text-muted-foreground">Gerando insights...</p>} */}
           {!insights || insights.length === 0 || (insights.length === 1 && insights[0] === "Clique em 'Gerar Insights' para análise.") ? (
             <div className="text-center text-sm text-muted-foreground py-6">
@@ -35,8 +35,11 @@ const InsightPanel: React.FC = () => {
           ) : (
             <ul className="space-y-2.5">
               {insights.map((insight, index) => (
-                <li key={index} className="text-sm text-foreground p-2.5 bg-muted/40 rounded-md border border-border shadow-xs">
-                  {insight}
+                <li
+                  key={index}
+                  className="text-sm text-foreground p-2.5 bg-muted/40 rounded-md border border-border shadow-xs"
+                >
+                  {insight ? insight : 'Nenhum insight disponível.'}
                 </li>
               ))}
             </ul>

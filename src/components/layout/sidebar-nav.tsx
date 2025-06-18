@@ -137,7 +137,13 @@ export default function SidebarNav({ currentPath, userRole = "Admin" }: SidebarN
                 tooltip={(state as string) === "collapsed" ? item.label : undefined}
                 className={isSubItem ? "text-xs" : ""}
               >
-                <Link href={item.href}>{buttonContent}</Link>
+                <Link
+                  href={item.href}
+                  tabIndex={0}
+                  aria-current={isActive ? "page" : undefined}
+                >
+                  {buttonContent}
+                </Link>
               </ButtonComponent>
             <SidebarMenuSub>
                 {visibleSubItems.map((subItem, subIndex) => renderNavItem(subItem, subIndex, true))}
@@ -188,7 +194,13 @@ export default function SidebarNav({ currentPath, userRole = "Admin" }: SidebarN
           tooltip={state === "collapsed" ? item.label : undefined}
           className={isSubItem ? "text-xs" : ""}
         >
-          <Link href={item.href}>{buttonContent}</Link>
+          <Link
+            href={item.href}
+            tabIndex={0}
+            aria-current={isActive ? "page" : undefined}
+          >
+            {buttonContent}
+          </Link>
         </ButtonComponent>
       </SidebarMenuItem>
     );

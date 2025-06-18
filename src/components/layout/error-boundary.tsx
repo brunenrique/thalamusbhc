@@ -29,14 +29,25 @@ export default class ErrorBoundary extends React.Component<
     if (this.state.hasError) {
       return (
         this.props.fallback || (
-          <div className="flex flex-col items-center justify-center py-10">
+          <div
+            className="flex flex-col items-center justify-center py-10"
+            role="alert"
+          >
             <h2 className="text-xl font-semibold">Algo deu errado.</h2>
-            <button
-              onClick={() => this.setState({ hasError: false })}
-              className="mt-4 underline"
-            >
-              Tentar novamente
-            </button>
+            <p className="text-sm text-muted-foreground mt-2">
+              Consulte o console para detalhes técnicos.
+            </p>
+            <div className="mt-4 space-x-4">
+              <button
+                onClick={() => this.setState({ hasError: false })}
+                className="underline"
+              >
+                Tentar novamente
+              </button>
+              <button onClick={() => window.location.href = '/'} className="underline">
+                Voltar ao início
+              </button>
+            </div>
           </div>
         )
       );

@@ -35,9 +35,15 @@ function StatsCardComponent({ title, value, icon, trend, href }: StatsCardProps)
   );
 
   if (href) {
-    return <Link href={href} className="block">{cardContent}</Link>;
+    return (
+      <div role="region" aria-label={`${title}: ${value}`} className="block">
+        <Link href={href}>{cardContent}</Link>
+      </div>
+    );
   }
-  return cardContent;
+  return (
+    <div role="region" aria-label={`${title}: ${value}`}>{cardContent}</div>
+  );
 }
 
 const StatsCard = React.memo(StatsCardComponent);

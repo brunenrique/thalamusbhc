@@ -36,6 +36,10 @@ const SchemaForm: React.FC<SchemaFormProps> = ({ prefillRule: initialPrefillRule
 
   const editingSchema = editingSchemaId ? schemas.find(s => s.id === editingSchemaId) : null;
 
+  if (editingSchemaId && !editingSchema) {
+    return <p>Esquema não encontrado.</p>;
+  }
+
   const form = useForm<SchemaFormValues>({
     resolver: zodResolver(schemaFormValidationSchema),
     defaultValues: {
@@ -84,7 +88,7 @@ const SchemaForm: React.FC<SchemaFormProps> = ({ prefillRule: initialPrefillRule
 
   return (
     <Dialog open={isSchemaFormOpen} onOpenChange={(open) => { if (!open) { form.reset(); closeSchemaForm(); } }}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md" aria-label="Formulário de esquemas">
         <DialogHeader>
           <DialogTitle className="font-headline">{dialogTitle}</DialogTitle>
           <DialogDescription>

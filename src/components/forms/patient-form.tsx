@@ -28,11 +28,19 @@ import { ptBR } from 'date-fns/locale';
 import { useToast } from "@/hooks/use-toast";
 
 const patientFormSchema = z.object({
-  name: z.string().min(2, { message: "O nome completo deve ter pelo menos 2 caracteres." }),
+  name: z
+    .string()
+    .min(3, { message: "O nome completo deve ter pelo menos 3 caracteres." }),
+  age: z
+    .coerce.number()
+    .min(0, { message: "Idade inválida." })
+    .max(120, { message: "Idade inválida." })
+    .optional(),
   email: z.string().email({ message: "Por favor, insira um endereço de e-mail válido." }),
   phone: z.string().optional(),
   dob: z.date().optional(),
   address: z.string().optional(),
+  notes: z.string().optional(),
 });
 
 type PatientFormValues = z.infer<typeof patientFormSchema>;
@@ -50,10 +58,12 @@ export default function PatientForm({ patientData }: PatientFormProps) {
     resolver: zodResolver(patientFormSchema),
     defaultValues: {
       name: patientData?.name || "",
+      age: patientData?.age || undefined,
       email: patientData?.email || "",
       phone: patientData?.phone || "",
       dob: patientData?.dob ? new Date(patientData.dob) : undefined,
       address: patientData?.address || "",
+      notes: patientData?.notes || "",
     },
   });
 
@@ -92,6 +102,19 @@ export default function PatientForm({ patientData }: PatientFormProps) {
               />
               <FormField
                 control={form.control}
+                name="age"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Idade</FormLabel>
+                    <FormControl>
+                      <Input type="number" inputMode="numeric" placeholder="Ex: 30" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
                 name="email"
                 render={({ field }) => (
                   <FormItem>
@@ -112,7 +135,7 @@ export default function PatientForm({ patientData }: PatientFormProps) {
                   <FormItem>
                     <FormLabel>Telefone</FormLabel>
                     <FormControl>
-                      <Input placeholder="(XX) XXXXX-XXXX" {...field} />
+                      <Input inputMode="tel" placeholder="(XX) XXXXX-XXXX" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -169,6 +192,19 @@ export default function PatientForm({ patientData }: PatientFormProps) {
                   <FormLabel>Endereço</FormLabel>
                   <FormControl>
                     <Textarea placeholder="Rua Exemplo, 123, Bairro, Cidade - UF" {...field} rows={3} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="notes"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Observações</FormLabel>
+                  <FormControl>
+                    <Textarea aria-label="Observações" rows={3} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

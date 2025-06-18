@@ -86,9 +86,19 @@ export default function TabsBar() {
     }
   }, [editingTabId]);
 
+  const handleKeyNavigation = (e: React.KeyboardEvent<HTMLButtonElement>, index: number) => {
+    if (e.key === 'ArrowRight') {
+      const next = (index + 1) % tabs.length;
+      setActiveTab(tabs[next].id);
+    } else if (e.key === 'ArrowLeft') {
+      const prev = (index - 1 + tabs.length) % tabs.length;
+      setActiveTab(tabs[prev].id);
+    }
+  };
+
   return (
     <div className="bg-muted/50 border-b sticky top-0 z-20 px-2 py-1.5">
-      <div className="flex items-center space-x-1 overflow-x-auto pb-1">
+      <div className="flex items-center space-x-1 overflow-x-auto pb-1" role="tablist">
         {tabs.map((tab) => (
           <div
             key={tab.id}
@@ -112,12 +122,16 @@ export default function TabsBar() {
               <Button
                 variant="ghost"
                 size="sm"
+                role="tab"
+                aria-selected={activeTabId === tab.id}
+                aria-controls="conteudo-tab"
                 className={cn(
                     "h-full text-xs px-2.5 py-1 rounded-none rounded-l-md font-medium flex-grow text-left truncate",
                     activeTabId === tab.id ? "text-primary" : "text-muted-foreground hover:text-foreground"
                 )}
                 onClick={() => setActiveTab(tab.id)}
                 onDoubleClick={() => handleRenameStart(tab)}
+                onKeyDown={(e) => handleKeyNavigation(e, tabs.findIndex(t => t.id === tab.id))}
                 title={tab.title}
                 style={{maxWidth: '180px'}}
               >

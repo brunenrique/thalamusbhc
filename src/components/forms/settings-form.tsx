@@ -107,7 +107,7 @@ export default function SettingsForm({ section }: SettingsFormProps) {
             </Card>
           </div>
           <div className="flex items-center space-x-2">
-            <Switch id="enableOnlineBooking" defaultChecked />
+            <Switch id="enableOnlineBooking" defaultChecked aria-checked={true} />
             <Label htmlFor="enableOnlineBooking">Permitir Agendamento Online por Pacientes (pode ser gerenciado em Funcionalidades)</Label>
           </div>
         </>
@@ -175,11 +175,11 @@ export default function SettingsForm({ section }: SettingsFormProps) {
           </div>
           <p className="font-medium pt-4">Notificações no Aplicativo</p>
            <div className="flex items-center space-x-2">
-            <Switch id="inAppTaskAlerts" defaultChecked />
+            <Switch id="inAppTaskAlerts" defaultChecked aria-checked={true} />
             <Label htmlFor="inAppTaskAlerts">Alertas de Tarefa</Label>
           </div>
            <div className="flex items-center space-x-2">
-            <Switch id="inAppSystemMessages" defaultChecked />
+            <Switch id="inAppSystemMessages" defaultChecked aria-checked={true} />
             <Label htmlFor="inAppSystemMessages">Mensagens e Atualizações do Sistema</Label>
           </div>
         </>
@@ -232,11 +232,11 @@ export default function SettingsForm({ section }: SettingsFormProps) {
                 </div>
               </div>
               <div className="flex items-center space-x-2">
-                <Switch id="externalCalendarSync" defaultChecked />
+                <Switch id="externalCalendarSync" defaultChecked aria-checked={true} />
                 <Label htmlFor="externalCalendarSync">Habilitar Integração com Calendário Externo (ex: Google Agenda)</Label>
               </div>
               <div className="flex items-center space-x-2">
-                <Switch id="allowPatientSelfReschedule" />
+                <Switch id="allowPatientSelfReschedule" aria-checked={false} />
                 <Label htmlFor="allowPatientSelfReschedule">Permitir que Pacientes Remarquem/Cancelem Online (dentro das regras)</Label>
               </div>
             </CardContent>
@@ -293,7 +293,7 @@ export default function SettingsForm({ section }: SettingsFormProps) {
                   Habilita sugestões e insights automáticos baseados no conteúdo das suas anotações de sessão.
                 </p>
               </div>
-              <Switch id="enableAIAnalysis" defaultChecked />
+              <Switch id="enableAIAnalysis" defaultChecked aria-checked={true} />
             </div>
 
             <div className="flex items-center justify-between rounded-lg border p-4 shadow-sm bg-card">
@@ -303,7 +303,7 @@ export default function SettingsForm({ section }: SettingsFormProps) {
                   Permite que a IA ajude a rascunhar relatórios de progresso, cartas de encaminhamento, etc.
                 </p>
               </div>
-              <Switch id="enableAIReports" defaultChecked />
+              <Switch id="enableAIReports" defaultChecked aria-checked={true} />
             </div>
 
             <div className="flex items-center justify-between rounded-lg border p-4 shadow-sm bg-card">
@@ -313,7 +313,7 @@ export default function SettingsForm({ section }: SettingsFormProps) {
                   Gerencie pagamentos, faturas e despesas (Funcionalidade em breve).
                 </p>
               </div>
-              <Switch id="enableFinancialModule" disabled />
+              <Switch id="enableFinancialModule" disabled aria-checked={false} />
             </div>
 
             <div className="flex items-center justify-between rounded-lg border p-4 shadow-sm bg-card">
@@ -323,7 +323,7 @@ export default function SettingsForm({ section }: SettingsFormProps) {
                   Permite que pacientes acessem informações, agendem consultas e preencham avaliações online (Funcionalidade em breve).
                 </p>
               </div>
-              <Switch id="enablePatientPortal" disabled />
+              <Switch id="enablePatientPortal" disabled aria-checked={false} />
             </div>
             
             <div className="flex items-center justify-between rounded-lg border p-4 shadow-sm bg-card">
@@ -333,7 +333,7 @@ export default function SettingsForm({ section }: SettingsFormProps) {
                   Permite que pacientes solicitem ou marquem agendamentos através de um link público ou portal.
                 </p>
               </div>
-              <Switch id="enableOnlineBookingFeature" defaultChecked />
+              <Switch id="enableOnlineBookingFeature" defaultChecked aria-checked={true} />
             </div>
 
           </div>

@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { useRouter } from "next/navigation";
+import { useToast } from "@/hooks/use-toast";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -26,10 +27,17 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
 
+const passwordStrength = z.string()
+  .min(8, { message: "A senha deve ter pelo menos 8 caracteres." })
+  .regex(/(?=.*[a-z])/, { message: "Inclua letras minúsculas." })
+  .regex(/(?=.*[A-Z])/, { message: "Inclua letras maiúsculas." })
+  .regex(/(?=.*\d)/, { message: "Inclua números." })
+  .regex(/(?=.*[!@#$%^&*])/, { message: "Inclua caracteres especiais." });
+
 const signUpSchema = z.object({
   fullName: z.string().min(2, { message: "O nome completo deve ter pelo menos 2 caracteres." }),
   email: z.string().email({ message: "Por favor, insira um endereço de e-mail válido." }),
-  password: z.string().min(8, { message: "A senha deve ter pelo menos 8 caracteres." }),
+  password: passwordStrength,
   confirmPassword: z.string(),
   gender: z.enum(['masculino', 'feminino', 'outro'], { required_error: "Por favor, selecione um gênero." }),
   role: z.enum(["psychologist", "secretary", "admin"], { required_error: "Por favor, selecione uma função." }),
@@ -42,6 +50,7 @@ type SignUpFormValues = z.infer<typeof signUpSchema>;
 
 export default function SignUpForm() {
   const router = useRouter();
+  const { toast } = useToast();
   const [isLoading, setIsLoading] = React.useState(false);
 
   const form = useForm<SignUpFormValues>({
@@ -58,13 +67,17 @@ export default function SignUpForm() {
 
   async function onSubmit(data: SignUpFormValues) {
     setIsLoading(true);
-    // Simula chamada de API
-    console.log("Dados do formulário de cadastro:", data);
+    // Simula chamada de API e validação de e-mail existente
     await new Promise((resolve) => setTimeout(resolve, 1000));
-    
+    if (data.email === "existing@example.com") {
+      form.setError("email", { message: "E-mail já está em uso" });
+      toast({ title: "Erro", description: "E-mail já está em uso", variant: "destructive" });
+      setIsLoading(false);
+      return;
+    }
+    toast({ title: "Sucesso", description: "Cadastro realizado com sucesso" });
     setIsLoading(false);
-    // Em caso de cadastro bem-sucedido:
-    router.push("/dashboard"); 
+    router.push("/dashboard");
   }
 
   return (
@@ -79,7 +92,13 @@ export default function SignUpForm() {
                 <FormItem>
                   <FormLabel>Nome Completo</FormLabel>
                   <FormControl>
-                    <Input placeholder="Nome Sobrenome" {...field} />
+                    <Input
+                      type="text"
+                      autoComplete="name"
+                      aria-label="Nome completo"
+                      placeholder="Nome Sobrenome"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -92,7 +111,13 @@ export default function SignUpForm() {
                 <FormItem>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input placeholder="nome@exemplo.com" {...field} />
+                    <Input
+                      type="email"
+                      autoComplete="email"
+                      aria-label="Email"
+                      placeholder="nome@exemplo.com"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -127,7 +152,13 @@ export default function SignUpForm() {
                 <FormItem>
                   <FormLabel>Senha</FormLabel>
                   <FormControl>
-                    <Input type="password" placeholder="••••••••" {...field} />
+                    <Input
+                      type="password"
+                      autoComplete="new-password"
+                      aria-label="Senha"
+                      placeholder="••••••••"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -140,7 +171,13 @@ export default function SignUpForm() {
                 <FormItem>
                   <FormLabel>Confirmar Senha</FormLabel>
                   <FormControl>
-                    <Input type="password" placeholder="••••••••" {...field} />
+                    <Input
+                      type="password"
+                      autoComplete="new-password"
+                      aria-label="Confirmar senha"
+                      placeholder="••••••••"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

@@ -2,6 +2,10 @@
 import { NextResponse, type NextRequest } from 'next/server';
 
 export function middleware(request: NextRequest) {
+  if (process.env.NEXT_PUBLIC_DISABLE_AUTH === 'true') {
+    console.debug('Auth disabled via env, skipping middleware.');
+    return NextResponse.next();
+  }
   const { pathname } = request.nextUrl;
   // Skip middleware for static assets and API routes
   if (pathname.startsWith('/api') || pathname.startsWith('/_next')) {

@@ -1,14 +1,21 @@
 
 "use client";
 
-import React, { useState, useEffect } from 'react'; // Adicionado useState e useEffect
+import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription, DialogClose } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { useClinicalStore } from '@/stores/clinicalStore';
 
-const ABCForm: React.FC = () => {
+interface ABCFormProps {
+  initialTitle?: string;
+  initialBehavior?: string;
+}
+
+const ABCForm: React.FC<ABCFormProps> = ({ initialTitle, initialBehavior }) => {
   const { isABCFormOpen, closeABCForm, editingCardId } = useClinicalStore();
-  const [dialogOpen, setDialogOpen] = useState(false); // Estado local
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [title, setTitle] = useState<string>(initialTitle ?? "");
+  const [behavior, setBehavior] = useState<string>(initialBehavior ?? "");
 
   useEffect(() => {
     setDialogOpen(isABCFormOpen); // Sincroniza com o store
@@ -32,9 +39,25 @@ const ABCForm: React.FC = () => {
           </DialogDescription>
         </DialogHeader>
         
-        <div className="py-4">
-            <p>Conteúdo Simplificado do Formulário ABC.</p>
-            <p>Se você vê isso, o diálogo está abrindo.</p>
+        <div className="py-4 space-y-3">
+            <div className="flex flex-col gap-1">
+              <label htmlFor="abc-title" className="text-sm font-medium">Título</label>
+              <input
+                id="abc-title"
+                className="border rounded p-2"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+              />
+            </div>
+            <div className="flex flex-col gap-1">
+              <label htmlFor="abc-behavior" className="text-sm font-medium">Comportamento</label>
+              <input
+                id="abc-behavior"
+                className="border rounded p-2"
+                value={behavior}
+                onChange={(e) => setBehavior(e.target.value)}
+              />
+            </div>
         </div>
 
         <DialogFooter>

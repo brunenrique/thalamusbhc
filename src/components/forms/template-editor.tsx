@@ -185,21 +185,17 @@ export default function TemplateEditor({
                     <div className="space-y-2">
                         <Label htmlFor="templateContent">Conteúdo do Modelo *</Label>
                         {isGenerating ? (
-                            <Skeleton className="h-48 w-full" />
+                            <Skeleton key="loading" className="h-48 w-full" />
                         ) : (
                             <Textarea
                                 id="templateContent"
+                                aria-label="Conteúdo do Modelo"
                                 {...form.register("templateContent")}
-                                placeholder="Digite o conteúdo do seu modelo aqui... 
-
-Exemplo de Seções:
-- Apresentação do Paciente:
-- Pontos Chave da Discussão:
-- Intervenções Utilizadas:
-- Resposta do Paciente:
-- Avaliação de Risco:
-- Plano para Próxima Sessão:"
+                                placeholder={
+                                  `Digite o conteúdo do seu modelo aqui...\n\nExemplo de Seções:\n- Apresentação do Paciente:\n- Pontos Chave da Discussão:\n- Intervenções Utilizadas:\n- Resposta do Paciente:\n- Avaliação de Risco:\n- Plano para Próxima Sessão:`
+                                }
                                 rows={15}
+                                maxLength={5000}
                                 className="min-h-[300px] font-mono text-sm"
                             />
                         )}

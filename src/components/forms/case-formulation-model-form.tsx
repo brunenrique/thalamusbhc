@@ -119,44 +119,53 @@ export default function CaseFormulationModelForm({ initialData, templateId }: Ca
             />
             <div className="grid md:grid-cols-2 gap-6">
                 <FormField
-                control={form.control}
-                name="category"
-                render={({ field }) => (
+                  control={form.control}
+                  name="category"
+                  render={({ field }) => (
                     <FormItem>
-                    <FormLabel>Categoria *</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value || ''}>
+                      <FormLabel>Categoria *</FormLabel>
+                      <Select
+                        value={field.value}
+                        onValueChange={field.onChange}
+                      >
                         <FormControl>
-                        <SelectTrigger>
+                          <SelectTrigger>
                             <SelectValue placeholder="Selecione uma categoria" />
-                        </SelectTrigger>
+                          </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                        {formulationCategories.map(cat => {
-                          const value = cat || '';
-                          return (
-                            <SelectItem key={cat} value={value}>{cat}</SelectItem>
-                          )
-                        })}
+                          {formulationCategories.map((cat) => (
+                            <SelectItem key={cat} value={cat}>
+                              {cat}
+                            </SelectItem>
+                          ))}
                         </SelectContent>
-                    </Select>
-                    <FormMessage />
+                      </Select>
+                      <FormMessage />
                     </FormItem>
-                )}
+                  )}
                 />
-                {selectedCategory === "Outro" && (
-                     <FormField
-                        control={form.control}
-                        name="customCategory"
-                        render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Nome da Categoria Personalizada *</FormLabel>
-                            <FormControl>
-                            <Input placeholder="Ex: Terapia Narrativa" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                        )}
-                    />
+                {selectedCategory === "Outro" ? (
+                  <FormField
+                    control={form.control}
+                    name="customCategory"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Nome da Categoria Personalizada *</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="Ex: Terapia Narrativa"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                ) : (
+                  <p className="text-sm italic text-muted-foreground">
+                    Sem categoria personalizada
+                  </p>
                 )}
             </div>
             <FormField

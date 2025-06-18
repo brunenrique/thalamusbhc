@@ -26,7 +26,9 @@ export default function TemplatesPage() {
         </div>
         <Button asChild className="bg-accent hover:bg-accent/90 text-accent-foreground">
           <Link href="/templates/new">
-            <PlusCircle className="mr-2 h-4 w-4" /> Criar Novo Modelo
+            <span>
+              <PlusCircle className="mr-2 h-4 w-4" /> Criar Novo Modelo
+            </span>
           </Link>
         </Button>
       </div>

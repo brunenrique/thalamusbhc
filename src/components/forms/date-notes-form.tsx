@@ -18,6 +18,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Save } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 /**
  * Schema for the DateNotesForm
@@ -40,6 +41,7 @@ interface DateNotesFormProps {
 }
 
 export default function DateNotesForm({ defaultDateTime }: DateNotesFormProps) {
+  const { toast } = useToast();
   const form = useForm<DateNotesFormValues>({
     resolver: zodResolver(dateNotesSchema),
     defaultValues: {
@@ -55,8 +57,10 @@ export default function DateNotesForm({ defaultDateTime }: DateNotesFormProps) {
   }, [defaultDateTime, form]);
 
   function onSubmit(data: DateNotesFormValues) {
-    console.log("Form submitted", data);
-    // TODO: Add toast notification for success/failure
+    toast({
+      title: "Notas Salvas (Simulado)",
+      description: `Notas registradas para ${data.dateTime.toLocaleString()}`,
+    });
   }
 
   return (
@@ -98,7 +102,7 @@ export default function DateNotesForm({ defaultDateTime }: DateNotesFormProps) {
             <FormItem>
               <FormLabel>Notas *</FormLabel>
               <FormControl>
-                <Textarea rows={3} {...field} />
+                <Textarea rows={3} aria-label="Conteúdo das notas" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

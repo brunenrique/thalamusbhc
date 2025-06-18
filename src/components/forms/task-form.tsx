@@ -141,7 +141,7 @@ export default function TaskForm({ initialData, isEditMode = false }: TaskFormPr
                 <FormItem>
                   <FormLabel>Descrição (Opcional)</FormLabel>
                   <FormControl>
-                    <Textarea placeholder="Detalhes adicionais sobre a tarefa..." {...field} rows={3} />
+                    <Textarea aria-label="Descrição da tarefa" placeholder="Detalhes adicionais sobre a tarefa..." {...field} rows={3} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

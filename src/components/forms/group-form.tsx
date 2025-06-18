@@ -134,7 +134,7 @@ export default function GroupForm({ initialData, groupId }: GroupFormProps) {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Psicólogo(a) Responsável *</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select value={field.value} onValueChange={field.onChange}>
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Selecione o(a) psicólogo(a)" />
@@ -172,6 +172,7 @@ export default function GroupForm({ initialData, groupId }: GroupFormProps) {
                               >
                                 <FormControl>
                                   <Checkbox
+                                    aria-label={`Selecionar ${patient.name}`}
                                     checked={field.value?.includes(patient.id)}
                                     onCheckedChange={(checked) => {
                                       return checked
@@ -208,7 +209,7 @@ export default function GroupForm({ initialData, groupId }: GroupFormProps) {
                     render={({ field }) => (
                         <FormItem>
                         <FormLabel>Dia da Semana *</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <Select value={field.value} onValueChange={field.onChange}>
                             <FormControl>
                             <SelectTrigger>
                                 <SelectValue placeholder="Selecione o dia" />

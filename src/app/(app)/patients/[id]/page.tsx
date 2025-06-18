@@ -702,8 +702,9 @@ export default function PatientDetailPage() {
               ) : <p className="text-muted-foreground">Nenhuma anotação de sessão encontrada.</p>}
             </CardContent>
           </Card>
-           <Card>
+          <Card>
             <CardHeader>
+              <h3 className="text-sm font-medium text-zinc-500 uppercase tracking-wide mb-2">Plano da Sessão</h3>
               <CardTitle className="font-headline">Objetivos Terapêuticos</CardTitle>
               <Dialog>
                 <DialogTrigger asChild><Button variant="outline" size="sm"><PlusCircle className="mr-2 h-4 w-4"/> Novo Objetivo</Button></DialogTrigger>
@@ -729,6 +730,7 @@ export default function PatientDetailPage() {
           </Card>
           <Card>
             <CardHeader>
+              <h3 className="text-sm font-medium text-zinc-500 uppercase tracking-wide mb-2">Tarefas Pendentes</h3>
               <CardTitle className="font-headline">Tarefas e Exercícios do Paciente</CardTitle>
             </CardHeader>
             <CardContent>
@@ -751,6 +753,7 @@ export default function PatientDetailPage() {
 
           <Card>
             <CardHeader>
+              <h3 className="text-sm font-medium text-zinc-500 uppercase tracking-wide mb-2">Histórico de Evolução</h3>
               <CardTitle className="font-headline">Progresso em Instrumentos</CardTitle>
               <Select value={selectedProgressInstrument} onValueChange={setSelectedProgressInstrument}>
                 <SelectTrigger className="w-[280px] mt-2 h-9">

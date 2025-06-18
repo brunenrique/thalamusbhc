@@ -48,7 +48,17 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     { className, variant, size, asChild = false, loading, quick, onClick, children, ...props },
     ref
   ) => {
-    const Comp = asChild ? Slot : "button"
+    const hasSingleValidChild =
+      React.Children.count(children) === 1 &&
+      React.isValidElement(children)
+
+    if (asChild && !hasSingleValidChild) {
+      console.error(
+        "Button with asChild expects a single React element child. Rendering a default <button> instead."
+      )
+    }
+
+    const Comp = asChild && hasSingleValidChild ? Slot : "button"
     const [checked, setChecked] = React.useState(false)
 
     const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {

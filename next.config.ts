@@ -1,8 +1,15 @@
 
 import type { NextConfig } from 'next';
 
+/** @type {import('next').NextConfig} */
 const nextConfig: NextConfig = {
-  /* config options here */
+  experimental: {
+    serverActions: true,
+    allowedDevOrigins: [
+      'http://localhost:9004',
+      'https://9004-firebase-studio-1749490048431.cluster-duylic2g3fbzerqpzxxbw6helm.cloudworkstations.dev',
+    ],
+  },
   typescript: {
     ignoreBuildErrors: true,
   },
@@ -19,11 +26,6 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  allowedDevOrigins:
-    process.env.ALLOWED_DEV_ORIGINS?.split(',') ?? [
-      'http://localhost:9003',
-      'https://*.cloudworkstations.dev',
-    ],
 };
 
 export default nextConfig;

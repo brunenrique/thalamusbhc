@@ -1,7 +1,7 @@
 
 "use client";
 
-import './globals.css'; // Restaurada a importação
+// import './globals.css'; // Restaurada a importação // Temporarily commented out for debugging
 import { Toaster } from "@/components/ui/toaster";
 import usePageView from "@/hooks/use-page-view";
 // import useSessionTimeout from "@/hooks/use-session-timeout"; // Session timeout disabled

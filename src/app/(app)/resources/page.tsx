@@ -28,11 +28,11 @@ export default function ResourcesPage() {
         </Button>
       </div>
 
-      <Card className="shadow-sm">
+      <Card className="shadow-sm border-t border-zinc-200 mt-4 pt-4">
         <CardHeader>
           <CardTitle className="font-headline">Gerenciar PDFs, Guias e Documentos</CardTitle>
           <CardDescription>Carregue, gerencie e compartilhe recursos de forma segura.</CardDescription>
-          <div className="flex flex-col sm:flex-row gap-2 pt-4">
+          <div className="flex flex-col sm:flex-row gap-2 border-t border-zinc-200 mt-4 pt-4">
             <div className="relative flex-1">
               <Search className="absolute left-2.5 top-3 h-4 w-4 text-muted-foreground" />
               <Input placeholder="Buscar recursos..." className="pl-8" />

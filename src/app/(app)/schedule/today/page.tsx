@@ -363,7 +363,7 @@ export default function TodaySchedulePage() {
         </div>
       </div>
 
-      <div className="flex-grow overflow-auto border rounded-lg shadow-sm bg-card">
+      <div className="flex-grow overflow-auto border rounded-lg shadow-sm bg-card border-t border-zinc-200 mt-4 pt-4">
         <AppointmentCalendar 
             view={currentView} 
             currentDate={currentDate} 
@@ -372,7 +372,7 @@ export default function TodaySchedulePage() {
         />
       </div>
 
-      <Card className="shadow-sm">
+      <Card className="shadow-sm border-t border-zinc-200 mt-4 pt-4">
         <CardHeader>
           <CardTitle className="font-headline flex items-center">
             <CalendarDays className="mr-2 h-5 w-5 text-primary" />
@@ -399,7 +399,7 @@ export default function TodaySchedulePage() {
         </CardContent>
       </Card>
 
-      <Card className="shadow-sm">
+      <Card className="shadow-sm border-t border-zinc-200 mt-4 pt-4">
         <CardHeader>
           <CardTitle className="font-headline flex items-center">
             <CheckSquare className="mr-2 h-5 w-5 text-primary"/>
@@ -416,7 +416,7 @@ export default function TodaySchedulePage() {
                 </div>
             ))
           ) : tasksForCurrentDate.length > 0 ? (
-            <div className="space-y-3">
+            <div className="space-y-3 divide-y divide-zinc-200">
               {tasksForCurrentDate.map(task => (
                 <TaskItem key={task.id} task={task} />
               ))}

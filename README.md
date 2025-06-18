@@ -3,12 +3,14 @@
 
 Plataforma web para gestão de clínicas de psicologia, com agenda integrada, prontuários seguros e funcionalidades auxiliadas por IA. O projeto é baseado em **Next.js** e **Firebase**, utilizando **TypeScript** e **Tailwind CSS** no frontend e **Cloud Functions** no backend. Fluxos de IA são implementados com **Genkit** e Google AI.
 
+**NOTA ATUAL:** O sistema de login e autenticação está temporariamente desabilitado no código-fonte para fins de desenvolvimento/demonstração. O acesso ao sistema é liberado por padrão.
+
 ## Tecnologias Principais
 
 - **Next.js 15** com React 18 (App Router)
 - **TypeScript**
 - **Tailwind CSS**
-- **Firebase**: Firestore, Cloud Functions, Cloud Messaging, Storage e Hosting (Autenticação desabilitada temporariamente)
+- **Firebase**: Firestore, Cloud Functions, Cloud Messaging, Storage e Hosting
 - **Genkit** + Google AI para funcionalidades de inteligência artificial
 - **Jest** e Testing Library para testes automatizados
 
@@ -32,9 +34,9 @@ Plataforma web para gestão de clínicas de psicologia, com agenda integrada, pr
     *   Preencha o arquivo `.env.local` com as credenciais do seu projeto Firebase e outras chaves necessárias. Veja a seção "Variáveis de Ambiente" abaixo para detalhes sobre cada variável.
 4.  **Inicie os Emuladores Firebase (em um terminal separado):**
     *   É altamente recomendado usar os emuladores do Firebase para desenvolvimento local.
-    *   Se esta é a primeira vez, configure os emuladores: `firebase init emulators` (selecione Firestore, Storage, Functions. Autenticação pode ser omitida por enquanto).
+    *   Se esta é a primeira vez, configure os emuladores: `firebase init emulators` (selecione Firestore, Storage, Functions).
     *   Inicie os emuladores: `firebase emulators:start --project=demo-project`
-    *   Verifique se os emuladores estão rodando nas portas corretas (Auth: 9099, Firestore: 8083, Storage: 9199, UI: 4003). O arquivo `firebase.json` está configurado para usar `host: "0.0.0.0"` para os emuladores.
+    *   Verifique se os emuladores estão rodando nas portas corretas (Firestore: 8083, Storage: 9199, UI: 4003). O arquivo `firebase.json` está configurado para usar `host: "0.0.0.0"` para os emuladores.
 5.  **Inicie o Servidor de Desenvolvimento Next.js (em outro terminal):**
     ```bash
     npm run dev
@@ -92,7 +94,7 @@ Para obter `FIREBASE_CLIENT_EMAIL` e `FIREBASE_PRIVATE_KEY`:
 -   `NEXT_PUBLIC_GAS_PRONTUARIO_URL`: URL do script Google Apps Script para geração de prontuários.
 -   `NEXT_PUBLIC_GOOGLE_CLIENT_ID`, `NEXT_PUBLIC_GOOGLE_CLIENT_SECRET`, `NEXT_PUBLIC_GOOGLE_REDIRECT_URI`: Para integração com o Google Calendar (opcional).
 -   `NEXT_PUBLIC_FIREBASE_VAPID_KEY`: Chave VAPID para Firebase Cloud Messaging (Web Push). Encontrada no Console do Firebase -> Configurações do Projeto -> Cloud Messaging -> Web configuration -> Web Push certificates.
--   `NEXT_PUBLIC_DISABLE_AUTH`: Quando definido como `true`, desativa temporariamente a tela de login e a verificação de autenticação nas rotas protegidas.
+-   `NEXT_PUBLIC_DISABLE_AUTH`: Quando definido como `true`, desativa o sistema de login e autenticação. As verificações de autenticação nas rotas são contornadas e o acesso é liberado. **Atualmente, o código está configurado para operar como se esta variável estivesse sempre `true`, ignorando a necessidade de login.**
 
 ## Importante sobre Segurança
 

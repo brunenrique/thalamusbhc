@@ -1,4 +1,4 @@
-// This page has been intentionally disabled and redirects to the dashboard.
+// src/app/login/page.tsx
 "use client";
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -8,8 +8,9 @@ export default function LoginPageDisabled() {
   const router = useRouter();
 
   useEffect(() => {
+    // Redireciona para o dashboard, já que o login está desabilitado
     router.replace(APP_ROUTES.dashboard);
   }, [router]);
 
-  return null; // Render nothing while redirecting
+  return null; // Renderiza nada enquanto redireciona
 }

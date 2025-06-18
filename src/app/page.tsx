@@ -16,7 +16,7 @@ export default function LandingPage() {
           </div>
           <nav>
             <Button asChild className="ml-2">
-              <Link href={APP_ROUTES.dashboard}>Acessar Painel</Link>
+              <Link href={APP_ROUTES.dashboard}><span>Acessar Painel</span></Link>
             </Button>
           </nav>
         </div>
@@ -30,7 +30,7 @@ export default function LandingPage() {
           Thalamus oferece uma plataforma segura, intuitiva e aprimorada por IA para gerenciar seu consultório de psicologia, para que você possa focar no que mais importa: seus pacientes.
         </p>
         <Button size="lg" asChild className="bg-accent hover:bg-accent/90 text-accent-foreground">
-          <Link href={APP_ROUTES.dashboard}>Comece Agora</Link>
+          <Link href={APP_ROUTES.dashboard}><span>Comece Agora</span></Link>
         </Button>
       </main>
 

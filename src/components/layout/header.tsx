@@ -75,9 +75,10 @@ export default function AppHeader() {
               </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            {/* Logout functionality commented out as auth is disabled */}
+            <DropdownMenuItem disabled>
               <LogOut className="mr-2 h-4 w-4" />
-              <span>Sair</span>
+              <span>Sair (Desabilitado)</span>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

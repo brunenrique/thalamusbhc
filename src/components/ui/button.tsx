@@ -1,4 +1,6 @@
 
+"use client"
+
 import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
 import { cva, type VariantProps } from "class-variance-authority"
@@ -80,7 +82,8 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         {...props}
       >
         {children}
-        {checked && <Check className="h-4 w-4 text-green-600" />}
+        {/* Render the Check icon only if Comp is 'button' (i.e., not asChild) and checked is true */}
+        {Comp === "button" && checked && <Check className="h-4 w-4 text-green-600" />}
       </Comp>
     )
   }

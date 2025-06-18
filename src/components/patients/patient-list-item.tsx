@@ -94,11 +94,15 @@ function PatientListItemComponent({ patient }: PatientListItemProps) {
               </Link>
             </Button>
             <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10" aria-label={`Excluir paciente ${patient.name}`}>
-                  <Trash2 className="h-4 w-4" />
+            <AlertDialogTrigger asChild>
+                <Button
+                  variant="ghost"
+                  className="flex items-center gap-2 text-sm font-medium text-destructive hover:text-destructive hover:bg-destructive/10 h-8"
+                  aria-label={`Excluir paciente ${patient.name}`}
+                >
+                  <Trash2 className="h-4 w-4" /> Excluir
                 </Button>
-              </AlertDialogTrigger>
+            </AlertDialogTrigger>
               <AlertDialogContent>
                 <AlertDialogHeader>
                   <AlertDialogTitle>Excluir Paciente Permanentemente?</AlertDialogTitle>
@@ -115,9 +119,14 @@ function PatientListItemComponent({ patient }: PatientListItemProps) {
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
-            <Button variant="ghost" size="icon" asChild className="h-8 w-8" aria-label={`Ver detalhes de ${patient.name}`}>
-              <Link href={`/patients/${patient.id}`}>
-                <ChevronRight className="h-5 w-5" />
+            <Button
+              variant="ghost"
+              asChild
+              className="flex items-center gap-2 text-sm font-medium h-8"
+              aria-label={`Ver detalhes de ${patient.name}`}
+            >
+              <Link href={`/patients/${patient.id}`} className="flex items-center gap-2">
+                <ChevronRight className="h-5 w-5" /> Abrir
               </Link>
             </Button>
           </div>

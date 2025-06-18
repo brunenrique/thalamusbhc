@@ -41,8 +41,13 @@ export default function ChatWindow() {
             <Users className="h-3 w-3 mr-1" /> {onlineUsers.length} online
           </div>
         </div>
-        <Button variant="ghost" size="icon" onClick={closeChat} className="h-7 w-7" aria-label="Fechar chat">
-          <X className="h-4 w-4" />
+        <Button
+          variant="ghost"
+          onClick={closeChat}
+          className="flex items-center gap-2 text-sm font-medium"
+          aria-label="Fechar chat"
+        >
+          <X className="h-4 w-4" /> Fechar
         </Button>
       </CardHeader>
 

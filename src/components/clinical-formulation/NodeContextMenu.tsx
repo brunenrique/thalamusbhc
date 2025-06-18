@@ -1,7 +1,7 @@
 
 "use client";
 
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -56,6 +56,42 @@ const NodeContextMenu: React.FC = () => {
     assignCardToGroup, // Assign card to a group by its info
     removeCardFromItsGroup, // Remove card from its current group
   } = useClinicalStore();
+
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!isContextMenuOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        closeContextMenu();
+      }
+      if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+        const items = menuRef.current?.querySelectorAll<HTMLElement>(
+          '[role="menuitem"]'
+        );
+        if (!items || items.length === 0) return;
+        const currentIndex = Array.from(items).indexOf(
+          document.activeElement as HTMLElement
+        );
+        let nextIndex = e.key === 'ArrowDown' ? currentIndex + 1 : currentIndex - 1;
+        if (nextIndex < 0) nextIndex = items.length - 1;
+        if (nextIndex >= items.length) nextIndex = 0;
+        items[nextIndex].focus();
+        e.preventDefault();
+      }
+    };
+    const handleClickOutside = (ev: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(ev.target as Node)) {
+        closeContextMenu();
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isContextMenuOpen, closeContextMenu]);
 
   if (!isContextMenuOpen || !contextMenuPosition || !contextMenuNodeId || !contextMenuNodeType) {
     return null;
@@ -141,11 +177,14 @@ const NodeContextMenu: React.FC = () => {
             <button style={{ display: 'none' }} aria-hidden="true" />
         </DropdownMenuTrigger>
         <DropdownMenuContent
+            ref={menuRef}
+            role="menu"
+            aria-labelledby="menu-title"
             className="w-60"
             onCloseAutoFocus={(e) => e.preventDefault()}
             onPointerDownOutside={closeContextMenu}
         >
-          <DropdownMenuLabel className="truncate" title={nodeTitle}>
+          <DropdownMenuLabel id="menu-title" className="truncate" title={nodeTitle}>
             {contextMenuNodeType === 'abcCard' ? 'Card: ' : 'Esquema: '}
             {nodeTitle.length > 25 ? `${nodeTitle.substring(0, 25)}...` : nodeTitle}
           </DropdownMenuLabel>

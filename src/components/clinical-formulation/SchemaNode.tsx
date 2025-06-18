@@ -15,6 +15,8 @@ const SchemaNode: React.FC<NodeProps<SchemaData>> = ({ data, id, selected }) => 
 
   return (
     <Card
+        tabIndex={0}
+        aria-label={`Esquema: ${data.rule}`}
         className={cn(
             "w-64 shadow-md hover:shadow-lg transition-shadow duration-150 border-blue-500/40 bg-blue-500/5 text-blue-900 dark:bg-blue-900/10 dark:border-blue-700/50 dark:text-blue-200 react-flow__node-default", // Added react-flow__node-default
             selected && "ring-2 ring-accent ring-offset-2"

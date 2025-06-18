@@ -156,6 +156,7 @@ const FormulationMap: React.FC = () => {
   const [isGeneratingInsights, setIsGeneratingInsights] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const mapContainerRef = useRef<HTMLDivElement>(null);
+  const isTouchDevice = typeof window !== 'undefined' && navigator.maxTouchPoints > 0;
 
   const [isCreateGroupDialogOpen, setIsCreateGroupDialogOpen] = useState(false);
   const [newGroupName, setNewGroupName] = useState("");
@@ -320,7 +321,12 @@ const FormulationMap: React.FC = () => {
 
 
   return (
-    <div ref={mapContainerRef} className={cn("h-full w-full border rounded-md shadow-sm bg-muted/10 relative")}>
+    <div
+      ref={mapContainerRef}
+      tabIndex={0}
+      aria-label="Mapa de Formulação"
+      className={cn("h-full w-full border rounded-md shadow-sm bg-muted/10 relative")}
+    >
        <ReactFlow
           nodes={currentNodes}
           edges={currentEdges}
@@ -333,6 +339,18 @@ const FormulationMap: React.FC = () => {
           onNodeContextMenu={handleNodeContextMenu}
           onPaneClick={onPaneClick}
           onEdgeDoubleClick={onEdgeDoubleClick}
+          panOnDrag={isTouchDevice}
+          onNodeDragStop={(_, node) => {
+            if (!mapContainerRef.current) return;
+            const bounds = mapContainerRef.current.getBoundingClientRect();
+            const clampedX = Math.min(Math.max(node.position.x, 0), bounds.width - 50);
+            const clampedY = Math.min(Math.max(node.position.y, 0), bounds.height - 50);
+            if (clampedX !== node.position.x || clampedY !== node.position.y) {
+              reactFlowInstance.setNodes((nds) =>
+                nds.map((n) => (n.id === node.id ? { ...n, position: { x: clampedX, y: clampedY } } : n))
+              );
+            }
+          }}
           proOptions={{ hideAttribution: true }}
           selectionMode={SelectionMode.Partial}
           onSelectionChange={handleSelectionChange}
@@ -375,15 +393,15 @@ const FormulationMap: React.FC = () => {
 
               {toolbarOrientation === 'vertical' ? <Separator orientation="horizontal" className="my-0.5 w-full" /> : <Separator orientation="vertical" className="h-5 w-px mx-0.5" />}
               
-              <Button variant="outline" size="icon" className={commonButtonClass} onClick={() => openABCForm()} title="Novo Card ABC">
+              <Button variant="outline" size="icon" className={commonButtonClass} onClick={() => openABCForm()} title="Novo Card ABC" aria-label="Adicionar novo card">
                 <PlusCircle className={commonIconClass} />
               </Button>
-              <Button variant="outline" size="icon" className={commonButtonClass} onClick={() => openSchemaForm()} title="Novo Esquema/Regra">
+              <Button variant="outline" size="icon" className={commonButtonClass} onClick={() => openSchemaForm()} title="Novo Esquema/Regra" aria-label="Adicionar novo esquema">
                 <Share2 className={commonIconClass} />
               </Button>
               <Dialog open={isCreateGroupDialogOpen} onOpenChange={setIsCreateGroupDialogOpen}>
                 <DialogTrigger asChild>
-                  <Button variant="outline" size="icon" className={commonButtonClass} disabled={(selectedFlowNodes || []).filter(node => node.type === 'abcCard').length === 0} title="Criar Grupo Temático">
+                  <Button variant="outline" size="icon" className={commonButtonClass} disabled={(selectedFlowNodes || []).filter(node => node.type === 'abcCard').length === 0} title="Criar Grupo Temático" aria-label="Criar grupo temático">
                     <Users className={commonIconClass} />
                   </Button>
                 </DialogTrigger>
@@ -422,7 +440,7 @@ const FormulationMap: React.FC = () => {
                   </DialogFooter>
                 </DialogContent>
               </Dialog>
-              <Button variant="outline" size="icon" className={commonButtonClass} onClick={() => openQuickNoteForm()} title="Adicionar Nota Rápida">
+              <Button variant="outline" size="icon" className={commonButtonClass} onClick={() => openQuickNoteForm()} title="Adicionar Nota Rápida" aria-label="Adicionar anotação rápida">
                 <StickyNote className={commonIconClass} />
               </Button>
               
@@ -430,7 +448,7 @@ const FormulationMap: React.FC = () => {
 
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                    <Button variant="outline" size="icon" className={commonButtonClass} title="Controlar Visibilidade de Elementos">
+                    <Button variant="outline" size="icon" className={commonButtonClass} title="Controlar Visibilidade de Elementos" aria-label="Visibilidade de elementos">
                         <Layers className={commonIconClass} />
                     </Button>
                 </DropdownMenuTrigger>
@@ -482,29 +500,29 @@ const FormulationMap: React.FC = () => {
                   title={`Filtrar por Intensidade Emocional (Antecedente) >= ${activeTabData.emotionIntensityFilter}`}
                 />
                 <span className={cn("text-[9px] text-muted-foreground w-4 text-right px-0.5", toolbarOrientation === 'vertical' && "text-center w-full")}>{activeTabData.emotionIntensityFilter}</span>
-                <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => setEmotionIntensityFilter(0)} title="Resetar filtro de intensidade">
+                <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => setEmotionIntensityFilter(0)} title="Resetar filtro de intensidade" aria-label="Resetar filtro de intensidade">
                   <RotateCcw className="h-2.5 w-2.5"/>
                 </Button>
               </div>
 
               {toolbarOrientation === 'vertical' ? <Separator orientation="horizontal" className="my-0.5 w-full" /> : <Separator orientation="vertical" className="h-5 w-px mx-0.5" />}
               
-              <Button variant="outline" size="icon" onClick={handleGenerateInsights} disabled={isGeneratingInsights} title="Gerar Insights de IA" className={commonButtonClass}>
+              <Button variant="outline" size="icon" onClick={handleGenerateInsights} disabled={isGeneratingInsights} title="Gerar Insights de IA" className={commonButtonClass} aria-label="Gerar insights">
                 <Lightbulb className={commonIconClass} /> {isGeneratingInsights && <span className="text-[9px] animate-pulse">...</span>}
               </Button>
-              <Button variant="default" size="icon" onClick={handleSaveLayout} className={cn("bg-accent hover:bg-accent/90 text-accent-foreground", commonButtonClass)} title="Salvar Estudo">
+              <Button variant="default" size="icon" onClick={handleSaveLayout} className={cn("bg-accent hover:bg-accent/90 text-accent-foreground", commonButtonClass)} title="Salvar Estudo" aria-label="Salvar estudo">
                 <Save className={commonIconClass} />
               </Button>
 
               {toolbarOrientation === 'vertical' ? <Separator orientation="horizontal" className="my-0.5 w-full" /> : <Separator orientation="vertical" className="h-5 w-px mx-0.5" />}
 
-              <Button variant="outline" size="icon" onClick={toggleFullscreenHandler} title={isFullscreen ? "Sair Tela Cheia" : "Tela Cheia"} className={commonButtonClass}>
+              <Button variant="outline" size="icon" onClick={toggleFullscreenHandler} title={isFullscreen ? "Sair Tela Cheia" : "Tela Cheia"} className={commonButtonClass} aria-label="Alternar tela cheia">
                 {isFullscreen ? <Minimize className={commonIconClass} /> : <Maximize className={commonIconClass} />}
               </Button>
-              <Button variant="outline" size="icon" onClick={() => reactFlowInstance.zoomIn({duration: 300})} title="Aumentar Zoom" className={commonButtonClass}>
+              <Button variant="outline" size="icon" onClick={() => reactFlowInstance.zoomIn({duration: 300})} title="Aumentar Zoom" className={commonButtonClass} aria-label="Aumentar zoom">
                 <ZoomIn className={commonIconClass} />
               </Button>
-              <Button variant="outline" size="icon" onClick={() => reactFlowInstance.zoomOut({duration: 300})} title="Diminuir Zoom" className={commonButtonClass}>
+              <Button variant="outline" size="icon" onClick={() => reactFlowInstance.zoomOut({duration: 300})} title="Diminuir Zoom" className={commonButtonClass} aria-label="Diminuir zoom">
                 <ZoomOut className={commonIconClass} />
               </Button>
             </div>

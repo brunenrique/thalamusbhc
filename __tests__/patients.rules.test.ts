@@ -1,4 +1,4 @@
-import { initializeTestEnvironment, assertSucceeds } from '@firebase/rules-unit-testing';
+import { initializeTestEnvironment, assertSucceeds, assertFails } from '@firebase/rules-unit-testing';
 import { readFileSync } from 'fs';
 import { Firestore } from 'firebase/firestore';
 import fetch from 'node-fetch';
@@ -40,10 +40,18 @@ describe('Patient Rules Tests', () => {
   });
 
   test('non-owner cannot read or write patient document', async () => {
-    const auth = { uid: 'user2' };
-    const db = testEnv.authenticatedContext(auth.uid).firestore();
-    const patientDoc = db.collection('patients').doc('patient1');
+    // Create a patient document owned by user1
+    const ownerAuth = { uid: 'user1' };
+    const ownerDb = testEnv.authenticatedContext(ownerAuth.uid).firestore();
+    const ownerDoc = ownerDb.collection('patients').doc('patient2');
+    await assertSucceeds(ownerDoc.set({ ownerId: ownerAuth.uid, name: 'Test Patient' }));
 
-    await assertSucceeds(patientDoc.get()); // Changed from set to get
+    // Try to access it as another user
+    const otherAuth = { uid: 'user2' };
+    const otherDb = testEnv.authenticatedContext(otherAuth.uid).firestore();
+    const otherDoc = otherDb.collection('patients').doc('patient2');
+
+    await assertFails(otherDoc.get());
+    await assertFails(otherDoc.set({ ownerId: otherAuth.uid, name: 'Should Fail' }));
   });
 });

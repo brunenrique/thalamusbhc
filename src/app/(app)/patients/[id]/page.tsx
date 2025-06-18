@@ -661,6 +661,16 @@ export default function PatientDetailPage() {
         </CardHeader>
       </Card>
 
+      {/* Destaque de tarefas pendentes - visual apenas */}
+      <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6">
+        <h3 className="font-semibold mb-2">Tarefas Pendentes</h3>
+        <ul className="list-disc list-inside text-sm space-y-1">
+          <li>Completar diário de emoções até a próxima sessão</li>
+          <li>Praticar respiração diafragmática duas vezes ao dia</li>
+          <li>Ler material sobre exposição gradual</li>
+        </ul>
+      </div>
+
       <Tabs defaultValue={initialTab} className="w-full flex flex-col flex-grow">
         <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
           <TabsTrigger value="overview"><HomeIconLucide className="mr-1.5 h-4 w-4"/>Visão Geral</TabsTrigger>

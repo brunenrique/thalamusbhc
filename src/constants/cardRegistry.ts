@@ -3,11 +3,12 @@ import React from 'react';
 import ABCCardNode from '@/components/cards/ABC/ABCCardNode';
 import ChainCardNode from '@/components/cards/Chain/ChainCardNode';
 import MatrixCardNode from '@/components/cards/Matrix/MatrixCardNode';
-// import GenericCardNode from '@/components/cards/Generic/GenericCardNode'; // Comentado pois será definido inline
+import GenericCardNode from '@/components/cards/Generic/GenericCardNode'; // Importado de .tsx
 
 import ABCForm from '@/components/cards/ABC/ABCForm';
 import ChainForm from '@/components/cards/Chain/ChainCardForm';
 import MatrixForm from '@/components/cards/Matrix/MatrixCardForm';
+// GenericForm não está definido, então 'form: undefined' é apropriado.
 
 export const cardTypeRegistry = {
   abc: {
@@ -36,6 +37,6 @@ export const cardTypeRegistry = {
     color: 'bg-gray-100',
     icon: '📄', // Using a document emoji
     form: undefined,
-    component: () => React.createElement('div', null, 'Generic Card'), // JSX substituído por React.createElement
+    component: GenericCardNode, // Usando o componente importado
   },
 };

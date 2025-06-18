@@ -20,12 +20,21 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-export function SessionsTrendChart() {
+export function SessionsTrendChart({ data = chartData }: { data?: typeof chartData }) {
+  if (!data || data.length === 0) {
+    return <p>Sem dados para exibir.</p>;
+  }
+
   return (
-    <ChartContainer config={chartConfig} className="min-h-[200px] w-full h-full">
+    <ChartContainer
+      config={chartConfig}
+      className="min-h-[200px] w-full h-full"
+      role="img"
+      aria-label="Tendência de sessões mensais"
+    >
       <ResponsiveContainer width="100%" height="100%">
         <LineChart
-          data={chartData}
+          data={data}
           margin={{
             top: 5,
             right: 10,

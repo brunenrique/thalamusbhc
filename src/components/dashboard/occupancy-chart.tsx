@@ -25,11 +25,20 @@ const chartConfig = {
   },
 } satisfies ChartConfig
 
-export function OccupancyChart() {
+export function OccupancyChart({ data = chartData }: { data?: typeof chartData }) {
+  if (!data || data.length === 0) {
+    return <p>Sem dados para exibir.</p>;
+  }
+
   return (
-    <ChartContainer config={chartConfig} className="min-h-[200px] w-full h-[300px]">
+    <ChartContainer
+      config={chartConfig}
+      className="min-h-[200px] w-full h-[300px]"
+      role="img"
+      aria-label="Gráfico de ocupação de salas"
+    >
       <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={chartData} margin={{ top: 20, right: 20, bottom: 20, left: 0 }}>
+        <BarChart data={data} margin={{ top: 20, right: 20, bottom: 20, left: 0 }}>
             <CartesianGrid strokeDasharray="3 3" vertical={false} />
           <XAxis
             dataKey="month"

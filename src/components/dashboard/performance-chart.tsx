@@ -53,11 +53,17 @@ const chartConfig = {
   },
 } satisfies ChartConfig
 
-export function PerformanceChart() {
+export function PerformanceChart({ data = chartData }: { data?: typeof chartData }) {
+  if (!data || data.length === 0) {
+    return <p>Sem dados para exibir.</p>;
+  }
+
   return (
      <ChartContainer
         config={chartConfig}
         className="mx-auto aspect-square max-h-[300px]"
+        role="img"
+        aria-label="Distribuição de sessões por profissional"
       >
         <PieChart>
           <ChartTooltip
@@ -65,7 +71,7 @@ export function PerformanceChart() {
             content={<ChartTooltipContent hideLabel />}
           />
           <Pie
-            data={chartData}
+            data={data}
             dataKey="sessions"
             nameKey="psychologist"
             innerRadius={60}

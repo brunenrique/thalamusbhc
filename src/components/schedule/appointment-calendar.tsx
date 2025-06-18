@@ -453,7 +453,7 @@ function AppointmentCalendarComponent({ view, currentDate, filters, workingDaysO
                     </div>
                 ))}
             </div>
-            <div className="flex-1 flex overflow-x-auto">
+            <div className="flex-1 flex overflow-x-auto" tabIndex={0}>
                 <div className={cn("flex min-w-max", view === "Week" && "md:min-w-full", "flex-grow")}>
                      {daysToRender.map((day, index) => (
                        <div key={`day-wrapper-${index}`} className={cn("flex-1", view === "Week" ? "min-w-[140px] sm:min-w-[160px] md:min-w-0" : "", "flex flex-col")}>

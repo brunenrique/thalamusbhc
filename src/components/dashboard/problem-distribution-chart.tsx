@@ -46,10 +46,14 @@ const chartConfig = {
   },
 } satisfies ChartConfig
 
-export function ProblemDistributionChart() {
+export function ProblemDistributionChart({ data = chartData }: { data?: typeof chartData }) {
+  if (!data || data.length === 0) {
+    return <p>Sem dados para exibir.</p>;
+  }
+
   const totalCases = React.useMemo(() => {
-    return chartData.reduce((acc, curr) => acc + curr.count, 0)
-  }, [])
+    return data.reduce((acc, curr) => acc + curr.count, 0)
+  }, [data])
 
   return (
     <ChartContainer
@@ -57,19 +61,19 @@ export function ProblemDistributionChart() {
       className="mx-auto aspect-square max-h-[300px]"
     >
       <ResponsiveContainer width="100%" height="100%">
-        <PieChart>
+        <PieChart role="img" aria-label="Distribuição de problemas por tipo">
           <ChartTooltip
             cursor={false}
             content={<ChartTooltipContent hideLabel />}
           />
           <Pie
-            data={chartData}
+            data={data}
             dataKey="count"
             nameKey="problem"
             innerRadius={60}
             strokeWidth={5}
           >
-            {chartData.map((entry, index) => (
+            {data.map((entry, index) => (
               <Cell key={`cell-${index}`} fill={entry.fill} />
             ))}
              <Label

@@ -33,6 +33,6 @@ export const cardTypeRegistry = {
     color: 'bg-gray-100',
     icon: '📄',
     form: undefined,
-    component: () => <div>Generic Card</div>,
+    component: () => (<div>Generic Card</div>),
   },
 };

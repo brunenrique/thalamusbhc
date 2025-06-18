@@ -73,7 +73,7 @@ import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
-import { type GenerateSessionInsightsOutput } from '@/ai/flows/generate-session-insights';
+import type { GenerateSessionInsightsOutput } from '@/ai/flows/generate-session-insights';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
@@ -85,8 +85,10 @@ import HexaflexTool from '@/components/clinical-tools/HexaflexTool';
 import { useClinicalStore } from '@/stores/clinicalStore';
 import MapCanvas from '@/components/map/MapCanvas';
 import MapPanelContainer from '@/components/map/MapPanelContainer';
+import ErrorBoundary from "@/components/layout/error-boundary"; // Import ErrorBoundary
 
 
+// FormulationMapWrapper is still imported but won't be used directly in caseStudy tab for now
 const FormulationMapWrapper = dynamic(() => import("@/components/clinical-formulation/FormulationMap"), {
   loading: () => <Skeleton className="w-full h-[600px] rounded-md bg-muted/30" />,
   ssr: false,
@@ -789,15 +791,10 @@ export default function PatientDetailPage() {
           </Card>
         </TabsContent>
         
-        <TabsContent value="caseStudy" className="mt-6">
-            <Card>
-                <CardHeader>
-                    <CardTitle className="font-headline">O Coração Clínico</CardTitle>
-                </CardHeader>
-                <CardContent className="p-6 text-center text-muted-foreground">
-                    Funcionalidade em desenvolvimento.
-                </CardContent>
-            </Card>
+        <TabsContent value="caseStudy" className="mt-6 flex-grow flex flex-col min-w-0">
+          <div className="p-6 text-center text-muted-foreground flex-grow">
+            Placeholder para "O Coração Clínico". O erro "Algo deu errado" ainda está sendo investigado.
+          </div>
         </TabsContent>
 
         <TabsContent value="timeline" className="mt-6">
@@ -994,3 +991,4 @@ export default function PatientDetailPage() {
   );
 }
     
+

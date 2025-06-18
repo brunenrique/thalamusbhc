@@ -4,6 +4,7 @@
 @tailwind utilities;
 
 /* Cross-browser defaults */
+/*
 html {
   -webkit-text-size-adjust: 100%;
   -ms-text-size-adjust: 100%;
@@ -99,17 +100,18 @@ body {
     /* Sidebar specific vars (Dark Sidebar Theme - consistent with main dark theme) */
     /* Option: could keep the light sidebar even in dark mode for a unique look, or make it consistent dark */
     /* For now, let's make it consistent dark, similar to the main dark theme */
-    --sidebar-background: 30 8% 12%; /* Dark brown, slightly distinct from main dark bg */
-    --sidebar-foreground: 45 15% 80%;
-    --sidebar-primary: hsl(var(--primary));
-    --sidebar-primary-foreground: hsl(var(--primary-foreground));
-    --sidebar-accent: hsl(var(--accent));
-    --sidebar-accent-foreground: hsl(var(--accent-foreground));
-    --sidebar-border: 30 5% 18%;
-    --sidebar-ring: hsl(var(--accent));
+    /* --sidebar-background: 30 8% 12%; */ /* Dark brown, slightly distinct from main dark bg */
+    /* --sidebar-foreground: 45 15% 80%; */
+    /* --sidebar-primary: hsl(var(--primary)); */
+    /* --sidebar-primary-foreground: hsl(var(--primary-foreground)); */
+    /* --sidebar-accent: hsl(var(--accent)); */
+    /* --sidebar-accent-foreground: hsl(var(--accent-foreground)); */
+    /* --sidebar-border: 30 5% 18%; */
+    /* --sidebar-ring: hsl(var(--accent)); */
   }
 }
 
+/*
 @layer base {
   * {
     @apply border-border;
@@ -124,8 +126,10 @@ body {
     @apply gap-6;
   }
 }
+*/
 
-/* Custom React Flow Handle Styles */
+/* Custom React Flow Handle Styles - Commented out for troubleshooting */
+/*
 @layer components {
   .react-flow__handle {
     width: 10px !important;
@@ -153,8 +157,9 @@ body {
   }
 
   /* Ajustes para posicionamento do handle, se necessário (pode não ser preciso) */
-  .react-flow__handle-top { top: -6px !important; }
-  .react-flow__handle-bottom { bottom: -6px !important; }
-  .react-flow__handle-left { left: -6px !important; }
-  .react-flow__handle-right { right: -6px !important; }
+  /* .react-flow__handle-top { top: -6px !important; } */
+  /* .react-flow__handle-bottom { bottom: -6px !important; } */
+  /* .react-flow__handle-left { left: -6px !important; } */
+  /* .react-flow__handle-right { right: -6px !important; } */
 }
+*/

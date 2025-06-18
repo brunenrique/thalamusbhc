@@ -1,8 +1,8 @@
-
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+    
     function isSignedIn() {
       return request.auth != null;
     }
@@ -26,45 +26,40 @@ service cloud.firestore {
     function isStaff() {
       return isAdmin() || isPsychologist() || isSecretary();
     }
-    // Allow public read access to a specific document
-    // (e.g., a public profile)
-    // match /users/{userId} {
-    //   allow read: if true;
-    //   allow write: if request.auth.uid == userId;
-    // }
 
-    // Default deny all reads and writes
-    // match /{document=**} {
-    //  allow read, write: if false;
-    // }
-
-    // Rules for user documents, allowing users to manage their own data
-    // and admins to manage all user data.
+    // User documents
     match /users/{userId} {
-      allow read: if isStaff();
+      // Permite leitura por staff ou pelo próprio usuário
+      allow read: if isStaff() || request.auth.uid == userId;
       allow write: if request.auth.uid == userId || isAdmin();
     }
 
+    // Patient documents
     match /patients/{id} {
-      allow read, write: if request.auth != null && request.auth.uid == resource.data.ownerId;
+      // create precisa usar request.resource.data
+      allow create: if request.auth != null && request.resource.data.ownerId == request.auth.uid;
+      // read/update/delete usa resource.data porque o doc já existe
+      allow read, update, delete: if request.auth != null && resource.data.ownerId == request.auth.uid;
     }
 
     // Chat messages
-    // Only authenticated users can read/write messages within a specific chat.
     match /chats/{chatId}/messages/{messageId} {
- allow read: if request.auth != null && get(/databases/$(database)/documents/chats/$(chatId)).data.participants[request.auth.uid] == true;
+      allow read: if request.auth != null &&
+                   get(/databases/$(database)/documents/chats/$(chatId)).data.participants[request.auth.uid] == true;
+
       allow create: if request.auth != null &&
-                       request.resource.data.senderId == request.auth.uid &&
-                       request.resource.data.text is string &&
-                       request.resource.data.text.size() > 0 && request.resource.data.text.size() < 1000 && // Max message length
-                       request.resource.data.senderName is string &&
-                       request.resource.data.timestamp == request.time;
-      // Update/Delete can be added later if needed
-      // allow update, delete: if request.auth.uid == resource.data.senderId; // Example: only sender can delete/update
+                    request.resource.data.senderId == request.auth.uid &&
+                    request.resource.data.text is string &&
+                    request.resource.data.text.size() > 0 &&
+                    request.resource.data.text.size() < 1000 &&
+                    request.resource.data.senderName is string &&
+                    request.resource.data.timestamp == request.time;
+
+      // Exemplo de update/delete se quiser no futuro:
+      // allow update, delete: if request.auth.uid == resource.data.senderId;
     }
 
     // Assessments
-    // Documents representing an evaluation assigned to a patient.
     match /assessments/{assessmentId} {
       allow read: if request.auth != null;
       allow create: if request.auth != null &&
@@ -72,10 +67,10 @@ service cloud.firestore {
                       request.resource.data.assignedBy is string &&
                       request.resource.data.status in ['assigned', 'in-progress', 'completed'];
       allow update: if request.auth != null;
-      allow delete: if request.auth != null && request.auth.token.role == 'Admin';
+      allow delete: if request.auth.token.role == 'Admin';
     }
 
-    // Catch-all for any other paths - explicitly deny to be safe
+    // Catch-all: nega tudo que não foi explicitamente permitido
     match /{document=**} {
       allow read, write: if false;
     }

@@ -63,21 +63,37 @@ function ResourceCardComponent({ resource, isGlobalList = false }: ResourceCardP
       </CardContent>
       <CardFooter className="border-t pt-3">
         <div className="flex w-full justify-end gap-1.5">
-          <Button variant="ghost" size="icon" className="h-7 w-7" aria-label={`Baixar recurso ${resource.name}`}>
-            <Download className="h-4 w-4" />
+          <Button
+            variant="ghost"
+            className="flex items-center gap-2 text-sm font-medium"
+            aria-label={`Baixar recurso ${resource.name}`}
+          >
+            <Download className="h-4 w-4" /> Baixar
           </Button>
           {isGlobalList && (
             <>
-              <Button variant="ghost" size="icon" className="h-7 w-7" aria-label={`Compartilhar recurso ${resource.name}`}>
-                <Share2 className="h-4 w-4" />
+              <Button
+                variant="ghost"
+                className="flex items-center gap-2 text-sm font-medium"
+                aria-label={`Compartilhar recurso ${resource.name}`}
+              >
+                <Share2 className="h-4 w-4" /> Compartilhar
               </Button>
-              <Button variant="ghost" size="icon" className="h-7 w-7" aria-label={`Editar recurso ${resource.name}`}>
-                <Edit className="h-4 w-4" />
+              <Button
+                variant="ghost"
+                className="flex items-center gap-2 text-sm font-medium"
+                aria-label={`Editar recurso ${resource.name}`}
+              >
+                <Edit className="h-4 w-4" /> Editar
               </Button>
             </>
           )}
-          <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:text-destructive" aria-label={`Excluir recurso ${resource.name}`}>
-            <Trash2 className="h-4 w-4" />
+          <Button
+            variant="ghost"
+            className="flex items-center gap-2 text-sm font-medium text-destructive hover:text-destructive"
+            aria-label={`Excluir recurso ${resource.name}`}
+          >
+            <Trash2 className="h-4 w-4" /> Excluir
           </Button>
         </div>
       </CardFooter>

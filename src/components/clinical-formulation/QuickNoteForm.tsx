@@ -4,6 +4,7 @@
 import React, { useState, useEffect } from 'react'; // Adicionado useState e useEffect
 import { Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription, DialogClose } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { X, PlusCircle, Pencil } from 'lucide-react';
 import { useClinicalStore } from '@/stores/clinicalStore';
 
 const QuickNoteForm: React.FC = () => {
@@ -42,13 +43,20 @@ const QuickNoteForm: React.FC = () => {
             <p>Se você vê isto, o diálogo está abrindo.</p>
         </div>
         
-        <DialogFooter>
+        <DialogFooter className="gap-2">
           <DialogClose asChild>
             {/* closeQuickNoteForm já é chamado por handleOpenChange */}
-            <Button type="button" variant="outline">Cancelar</Button>
+            <Button type="button" variant="outline" className="flex items-center gap-2 text-sm font-medium">
+              <X className="h-4 w-4" /> Cancelar
+            </Button>
           </DialogClose>
-          <Button type="button" className="bg-accent hover:bg-accent/90 text-accent-foreground" onClick={closeQuickNoteForm}>
-            {noteToEdit ? "Salvar (Simples)" : "Adicionar (Simples)"}
+          <Button
+            type="button"
+            className="bg-accent hover:bg-accent/90 text-accent-foreground flex items-center gap-2 text-sm font-medium"
+            onClick={closeQuickNoteForm}
+          >
+            {noteToEdit ? <Pencil className="h-4 w-4" /> : <PlusCircle className="h-4 w-4" />}
+            {noteToEdit ? "Salvar" : "Adicionar"}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -37,12 +37,22 @@ const QuickNotesPanel: React.FC = () => {
             Observações e lembretes.
           </CardDescription>
         </div>
-        <div className="flex items-center">
-            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openQuickNoteForm()} aria-label="Adicionar Nova Anotação Rápida">
-                <PlusCircle className="h-4 w-4" />
+        <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              className="flex items-center gap-2 text-sm font-medium"
+              onClick={() => openQuickNoteForm()}
+              aria-label="Adicionar Nova Anotação Rápida"
+            >
+                <PlusCircle className="h-4 w-4" /> Nova Nota
             </Button>
-            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={toggleQuickNotesPanelVisibility} aria-label="Fechar painel de anotações rápidas">
-                <X className="h-4 w-4" />
+            <Button
+              variant="ghost"
+              className="flex items-center gap-2 text-sm font-medium"
+              onClick={toggleQuickNotesPanelVisibility}
+              aria-label="Fechar painel de anotações rápidas"
+            >
+                <X className="h-4 w-4" /> Fechar
             </Button>
         </div>
       </CardHeader>

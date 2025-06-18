@@ -95,8 +95,13 @@ function TaskItemComponent({ task }: TaskItemProps) {
           </div>
           <div className="flex flex-col items-end gap-1">
             <Badge variant={getPriorityBadgeVariant()} className="text-xs">{task.priority}</Badge>
-             <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setIsExpanded(!isExpanded)} aria-label="Expandir/Recolher detalhes da tarefa">
-                <ChevronsUpDown className="h-4 w-4" />
+             <Button
+                variant="ghost"
+                className="flex items-center gap-2 text-sm font-medium h-7"
+                onClick={() => setIsExpanded(!isExpanded)}
+                aria-label="Expandir/Recolher detalhes da tarefa"
+             >
+                <ChevronsUpDown className="h-4 w-4" /> Detalhes
             </Button>
           </div>
         </div>

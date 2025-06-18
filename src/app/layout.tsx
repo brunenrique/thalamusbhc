@@ -1,7 +1,6 @@
-
 "use client";
 
-// import './globals.css'; // Restaurada a importação // Temporarily commented out for debugging
+import './globals.css'; // Garantir que está importado
 import { Toaster } from "@/components/ui/toaster";
 import usePageView from "@/hooks/use-page-view";
 // import useSessionTimeout from "@/hooks/use-session-timeout"; // Session timeout disabled
@@ -39,7 +38,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="font-body antialiased">
         {children}
-        {/* <Toaster /> */}
+        <Toaster />
       </body>
     </html>
   );

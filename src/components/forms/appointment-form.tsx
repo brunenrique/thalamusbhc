@@ -265,7 +265,7 @@ export default function AppointmentForm({ appointmentData }: AppointmentFormProp
   return (
     <Card className="shadow-lg">
       <Form {...form}>
-        <form role="form" onSubmit={form.handleSubmit(onSubmit)}>
+        <form role="form" aria-busy={isLoading} onSubmit={form.handleSubmit(onSubmit)}>
           <CardHeader>
             <CardTitle className="font-headline text-xl">
               {appointmentData?.id ? "Editar Agendamento" : (isBlockTime ? "Bloquear Horário na Agenda" : "Novo Agendamento")}
@@ -617,9 +617,13 @@ export default function AppointmentForm({ appointmentData }: AppointmentFormProp
             )}
           </CardContent>
           <CardFooter className="flex justify-end">
-            <Button type="submit" className="bg-accent hover:bg-accent/90 text-accent-foreground" disabled={isLoading}>
+            <Button
+              type="submit"
+              className="bg-accent hover:bg-accent/90 text-accent-foreground"
+              disabled={isLoading || !form.formState.isValid}
+            >
               <Save className="mr-2 h-4 w-4" />
-              {isLoading ? (appointmentData?.id ? "Salvando..." : (isBlockTime ? "Bloqueando..." : "Agendando...")) : 
+              {isLoading ? (appointmentData?.id ? "Salvando..." : (isBlockTime ? "Bloqueando..." : "Agendando...")) :
                 (appointmentData?.id ? "Salvar Alterações" : (isBlockTime ? "Criar Bloqueio" : "Criar Agendamento"))}
             </Button>
           </CardFooter>

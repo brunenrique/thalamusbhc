@@ -1,6 +1,6 @@
 
 "use client";
-import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card } from '@/components/ui/card';
 import { CalendarDays, PlusCircle, ChevronLeft, ChevronRight, ListFilter, Download, ShieldAlert, MapPin } from "lucide-react";
@@ -19,7 +19,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { Label } from '@/components/ui/label';
-import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachDayOfInterval, isWithinInterval, parse, addDays, subDays } from 'date-fns';
+import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachDayOfInterval, isWithinInterval, parse } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { generateICS } from '@/lib/ics-generator';
 import { useToast } from '@/hooks/use-toast';
@@ -140,7 +140,7 @@ export default function SchedulePage() {
   }, []);
 
   const handleExportICS = () => {
-    let appointmentsToExport: AppointmentsByDate = {};
+    const appointmentsToExport: AppointmentsByDate = {};
     
     const dateKeys = Object.keys(appointmentsData);
 

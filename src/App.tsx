@@ -14,7 +14,7 @@ function App() {
   return (
     <div>
       <h1>Thalamus (Next.js Project)</h1>
-      <p>A funcionalidade "O Coração Clínico" com sistema de guias será integrada na página de detalhes do paciente.</p>
+      <p>A funcionalidade &quot;O Coração Clínico&quot; com sistema de guias será integrada na página de detalhes do paciente.</p>
     </div>
   )
 }

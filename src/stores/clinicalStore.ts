@@ -1,9 +1,8 @@
 // src/stores/clinicalStore.ts
 
 import { create } from "zustand";
+import type { BaseCard, Label } from "@/types/cards";
 import type {
-  BaseCard,
-  Label,
   ClinicalTab,
   ClinicalTabType,
   TabSpecificFormulationData,

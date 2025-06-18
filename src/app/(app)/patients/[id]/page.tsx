@@ -53,6 +53,8 @@ import ChainAnalysisBuilder from '@/components/clinical-tools/ChainAnalysisBuild
 import ActMatrixBuilder from '@/components/clinical-tools/ActMatrixBuilder';
 import HexaflexTool from '@/components/clinical-tools/HexaflexTool';
 import { useClinicalStore } from '@/stores/clinicalStore';
+import MapCanvas from '@/components/map/MapCanvas';
+import MapPanelContainer from '@/components/map/MapPanelContainer';
 
 
 const FormulationMapWrapper = dynamic(() => import("@/components/clinical-formulation/FormulationMap"), {
@@ -648,6 +650,7 @@ export default function PatientDetailPage() {
           <TabsTrigger value="overview"><HomeIconLucide className="mr-1.5 h-4 w-4"/>Visão Geral</TabsTrigger>
           <TabsTrigger value="caseStudy"><Brain className="mr-1.5 h-4 w-4"/>O Coração Clínico</TabsTrigger>
           <TabsTrigger value="timeline"><HistoryIcon className="mr-1.5 h-4 w-4"/>Linha do Tempo</TabsTrigger>
+          <TabsTrigger value="formulations"><Lightbulb className="mr-1.5 h-4 w-4"/>Formulações</TabsTrigger>
           <TabsTrigger value="assessments"><ClipboardList className="mr-1.5 h-4 w-4"/>Avaliações</TabsTrigger>
           <TabsTrigger value="resources"><Share2 className="mr-1.5 h-4 w-4"/>Recursos</TabsTrigger>
           <TabsTrigger value="documents"><FileArchive className="mr-1.5 h-4 w-4"/>Documentos</TabsTrigger>
@@ -767,6 +770,11 @@ export default function PatientDetailPage() {
                 <CardHeader><CardTitle className="font-headline">Linha do Tempo do Paciente</CardTitle></CardHeader>
                 <CardContent><PatientTimeline patientId={patient.id} /></CardContent>
             </Card>
+        </TabsContent>
+
+        <TabsContent value="formulations" className="mt-6 relative">
+            <MapCanvas cards={clinicalStore.cards} />
+            <MapPanelContainer />
         </TabsContent>
 
         <TabsContent value="assessments" className="mt-6 space-y-6">

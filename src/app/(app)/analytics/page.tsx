@@ -1,10 +1,9 @@
 
 "use client";
 
-import { BarChart3, Users, CalendarCheck, TrendingUp, PieChart as PieChartIcon, UsersRound, Activity as ActivityIcon, AlertTriangle, Brain, SlidersHorizontal, ShoppingCart, LineChart, Download } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
+import { BarChart3, Users, CalendarCheck, TrendingUp, PieChart as PieChartIcon, UsersRound, AlertTriangle, SlidersHorizontal, ShoppingCart, LineChart, Download } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
 import dynamic from "next/dynamic";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";

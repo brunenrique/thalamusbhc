@@ -1,5 +1,7 @@
 
-import { Button } from "@/components/ui/button";
+"use client";
+
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Brain, ShieldCheck, Users } from "lucide-react";
 import Link from "next/link";
@@ -15,9 +17,7 @@ export default function LandingPage() {
             <h1 className="text-3xl font-headline font-bold text-primary">Thalamus</h1>
           </div>
           <nav>
-            <Button asChild className="ml-2">
-              <Link href={APP_ROUTES.dashboard}><span>Acessar Painel</span></Link>
-            </Button>
+            <Link className={buttonVariants({ className: 'ml-2' })} href={APP_ROUTES.dashboard}>Acessar Painel</Link>
           </nav>
         </div>
       </header>
@@ -29,9 +29,7 @@ export default function LandingPage() {
         <p className="text-xl text-muted-foreground max-w-2xl mb-10">
           Thalamus oferece uma plataforma segura, intuitiva e aprimorada por IA para gerenciar seu consultório de psicologia, para que você possa focar no que mais importa: seus pacientes.
         </p>
-        <Button size="lg" asChild className="bg-accent hover:bg-accent/90 text-accent-foreground">
-          <Link href={APP_ROUTES.dashboard}><span>Comece Agora</span></Link>
-        </Button>
+        <Link className={buttonVariants({ size: 'lg', className: 'bg-accent hover:bg-accent/90 text-accent-foreground' })} href={APP_ROUTES.dashboard}>Comece Agora</Link>
       </main>
 
       <section className="py-16 bg-card">

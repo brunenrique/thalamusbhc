@@ -2,6 +2,7 @@
 "use client";
 
 import React, { useState, useCallback, useMemo } from 'react';
+import { copyToClipboard } from '@/utils/copyToClipboard';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Brain, FileText, Tag, Lightbulb, BarChart3, Edit, Trash2, AlertTriangleIcon, CheckCircle, ShieldAlert, FilePlus2 } from "lucide-react";
@@ -107,7 +108,7 @@ function SessionNoteCardComponent({ note, patientName, therapistName = "Psicólo
 
   const handleCopyReportDraft = useCallback(() => {
     if (reportDraft) {
-      navigator.clipboard.writeText(reportDraft);
+      copyToClipboard(reportDraft);
       toast({ title: "Rascunho Copiado", description: "O conteúdo do rascunho foi copiado para a área de transferência." });
     }
   }, [reportDraft, toast]);

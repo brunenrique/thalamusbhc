@@ -2,6 +2,7 @@
 import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
 import { cva, type VariantProps } from "class-variance-authority"
+import { Check } from "lucide-react"
 
 import { cn } from "@/shared/utils"
 
@@ -38,17 +39,39 @@ export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {
   asChild?: boolean
+  loading?: boolean
+  quick?: boolean
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, asChild = false, ...props }, ref) => {
+  (
+    { className, variant, size, asChild = false, loading, quick, onClick, children, ...props },
+    ref
+  ) => {
     const Comp = asChild ? Slot : "button"
+    const [checked, setChecked] = React.useState(false)
+
+    const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+      if (quick) {
+        setChecked(true)
+        setTimeout(() => setChecked(false), 1500)
+      }
+      onClick?.(e)
+    }
+
     return (
       <Comp
-        className={cn(buttonVariants({ variant, size, className }))}
+        className={cn(
+          buttonVariants({ variant, size, className }),
+          loading && "opacity-50 cursor-not-allowed"
+        )}
         ref={ref}
+        onClick={handleClick}
         {...props}
-      />
+      >
+        {children}
+        {checked && <Check className="h-4 w-4 text-green-600" />}
+      </Comp>
     )
   }
 )

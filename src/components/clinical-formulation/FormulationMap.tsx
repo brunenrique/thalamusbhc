@@ -514,21 +514,21 @@ const FormulationMap: React.FC = () => {
           {/* 
           // Panels are kept commented out as per debugging steps
           {isSchemaPanelVisible && (
-            <Panel position="top-left" className="!m-0 p-0 shadow-xl border rounded-lg bg-card w-72 h-[calc(100%-5rem)] flex flex-col">
+            <Panel position="top-left" className="!m-0 p-0 shadow-xl border rounded-lg bg-card w-72 h-[calc(100%-5rem)] flex flex-col min-w-0 overflow-auto">
                 <SchemaPanel />
             </Panel>
           )}
           {isFormulationGuidePanelVisible && (
-            <Panel position="top-right" className="!m-0 p-0 shadow-xl border rounded-lg bg-card w-72 h-[calc(100%-5rem)] flex flex-col">
+            <Panel position="top-right" className="!m-0 p-0 shadow-xl border rounded-lg bg-card w-72 h-[calc(100%-5rem)] flex flex-col min-w-0 overflow-auto">
                 <FormulationGuidePanel />
             </Panel>
           )}
           {isQuickNotesPanelVisible && (
-             <Panel position="bottom-right" className="!m-0 p-0 shadow-xl border rounded-lg bg-card w-72 h-2/5 max-h-[400px] flex flex-col">
+             <Panel position="bottom-right" className="!m-0 p-0 shadow-xl border rounded-lg bg-card w-72 h-2/5 max-h-[400px] flex flex-col min-w-0 overflow-auto">
                 <QuickNotesPanel />
             </Panel>
           )}
-          <Panel position="bottom-left" className="!m-0 p-0 shadow-xl border rounded-lg bg-card w-72 h-2/5 max-h-[400px] flex flex-col">
+          <Panel position="bottom-left" className="!m-0 p-0 shadow-xl border rounded-lg bg-card w-72 h-2/5 max-h-[400px] flex flex-col min-w-0 overflow-auto">
             <InsightPanel />
           </Panel> 
           */}

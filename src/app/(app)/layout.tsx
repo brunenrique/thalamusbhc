@@ -88,7 +88,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
       </Sidebar>
       <SidebarInset className="flex flex-col h-screen"> {/* Garante que SidebarInset possa usar toda a altura */}
         <AppHeader />
-        <main className="flex-1 p-4 md:p-6 lg:p-8 overflow-auto flex flex-col"> {/* Adicionado flex flex-col */}
+        <main className="flex-1 p-4 md:p-6 lg:p-8 overflow-auto min-w-0 flex flex-col"> {/* Adicionado flex flex-col */}
           {children}
         </main>
         <ChatFloatingButton />

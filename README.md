@@ -46,6 +46,7 @@ Plataforma web para gestão de clínicas de psicologia, com agenda integrada, pr
 ### Comandos úteis
 
 - `npm run dev` &mdash; inicia o servidor Next.js em modo desenvolvimento na porta `9003` (geralmente com Turbopack).
+- `npm run dev -- --no-turbo -p 9004` &mdash; executa o servidor usando Webpack ao invés do Turbopack, na porta `9004`, para facilitar a exibição de erros no terminal.
 - `npm run genkit:dev` &mdash; executa os fluxos de IA em modo de desenvolvimento.
 - `npm run typecheck` &mdash; verifica os tipos TypeScript.
 - `npm run lint` &mdash; executa o ESLint.

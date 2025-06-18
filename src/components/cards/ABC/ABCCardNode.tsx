@@ -34,6 +34,11 @@ const groupColorToBorderClass: Record<string, string> = {
 
 
 const ABCCardNode: React.FC<NodeProps<ABCCardData>> = ({ data, id, selected }) => {
+  if (!data) {
+    return (
+      <div className="p-2 text-xs text-muted-foreground">Dados do card indisponíveis</div>
+    );
+  }
   const { schemas } = useClinicalStore();
   // console.log("LOG: Rendering ABCCardNode, ID:", id, "Data:", data);
 

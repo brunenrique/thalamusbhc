@@ -37,6 +37,12 @@ const statusLabels: Record<AssessmentStatus, string> = {
 
 
 function AssessmentCardComponent({ assessment, showPatientInfo = false }: AssessmentCardProps) {
+  if (!assessment) {
+    return (
+      <div className="p-4 text-sm text-muted-foreground">Dados indisponíveis</div>
+    );
+  }
+
   const getStatusIcon = () => {
     switch (assessment.status) {
       case "Completed": return <CheckCircle className="h-4 w-4 text-green-500" />;

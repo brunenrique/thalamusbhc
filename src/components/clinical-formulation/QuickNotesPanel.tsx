@@ -59,7 +59,7 @@ const QuickNotesPanel: React.FC = () => {
       <CardContent className="p-0 flex-grow overflow-auto min-w-0">
         <ScrollArea className="h-full p-3">
           {quickNotes.length === 0 ? (
-            <p className="text-xs text-muted-foreground text-center py-4">Nenhuma anotação rápida adicionada.</p>
+            <p className="text-xs text-muted-foreground text-center py-4">Sem anotações ainda.</p>
           ) : (
             <ul className="space-y-2">
               {quickNotes.slice().sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).map((note) => {

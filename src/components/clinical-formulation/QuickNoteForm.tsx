@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useState, useEffect } from 'react'; // Adicionado useState e useEffect
+import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription, DialogClose } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { X, PlusCircle, Pencil } from 'lucide-react';
@@ -14,11 +14,18 @@ const QuickNoteForm: React.FC = () => {
     quickNoteFormTarget,
   } = useClinicalStore();
   const [dialogOpen, setDialogOpen] = useState(false); // Estado local
+  const [note, setNote] = useState('');
 
   const noteToEdit = quickNoteFormTarget?.noteIdToEdit;
 
+  const handleSubmit = () => {
+    if (!note.trim()) return;
+    closeQuickNoteForm();
+  };
+
   useEffect(() => {
     setDialogOpen(isQuickNoteFormOpen); // Sincroniza com o store
+    if (!isQuickNoteFormOpen) setNote('');
   }, [isQuickNoteFormOpen]);
 
   const handleOpenChange = (open: boolean) => {
@@ -38,22 +45,34 @@ const QuickNoteForm: React.FC = () => {
           </DialogDescription>
         </DialogHeader>
         
-        <div className="py-4">
-            <p>Conteúdo Simplificado do Formulário de Anotação Rápida.</p>
-            <p>Se você vê isto, o diálogo está abrindo.</p>
+        <div className="py-2">
+            <textarea
+              aria-label="Conteúdo da anotação"
+              className="w-full border rounded-md p-2 text-sm"
+              rows={4}
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  handleSubmit();
+                }
+              }}
+            />
         </div>
         
         <DialogFooter className="gap-2">
           <DialogClose asChild>
             {/* closeQuickNoteForm já é chamado por handleOpenChange */}
-            <Button type="button" variant="outline" className="flex items-center gap-2 text-sm font-medium">
+            <Button type="button" variant="outline" className="flex items-center gap-2 text-sm font-medium" aria-label="Cancelar anotação">
               <X className="h-4 w-4" /> Cancelar
             </Button>
           </DialogClose>
           <Button
             type="button"
+            aria-label={noteToEdit ? 'Salvar anotação' : 'Adicionar anotação'}
             className="bg-accent hover:bg-accent/90 text-accent-foreground flex items-center gap-2 text-sm font-medium"
-            onClick={closeQuickNoteForm}
+            onClick={handleSubmit}
           >
             {noteToEdit ? <Pencil className="h-4 w-4" /> : <PlusCircle className="h-4 w-4" />}
             {noteToEdit ? "Salvar" : "Adicionar"}

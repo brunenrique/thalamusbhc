@@ -5,6 +5,7 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'; // Removido Card de @/components/ui/card; Adicionado Card aqui para consistência
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { PlusCircleIcon, Trash2Icon, Link2Icon, ChevronDownIcon, ChevronUpIcon, EditIcon, Unlink, X } from 'lucide-react'; // Adicionado X
 import { useClinicalStore } from '@/stores/clinicalStore';
@@ -41,16 +42,21 @@ const SchemaPanel: React.FC = () => {
         </Button>
       </CardHeader>
       <CardContent className="p-3 flex-grow overflow-auto flex flex-col min-w-0">
-        <div className="flex gap-2 mb-2">
-          <Input
-            type="text"
-            value={newSchemaRule}
-            onChange={(e) => setNewSchemaRule(e.target.value)}
-            placeholder="Nova regra ou esquema..."
-            className="h-8 text-xs"
-            onKeyPress={(e) => { if (e.key === 'Enter') handleAddSchema(); }}
-          />
-          <Button onClick={handleAddSchema} size="sm" className="bg-accent hover:bg-accent/90 text-accent-foreground shrink-0 h-8 px-2 text-xs">
+        <div className="flex gap-2 mb-2 items-end">
+          <div className="flex-1">
+            <Label htmlFor="new-schema-input" className="sr-only">Nova regra ou esquema</Label>
+            <Input
+              id="new-schema-input"
+              aria-label="Nova regra ou esquema"
+              type="text"
+              value={newSchemaRule}
+              onChange={(e) => setNewSchemaRule(e.target.value)}
+              placeholder="Nova regra ou esquema..."
+              className="h-8 text-xs"
+              onKeyPress={(e) => { if (e.key === 'Enter') handleAddSchema(); }}
+            />
+          </div>
+          <Button onClick={handleAddSchema} size="sm" className="bg-accent hover:bg-accent/90 text-accent-foreground shrink-0 h-8 px-2 text-xs" aria-label="Adicionar esquema">
             <PlusCircleIcon className="h-3 w-3 mr-1" /> Add
           </Button>
         </div>
@@ -95,7 +101,7 @@ const SchemaPanel: React.FC = () => {
                     {schema.linkedCardIds.length > 0 && (
                       <div>
                         <p className="text-[10px] font-medium mb-0.5">Cards Vinculados:</p>
-                        <ul className="space-y-0.5">
+                        <ul className="space-y-0.5" aria-level={2}>
                           {schema.linkedCardIds.map(cardId => {
                             const card = cards.find(c => c.id === cardId);
                             return card ? (

@@ -64,7 +64,7 @@ export default function PatientsPage() {
           {loading ? (
             <div className="space-y-4">
               {Array.from({ length: 3 }).map((_, idx) => (
-                <PatientListItemSkeleton key={idx} />
+                <PatientListItemSkeleton key={`skeleton-${idx}`} />
               ))}
             </div>
           ) : patients.length > 0 ? (

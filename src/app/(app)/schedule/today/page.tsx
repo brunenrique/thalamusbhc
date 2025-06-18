@@ -410,7 +410,7 @@ export default function TodaySchedulePage() {
         <CardContent>
           {isLoadingTasks ? (
             Array.from({ length: 2 }).map((_, index) => (
-                <div key={index} className="p-3 border rounded-md bg-secondary/30 mb-2">
+                <div key={`skeleton-${index}`} className="p-3 border rounded-md bg-secondary/30 mb-2">
                     <Skeleton className="h-5 w-3/4 mb-1" />
                     <Skeleton className="h-3 w-1/2" />
                 </div>

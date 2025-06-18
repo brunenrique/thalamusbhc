@@ -2,6 +2,7 @@
 "use client";
 
 import React, { useRef, useState } from 'react';
+import { nanoid } from 'nanoid';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -14,12 +15,12 @@ interface ChainAnalysisBuilderProps {
 }
 
 export default function ChainAnalysisBuilder({ tabId }: ChainAnalysisBuilderProps) {
-  const [steps, setSteps] = useState([{ vulnerability: '', trigger: '', behavior: '' }]);
+  const [steps, setSteps] = useState([{ id: nanoid(), vulnerability: '', trigger: '', behavior: '' }]);
   const inputRefs = useRef<Array<HTMLInputElement | null>>([]);
   const { toast } = useToast();
 
   const addStep = () => {
-    setSteps((prev) => [...prev, { vulnerability: '', trigger: '', behavior: '' }]);
+    setSteps((prev) => [...prev, { id: nanoid(), vulnerability: '', trigger: '', behavior: '' }]);
     setTimeout(() => {
       const lastIndex = inputRefs.current.length - 1;
       inputRefs.current[lastIndex]?.focus();
@@ -52,7 +53,7 @@ export default function ChainAnalysisBuilder({ tabId }: ChainAnalysisBuilderProp
       <CardContent className="flex-grow overflow-auto">
         <form onSubmit={handleSubmit} className="space-y-6">
           {steps.map((step, idx) => (
-            <div key={idx} className="border rounded p-4 space-y-4">
+            <div key={step.id} className="border rounded p-4 space-y-4">
               <Input
                 ref={el => (inputRefs.current[idx] = el)}
                 tabIndex={idx * 3 + 1}

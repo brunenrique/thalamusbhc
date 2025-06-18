@@ -34,9 +34,9 @@ const InsightPanel: React.FC = () => {
             </div>
           ) : (
             <ul className="space-y-2.5">
-              {insights.map((insight, index) => (
+              {insights.map((insight) => (
                 <li
-                  key={index}
+                  key={insight}
                   className="text-sm text-foreground p-2.5 bg-muted/40 rounded-md border border-border shadow-xs"
                 >
                   {insight ? insight : 'Nenhum insight disponível.'}

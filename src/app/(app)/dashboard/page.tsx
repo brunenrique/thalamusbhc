@@ -73,7 +73,7 @@ export default function DashboardPage() {
       {isLoading ? (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           {[...Array(7)].map((_, i) => (
-            <SkeletonBox key={i} className="h-[120px] w-full" />
+            <SkeletonBox key={`skeleton-${i}`} className="h-[120px] w-full" />
           ))}
         </div>
       ) : (
@@ -128,7 +128,7 @@ export default function DashboardPage() {
             {isLoading ? (
               <>
                 {[...Array(3)].map((_, i) => (
-                  <SkeletonBox key={i} className="h-[60px] w-full" />
+                  <SkeletonBox key={`appt-skeleton-${i}`} className="h-[60px] w-full" />
                 ))}
               </>
             ) : (
@@ -162,7 +162,7 @@ export default function DashboardPage() {
             {isLoading ? (
               <>
                 {[...Array(3)].map((_, i) => (
-                  <SkeletonBox key={i} className="h-[60px] w-full" />
+                  <SkeletonBox key={`activity-skeleton-${i}`} className="h-[60px] w-full" />
                 ))}
               </>
             ) : (

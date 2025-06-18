@@ -11,9 +11,9 @@ const CardLabel: React.FC<CardLabelProps> = ({ tags }) => {
 
   return (
     <div className="flex flex-wrap gap-1 mt-1">
-      {tags.map((tag, index) => (
+      {tags.map((tag) => (
         <span
-          key={index}
+          key={tag}
           className="inline-flex items-center rounded-full bg-blue-500/10 px-2 py-0.5 text-xs font-medium text-blue-700 dark:text-blue-300"
           aria-label={`Tipo de cartão: ${tag}`}
         >

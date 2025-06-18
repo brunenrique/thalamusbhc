@@ -1,6 +1,6 @@
 "use client";
 
-// import './globals.css'; // Manter esta importação
+import './globals.css'; // Manter esta importação
 
 // Removido: Toaster, usePageView, headLinks e lógica relacionada.
 

@@ -188,7 +188,9 @@ export default function TabsBar() {
               className="flex items-center gap-2 text-sm font-medium h-8 flex-shrink-0 ml-1"
               title="Adicionar Nova Aba"
             >
-              <PlusCircle className="h-4 w-4" /> Nova Aba
+              <span>
+                <PlusCircle className="h-4 w-4" /> Nova Aba
+              </span>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start">

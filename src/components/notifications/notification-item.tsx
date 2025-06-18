@@ -81,13 +81,17 @@ function NotificationItemComponent({ notification }: NotificationItemProps) {
                 aria-label="Ver detalhes"
               >
                 <Link href={notification.link}>
-                  <ExternalLink className="mr-1 h-3.5 w-3.5" /> Ver
+                  <span>
+                    <ExternalLink className="mr-1 h-3.5 w-3.5" /> Ver
+                  </span>
                 </Link>
               </Button>
             )}
             {!notification.read && (
               <Button variant="outline" size="sm" className="h-7 px-2" aria-label="Marcar como lida">
-                <Check className="mr-1 h-3.5 w-3.5" /> Marcar como lida
+                <span>
+                  <Check className="mr-1 h-3.5 w-3.5" /> Marcar como lida
+                </span>
               </Button>
             )}
              {notification.read && (
@@ -97,7 +101,9 @@ function NotificationItemComponent({ notification }: NotificationItemProps) {
                 className="h-7 px-2 text-muted-foreground hover:text-foreground"
                 aria-label="Dispensar notificação"
               >
-                <X className="mr-1 h-3.5 w-3.5" /> Dispensar
+                <span>
+                  <X className="mr-1 h-3.5 w-3.5" /> Dispensar
+                </span>
               </Button>
             )}
           </div>

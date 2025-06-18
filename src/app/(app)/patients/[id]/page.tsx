@@ -5,7 +5,37 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Mail, Phone, CalendarDays, Edit, FileText, Brain, CheckCircle, Clock, MessageSquare, Trash2, Users as UsersIconLucide, Home as HomeIconLucide, Share2, UploadCloud, Calendar as CalendarIconShad, Lightbulb, Tag, BarChart3 as BarChart3Icon, ShieldAlert as ShieldAlertIcon, CheckCircle as CheckCircleIcon, TrendingUp, BookOpen, Activity, Users2, ClipboardList, Target, ListChecks, PlusCircle, Archive, AlertTriangle, History as HistoryIcon, Bot, Image as ImageIcon, Save, CalendarCheck, FileArchive, Eye, Pencil, FilePlus2, ClipboardEdit, Send, Sparkles, ArrowLeft, ExternalLink } from "lucide-react";
+import {
+  Mail,
+  Phone,
+  CalendarDays,
+  Edit,
+  FileText,
+  Brain,
+  Clock,
+  Trash2,
+  Users as UsersIconLucide,
+  Home as HomeIconLucide,
+  Share2,
+  UploadCloud,
+  Calendar as CalendarIconShad,
+  Lightbulb,
+  BarChart3 as BarChart3Icon,
+  BookOpen,
+  ClipboardList,
+  PlusCircle,
+  Archive,
+  History as HistoryIcon,
+  Save,
+  CalendarCheck,
+  FileArchive,
+  Eye,
+  Pencil,
+  FilePlus2,
+  ClipboardEdit,
+  Send,
+  ArrowLeft
+} from "lucide-react";
 import CopyButton from "@/components/ui/copy-button";
 import Link from "next/link";
 import { useRouter, useSearchParams, useParams } from "next/navigation";
@@ -43,7 +73,7 @@ import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
-import { generateSessionInsights, type GenerateSessionInsightsOutput } from '@/ai/flows/generate-session-insights';
+import { type GenerateSessionInsightsOutput } from '@/ai/flows/generate-session-insights';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
@@ -222,7 +252,6 @@ export default function PatientDetailPage() {
   const clinicalStore = useClinicalStore() as any;
   const tabs: ClinicalTab[] = clinicalStore.tabs ?? [];
   const activeTabId: string | undefined = clinicalStore.activeTabId;
-  const setActiveTab: ((id: string) => void) | undefined = clinicalStore.setActiveTab;
   const fetchClinicalData: ((patientId: string, tabId: string) => void) | undefined = clinicalStore.fetchClinicalData;
   const activeClinicalTab = useMemo(
     () => tabs.find((t: ClinicalTab) => t.id === activeTabId),
@@ -236,19 +265,6 @@ export default function PatientDetailPage() {
   }, [activeTabId, patientId, fetchClinicalData]);
 
 
-  if (!patient) {
-    return (
-      <div className="space-y-6 text-center py-10">
-        <UsersIconLucide className="mx-auto h-16 w-16 text-destructive" />
-        <h1 className="text-3xl font-headline font-bold text-destructive">
-          Paciente não encontrado
-        </h1>
-        <Button variant="outline" asChild>
-          <Link href="/patients">Voltar para Pacientes</Link>
-        </Button>
-      </div>
-    );
-  }
 
   const [sessionNotes, setSessionNotes] = useState(initialSessionNotes);
   const [assessments, setAssessments] = useState<Array<{ id: string; name: string; dateSent: string; status: "Completed" | "Pending" | "Sent"; score?: string }>>(initialAssessments);

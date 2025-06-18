@@ -194,7 +194,7 @@ function SessionNoteCardComponent({ note, patientName, therapistName = "Psicólo
               <div>
                 <h5 className="text-sm font-medium flex items-center text-destructive"><ShieldAlert className="mr-2 h-4 w-4" /> Alertas de Risco Potencial:</h5>
                 <div className="flex flex-wrap gap-1 mt-1">
-                  {insights.potentialRiskAlerts.map((alert, idx) => <Badge key={idx} variant="destructive">{alert}</Badge>)}
+                  {insights.potentialRiskAlerts.map((alert) => <Badge key={alert} variant="destructive">{alert}</Badge>)}
                 </div>
               </div>
             )}
@@ -218,7 +218,7 @@ function SessionNoteCardComponent({ note, patientName, therapistName = "Psicólo
                 <div>
                     <h5 className="text-sm font-medium flex items-center"><CheckCircle className="mr-2 h-4 w-4 text-green-600" /> Marcos Terapêuticos:</h5>
                     <div className="flex flex-wrap gap-1 mt-1">
-                        {insights.therapeuticMilestones.map((milestone, idx) => <Badge key={idx} variant="default" className="bg-green-100 text-green-700 border-green-300">{milestone}</Badge>)}
+                        {insights.therapeuticMilestones.map((milestone) => <Badge key={milestone} variant="default" className="bg-green-100 text-green-700 border-green-300">{milestone}</Badge>)}
                     </div>
                 </div>
             )}

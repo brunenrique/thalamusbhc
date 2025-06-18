@@ -61,5 +61,9 @@ export const scheduleReminders = functions.pubsub
     );
   });
 
+export const healthcheck = functions.https.onRequest((_, res) => {
+  res.status(200).send('ok');
+});
+
 // Firebase Authentication related functions (onCreateUser, setUserRole) have been removed
 // as authentication is temporarily disabled.

@@ -19,7 +19,9 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  allowedDevOrigins: ['https://9003-firebase-studio-1749490048431.cluster-duylic2g3fbzerqpzxxbw6helm.cloudworkstations.dev'],
+  experimental: {
+    allowedDevOrigins: process.env.ALLOWED_DEV_ORIGINS?.split(',') || [],
+  },
   webpack: (config, { isServer }) => {
     // This configuration helps prevent "Module not found" errors for Node.js
     // core modules like 'child_process', 'fs', 'os', etc., when they are

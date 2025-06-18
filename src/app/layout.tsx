@@ -15,11 +15,7 @@ const headLinks = [
   { href: "https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&display=swap", rel: "stylesheet", itemKey: "google-fonts-space-grotesk" },
 ];
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   usePageView();
   const router = useRouter();
 

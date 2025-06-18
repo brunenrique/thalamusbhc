@@ -18,11 +18,10 @@ export default function MessageList({ chatId }: MessageListProps) {
   const currentUser = useChatStore((state) => state.currentUser);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const viewportRef = useRef<HTMLDivElement>(null);
+  const endRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (viewportRef.current) {
-      viewportRef.current.scrollTop = viewportRef.current.scrollHeight;
-    }
+    endRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
   if (loading) {
@@ -65,6 +64,7 @@ export default function MessageList({ chatId }: MessageListProps) {
             isOwnMessage={msg.senderId === currentUser?.uid}
           />
         ))}
+        <div ref={endRef} />
       </div>
     </ScrollArea>
   );

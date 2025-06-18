@@ -29,7 +29,7 @@ const FormulationGuidePanel: React.FC = () => {
             <X className="h-4 w-4" />
         </Button>
       </CardHeader>
-      <CardContent className="p-0 flex-grow overflow-auto min-w-0">
+      <CardContent className="p-0 flex-grow overflow-auto min-w-0" id="panel-content">
         <ScrollArea className="h-full p-3">
           {formulationGuideQuestions.length === 0 ? (
             <p className="text-xs text-muted-foreground text-center py-4">Nenhuma pergunta guia configurada.</p>

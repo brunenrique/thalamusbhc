@@ -366,7 +366,15 @@ const FormulationMap: React.FC = () => {
               <Button variant="outline" size="icon" className={commonButtonClass} onClick={toggleSchemaPanelVisibility} title={isSchemaPanelVisible ? "Ocultar Painel de Esquemas" : "Mostrar Painel de Esquemas"}>
                 {isSchemaPanelVisible ? <PanelLeftClose className={commonIconClass} /> : <ListTree className={commonIconClass} />}
               </Button>
-              <Button variant="outline" size="icon" className={commonButtonClass} onClick={toggleFormulationGuidePanelVisibility} title={isFormulationGuidePanelVisible ? "Ocultar Guia de Formulação" : "Mostrar Guia de Formulação"}>
+              <Button
+                variant="outline"
+                size="icon"
+                className={commonButtonClass}
+                onClick={toggleFormulationGuidePanelVisibility}
+                title={isFormulationGuidePanelVisible ? "Ocultar Guia de Formulação" : "Mostrar Guia de Formulação"}
+                aria-expanded={isFormulationGuidePanelVisible}
+                aria-controls="panel-content"
+              >
                  {isFormulationGuidePanelVisible ? <PanelLeftClose className={commonIconClass} /> : <FormulationGuideIcon className={commonIconClass} />}
               </Button>
               <Button variant="outline" size="icon" className={commonButtonClass} onClick={toggleQuickNotesPanelVisibility} title={isQuickNotesPanelVisible ? "Ocultar Painel de Notas Rápidas" : "Mostrar Painel de Notas Rápidas"}>

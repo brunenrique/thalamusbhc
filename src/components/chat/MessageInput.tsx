@@ -72,7 +72,7 @@ export default function MessageInput({ chatId }: MessageInputProps) {
         className="flex-1 resize-none min-h-[40px] max-h-[120px] text-sm rounded-lg"
         rows={1}
         disabled={!currentUser?.uid || isSending}
-        aria-label="Campo de mensagem do chat"
+        aria-label="Digite sua mensagem"
       />
       <Button
         type="submit"

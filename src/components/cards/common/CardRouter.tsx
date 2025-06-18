@@ -13,8 +13,12 @@ const CardRouter: React.FC<CardRouterProps> = ({ card }) => {
     return <Component card={card} />;
   }
 
-  const Generic = cardTypeRegistry['generic']?.component || (() => <div>Generic Card</div>);
-  return <Generic card={card} />;
+  if (cardTypeRegistry['generic']?.component) {
+    const Generic = cardTypeRegistry['generic'].component;
+    return <Generic card={card} />;
+  }
+
+  return <p>Tipo de card não reconhecido.</p>;
 };
 
 export default CardRouter;

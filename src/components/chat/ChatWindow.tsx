@@ -1,7 +1,7 @@
 
 "use client";
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { X, Users } from 'lucide-react';
@@ -13,6 +13,16 @@ import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 
 export default function ChatWindow() {
   const { isChatOpen, closeChat, currentChatId, onlineUsers, currentUser } = useChatStore();
+
+  useEffect(() => {
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        closeChat();
+      }
+    };
+    document.addEventListener('keydown', handleEsc);
+    return () => document.removeEventListener('keydown', handleEsc);
+  }, [closeChat]);
 
   if (!isChatOpen || !currentUser?.uid) {
     return null;
@@ -31,12 +41,13 @@ export default function ChatWindow() {
         "transition-all duration-300 ease-in-out",
         isChatOpen ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10 pointer-events-none"
       )}
-      role="log"
-      aria-live="polite"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="chat-title"
     >
       <CardHeader className="flex flex-row items-center justify-between p-3 border-b">
         <div>
-          <CardTitle className="text-base font-semibold font-headline">Chat Global da Clínica</CardTitle>
+          <CardTitle id="chat-title" className="text-base font-semibold font-headline">Chat Global da Clínica</CardTitle>
           <div className="flex items-center text-xs text-muted-foreground">
             <Users className="h-3 w-3 mr-1" /> {onlineUsers.length} online
           </div>

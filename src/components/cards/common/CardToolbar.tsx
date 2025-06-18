@@ -18,7 +18,7 @@ const CardToolbar: React.FC<CardToolbarProps> = ({ onEdit, onArchive, onDelete }
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" className="w-6 h-6">
+        <Button variant="ghost" size="icon" className="w-6 h-6" aria-label="Opções do cartão">
           <MoreVertical className="w-3 h-3" />
         </Button>
       </DropdownMenuTrigger>

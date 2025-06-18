@@ -15,6 +15,7 @@ const CardLabel: React.FC<CardLabelProps> = ({ tags }) => {
         <span
           key={index}
           className="inline-flex items-center rounded-full bg-blue-500/10 px-2 py-0.5 text-xs font-medium text-blue-700 dark:text-blue-300"
+          aria-label={`Tipo de cartão: ${tag}`}
         >
           {tag}
         </span>

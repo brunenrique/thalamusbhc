@@ -80,9 +80,14 @@ const EdgeLabelModal: React.FC = () => {
 
   return (
     <Dialog open={isLabelEdgeModalOpen} onOpenChange={(open) => { if (!open) closeLabelEdgeModal(); }}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent
+        className="sm:max-w-md"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="label-title"
+      >
         <DialogHeader>
-          <DialogTitle className="font-headline">Rotular Conexão</DialogTitle>
+          <DialogTitle id="label-title" className="font-headline">Rotular Conexão</DialogTitle>
           <DialogDescription>
             Como estes dois elementos se relacionam?
           </DialogDescription>
@@ -90,7 +95,7 @@ const EdgeLabelModal: React.FC = () => {
         <div className="py-4 space-y-2">
           <Label htmlFor="connection-label-select">Tipo de Relação</Label>
           <Select onValueChange={(value) => setSelectedLabel(value as ConnectionLabel['label'])} value={selectedLabel}>
-            <SelectTrigger id="connection-label-select">
+            <SelectTrigger id="connection-label-select" autoFocus>
               <SelectValue placeholder="Selecione um rótulo" />
             </SelectTrigger>
             <SelectContent>

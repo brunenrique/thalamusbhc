@@ -56,7 +56,9 @@ export default function ToolsPage() {
             <CardFooter className="border-t pt-4">
               <Button asChild variant="outline" className="w-full">
                 <Link href={tool.href}>
-                  Abrir Ferramenta <ChevronRight className="ml-2 h-4 w-4" />
+                  <span>
+                    Abrir Ferramenta <ChevronRight className="ml-2 h-4 w-4" />
+                  </span>
                 </Link>
               </Button>
             </CardFooter>

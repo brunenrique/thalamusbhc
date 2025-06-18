@@ -232,8 +232,10 @@ export default function SidebarNav({ currentPath, userRole = "Admin" }: SidebarN
             tooltip={state === "collapsed" ? "Ajuda e Suporte" : undefined}
           >
             <Link href="/help" passHref>
-              <HelpCircle />
-              <span className="group-data-[collapsible=icon]:hidden">Ajuda e Suporte</span>
+              <span>
+                <HelpCircle />
+                <span className="group-data-[collapsible=icon]:hidden">Ajuda e Suporte</span>
+              </span>
             </Link>
           </SidebarMenuButton>
         </SidebarMenuItem>

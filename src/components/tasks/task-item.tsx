@@ -79,9 +79,9 @@ function TaskItemComponent({ task }: TaskItemProps) {
             {getStatusIcon()}
           </div>
           <div className="flex-1">
-            <CardTitle 
+            <CardTitle
               className={cn(
-                "text-base font-semibold leading-tight cursor-pointer hover:text-accent", 
+                "text-base font-semibold leading-tight cursor-pointer hover:text-accent hover:bg-zinc-50 transition-colors",
                 task.status === "Concluída" && "line-through text-muted-foreground"
               )}
               onClick={() => router.push(`/tasks/edit/${task.id}`)} // Navegar ao clicar no título

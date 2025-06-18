@@ -19,25 +19,11 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  experimental: {
-    allowedDevOrigins: process.env.ALLOWED_DEV_ORIGINS?.split(',') || [],
-  },
-  webpack: (config, { isServer }) => {
-    // This configuration helps prevent "Module not found" errors for Node.js
-    // core modules like 'child_process', 'fs', 'os', etc., when they are
-    // inadvertently imported by client-side code (often via dependencies).
-    if (!isServer) {
-      config.resolve.fallback = {
-        ...config.resolve.fallback, // Preserve any existing fallbacks
-        child_process: false, // Indicates 'child_process' is not available
-        fs: false,            // Indicates 'fs' is not available
-        os: false,             // Indicates 'os' is not available
-        net: false,            // Indicates 'net' is not available
-        tls: false,            // Indicates 'tls' is not available
-      };
-    }
-    return config;
-  },
+  allowedDevOrigins:
+    process.env.ALLOWED_DEV_ORIGINS?.split(',') ?? [
+      'http://localhost:9003',
+      'https://*.cloudworkstations.dev',
+    ],
 };
 
 export default nextConfig;

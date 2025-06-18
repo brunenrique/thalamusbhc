@@ -31,7 +31,7 @@ const MatrixCardForm: React.FC = () => {
   };
 
   return (
-    <form className="space-y-4" onSubmit={handleSubmit}">
+    <form className="space-y-4" onSubmit={handleSubmit}>
       {matrix.map((row, rowIndex) => (
         <div key={rowIndex} className="flex gap-2">
           {row.map((value, colIndex) => (

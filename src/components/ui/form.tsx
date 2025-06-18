@@ -107,11 +107,22 @@ FormLabel.displayName = "FormLabel"
 const FormControl = React.forwardRef<
   React.ElementRef<typeof Slot>,
   React.ComponentPropsWithoutRef<typeof Slot>
->(({ ...props }, ref) => {
+>(({ children, ...props }, ref) => {
   const { error, formItemId, formDescriptionId, formMessageId } = useFormField()
 
+  const hasSingleValidChild =
+    React.Children.count(children) === 1 && React.isValidElement(children)
+
+  if (!hasSingleValidChild) {
+    console.error(
+      "FormControl expects a single React element child. Rendering a <div> wrapper instead."
+    )
+  }
+
+  const Comp = hasSingleValidChild ? Slot : "div"
+
   return (
-    <Slot
+    <Comp
       ref={ref}
       id={formItemId}
       aria-describedby={
@@ -121,7 +132,9 @@ const FormControl = React.forwardRef<
       }
       aria-invalid={!!error}
       {...props}
-    />
+    >
+      {children}
+    </Comp>
   )
 })
 FormControl.displayName = "FormControl"

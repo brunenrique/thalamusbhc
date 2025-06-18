@@ -571,7 +571,16 @@ const SidebarMenuButton = React.forwardRef<HTMLButtonElement, SidebarMenuButtonP
       ...otherParentProps
     } = rawProps;
 
-    const Comp = ownAsChildProp ? Slot : "button";
+    const hasSingleValidChild =
+      React.Children.count(children) === 1 && React.isValidElement(children)
+
+    if (ownAsChildProp && !hasSingleValidChild) {
+      console.error(
+        "SidebarMenuButton with asChild expects a single React element child. Rendering a <button> instead."
+      )
+    }
+
+    const Comp = ownAsChildProp && hasSingleValidChild ? Slot : "button";
     
     const { asChild: asChildFromParent, ...finalDomProps } = otherParentProps;
 

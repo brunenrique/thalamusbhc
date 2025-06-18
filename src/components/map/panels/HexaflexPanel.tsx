@@ -39,7 +39,7 @@ const HexaflexPanel: React.FC = () => {
   const currentSection = SECTIONS.find(s => s.key === activeSection);
 
   return (
-    <div className="p-4 border-l border-border bg-background w-80 pointer-events-auto overflow-y-auto flex">
+    <div className="p-4 border-l border-border bg-background w-80 pointer-events-auto overflow-auto min-w-0 flex">
       <div className="relative w-56 h-56 rounded-full border flex-shrink-0 mx-auto">
         {SECTIONS.map((s, idx) => (
           <button

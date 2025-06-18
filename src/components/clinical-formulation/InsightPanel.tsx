@@ -23,7 +23,7 @@ const InsightPanel: React.FC = () => {
           Observações e padrões identificados pela IA ou pelo profissional.
         </CardDescription>
       </CardHeader>
-      <CardContent className="p-0 flex-grow overflow-hidden">
+      <CardContent className="p-0 flex-grow overflow-auto min-w-0">
         <ScrollArea className="h-full p-4">
           {/* {isLoadingInsights && <p className="text-sm text-muted-foreground">Gerando insights...</p>} */}
           {!insights || insights.length === 0 || (insights.length === 1 && insights[0] === "Clique em 'Gerar Insights' para análise.") ? (

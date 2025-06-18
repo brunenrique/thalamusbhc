@@ -675,7 +675,7 @@ export default function PatientDetailPage() {
         <TabsContent value="overview" className="mt-6 space-y-6">
           <Card>
             <CardHeader><CardTitle className="font-headline">Informações Gerais</CardTitle></CardHeader>
-            <CardContent className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <CardContent className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 min-w-0 overflow-auto">
               <InfoDisplay label="Data de Nascimento" value={formattedDob} icon={CalendarDays} />
               <InfoDisplay label="Psicólogo(a) Designado(a)" value={patient.assignedPsychologist} icon={UsersIconLucide} />
               <InfoDisplay label="Endereço" value={patient.address || "Não informado"} icon={HomeIconLucide} />
@@ -822,7 +822,7 @@ export default function PatientDetailPage() {
                 </CardHeader>
                 <CardContent>
                     {assessments.length > 0 ? (
-                        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 min-w-0 overflow-auto">
                             {assessments.map(asm => <AssessmentCard key={asm.id} assessment={asm} />)}
                         </div>
                     ) : <p className="text-muted-foreground">Nenhuma avaliação ou inventário atribuído.</p>}
@@ -854,7 +854,7 @@ export default function PatientDetailPage() {
                 </CardHeader>
                  <CardContent>
                     {patientResources.length > 0 ? (
-                        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 min-w-0 overflow-auto">
                         {patientResources.map(res => <ResourceCard key={res.id} resource={res} isGlobalList={false}/>)}
                         </div>
                     ) : <p className="text-muted-foreground">Nenhum recurso compartilhado com este paciente ainda.</p>}
@@ -938,7 +938,7 @@ export default function PatientDetailPage() {
 
                     <Card className="bg-muted/20 p-4">
                         <CardTitle className="text-lg font-semibold mb-2">Enviar Anamnese para o Paciente Preencher</CardTitle>
-                        <div className="grid sm:grid-cols-2 gap-4 mb-3">
+                        <div className="grid sm:grid-cols-2 gap-4 mb-3 min-w-0 overflow-auto">
                              <div className="space-y-1">
                                 <Label htmlFor="anamnesisTemplate">Modelo de Anamnese</Label>
                                 <Select value={selectedAnamnesisTemplateIdToSent} onValueChange={setSelectedAnamnesisTemplateIdToSent}>

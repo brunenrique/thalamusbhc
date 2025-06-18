@@ -40,7 +40,7 @@ const SchemaPanel: React.FC = () => {
             <X className="h-4 w-4" />
         </Button>
       </CardHeader>
-      <CardContent className="p-3 flex-grow overflow-hidden flex flex-col">
+      <CardContent className="p-3 flex-grow overflow-auto flex flex-col min-w-0">
         <div className="flex gap-2 mb-2">
           <Input
             type="text"

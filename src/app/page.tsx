@@ -1,24 +1,17 @@
-
-"use client";
-
-import { Brain } from "lucide-react";
-import Link from "next/link";
-import { APP_ROUTES } from "@/lib/routes";
+// src/app/page.tsx (Simplified for debugging Turbopack)
+import { Button } from "@/components/ui/button";
+// Import of next/link is removed as it's no longer used directly here for this test.
 
 export default function LandingPageSimplified() {
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-6">
-      <Brain className="w-16 h-16 text-primary mb-4" />
-      <h1 className="text-4xl font-bold mb-2">Thalamus (Simplified)</h1>
-      <p className="text-lg text-muted-foreground mb-6">
+    <div className="flex flex-col items-center justify-center min-h-screen p-4">
+      <h1 className="text-2xl font-bold mb-4">Thalamus (Simplified)</h1>
+      <p className="text-muted-foreground mb-6">
         This landing page has been temporarily simplified for debugging.
       </p>
-      <Link
-        className="px-6 py-3 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
-        href={APP_ROUTES.dashboard}
-      >
-        Access Dashboard
-      </Link>
+      <Button> {/* Removed asChild prop */}
+        <span>Access Dashboard Span</span>
+      </Button>
     </div>
   );
 }

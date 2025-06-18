@@ -283,9 +283,8 @@ export default function PatientDetailPage() {
       </Card>
 
       <Tabs defaultValue={initialTab} className="w-full flex flex-col flex-grow">
-        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
+        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-5"> {/* Adjusted grid-cols */}
           <TabsTrigger value="overview"><HomeIconLucide className="mr-1.5 h-4 w-4"/>Visão Geral</TabsTrigger>
-          <TabsTrigger value="caseStudy"><Brain className="mr-1.5 h-4 w-4"/>O Coração Clínico</TabsTrigger>
           <TabsTrigger value="timeline"><HistoryIcon className="mr-1.5 h-4 w-4"/>Linha do Tempo</TabsTrigger>
           <TabsTrigger value="formulations"><Lightbulb className="mr-1.5 h-4 w-4"/>Formulações</TabsTrigger>
           <TabsTrigger value="assessments"><ClipboardList className="mr-1.5 h-4 w-4"/>Avaliações</TabsTrigger>
@@ -317,12 +316,6 @@ export default function PatientDetailPage() {
           <div>Visão Geral - Placeholder para Progresso e Tarefas</div>
         </TabsContent>
         
-        <TabsContent value="caseStudy" className="mt-6 flex-grow flex flex-col min-w-0">
-            <div className="p-6 text-center text-muted-foreground flex-grow">
-                Placeholder para O Coração Clínico.
-            </div>
-        </TabsContent>
-
         <TabsContent value="timeline" className="mt-6">
             <div className="p-6 text-center text-muted-foreground">Placeholder para Linha do Tempo.</div>
         </TabsContent>
@@ -347,4 +340,3 @@ export default function PatientDetailPage() {
   );
 }
     
-

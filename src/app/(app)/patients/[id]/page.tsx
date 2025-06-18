@@ -244,6 +244,8 @@ export default function PatientDetailPage() {
   const patientId = pageParams.id as string;
 
   const patient = mockPatient;
+  const patientAge = 34;
+  const lastClinicalFocus = "Mecanismos de enfrentamento para ansiedade";
   const router = useRouter();
   const { toast } = useToast();
   const searchParams = useSearchParams();
@@ -592,7 +594,11 @@ export default function PatientDetailPage() {
   };
 
   return (
-    <div className="flex flex-col h-full space-y-6">
+    <div className="flex flex-col h-full space-y-6 pt-16">
+      <div className="sticky top-0 z-10 bg-white border-b px-4 py-2">
+        <div className="font-semibold">{patient.name}, {patientAge} anos</div>
+        <div className="text-sm text-muted-foreground">Último foco clínico: {lastClinicalFocus}</div>
+      </div>
       <Button variant="outline" asChild className="mb-4 self-start">
         <Link href="/patients"><ArrowLeft className="mr-2 h-4 w-4" /> Voltar para Pacientes</Link>
       </Button>

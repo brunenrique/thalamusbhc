@@ -98,6 +98,12 @@ body {
   body {
     @apply bg-background text-foreground;
   }
+  div.grid {
+    @apply gap-6;
+  }
+  div.flex {
+    @apply gap-6;
+  }
 }
 
 /* Custom React Flow Handle Styles */

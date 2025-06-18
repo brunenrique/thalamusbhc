@@ -1,7 +1,13 @@
 // src/stores/clinicalStore.ts
 
 import { create } from "zustand";
-import { BaseCard, Label } from "@/types/clinicalTypes";
+import type {
+  BaseCard,
+  Label,
+  ClinicalTab,
+  ClinicalTabType,
+  TabSpecificFormulationData,
+} from "@/types/clinicalTypes";
 
 type PanelType = "hexaflex" | "chain" | "matrix" | null;
 
@@ -23,6 +29,9 @@ export const allCardColors: Record<string, string> = {
 };
 
 interface ClinicalState {
+  tabs: ClinicalTab[];
+  activeTabId?: string;
+  formulationTabData: Record<string, TabSpecificFormulationData>;
   cards: BaseCard[];
   labels: Label[];
   activePanel: PanelType;
@@ -34,11 +43,70 @@ interface ClinicalState {
   addLabel: (label: Omit<Label, "id">) => void;
   assignLabelToCard: (cardId: string, labelId: string) => void;
 
+  addTab: (type: ClinicalTabType, title: string) => string;
+  removeTab: (id: string) => void;
+  renameTab: (id: string, title: string) => void;
+  setActiveTab: (id: string) => void;
+  fetchClinicalData: (patientId: string, tabId: string) => void;
+
   setActivePanel: (panel: PanelType) => void;
   setPanelState: (panel: string, state: any) => void;
 }
 
-export const useClinicalStore = create<ClinicalState>((set) => ({
+export const useClinicalStore = create<ClinicalState>((set, get) => ({
+  // ----- Tab Management -----
+  tabs: [
+    { id: "initialTab", type: "formulation", title: "Formulação Inicial" },
+  ],
+  activeTabId: "initialTab",
+  formulationTabData: {},
+
+  addTab: (type, title) => {
+    const id = crypto.randomUUID();
+    set((state) => ({
+      tabs: [...state.tabs, { id, type, title }],
+      activeTabId: id,
+    }));
+    return id;
+  },
+  removeTab: (id) =>
+    set((state) => ({
+      tabs: state.tabs.filter((t) => t.id !== id),
+      activeTabId:
+        state.activeTabId === id ? state.tabs[0]?.id : state.activeTabId,
+    })),
+  renameTab: (id, title) =>
+    set((state) => ({
+      tabs: state.tabs.map((t) => (t.id === id ? { ...t, title } : t)),
+    })),
+  setActiveTab: (id) => set({ activeTabId: id }),
+  fetchClinicalData: (patientId, tabId) => {
+    console.log("fetchClinicalData", patientId, tabId);
+    set((state) => ({
+      formulationTabData: {
+        ...state.formulationTabData,
+        [tabId]:
+          state.formulationTabData[tabId] || {
+            cards: [],
+            schemas: [],
+            nodes: [],
+            edges: [],
+            viewport: { x: 0, y: 0, zoom: 1 },
+            insights: [],
+            formulationGuideAnswers: {},
+            quickNotes: [],
+            cardGroups: [],
+            activeColorFilters: [],
+            showSchemaNodes: true,
+            emotionIntensityFilter: 0,
+          },
+      },
+    }));
+  },
+
+  prefillSchemaRule: undefined,
+
+  // ----- Existing card/label management -----
   cards: [],
   labels: [],
   activePanel: null,

@@ -43,7 +43,7 @@ export default function TasksPage() {
         </Button>
       </div>
 
-      <Card className="shadow-sm">
+      <Card className="shadow-sm border-t border-zinc-200 mt-4 pt-4">
         <CardHeader>
           <CardTitle className="font-headline">Lista de Tarefas</CardTitle>
           <CardDescription>Gerencie as tarefas registradas na aplicação.</CardDescription>
@@ -63,7 +63,7 @@ export default function TasksPage() {
                   <TableHead>Status</TableHead>
                 </TableRow>
               </TableHeader>
-              <TableBody>
+              <TableBody className="divide-y divide-zinc-200">
                 {tasks.map((task) => (
                   <TableRow key={task.id}>
                     <TableCell className="font-medium">

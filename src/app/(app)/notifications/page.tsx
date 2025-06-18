@@ -51,14 +51,14 @@ export default function NotificationsPage() {
         </div>
       </div>
 
-      <Card className="shadow-sm">
+      <Card className="shadow-sm border-t border-zinc-200 mt-4 pt-4">
         <CardHeader>
           <CardTitle className="font-headline">Notificações Recentes</CardTitle>
           <CardDescription>Mantenha-se atualizado com alertas e mensagens importantes.</CardDescription>
         </CardHeader>
         <CardContent>
           {notifications.length > 0 ? (
-            <div className="space-y-3">
+            <div className="space-y-3 divide-y divide-zinc-200">
               {notifications.map(notification => (
                 <NotificationItem key={notification.id} notification={notification} />
               ))}

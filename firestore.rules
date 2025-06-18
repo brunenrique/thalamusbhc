@@ -3,6 +3,7 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    // --- Funções auxiliares ---
     function isSignedIn() {
       return request.auth != null;
     }
@@ -28,47 +29,53 @@ service cloud.firestore {
     }
 
     function isOwner() {
-      return resource.data != null && resource.data.ownerId == request.auth.uid;
+      return resource.data?.ownerId == request.auth.uid;
     }
 
-    // Users
+    // --- Usuários ---
     match /users/{userId} {
       allow read: if isStaff() || request.auth.uid == userId;
       allow write: if request.auth.uid == userId || isAdmin();
     }
 
-    // Patients
+    // --- Pacientes ---
     match /patients/{id} {
       allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
       allow read, update, delete: if isSignedIn() && isOwner();
     }
 
-    // Chat messages
+    // --- Mensagens em chats ---
     match /chats/{chatId}/messages/{messageId} {
       allow read: if isSignedIn() &&
-                   get(/databases/$(database)/documents/chats/$(chatId)).data.participants[request.auth.uid] == true;
+        get(/databases/$(database)/documents/chats/$(chatId)).data.participants[request.auth.uid] == true;
 
       allow create: if isSignedIn() &&
-                    request.resource.data.senderId == request.auth.uid &&
-                    request.resource.data.text is string &&
-                    request.resource.data.text.size() > 0 &&
-                    request.resource.data.text.size() < 1000 &&
-                    request.resource.data.senderName is string &&
-                    request.resource.data.timestamp == request.time;
+        request.resource.data.senderId == request.auth.uid &&
+        request.resource.data.text is string &&
+        request.resource.data.text.size() > 0 &&
+        request.resource.data.text.size() < 1000 &&
+        request.resource.data.senderName is string &&
+        request.resource.data.timestamp == request.time;
+
+      // Exemplo futuro:
+      // allow update, delete: if request.auth.uid == resource.data.senderId;
     }
 
-    // Assessments
+    // --- Avaliações (assessments) ---
     match /assessments/{assessmentId} {
       allow read: if isSignedIn();
+
       allow create: if isSignedIn() &&
-                      request.resource.data.patientId is string &&
-                      request.resource.data.assignedBy is string &&
-                      request.resource.data.status in ['assigned', 'in-progress', 'completed'];
+        request.resource.data.patientId is string &&
+        request.resource.data.assignedBy is string &&
+        request.resource.data.status in ['assigned', 'in-progress', 'completed'];
+
       allow update: if isSignedIn();
+
       allow delete: if isAdmin();
     }
 
-    // Catch-all nega tudo por padrão
+    // --- Catch-all: nega tudo por padrão ---
     match /{document=**} {
       allow read, write: if false;
     }

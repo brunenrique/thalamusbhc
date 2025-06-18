@@ -4,7 +4,7 @@ import fetch from 'node-fetch';
 
 let testEnv: Awaited<ReturnType<typeof initializeTestEnvironment>>;
 
-describe.skip('Firestore security rules', () => {
+describe('Firestore security rules', () => {
 
 beforeAll(async () => {
   const hostPort = process.env.FIRESTORE_EMULATOR_HOST || '127.0.0.1:8083';

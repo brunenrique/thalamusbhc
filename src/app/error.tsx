@@ -24,7 +24,6 @@ export default function GlobalError({
         <Link className={buttonVariants({ variant: "ghost" })} href="/">
           Voltar para o início
         </Link>
-
       </div>
     </div>
   );

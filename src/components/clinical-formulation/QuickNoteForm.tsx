@@ -64,8 +64,16 @@ const QuickNoteForm: React.FC = () => {
         <DialogFooter className="gap-2">
           <DialogClose asChild>
             {/* closeQuickNoteForm já é chamado por handleOpenChange */}
-            <Button type="button" variant="outline" className="flex items-center gap-2 text-sm font-medium" aria-label="Cancelar anotação">
-              <X className="h-4 w-4" /> Cancelar
+            <Button
+              type="button"
+              variant="outline"
+              className="flex items-center gap-2 text-sm font-medium"
+              aria-label="Cancelar anotação"
+            >
+              <span className="inline-flex items-center gap-2">
+                <X className="h-4 w-4" />
+                Cancelar
+              </span>
             </Button>
           </DialogClose>
           <Button

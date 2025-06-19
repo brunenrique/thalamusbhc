@@ -47,11 +47,13 @@ export default function LandingPage() {
             {/* <Link href="/features" className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary">Recursos</Link>
             <Link href="/pricing" className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary">Preços</Link> */}
             <Link href="/login" passHref legacyBehavior>
-              <Button as="a" variant="ghost">Entrar</Button>
+              <Button as="a" variant="ghost">
+                <span className="inline-flex items-center gap-2">Entrar</span>
+              </Button>
             </Link>
             <Link href="/signup" passHref legacyBehavior>
               <Button as="a" className="bg-accent hover:bg-accent/90 text-accent-foreground">
-                Criar Conta Grátis
+                <span className="inline-flex items-center gap-2">Criar Conta Grátis</span>
               </Button>
             </Link>
           </nav>

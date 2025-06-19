@@ -11,10 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, CalendarDays } from "lucide-react";
 import Link from "next/link";
-import AppointmentCalendar, {
-  type AppointmentsByDate,
-  getInitialMockAppointments,
-} from "@/components/schedule/appointment-calendar";
+import AppointmentCalendar, { getInitialMockAppointments } from "@/components/schedule/appointment-calendar";
 import {
   format,
   startOfWeek,
@@ -24,6 +21,21 @@ import {
 } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
+type Appointment = {
+  id: string;
+  startTime: string;
+  endTime: string;
+  patient: string;
+  type: string;
+  psychologistId: string;
+  status: string;
+  notes?: string;
+};
+
+type AppointmentsByDate = {
+  [date: string]: Appointment[];
+};
+
 export default function DashboardWeeklySchedule() {
   const [currentDate, setCurrentDate] = useState<Date | null>(null);
   const [appointmentsData, setAppointmentsData] = useState<AppointmentsByDate>(() =>
@@ -32,7 +44,6 @@ export default function DashboardWeeklySchedule() {
 
   useEffect(() => {
     setCurrentDate(new Date());
-    // Possível fetch futuro para dados dinâmicos de agenda
   }, []);
 
   const navigateWeek = (direction: 'prev' | 'next') => {
@@ -58,7 +69,6 @@ export default function DashboardWeeklySchedule() {
   const handleAppointmentsUpdate = useCallback(
     (updatedAppointments: AppointmentsByDate) => {
       setAppointmentsData(updatedAppointments);
-      // Possível sincronização com backend ou store
     },
     []
   );

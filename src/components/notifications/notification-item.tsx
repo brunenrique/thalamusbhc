@@ -80,11 +80,9 @@ function NotificationItemComponent({ notification }: NotificationItemProps) {
                 className="h-7 px-2 text-accent"
                 aria-label="Ver detalhes"
               >
-                <Link href={notification.link}>
-                  <span className="inline-flex items-center gap-2">
-                    <ExternalLink className="h-3.5 w-3.5" />
-                    Ver
-                  </span>
+                <Link href={notification.link} className="inline-flex items-center gap-2">
+                  <ExternalLink className="h-3.5 w-3.5" />
+                  Ver
                 </Link>
               </Button>
             )}

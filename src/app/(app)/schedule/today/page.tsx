@@ -242,11 +242,9 @@ export default function TodaySchedulePage() {
           <h1 className="text-3xl font-headline font-bold">Agenda de Hoje</h1>
         </div>
         <Button asChild className="bg-accent hover:bg-accent/90 text-accent-foreground">
-          <Link href="/schedule/new">
-            <span className="inline-flex items-center gap-2">
-              <PlusCircle className="h-4 w-4" />
-              Novo Agendamento
-            </span>
+          <Link href="/schedule/new" className="inline-flex items-center gap-2">
+            <PlusCircle className="h-4 w-4" />
+            Novo Agendamento
           </Link>
         </Button>
       </div>

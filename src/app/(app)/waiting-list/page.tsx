@@ -36,10 +36,8 @@ export default function WaitingListPage() {
           <h1 className="text-3xl font-headline font-bold">Lista de Espera</h1>
         </div>
         <Button asChild className="bg-accent hover:bg-accent/90 text-accent-foreground">
-          <Link href="/waiting-list/add">
-            <span className="inline-flex items-center gap-2">
-              <UserPlus className="mr-2 h-4 w-4" /> Adicionar à Lista de Espera
-            </span>
+          <Link href="/waiting-list/add" className="inline-flex items-center gap-2">
+            <UserPlus className="mr-2 h-4 w-4" /> Adicionar à Lista de Espera
           </Link>
         </Button>
       </div>

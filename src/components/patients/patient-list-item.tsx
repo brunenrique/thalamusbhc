@@ -77,12 +77,10 @@ function PatientListItemComponent({ patient }: PatientListItemProps) {
           </div>
           <div className="flex items-center gap-1 sm:gap-2">
             <Button variant="outline" size="sm" asChild className="h-8 px-2 sm:px-3" aria-label={`Editar perfil de ${patient.name}`}>
-              <Link href={`/patients/${patient.id}/edit`}>
-                <span className="inline-flex items-center gap-2">
-                  <Edit3 className="h-3.5 w-3.5" />
-                  <span className="hidden sm:inline">Editar</span>
-                  <span className="sr-only sm:hidden">Editar perfil de {patient.name}</span>
-                </span>
+              <Link href={`/patients/${patient.id}/edit`} className="inline-flex items-center gap-2">
+                <Edit3 className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">Editar</span>
+                <span className="sr-only sm:hidden">Editar perfil de {patient.name}</span>
               </Link>
             </Button>
             <AlertDialog>

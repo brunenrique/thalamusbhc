@@ -211,11 +211,9 @@ export default function SchedulePage() {
           <h1 className="text-3xl font-headline font-bold">Agenda Comparativa</h1>
         </div>
         <Button asChild className="bg-accent hover:bg-accent/90 text-accent-foreground">
-          <Link href="/schedule/new">
-            <span className="inline-flex items-center gap-2">
-              <PlusCircle className="h-4 w-4" />
-              Novo Agendamento
-            </span>
+          <Link href="/schedule/new" className="inline-flex items-center gap-2">
+            <PlusCircle className="h-4 w-4" />
+            Novo Agendamento
           </Link>
         </Button>
       </div>
@@ -291,11 +289,9 @@ export default function SchedulePage() {
                 </DropdownMenuContent>
                 </DropdownMenu>
                  <Button variant="outline" size="sm" asChild className="w-full sm:w-auto">
-                    <Link href={`/schedule/new?isBlockTime=true&date=${format(currentDate, 'yyyy-MM-dd')}`}>
-                        <span className="inline-flex items-center gap-2">
+                    <Link href={`/schedule/new?isBlockTime=true&date=${format(currentDate, 'yyyy-MM-dd')}`} className="inline-flex items-center gap-2">
                           <ShieldAlert className="h-3.5 w-3.5" />
                           Bloquear Horário
-                        </span>
                     </Link>
                  </Button>
             </div>

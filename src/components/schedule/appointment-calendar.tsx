@@ -273,31 +273,25 @@ function AppointmentCalendarComponent({ view, currentDate, filters, workingDaysO
           <div className="flex flex-col gap-1.5 p-3 border-t bg-muted/30 rounded-b-lg">
               {appt.isGroupSession && appt.groupId && (
                     <Button size="sm" variant="outline" asChild className="w-full">
-                        <Link href={`/groups/${appt.groupId}`}>
-                            <span className="inline-flex items-center gap-2">
+                        <Link href={`/groups/${appt.groupId}`} className="inline-flex items-center gap-2">
                               <UsersIcon className="h-3.5 w-3.5"/>
                               Ver Detalhes do Grupo
-                            </span>
                         </Link>
                     </Button>
               )}
               {!appt.isGroupSession && appt.patientId && (
                     <Button size="sm" variant="outline" asChild className="w-full">
-                        <Link href={`/patients/${appt.patientId}?tab=notes&date=${format(dayDate, "yyyy-MM-dd")}`}>
-                            <span className="inline-flex items-center gap-2">
+                        <Link href={`/patients/${appt.patientId}?tab=notes&date=${format(dayDate, "yyyy-MM-dd")}`} className="inline-flex items-center gap-2">
                               <FileText className="h-3.5 w-3.5"/>
                               Iniciar Anotação
-                            </span>
                         </Link>
                     </Button>
               )}
               <div className="flex gap-2 w-full">
                     <Button size="sm" variant="outline" asChild className="flex-1">
-                      <Link href={appt.isGroupSession ? `/groups/edit/${appt.groupId}` : `/schedule/edit/${appt.id}`}>
-                        <span className="inline-flex items-center gap-2">
+                      <Link href={appt.isGroupSession ? `/groups/edit/${appt.groupId}` : `/schedule/edit/${appt.id}`} className="inline-flex items-center gap-2">
                           <Edit className="h-3.5 w-3.5"/>
                           {appt.isGroupSession ? "Gerenciar Grupo" : "Editar"}
-                        </span>
                       </Link>
                     </Button>
                   {!appt.isGroupSession && (

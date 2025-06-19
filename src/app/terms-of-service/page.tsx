@@ -22,7 +22,9 @@ export default function TermsOfServicePage() {
         </p>
       </div>
       <Button asChild className="bg-accent text-accent-foreground hover:bg-accent/90">
-        <Link href="/">Voltar para a Página Inicial</Link>
+        <Link href="/">
+          <span>Voltar para a Página Inicial</span>
+        </Link>
       </Button>
     </div>
   );

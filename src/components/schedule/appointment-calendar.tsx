@@ -33,7 +33,6 @@ import { useToast } from "@/hooks/use-toast";
 import type { Appointment, AppointmentsByDate, AppointmentStatus } from "@/types/appointment";
 import InfoDisplay from '@/components/ui/info-display';
 import { mockTherapeuticGroups } from '@/app/(app)/groups/page';
-import type { Group as TherapeuticGroup } from '@/app/(app)/groups/[id]/page';
 
 
 const mockPsychologists = [

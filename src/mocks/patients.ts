@@ -1,5 +1,5 @@
 
-type UserGender = "masculino" | "feminino" | "outro";
+import type { UserGender } from '@/types/user';
 
 const getDefaultPatientAvatar = (gender?: UserGender, name?: string) => {
   const initials = name ? (name.split(' ')[0][0] + (name.split(' ').length > 1 ? name.split(' ')[name.split(' ').length - 1][0] : '')).toUpperCase() : "P";

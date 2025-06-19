@@ -190,13 +190,11 @@ export default function DashboardPage() {
               )}
             </CardContent>
             <CardFooter>
-              <Button variant="outline" size="sm" asChild>
-                <span className="inline-flex w-full justify-center items-center">
-                  <Link href="/notifications">
-                    Ver Todas Notificações
-                  </Link>
-                </span>
-              </Button>
+              <Link href="/notifications" className="w-full">
+                <Button variant="outline" size="sm" className="w-full">
+                  Ver Todas Notificações
+                </Button>
+              </Link>
             </CardFooter>
           </Card>
         </div>

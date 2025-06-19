@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useEffect, useState } from "react";
@@ -38,7 +39,9 @@ export default function TasksPage() {
         </div>
         <Button asChild className="bg-accent hover:bg-accent/90 text-accent-foreground">
           <Link href="/tasks/new">
-            <PlusCircle className="mr-2 h-4 w-4" /> Nova Tarefa
+            <span className="inline-flex items-center gap-2">
+              <PlusCircle className="mr-2 h-4 w-4" /> Nova Tarefa
+            </span>
           </Link>
         </Button>
       </div>

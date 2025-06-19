@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useState } from 'react'; // Added useState
+import React, { useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,7 +10,7 @@ import { UserCircle, Edit, Lock, Bell, Briefcase, CalendarDays, Mail, Phone, Shi
 import Link from "next/link";
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { useToast } from '@/hooks/use-toast'; // Added useToast
+import { useToast } from '@/hooks/use-toast';
 
 type UserGender = "masculino" | "feminino" | "outro";
 
@@ -18,11 +18,11 @@ const getDefaultAvatarByGender = (gender?: UserGender, name?: string) => {
   const initials = name ? (name.split(' ')[0][0] + (name.split(' ').length > 1 ? name.split(' ')[name.split(' ').length - 1][0] : '')).toUpperCase() : "??";
   switch (gender) {
     case "masculino":
-      return `https://placehold.co/150x150/70C1B3/FFFFFF?text=M-${initials}`; // Greenish with M-
+      return `https://placehold.co/150x150/70C1B3/FFFFFF?text=M-${initials}`;
     case "feminino":
-      return `https://placehold.co/150x150/D0BFFF/4F3A76?text=F-${initials}`; // Lavender with F-
+      return `https://placehold.co/150x150/D0BFFF/4F3A76?text=F-${initials}`;
     default:
-      return `https://placehold.co/150x150/F5F5F5/4A4A4A?text=N-${initials}`; // Light gray with N-
+      return `https://placehold.co/150x150/F5F5F5/4A4A4A?text=N-${initials}`;
   }
 };
 
@@ -37,6 +37,7 @@ const mockUserProfileData = {
   phone: "(11) 98765-4321",
   dateRegistered: "2023-05-10T10:00:00Z",
   clinicName: "PsiGuard Clínica Central",
+  avatarUrl: "" // Will be set by getDefaultAvatarByGender
 };
 mockUserProfileData.avatarUrl = getDefaultAvatarByGender(mockUserProfileData.gender, mockUserProfileData.name);
 
@@ -53,7 +54,7 @@ const predefinedAvatars = [
 
 
 export default function ProfilePage() {
-  const { toast } = useToast(); // Added
+  const { toast } = useToast();
   const [currentUserProfile, setCurrentUserProfile] = useState({
     ...mockUserProfileData,
     avatarUrl: getDefaultAvatarByGender(mockUserProfileData.gender, mockUserProfileData.name)
@@ -134,7 +135,7 @@ export default function ProfilePage() {
             </div>
             <div>
                 <h4 className="text-sm font-medium mb-2">Carregar Nova Foto</h4>
-                <Button variant="outline" disabled> {/* Botão desabilitado por enquanto */}
+                <Button variant="outline" disabled>
                     <UploadCloud className="mr-2 h-4 w-4"/> Fazer Upload (Em Breve)
                 </Button>
                 <p className="text-xs text-muted-foreground mt-1">Funcionalidade de upload de imagem será implementada futuramente.</p>
@@ -161,17 +162,23 @@ export default function ProfilePage() {
         <CardFooter className="flex flex-col sm:flex-row justify-center gap-3 p-6 border-t">
           <Button variant="default" asChild className="w-full sm:w-auto bg-accent hover:bg-accent/90 text-accent-foreground">
             <Link href="/settings?tab=account">
-              <Edit className="mr-2 h-4 w-4" /> Editar Perfil
+              <span className="inline-flex items-center gap-2">
+                <Edit className="mr-2 h-4 w-4" /> Editar Perfil
+              </span>
             </Link>
           </Button>
           <Button variant="outline" asChild className="w-full sm:w-auto">
-            <Link href="/settings?tab=account"> {/* Placeholder: eventually /profile/change-password */}
-              <Lock className="mr-2 h-4 w-4" /> Alterar Senha
+            <Link href="/settings?tab=account">
+              <span className="inline-flex items-center gap-2">
+                <Lock className="mr-2 h-4 w-4" /> Alterar Senha
+              </span>
             </Link>
           </Button>
            <Button variant="outline" asChild className="w-full sm:w-auto">
             <Link href="/settings?tab=notifications">
-              <Bell className="mr-2 h-4 w-4" /> Preferências de Notificação
+              <span className="inline-flex items-center gap-2">
+                <Bell className="mr-2 h-4 w-4" /> Preferências de Notificação
+              </span>
             </Link>
           </Button>
         </CardFooter>

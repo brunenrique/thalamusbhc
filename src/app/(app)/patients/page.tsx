@@ -1,3 +1,4 @@
+
 "use client";
 
 import { Button } from "@/components/ui/button";
@@ -41,7 +42,7 @@ export default function PatientsPage() {
         </div>
         <Button asChild className="bg-accent hover:bg-accent/90 text-accent-foreground">
           <Link href="/patients/new">
-            <span>
+            <span className="inline-flex items-center gap-2">
               <UserPlus className="mr-2 h-4 w-4" /> Adicionar Novo Paciente
             </span>
           </Link>
@@ -83,7 +84,7 @@ export default function PatientsPage() {
               action={
                 <Button asChild className="bg-accent hover:bg-accent/90 text-accent-foreground">
                   <Link href={APP_ROUTES.newPatient}>
-                    <span>
+                    <span className="inline-flex items-center gap-2">
                       <UserPlus className="mr-2 h-4 w-4" /> Adicionar Novo Paciente
                     </span>
                   </Link>

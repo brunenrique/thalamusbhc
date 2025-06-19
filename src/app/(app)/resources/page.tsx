@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -23,7 +24,9 @@ export default function ResourcesPage() {
         </div>
         <Button asChild className="bg-accent hover:bg-accent/90 text-accent-foreground">
           <Link href="/resources/upload">
-            <UploadCloud className="mr-2 h-4 w-4" /> Carregar Novo Recurso
+            <span className="inline-flex items-center gap-2">
+              <UploadCloud className="mr-2 h-4 w-4" /> Carregar Novo Recurso
+            </span>
           </Link>
         </Button>
       </div>

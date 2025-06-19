@@ -46,11 +46,11 @@ export default function LandingPage() {
           <nav className="flex items-center gap-4">
             {/* <Link href="/features" className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary">Recursos</Link>
             <Link href="/pricing" className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary">Preços</Link> */}
-            <Link href="/login">
-              <Button variant="ghost">Entrar</Button>
+            <Link href="/login" passHref legacyBehavior>
+              <Button as="a" variant="ghost">Entrar</Button>
             </Link>
-            <Link href="/signup">
-              <Button className="bg-accent hover:bg-accent/90 text-accent-foreground">
+            <Link href="/signup" passHref legacyBehavior>
+              <Button as="a" className="bg-accent hover:bg-accent/90 text-accent-foreground">
                 Criar Conta Grátis
               </Button>
             </Link>
@@ -69,10 +69,12 @@ export default function LandingPage() {
               Thalamus é a plataforma completa para psicólogos modernos. Agenda, prontuários seguros, insights com IA e ferramentas que transformam sua rotina clínica.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
-              <Link href="/signup">
-                <Button size="lg" className="bg-accent hover:bg-accent/90 text-accent-foreground text-lg px-8 py-6">
-                  Comece Agora (Grátis por 14 dias)
-                  <ArrowRight className="ml-2 h-5 w-5" />
+              <Link href="/signup" passHref legacyBehavior>
+                <Button as="a" size="lg" className="bg-accent hover:bg-accent/90 text-accent-foreground text-lg px-8 py-6">
+                  <span className="inline-flex items-center gap-2">
+                    Comece Agora (Grátis por 14 dias)
+                    <ArrowRight className="ml-2 h-5 w-5" />
+                  </span>
                 </Button>
               </Link>
               {/* <Button size="lg" variant="outline" className="text-lg px-8 py-6">
@@ -82,7 +84,7 @@ export default function LandingPage() {
           </div>
           <div className="relative hidden lg:block">
             <Image
-              src="https://placehold.co/600x400.png" // Placeholder image
+              src="https://placehold.co/600x400.png" 
               alt="Interface da plataforma Thalamus em um laptop"
               width={600}
               height={400}
@@ -134,10 +136,12 @@ export default function LandingPage() {
             <p className="mt-4 mb-8 text-lg text-muted-foreground max-w-2xl mx-auto">
               Junte-se a centenas de psicólogos que estão usando o Thalamus para focar no que realmente importa: seus pacientes.
             </p>
-            <Link href="/signup">
-              <Button size="lg" className="bg-accent hover:bg-accent/90 text-accent-foreground text-lg px-8 py-6">
-                Experimente o Thalamus Gratuitamente
-                <ArrowRight className="ml-2 h-5 w-5" />
+            <Link href="/signup" passHref legacyBehavior>
+              <Button as="a" size="lg" className="bg-accent hover:bg-accent/90 text-accent-foreground text-lg px-8 py-6">
+                <span className="inline-flex items-center gap-2">
+                  Experimente o Thalamus Gratuitamente
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </span>
               </Button>
             </Link>
           </div>

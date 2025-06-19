@@ -37,7 +37,9 @@ export default function WaitingListPage() {
         </div>
         <Button asChild className="bg-accent hover:bg-accent/90 text-accent-foreground">
           <Link href="/waiting-list/add">
-            <UserPlus className="mr-2 h-4 w-4" /> Adicionar à Lista de Espera
+            <span className="inline-flex items-center gap-2">
+              <UserPlus className="mr-2 h-4 w-4" /> Adicionar à Lista de Espera
+            </span>
           </Link>
         </Button>
       </div>
@@ -96,14 +98,16 @@ export default function WaitingListPage() {
                           <DropdownMenuContent align="end">
                             <DropdownMenuItem asChild>
                               <Link href={`/schedule/new?patientName=${encodeURIComponent(item.name)}&psychologistId=${item.requestedPsychologistId || 'any'}`}>
-                                <CalendarPlus className="mr-2 h-4 w-4" />
-                                Alocar Horário
+                                <span className="inline-flex items-center gap-2 w-full">
+                                  <CalendarPlus className="mr-2 h-4 w-4" /> Alocar Horário
+                                </span>
                               </Link>
                             </DropdownMenuItem>
                             <DropdownMenuItem asChild>
                               <Link href={`/waiting-list/edit/${item.id}`}>
-                                  <Edit className="mr-2 h-4 w-4" />
-                                  Editar Entrada
+                                <span className="inline-flex items-center gap-2 w-full">
+                                  <Edit className="mr-2 h-4 w-4" /> Editar Entrada
+                                </span>
                               </Link>
                             </DropdownMenuItem>
                             <DropdownMenuItem className="text-destructive">

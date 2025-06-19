@@ -1,93 +1,79 @@
-rules\_version = '2';
+rules_version = '2';
 
 service cloud.firestore {
-match /databases/{database}/documents {
+  match /databases/{database}/documents {
 
-```
-// Funções seguras
-function isSignedIn() {
-  return request.auth != null;
-}
+    // Funções seguras (só com request.auth)
+    function isSignedIn() {
+      return request.auth != null;
+    }
 
-function hasRole(roleName) {
-  return isSignedIn() && request.auth.token.role == roleName;
-}
+    function hasRole(roleName) {
+      return isSignedIn() && request.auth.token.role == roleName;
+    }
 
-function isAdmin() {
-  return hasRole('Admin');
-}
+    function isAdmin() {
+      return hasRole('Admin');
+    }
 
-function isPsychologist() {
-  return hasRole('Psychologist');
-}
+    function isPsychologist() {
+      return hasRole('Psychologist');
+    }
 
-function isSecretary() {
-  return hasRole('Secretary');
-}
+    function isSecretary() {
+      return hasRole('Secretary');
+    }
 
-function isStaff() {
-  return isAdmin() || isPsychologist() || isSecretary();
-}
+    function isStaff() {
+      return isAdmin() || isPsychologist() || isSecretary();
+    }
 
-// Users
-match /users/{userId} {
-  allow read: if isStaff() || request.auth.uid == userId;
-  allow write: if request.auth.uid == userId || isAdmin();
-}
+    // Users
+    match /users/{userId} {
+      allow read: if isStaff() || request.auth.uid == userId;
+      allow write: if request.auth.uid == userId || isAdmin();
+    }
 
-// Patients
-match /patients/{id} {
-  // Criação: somente campos obrigatórios e ownerId correspondente
-  allow create: if isSignedIn()
-    && request.resource.data.keys().hasAll(['ownerId','fullName','lastSession','focus','tasks'])
-    && request.resource.data.ownerId == request.auth.uid;
+    // Patients
+    match /patients/{id} {
+      allow create: if isSignedIn() &&
+                      request.resource.data.ownerId == request.auth.uid;
 
-  // Leitura: somente o proprietário
-  allow read: if isSignedIn()
-    && resource.data.ownerId == request.auth.uid;
+      allow read, update, delete: if isSignedIn() &&
+                                    resource.data != null &&
+                                    resource.data.ownerId == request.auth.uid;
+    }
 
-  // Atualização: somente tarefas de sessão, foco e status, pelo proprietário
-  allow update: if isSignedIn()
-    && resource.data.ownerId == request.auth.uid
-    && request.resource.data.diff(resource.data).changedKeys().hasOnly(['lastSession','focus','tasks']);
+    // Chat messages
+    match /chats/{chatId}/messages/{messageId} {
+      allow read: if isSignedIn() &&
+        get(/databases/$(database)/documents/chats/$(chatId)).data.participants[request.auth.uid] == true;
 
-  // Exclusão: somente o proprietário
-  allow delete: if isSignedIn()
-    && resource.data.ownerId == request.auth.uid;
-}
+      allow create: if isSignedIn() &&
+        request.resource.data.senderId == request.auth.uid &&
+        request.resource.data.text is string &&
+        request.resource.data.text.size() > 0 &&
+        request.resource.data.text.size() < 1000 &&
+        request.resource.data.senderName is string &&
+        request.resource.data.timestamp == request.time;
+    }
 
-// Chat messages
-match /chats/{chatId}/messages/{messageId} {
-  allow read: if isSignedIn()
-    && get(/databases/$(database)/documents/chats/$(chatId)).data.participants[request.auth.uid] == true;
+    // Assessments
+    match /assessments/{assessmentId} {
+      allow read: if isSignedIn();
 
-  allow create: if isSignedIn()
-    && request.resource.data.senderId == request.auth.uid
-    && request.resource.data.text is string
-    && request.resource.data.text.size() > 0
-    && request.resource.data.text.size() < 1000
-    && request.resource.data.senderName is string
-    && request.resource.data.timestamp == request.time;
-}
+      allow create: if isSignedIn() &&
+        request.resource.data.patientId is string &&
+        request.resource.data.assignedBy is string &&
+        request.resource.data.status in ['assigned', 'in-progress', 'completed'];
 
-// Assessments
-match /assessments/{assessmentId} {
-  allow read: if isSignedIn();
+      allow update: if isSignedIn();
+      allow delete: if isAdmin();
+    }
 
-  allow create: if isSignedIn()
-    && request.resource.data.patientId is string
-    && request.resource.data.assignedBy is string
-    && request.resource.data.status in ['assigned', 'in-progress', 'completed'];
-
-  allow update: if isSignedIn();
-  allow delete: if isAdmin();
-}
-
-// Catch-all
-match /{document=**} {
-  allow read, write: if false;
-}
-```
-
-}
+    // Catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
 }

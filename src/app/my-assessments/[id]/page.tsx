@@ -38,7 +38,7 @@ export default function AssessmentResponsePage({ params }: { params: { id: strin
       </CardHeader>
       <CardContent className="space-y-4">
         {questions.map((q, idx) => (
-          <div key={q} className="space-y-2">
+          <div key={idx} className="space-y-2">
             <p className="font-medium">{q}</p>
             <Textarea
               value={answers[idx] || ''}

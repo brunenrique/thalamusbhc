@@ -88,10 +88,8 @@ function AssessmentCardComponent({ assessment, showPatientInfo = false }: Assess
         <div className="flex w-full justify-end gap-2">
           {assessment.status === "Completed" && (
             <Button variant="outline" size="sm" asChild>
-              <Link href={`/inventories-scales/${assessment.id}/results`}>
-                <span>
-                  <BarChart2 className="mr-2 h-4 w-4" /> Ver Resultados
-                </span>
+              <Link href={`/inventories-scales/${assessment.id}/results`} className="inline-flex items-center gap-2">
+                <BarChart2 className="mr-2 h-4 w-4" /> Ver Resultados
               </Link>
             </Button>
           )}

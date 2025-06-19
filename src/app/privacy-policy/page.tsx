@@ -22,9 +22,7 @@ export default function PrivacyPolicyPage() {
         </p>
       </div>
       <Button asChild className="bg-accent text-accent-foreground hover:bg-accent/90">
-        <Link href="/">
-          <span>Voltar para a Página Inicial</span>
-        </Link>
+        <Link href="/">Voltar para a Página Inicial</Link>
       </Button>
     </div>
   );

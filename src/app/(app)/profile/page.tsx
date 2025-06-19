@@ -160,27 +160,21 @@ export default function ProfilePage() {
         </CardContent>
         <CardFooter className="flex flex-col sm:flex-row justify-center gap-3 p-6 border-t">
           <Button variant="default" asChild className="w-full sm:w-auto bg-accent hover:bg-accent/90 text-accent-foreground">
-            <Link href="/settings?tab=account">
-              <span className="inline-flex items-center gap-2">
-                <Edit className="h-4 w-4" />
-                Editar Perfil
-              </span>
+            <Link href="/settings?tab=account" className="inline-flex items-center gap-2">
+              <Edit className="h-4 w-4" />
+              Editar Perfil
             </Link>
           </Button>
           <Button variant="outline" asChild className="w-full sm:w-auto">
-            <Link href="/settings?tab=account">
-              <span className="inline-flex items-center gap-2">
-                <Lock className="h-4 w-4" />
-                Alterar Senha
-              </span>
+            <Link href="/settings?tab=account" className="inline-flex items-center gap-2">
+              <Lock className="h-4 w-4" />
+              Alterar Senha
             </Link>
           </Button>
            <Button variant="outline" asChild className="w-full sm:w-auto">
-            <Link href="/settings?tab=notifications">
-              <span className="inline-flex items-center gap-2">
-                <Bell className="h-4 w-4" />
-                Preferências de Notificação
-              </span>
+            <Link href="/settings?tab=notifications" className="inline-flex items-center gap-2">
+              <Bell className="h-4 w-4" />
+              Preferências de Notificação
             </Link>
           </Button>
         </CardFooter>

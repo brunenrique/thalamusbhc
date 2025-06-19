@@ -24,17 +24,13 @@ export default function InventoriesScalesPage() {
         </div>
         <div className="flex gap-2">
           <Button variant="outline" asChild className="bg-accent hover:bg-accent/90 text-accent-foreground">
-            <Link href="/inventories-scales/templates/new">
-              <span className="inline-flex items-center gap-2">
-                <PlusCircle className="mr-2 h-4 w-4" /> Criar Novo Modelo
-              </span>
+            <Link href="/inventories-scales/templates/new" className="inline-flex items-center gap-2">
+              <PlusCircle className="mr-2 h-4 w-4" /> Criar Novo Modelo
             </Link>
           </Button>
           <Button asChild className="bg-accent hover:bg-accent/90 text-accent-foreground">
-            <Link href="/inventories-scales/assign">
-              <span className="inline-flex items-center gap-2">
-                <ClipboardList className="mr-2 h-4 w-4" /> Atribuir Inventário/Escala
-              </span>
+            <Link href="/inventories-scales/assign" className="inline-flex items-center gap-2">
+              <ClipboardList className="mr-2 h-4 w-4" /> Atribuir Inventário/Escala
             </Link>
           </Button>
         </div>

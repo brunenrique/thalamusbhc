@@ -15,10 +15,8 @@ export default function PatientDetailPagePlaceholder() {
         This page is temporarily simplified to help diagnose a Turbopack error.
       </p>
       <Button variant="outline" asChild>
-        <Link href="/patients">
-          <span>
-            <ArrowLeft className="mr-2 h-4 w-4" /> Voltar para Pacientes
-          </span>
+        <Link href="/patients" className="inline-flex items-center gap-2">
+          <ArrowLeft className="mr-2 h-4 w-4" /> Voltar para Pacientes
         </Link>
       </Button>
     </div>

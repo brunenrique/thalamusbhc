@@ -116,11 +116,9 @@ function TaskItemComponent({ task }: TaskItemProps) {
           )}
           {task.patientId && (
             <Button variant="link" size="sm" className="p-0 h-auto text-accent text-xs" asChild>
-              <Link href={`/patients/${task.patientId}`}>
-                <span className="inline-flex items-center gap-2">
-                  <LinkIcon className="h-3.5 w-3.5" />
-                  Ver Paciente Relacionado
-                </span>
+              <Link href={`/patients/${task.patientId}`} className="inline-flex items-center gap-2">
+                <LinkIcon className="h-3.5 w-3.5" />
+                Ver Paciente Relacionado
               </Link>
             </Button>
           )}
@@ -129,11 +127,9 @@ function TaskItemComponent({ task }: TaskItemProps) {
 
       <CardFooter className="p-3 border-t flex justify-end gap-1.5">
           <Button variant="outline" size="sm" asChild>
-            <Link href={`/tasks/edit/${task.id}`}>
-              <span className="inline-flex items-center gap-2">
-                <Edit className="h-3.5 w-3.5" />
-                Editar
-              </span>
+            <Link href={`/tasks/edit/${task.id}`} className="inline-flex items-center gap-2">
+              <Edit className="h-3.5 w-3.5" />
+              Editar
             </Link>
           </Button>
           <AlertDialog>

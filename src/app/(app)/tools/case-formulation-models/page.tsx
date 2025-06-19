@@ -70,9 +70,7 @@ export default function CaseFormulationModelsPage() {
         </div>
         <Button asChild className="bg-accent hover:bg-accent/90 text-accent-foreground">
           <Link href="/tools/case-formulation-models/new">
-            <span>
-              <PlusCircle className="mr-2 h-4 w-4" /> Criar Novo Modelo
-            </span>
+            <PlusCircle className="mr-2 h-4 w-4" /> Criar Novo Modelo
           </Link>
         </Button>
       </div>
@@ -152,9 +150,7 @@ export default function CaseFormulationModelsPage() {
               <p className="mt-1 text-sm text-muted-foreground">Comece criando um novo modelo.</p>
                 <Button asChild className="mt-4 bg-accent hover:bg-accent/90 text-accent-foreground">
                   <Link href="/tools/case-formulation-models/new">
-                    <span>
-                      <PlusCircle className="mr-2 h-4 w-4" /> Criar Novo Modelo
-                    </span>
+                    <PlusCircle className="mr-2 h-4 w-4" /> Criar Novo Modelo
                   </Link>
                 </Button>
             </div>

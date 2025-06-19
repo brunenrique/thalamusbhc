@@ -143,11 +143,9 @@ export default function GroupDetailPage({ params }: { params: { id: string } }) 
         </Button>
         <div className="flex gap-2">
             <Button variant="outline" asChild>
-                <Link href={`/groups/edit/${currentGroup.id}`}>
-                    <span className="inline-flex items-center gap-2">
-                        <Edit className="h-4 w-4" />
-                        Editar Grupo
-                    </span>
+                <Link href={`/groups/edit/${currentGroup.id}`} className="inline-flex items-center gap-2">
+                    <Edit className="h-4 w-4" />
+                    Editar Grupo
                 </Link>
             </Button>
              <AlertDialog>
@@ -221,11 +219,9 @@ export default function GroupDetailPage({ params }: { params: { id: string } }) 
         </CardContent>
         <CardFooter>
             <Button variant="outline" asChild>
-                <Link href={`/groups/edit/${currentGroup.id}?tab=participants`}>
-                    <span className="inline-flex items-center gap-2">
-                        <Settings className="h-4 w-4" />
-                        Gerenciar Participantes
-                    </span>
+                <Link href={`/groups/edit/${currentGroup.id}?tab=participants`} className="inline-flex items-center gap-2">
+                    <Settings className="h-4 w-4" />
+                    Gerenciar Participantes
                 </Link>
             </Button>
         </CardFooter>
@@ -244,11 +240,9 @@ export default function GroupDetailPage({ params }: { params: { id: string } }) 
         </CardContent>
          <CardFooter>
             <Button variant="outline" asChild>
-                <Link href={`/groups/edit/${currentGroup.id}?tab=details`}>
-                    <span className="inline-flex items-center gap-2">
-                        <Edit className="h-4 w-4" />
-                        Editar Descrição
-                    </span>
+                <Link href={`/groups/edit/${currentGroup.id}?tab=details`} className="inline-flex items-center gap-2">
+                    <Edit className="h-4 w-4" />
+                    Editar Descrição
                 </Link>
             </Button>
         </CardFooter>
@@ -268,11 +262,9 @@ export default function GroupDetailPage({ params }: { params: { id: string } }) 
         </CardContent>
          <CardFooter>
             <Button variant="outline" asChild>
-                <Link href={`/groups/edit/${currentGroup.id}?tab=agenda`}>
-                    <span className="inline-flex items-center gap-2">
-                        <Edit className="h-4 w-4" />
-                        Editar Roteiro
-                    </span>
+                <Link href={`/groups/edit/${currentGroup.id}?tab=agenda`} className="inline-flex items-center gap-2">
+                    <Edit className="h-4 w-4" />
+                    Editar Roteiro
                 </Link>
             </Button>
         </CardFooter>
@@ -345,11 +337,9 @@ export default function GroupDetailPage({ params }: { params: { id: string } }) 
                     <div className="flex-shrink-0">
                     {resource.type === "link" && resource.url ? (
                          <Button variant="outline" size="sm" asChild>
-                            <a href={resource.url} target="_blank" rel="noopener noreferrer">
-                                <span className="inline-flex items-center gap-2">
-                                    <LinkIcon className="h-3.5 w-3.5" />
-                                    Acessar Link
-                                </span>
+                            <a href={resource.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2">
+                                <LinkIcon className="h-3.5 w-3.5" />
+                                Acessar Link
                             </a>
                         </Button>
                     ) : (

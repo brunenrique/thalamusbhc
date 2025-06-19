@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
@@ -116,9 +117,11 @@ export default function DashboardWeeklySchedule() {
           >
             <ChevronRight className="h-4 w-4" />
           </Button>
-          <Button variant="outline" size="sm" asChild>
-            <Link href="/schedule">Ver Agenda Completa</Link>
-          </Button>
+          <Link href="/schedule" passHref legacyBehavior>
+            <Button as="a" variant="outline" size="sm">
+              Ver Agenda Completa
+            </Button>
+          </Link>
         </div>
       </CardHeader>
 

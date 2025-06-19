@@ -110,7 +110,10 @@ export default function GroupDetailPage({ params }: { params: { id: string } }) 
         <p className="text-muted-foreground mb-6">O grupo que você está procurando não existe ou foi movido.</p>
         <Button asChild variant="outline">
           <Link href="/groups">
-            <ArrowLeft className="mr-2 h-4 w-4" /> Voltar para Lista de Grupos
+            <span className="inline-flex items-center gap-2">
+              <ArrowLeft className="h-4 w-4" />
+              Voltar para Lista de Grupos
+            </span>
           </Link>
         </Button>
       </div>

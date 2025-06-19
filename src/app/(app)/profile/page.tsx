@@ -11,8 +11,7 @@ import Link from "next/link";
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { useToast } from '@/hooks/use-toast';
-
-type UserGender = "masculino" | "feminino" | "outro";
+import type { UserGender } from '@/types/user';
 
 const getDefaultAvatarByGender = (gender?: UserGender, name?: string) => {
   const initials = name ? (name.split(' ')[0][0] + (name.split(' ').length > 1 ? name.split(' ')[name.split(' ').length - 1][0] : '')).toUpperCase() : "??";

@@ -21,17 +21,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
-
-
-interface Patient {
-  id: string;
-  name: string;
-  email: string;
-  lastSession?: string | null;
-  nextAppointment?: string | null;
-  avatarUrl?: string;
-  dataAiHint?: string;
-}
+import type { Patient } from "@/types/patient";
 
 interface PatientListItemProps {
   patient: Patient;

@@ -1,17 +1,6 @@
 
 import { create } from 'zustand';
-
-interface User {
-  id: string;
-  name: string;
-  avatar?: string;
-}
-
-interface CurrentUser {
-  uid: string | null;
-  displayName: string | null;
-  avatarUrl?: string | null;
-}
+import type { User, CurrentUser } from '@/types/user';
 
 interface ChatState {
   isChatOpen: boolean;

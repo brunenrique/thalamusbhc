@@ -12,7 +12,7 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import type { GroupResource } from '@/app/(app)/groups/[id]/page'; 
+import type { GroupResource } from '@/types/group';
 
 export const mockTherapeuticGroups = [
   {

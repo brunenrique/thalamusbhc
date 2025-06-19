@@ -36,41 +36,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Separator } from "@/components/ui/separator";
-
-
-interface Participant {
-  id: string;
-  name: string;
-  avatarUrl?: string;
-  dataAiHint?: string;
-}
-
-export interface GroupResource {
-  id: string;
-  name: string;
-  type: "pdf" | "docx" | "image" | "link" | "other";
-  url?: string;
-  uploadDate: string; // ISO date string
-  description?: string;
-  dataAiHint?: string;
-}
-
-interface Group {
-  id: string;
-  name: string;
-  psychologist: string;
-  psychologistId: string;
-  membersCount: number; 
-  schedule: string; 
-  dayOfWeek: string; 
-  startTime: string; 
-  endTime: string; 
-  nextSession?: string;
-  description?: string;
-  participants: Participant[];
-  meetingAgenda?: string;
-  resources?: GroupResource[];
-}
+import type { Participant, GroupResource, Group } from "@/types/group";
 
 const getInitials = (name: string) => {
   const names = name.split(' ');

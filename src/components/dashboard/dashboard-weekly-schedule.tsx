@@ -20,21 +20,7 @@ import {
   eachDayOfInterval,
 } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-
-type Appointment = {
-  id: string;
-  startTime: string;
-  endTime: string;
-  patient: string;
-  type: string;
-  psychologistId: string;
-  status: string;
-  notes?: string;
-};
-
-type AppointmentsByDate = {
-  [date: string]: Appointment[];
-};
+import type { Appointment, AppointmentsByDate } from '@/types/appointment';
 
 export default function DashboardWeeklySchedule() {
   const [currentDate, setCurrentDate] = useState<Date | null>(null);

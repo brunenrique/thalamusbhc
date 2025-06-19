@@ -20,6 +20,11 @@ import ChatWindow from '@/components/chat/ChatWindow';
 import { useChatStore } from '@/stores/chatStore';
 import { auth } from '@/lib/firebase';
 import { onAuthStateChanged } from 'firebase/auth'; 
+// import useAuth from "@/hooks/use-auth"; // Not needed here as auth state is managed by chatStore/onAuthStateChanged
+// import { checkUserRole } from "@/services/authRole"; // Role checks are disabled
+// import { useRouter } from "next/navigation"; // Not needed if role checks are disabled
+// import { APP_ROUTES } from "@/lib/routes"; // Not needed if role checks are disabled
+
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -27,6 +32,8 @@ interface AppLayoutProps {
 
 export default function AppLayout({ children }: AppLayoutProps) {
   const pathname = usePathname();
+  // const { user } = useAuth(); // useAuth provides a mock user, auth state for chat is handled below
+  // const router = useRouter(); // Router not needed if role-based redirects are disabled
   const { setCurrentUser, currentUser } = useChatStore(); 
   
   const [defaultOpen, setDefaultOpen] = React.useState(true);
@@ -60,6 +67,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
   }, [setCurrentUser]);
   
   useEffect(() => {
+    // Ensures a mock user is set for chat in development if Firebase auth is not active
     if (process.env.NODE_ENV === 'development' && !auth.currentUser && !currentUser?.uid) {
       setCurrentUser({
          uid: "dev-user-uid",
@@ -68,6 +76,20 @@ export default function AppLayout({ children }: AppLayoutProps) {
       });
     }
   }, [setCurrentUser, currentUser?.uid]);
+
+  // useEffect(() => {
+  //   const isAdminRoute = pathname.startsWith(APP_ROUTES.adminMetrics) || 
+  //                        pathname.startsWith(APP_ROUTES.toolsBackup) ||
+  //                        pathname.startsWith(APP_ROUTES.toolsAuditTrail);
+    
+  //   if (isAdminRoute) {
+  //     checkUserRole("Admin").then(isAllowed => {
+  //       if (!isAllowed) {
+  //         router.replace('/'); 
+  //       }
+  //     });
+  //   }
+  // }, [pathname, router]);
 
 
   return (

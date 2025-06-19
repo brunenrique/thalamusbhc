@@ -53,12 +53,11 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     const hasSingleValidChild =
       React.Children.count(children) === 1 &&
       React.isValidElement(children) &&
-      // não aplicamos React.Children.only se for um fragment
-      (children as any).type !== React.Fragment
+      (children as any).type !== React.Fragment;
 
     if (asChild && !hasSingleValidChild) {
       console.error(
-        "Button with asChild expects a single React element child. Rendering a default <button> instead."
+        "Button with asChild expects a single React element child that is not a Fragment. Rendering a default <button> instead."
       )
     }
 

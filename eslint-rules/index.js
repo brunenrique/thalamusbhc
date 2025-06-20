@@ -6,4 +6,5 @@
 // are rule names and values are rule definitions.
 module.exports = {
   'no-aschild-on-a': require('./no-aschild-on-a'),
+  'aschild-single-child': require('./aschild-single-child'),
 };

@@ -48,6 +48,7 @@
       "specialLink": ["hrefLeft", "hrefRight"],
       "aspects": ["invalidHref", "preferButton"]
     }],
-    "local-rules/no-aschild-on-a": "error"
+    "local-rules/no-aschild-on-a": "error",
+    "local-rules/aschild-single-child": "error"
   }
 }

@@ -19,5 +19,5 @@ if (typeof global.localStorage === 'undefined') {
     }
   }
 
-  global.localStorage = new LocalStorageMock() as any;
+  global.localStorage = new LocalStorageMock() as unknown as Storage;
 }

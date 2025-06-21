@@ -3,6 +3,7 @@ import path from "path";
 import * as parser from "@babel/parser";
 import traverse from "@babel/traverse";
 import chalk from "chalk";
+import * as t from "@babel/types";
 
 const projectRoot = process.cwd();
 
@@ -46,9 +47,9 @@ function analyzeFile(filePath: string) {
       );
 
       if (children.length !== 1) {
-        console.log(
+        console.warn(
           chalk.red(
-            `❌ ${filePath}:${path.node.loc?.start.line}: <${(opening.name as any).name}> com 'asChild' tem ${children.length} filhos.`
+            `❌ ${filePath}:${path.node.loc?.start.line}: <${(opening.name as t.JSXIdentifier).name}> com 'asChild' tem ${children.length} filhos.`
           )
         );
       }

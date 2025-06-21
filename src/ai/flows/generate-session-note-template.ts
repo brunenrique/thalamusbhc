@@ -8,6 +8,7 @@
  */
 
 import { ai } from "@/ai/genkit";
+import { getPrompt } from "@/ai/prompts";
 import { z } from "genkit";
 
 export const GenerateSessionNoteTemplateInputSchema = z.object({
@@ -29,27 +30,24 @@ export type GenerateSessionNoteTemplateOutput = z.infer<
   typeof GenerateSessionNoteTemplateOutputSchema
 >;
 
+import type { Result } from '@/ai/types';
+
 export async function generateSessionNoteTemplate(
   input: GenerateSessionNoteTemplateInput,
-): Promise<GenerateSessionNoteTemplateOutput> {
-  return generateSessionNoteTemplateFlow(input);
+): Promise<Result<GenerateSessionNoteTemplateOutput>> {
+  try {
+    const data = await generateSessionNoteTemplateFlow(input);
+    return { success: true, data };
+  } catch (_err) {
+    return { success: false, error: 'Erro ao gerar resposta' };
+  }
 }
 
 const prompt = ai.definePrompt({
   name: "generateSessionNoteTemplatePrompt",
   input: { schema: GenerateSessionNoteTemplateInputSchema },
   output: { schema: GenerateSessionNoteTemplateOutputSchema },
-  prompt: `You are an AI assistant that generates session note templates for psychologists.
-
-  Given the patient's name and a summary of the session, create a comprehensive session note template.
-  Consider the therapist's instructions, if any, to tailor the template.
-
-  Patient Name: {{{patientName}}}
-  Session Summary: {{{sessionSummary}}}
-  Therapist Instructions: {{{therapistInstructions}}}
-
-  Template:
-  `,
+  prompt: getPrompt("generateSessionNoteTemplate"),
 });
 
 const generateSessionNoteTemplateFlow = ai.defineFlow(

@@ -33,7 +33,7 @@ export async function POST(req: Request) {
       .get();
 
     const individualConflict = qSnapshot.docs.some(doc => {
-      const appt = doc.data() as any;
+      const appt = doc.data() as Record<string, unknown>;
       if (appt.status === 'CancelledByPatient' || appt.status === 'CancelledByClinic') {
         return false;
       }

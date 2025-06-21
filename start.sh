@@ -2,7 +2,8 @@
 set -euo pipefail
 
 # Pasta do projeto (Firebase Studio)
-PROJECT_DIR="$HOME/studio"
+SCRIPT_DIR="$(dirname "$0")"
+PROJECT_DIR="$SCRIPT_DIR/studio"
 
 # Ativa Volta para usar versoes fixadas
 export VOLTA_HOME="$HOME/.volta"
@@ -26,7 +27,7 @@ npm ci
 DATA_DIR="./emulator-data"
 mkdir -p "$DATA_DIR"
 
-firebase emulators:start --only firestore,auth \
+firebase emulators:start --project="${FIREBASE_PROJECT:-thalamus-dev}" --only firestore,auth \
   --import="$DATA_DIR" --export-on-exit &
 EMULATOR_PID=$!
 

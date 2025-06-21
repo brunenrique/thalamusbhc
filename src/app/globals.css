@@ -2,6 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer components {
+  .card-base {
+    @apply rounded-lg border bg-card text-card-foreground shadow;
+  }
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;

@@ -1,24 +1,53 @@
 
-import { useChatStore } from '@/stores/chatStore';
+import { useEffect, useState } from 'react';
+import {
+  getAuth,
+  onAuthStateChanged,
+  getIdTokenResult,
+  type User as FirebaseUser,
+} from 'firebase/auth';
 
 export interface AuthUser {
-  uid: string | null;
+  uid: string;
   displayName: string | null;
-  avatarUrl?: string | null;
-  role?: string;
+  email: string | null;
+  photoURL: string | null;
+  role: string | null;
 }
 
 export default function useAuth() {
-  const currentUser = useChatStore((state) => state.currentUser);
+  const [user, setUser] = useState<AuthUser | null>(null);
 
-  // Since authentication is disabled, always return a mock user
-  // to prevent UI breakages in components expecting a user object.
-  const user: AuthUser = {
-        uid: 'mock-user-uid',
-        displayName: 'Usuário Mock',
-        avatarUrl: 'https://placehold.co/40x40/70C1B3/FFFFFF?text=UM',
-        role: 'Admin', // Provide a default role for development
-      };
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(getAuth(), async (firebaseUser: FirebaseUser | null) => {
+      if (!firebaseUser) {
+        setUser(null);
+        return;
+      }
+
+      try {
+        const tokenResult = await getIdTokenResult(firebaseUser);
+        setUser({
+          uid: firebaseUser.uid,
+          displayName: firebaseUser.displayName,
+          email: firebaseUser.email,
+          photoURL: firebaseUser.photoURL,
+          role: (tokenResult.claims.role as string | undefined) ?? null,
+        });
+      } catch (error) {
+        console.error('Erro ao obter token do usuário', error);
+        setUser({
+          uid: firebaseUser.uid,
+          displayName: firebaseUser.displayName,
+          email: firebaseUser.email,
+          photoURL: firebaseUser.photoURL,
+          role: null,
+        });
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   return { user };
 }

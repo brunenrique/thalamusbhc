@@ -2,12 +2,11 @@
 'use client';
 
 import { getAuth, getIdTokenResult } from 'firebase/auth';
-import { app } from '@/lib/firebase';
 
 export type UserRole = 'Admin' | 'Psychologist' | 'Secretary';
 
 export async function getCurrentUserRole(): Promise<UserRole | null> {
-  const auth = getAuth(app);
+  const auth = getAuth();
   const user = auth.currentUser;
   if (!user) return null;
 

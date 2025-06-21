@@ -9,7 +9,7 @@ describe("usePreferredFields", () => {
   ];
 
   beforeEach(() => {
-    localStorage.clear();
+    window.localStorage.clear();
   });
 
   it("loads defaults", () => {
@@ -22,8 +22,8 @@ describe("usePreferredFields", () => {
     act(() => {
       result.current.save([{ id: "x", label: "X", pinned: true }]);
     });
-    expect(JSON.parse(localStorage.getItem("preferredFields") || "null")).toEqual([
-      { id: "x", label: "X", pinned: true },
-    ]);
+    expect(
+      JSON.parse(window.localStorage.getItem("preferredFields") || "null"),
+    ).toEqual([{ id: "x", label: "X", pinned: true }]);
   });
 });

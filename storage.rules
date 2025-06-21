@@ -26,6 +26,12 @@ service firebase.storage {
       return isPsychologist() || isAdmin();
     }
 
+    // Verifica se o usuário autenticado está vinculado ao paciente informado
+    function isAssignedToPatient(patientId) {
+      return isSignedIn() &&
+             get(/databases/$(database)/documents/patients/$(patientId)).data.ownerId == request.auth.uid;
+    }
+
     // Recursos da Clínica (ex: PDFs, guias)
     // Caminho: /resources/{resourceId_ou_nomeUnicoComExtensao}
     match /resources/{fileName} {
@@ -43,14 +49,11 @@ service firebase.storage {
       // Leitura: Psicólogo responsável pelo paciente (via custom claim ou Firestore read) ou Admin.
       // Esta é uma simplificação. Uma regra real poderia envolver checar um documento no Firestore
       // que linka o psicólogo ao paciente, ou um custom claim no token do psicólogo.
-      // Por simplicidade aqui, vamos permitir a psicólogos e admins.
-      // TODO: Implementar lógica granular de acesso (ex: request.auth.token.assignedPatients.includes(patientId))
-      allow read: if isPsychologistOrAdmin(); 
-                      // Idealmente: (isPsychologist() && isAssignedToPatient(patientId)) || isAdmin()
-                      // Onde isAssignedToPatient(patientId) seria uma função que verifica essa relação.
+      // Verifica se o profissional está vinculado ao paciente antes de permitir acesso
+      allow read: if (isPsychologist() && isAssignedToPatient(patientId)) || isAdmin();
       
       // Escrita: Psicólogo responsável ou Admin.
-      allow write: if isPsychologistOrAdmin() // Idealmente: (isPsychologist() && isAssignedToPatient(patientId)) || isAdmin()
+      allow write: if ((isPsychologist() && isAssignedToPatient(patientId)) || isAdmin())
                      && request.resource.size < 5 * 1024 * 1024 // Limite de 5MB
                      && request.resource.contentType.matches('application/pdf|image/jpeg|image/png|text/plain'); // Tipos permitidos
     }

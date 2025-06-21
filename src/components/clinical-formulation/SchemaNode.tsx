@@ -11,7 +11,6 @@ import type { SchemaData } from '@/types/clinicalTypes';
 import { cn } from '@/shared/utils';
 
 const SchemaNode: React.FC<NodeProps<SchemaData>> = ({ data, id, selected }) => {
-  console.log("LOG: Rendering SchemaNode, ID:", id, "Data:", data);
 
   return (
     <Card

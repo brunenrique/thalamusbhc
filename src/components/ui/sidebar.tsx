@@ -575,7 +575,7 @@ const SidebarMenuButton = React.forwardRef<HTMLButtonElement, SidebarMenuButtonP
       React.Children.count(children) === 1 &&
       React.isValidElement(children) &&
       // não aplicamos React.Children.only se for um fragment
-      (children as any).type !== React.Fragment
+      (children as React.ReactElement).type !== React.Fragment
 
     if (ownAsChildProp && !hasSingleValidChild) {
       console.error(

@@ -10,6 +10,7 @@
 
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
+import { getPrompt } from '@/ai/prompts';
 
 const masterPrompt = `
 [módulo_1: clausula_uso_etico]
@@ -48,15 +49,22 @@ export const ClinicalSupervisionOutputSchema = z.object({
 });
 export type ClinicalSupervisionOutput = z.infer<typeof ClinicalSupervisionOutputSchema>;
 
-export async function getClinicalSupervision(input: ClinicalSupervisionInput): Promise<ClinicalSupervisionOutput> {
-  return clinicalSupervisionFlow(input);
+import type { Result } from '@/ai/types';
+
+export async function getClinicalSupervision(input: ClinicalSupervisionInput): Promise<Result<ClinicalSupervisionOutput>> {
+  try {
+    const data = await clinicalSupervisionFlow(input);
+    return { success: true, data };
+  } catch (_e) {
+    return { success: false, error: 'Erro ao gerar resposta' };
+  }
 }
 
 const prompt = ai.definePrompt({
   name: 'clinicalSupervisionPrompt',
   input: { schema: ClinicalSupervisionInputSchema },
   output: { schema: ClinicalSupervisionOutputSchema },
-  prompt: `${masterPrompt}\n\nTexto do Terapeuta para Supervisão:\n{{{clinicalMaterial}}}`,
+  prompt: `${getPrompt('clinicalSupervisionMaster')}\n\nTexto do Terapeuta para Supervisão:\n{{{clinicalMaterial}}}`,
   model: 'googleai/gemini-1.5-flash-latest', 
   config: {
     temperature: 0.6, 

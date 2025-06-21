@@ -9,6 +9,7 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
+import {getPrompt} from '@/ai/prompts';
 
 export const GenerateReportDraftInputSchema = z.object({
   sessionNotes: z.string().describe('The session notes to base the report on.'),
@@ -23,31 +24,22 @@ export const GenerateReportDraftOutputSchema = z.object({
 });
 export type GenerateReportDraftOutput = z.infer<typeof GenerateReportDraftOutputSchema>;
 
-export async function generateReportDraft(input: GenerateReportDraftInput): Promise<GenerateReportDraftOutput> {
-  return generateReportDraftFlow(input);
+import type { Result } from '@/ai/types';
+
+export async function generateReportDraft(input: GenerateReportDraftInput): Promise<Result<GenerateReportDraftOutput>> {
+  try {
+    const data = await generateReportDraftFlow(input);
+    return { success: true, data };
+  } catch (err) {
+    return { success: false, error: 'Erro ao gerar resposta' };
+  }
 }
 
 const prompt = ai.definePrompt({
   name: 'generateReportDraftPrompt',
   input: {schema: GenerateReportDraftInputSchema},
   output: {schema: GenerateReportDraftOutputSchema},
-  prompt: `Você é um assistente de IA especializado em ajudar psicólogos a redigir documentos clínicos.
-Com base nas notas da sessão fornecidas, no nome do paciente e no tipo de relatório solicitado, gere um rascunho conciso e profissional.
-{{#if therapistName}}O relatório pode ser assinado por {{therapistName}}.{{/if}}
-
-Paciente: {{{patientName}}}
-Notas da Sessão:
-{{{sessionNotes}}}
-
-Tipo de Relatório Solicitado: {{{reportType}}}
-
-Instruções Específicas por Tipo de Relatório:
-- Se 'progress_report': Foque em resumir o progresso do paciente desde a última atualização ou em um período relevante, destacando mudanças observadas, temas trabalhados e próximos passos.
-- Se 'referral_letter': Elabore uma carta de encaminhamento formal. Inclua um breve resumo do caso, o motivo do encaminhamento, progresso até o momento (se relevante) e o que se espera do profissional/serviço para o qual o paciente está sendo encaminhado.
-- Se 'session_summary': Crie um resumo breve e objetivo da sessão, ideal para um registro rápido ou para compartilhar com outros profissionais envolvidos no cuidado (com consentimento do paciente).
-
-Por favor, gere apenas o conteúdo do rascunho do relatório.
-`,
+  prompt: getPrompt("generateReportDraft"),
 });
 
 const generateReportDraftFlow = ai.defineFlow(

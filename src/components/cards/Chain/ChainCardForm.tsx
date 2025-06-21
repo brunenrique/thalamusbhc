@@ -30,7 +30,7 @@ const ChainCardForm: React.FC = () => {
       return;
     }
     setError("");
-    // TODO: persistir dados
+    // TODO(medium): persistir dados
   };
 
   return (

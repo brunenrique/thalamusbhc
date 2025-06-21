@@ -51,7 +51,7 @@ function PatientListItemComponent({ patient }: PatientListItemProps) {
   };
 
   return (
-    <Card className="hover:shadow-md transition-shadow duration-200">
+    <Card className="card-base hover:shadow-md transition-shadow duration-200">
       <CardContent className="p-4">
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-4 flex-1 min-w-0">

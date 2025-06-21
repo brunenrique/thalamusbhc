@@ -53,7 +53,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     const hasSingleValidChild =
       React.Children.count(children) === 1 &&
       React.isValidElement(children) &&
-      (children as any).type !== React.Fragment;
+      (children as React.ReactElement).type !== React.Fragment;
 
     if (asChild && !hasSingleValidChild) {
       console.error(

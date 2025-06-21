@@ -51,7 +51,8 @@ Plataforma web para gestão de clínicas de psicologia, com agenda integrada, pr
 - `npm run genkit:dev` &mdash; executa os fluxos de IA em modo de desenvolvimento.
 - `npm run typecheck` &mdash; verifica os tipos TypeScript.
 - `npm run lint` &mdash; executa o ESLint.
-- `git p` &mdash; roda a suíte de testes (pode precisar dos emuladores Firebase em execução).
+- `npm run test:all` &mdash; executa todos os testes com o Firebase Emulator em execução.
+- `git p` &mdash; alias opcional para o comando acima.
 - `npm run build` &mdash; gera o build de produção.
 
 ## Variáveis de Ambiente

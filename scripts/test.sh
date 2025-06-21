@@ -1,4 +1,4 @@
 #!/bin/bash
 set -euo pipefail
 npm ci
-npx firebase emulators:exec --only firestore "npm test"
+npx firebase emulators:exec --only firestore "./scripts/run-tests.sh"

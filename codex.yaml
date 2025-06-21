@@ -1,0 +1,8 @@
+version: 1
+setup:
+  - node: 18
+tasks:
+  - run: npm ci
+  - run: npm run lint
+  - run: npm run typecheck
+  - run: npm test

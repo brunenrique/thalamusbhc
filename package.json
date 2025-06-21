@@ -18,6 +18,13 @@
     "backup": "node scripts/backup.js",
     "prepare": "husky install"
   },
+  "lint-staged": {
+    "src/**/*.{ts,tsx}": [
+      "eslint --fix",
+      "jest --bail --findRelatedTests",
+      "prettier --write"
+    ]
+  },
   "dependencies": {
     "@genkit-ai/googleai": "^1.8.0",
     "@genkit-ai/next": "^1.8.0",

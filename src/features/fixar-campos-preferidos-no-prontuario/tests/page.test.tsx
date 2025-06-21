@@ -2,7 +2,7 @@ import { render, screen, fireEvent } from "@testing-library/react";
 import Page from "../pages/Page";
 
 beforeEach(() => {
-  localStorage.clear();
+  window.localStorage.clear();
 });
 
 describe("PreferredFieldsPage", () => {

@@ -7,7 +7,7 @@ const createJestConfig = nextJest({
 const webConfig = createJestConfig({
   displayName: 'web',
   testEnvironment: 'jsdom',
-  setupFiles: ['<rootDir>/jest.polyfills.ts'],
+  setupFiles: ['<rootDir>/jest.polyfills.ts', '<rootDir>/tests/setupLocalStorage.ts'],
   setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
@@ -27,7 +27,7 @@ const firestoreConfig = {
   displayName: 'firestore',
   preset: 'ts-jest',
   testEnvironment: 'node',
-  setupFiles: ['<rootDir>/jest.polyfills.ts'],
+  setupFiles: ['<rootDir>/jest.polyfills.ts', '<rootDir>/tests/setupLocalStorage.ts'],
   setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
   testMatch: [
     '<rootDir>/__tests__/**/*.rules.test.ts',

@@ -15,7 +15,8 @@
     "test": "scripts/run-tests.sh",
     "test:rules": "firebase emulators:exec --project=demo-project \"npx jest --selectProjects firestore\"",
     "jest": "jest",
-    "backup": "node scripts/backup.js"
+    "backup": "node scripts/backup.js",
+    "prepare": "husky install"
   },
   "dependencies": {
     "@genkit-ai/googleai": "^1.8.0",
@@ -93,6 +94,7 @@
     "eslint-plugin-react-hooks": "^4.6.2",
     "firebase-tools": "^14.6.0",
     "genkit-cli": "^1.8.0",
+    "husky": "^9.1.7",
     "identity-obj-proxy": "^3.0.0",
     "jest": "^30.0.0",
     "jest-environment-jsdom": "^30.0.0",

@@ -1,25 +1,44 @@
 "use client";
 
-import React from "react";
-import { ArrowLeft } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
+import { useEffect, useState } from 'react';
+import { useParams } from 'next/navigation';
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import type { Patient } from '@/types/patient';
+import { fetchPatient } from '@/services/patientService';
 
-export default function PatientDetailPagePlaceholder() {
-  // This is a drastically simplified version for debugging Turbopack errors.
-  // The original complex component has been temporarily replaced.
+export default function PatientDetailPage() {
+  const params = useParams();
+  const id = Array.isArray(params.id) ? params.id[0] : params.id;
+  const [patient, setPatient] = useState<Patient | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function load() {
+      try {
+        if (id) {
+          const data = await fetchPatient(id);
+          setPatient(data);
+        }
+      } catch (err) {
+        console.error('Falha ao carregar paciente', err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
+  }, [id]);
+
+  if (loading) return <p className="p-4">Carregando...</p>;
+  if (!patient) return <p className="p-4">Paciente nao encontrado</p>;
+
   return (
-    <div className="flex flex-col items-center justify-center min-h-[calc(100vh-200px)] text-center p-4">
-      <h1 className="text-2xl font-bold mb-4">
-        Patient Detail Page (Simplified)
-      </h1>
-      <p className="text-muted-foreground mb-6">
-        This page is temporarily simplified to help diagnose a Turbopack error.
-      </p>
-      <Button variant="outline" asChild>
-        <Link href="/patients" className="inline-flex items-center gap-2">
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Voltar para Pacientes
+    <div className="space-y-4 p-4">
+      <h1 className="text-2xl font-bold">{patient.name}</h1>
+      <p className="text-muted-foreground">{patient.email}</p>
+      <Button asChild className="bg-accent hover:bg-accent/90 text-accent-foreground">
+        <Link href={`/clinical-map/${patient.id}/initialTab`}>
+          Abrir Prontuário
         </Link>
       </Button>
     </div>

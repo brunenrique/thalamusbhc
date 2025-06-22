@@ -28,8 +28,6 @@ import { cn } from "@/shared/utils";
 import { format, parse } from "date-fns";
 import { ptBR } from 'date-fns/locale';
 import { useToast } from "@/hooks/use-toast";
-import type { Appointment } from "@/types/appointment";
-import { useAppointmentStore } from "@/stores/appointmentStore";
 import { hasScheduleConflict } from "@/services/appointmentService";
 
 const mockPatients = [
@@ -217,8 +215,6 @@ export default function AppointmentForm({ appointmentData }: AppointmentFormProp
       isBlockTime: data.isBlockTime,
     };
 
-    const { addAppointment } = useAppointmentStore.getState();
-    const dateKey = payload.appointmentDate;
 
     try {
       const res = await fetch("/api/createAppointment", {
@@ -247,8 +243,7 @@ export default function AppointmentForm({ appointmentData }: AppointmentFormProp
         return;
       }
 
-      const { id } = await res.json();
-      addAppointment(dateKey, { id, status: "Scheduled", ...payload } as Appointment);
+      await res.json();
       toast({
         title: data.isBlockTime ? "Horário Bloqueado" : (appointmentData?.id ? "Agendamento Atualizado" : "Agendamento Criado"),
         description: `O ${data.isBlockTime ? 'horário' : 'agendamento'} para ${data.isBlockTime ? data.blockReason : payload.patient} em ${format(data.appointmentDate, "P", {locale: ptBR})} foi ${appointmentData?.id ? 'atualizado' : 'criado'} com sucesso.`,

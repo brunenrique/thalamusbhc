@@ -12,7 +12,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, CalendarDays } from "lucide-react";
 import Link from "next/link";
-import AppointmentCalendar, { getInitialMockAppointments } from "@/components/schedule/appointment-calendar";
+import AppointmentCalendar from "@/components/schedule/appointment-calendar";
+import { getInitialMockAppointments } from '@/services/appointmentService';
 import {
   format,
   startOfWeek,

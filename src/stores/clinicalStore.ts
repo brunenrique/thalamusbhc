@@ -1,14 +1,31 @@
 // src/stores/clinicalStore.ts
 
 import { create } from "zustand";
+import { fetchClinicalData as fetchClinicalDataSvc, saveClinicalData as saveClinicalDataSvc } from '@/services/clinicalService';
 import type { BaseCard, Label } from "@/types/cards";
 import type {
   ClinicalTab,
   ClinicalTabType,
   TabSpecificFormulationData,
+  QuickNote,
 } from "@/types/clinicalTypes";
 
 type PanelType = "hexaflex" | "chain" | "matrix" | null;
+
+const defaultTabData: TabSpecificFormulationData = {
+  cards: [],
+  schemas: [],
+  nodes: [],
+  edges: [],
+  viewport: { x: 0, y: 0, zoom: 1 },
+  insights: [],
+  formulationGuideAnswers: {},
+  quickNotes: [],
+  cardGroups: [],
+  activeColorFilters: [],
+  showSchemaNodes: true,
+  emotionIntensityFilter: 0,
+};
 
 // Define the colors for each card type
 
@@ -20,6 +37,26 @@ interface ClinicalState {
   labels: Label[];
   activePanel: PanelType;
   panelState: Record<string, any>;
+  isABCFormOpen: boolean;
+  editingCardId?: string;
+  openABCForm: (cardId?: string) => void;
+  closeABCForm: () => void;
+
+  isSchemaFormOpen: boolean;
+  editingSchemaId?: string;
+  openSchemaForm: (schemaId?: string, prefillRule?: string) => void;
+  closeSchemaForm: () => void;
+
+  isQuickNoteFormOpen: boolean;
+  quickNoteFormTarget?: { cardId?: string; noteIdToEdit?: string; defaultText?: string };
+  openQuickNoteForm: (opts?: { cardId?: string; noteIdToEdit?: string; defaultText?: string }) => void;
+  closeQuickNoteForm: () => void;
+
+  isQuickNotesPanelVisible: boolean;
+  toggleQuickNotesPanelVisibility: () => void;
+  quickNotes: QuickNote[];
+  addQuickNote: (note: QuickNote) => void;
+  deleteQuickNote: (id: string) => void;
   addCard: (card: BaseCard) => void;
   archiveCard: (cardId: string) => void;
   restoreCard: (cardId: string) => void;
@@ -32,6 +69,7 @@ interface ClinicalState {
   renameTab: (id: string, title: string) => void;
   setActiveTab: (id: string) => void;
   fetchClinicalData: (patientId: string, tabId: string) => void;
+  saveClinicalData: (patientId: string, tabId: string) => void;
 
   setActivePanel: (panel: PanelType) => void;
   setPanelState: (panel: string, state: any) => void;
@@ -64,31 +102,43 @@ export const useClinicalStore = create<ClinicalState>((set, get) => ({
       tabs: state.tabs.map((t) => (t.id === id ? { ...t, title } : t)),
     })),
   setActiveTab: (id) => set({ activeTabId: id }),
-  fetchClinicalData: (patientId, tabId) => {
-    console.log("fetchClinicalData", patientId, tabId);
+  fetchClinicalData: async (patientId, tabId) => {
+    await fetchClinicalDataSvc(patientId, tabId);
     set((state) => ({
       formulationTabData: {
         ...state.formulationTabData,
-        [tabId]:
-          state.formulationTabData[tabId] || {
-            cards: [],
-            schemas: [],
-            nodes: [],
-            edges: [],
-            viewport: { x: 0, y: 0, zoom: 1 },
-            insights: [],
-            formulationGuideAnswers: {},
-            quickNotes: [],
-            cardGroups: [],
-            activeColorFilters: [],
-            showSchemaNodes: true,
-            emotionIntensityFilter: 0,
-          },
+        [tabId]: state.formulationTabData[tabId] || { ...defaultTabData },
       },
     }));
   },
+  saveClinicalData: async (patientId, tabId) => {
+    const data = get().formulationTabData[tabId];
+    await saveClinicalDataSvc(patientId, tabId, data);
+  },
 
   prefillSchemaRule: undefined,
+
+  isABCFormOpen: false,
+  editingCardId: undefined,
+  openABCForm: (cardId) => set({ isABCFormOpen: true, editingCardId: cardId }),
+  closeABCForm: () => set({ isABCFormOpen: false, editingCardId: undefined }),
+
+  isSchemaFormOpen: false,
+  editingSchemaId: undefined,
+  openSchemaForm: (schemaId, prefillRule) =>
+    set({ isSchemaFormOpen: true, editingSchemaId: schemaId, prefillSchemaRule: prefillRule }),
+  closeSchemaForm: () => set({ isSchemaFormOpen: false, editingSchemaId: undefined, prefillSchemaRule: undefined }),
+
+  isQuickNoteFormOpen: false,
+  quickNoteFormTarget: undefined,
+  openQuickNoteForm: (opts) => set({ isQuickNoteFormOpen: true, quickNoteFormTarget: opts }),
+  closeQuickNoteForm: () => set({ isQuickNoteFormOpen: false, quickNoteFormTarget: undefined }),
+
+  isQuickNotesPanelVisible: false,
+  toggleQuickNotesPanelVisibility: () => set((s) => ({ isQuickNotesPanelVisible: !s.isQuickNotesPanelVisible })),
+  quickNotes: [],
+  addQuickNote: (note) => set((state) => ({ quickNotes: [...state.quickNotes, note] })),
+  deleteQuickNote: (id) => set((state) => ({ quickNotes: state.quickNotes.filter(n => n.id !== id) })),
 
   // ----- Existing card/label management -----
   cards: [],

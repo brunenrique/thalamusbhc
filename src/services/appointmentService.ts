@@ -1,4 +1,125 @@
-import type { AppointmentsByDate } from '@/types/appointment';
+import type { AppointmentStatus, AppointmentsByDate } from '@/types/appointment';
+import { addDays, format, subDays } from 'date-fns';
+
+const baseMockAppointments: AppointmentsByDate = {
+  '2024-08-15': [
+    {
+      id: 'appt1',
+      patientId: '1',
+      startTime: '10:00',
+      endTime: '11:00',
+      patient: 'Alice Wonderland',
+      type: 'Consulta',
+      psychologistId: 'psy1',
+      status: 'Confirmed',
+      notes: 'Sessão inicial com Alice.',
+    },
+    {
+      id: 'appt2',
+      patientId: '2',
+      startTime: '14:00',
+      endTime: '15:00',
+      patient: 'Bob O Construtor',
+      type: 'Acompanhamento',
+      psychologistId: 'psy2',
+      status: 'Completed',
+      notes: 'Revisão de progresso.',
+    },
+  ],
+  '2024-08-16': [
+    {
+      id: 'appt3',
+      startTime: '09:00',
+      endTime: '10:00',
+      patient: 'Autocuidado',
+      type: 'Blocked Slot',
+      psychologistId: 'psy1',
+      status: 'Blocked',
+      blockReason: 'Tempo Pessoal',
+    },
+  ],
+  '2024-08-20': [
+    {
+      id: 'appt4',
+      patientId: '3',
+      startTime: '11:00',
+      endTime: '12:00',
+      patient: 'Charlie Brown',
+      type: 'Sessão de Terapia',
+      psychologistId: 'psy1',
+      status: 'CancelledByPatient',
+    },
+  ],
+};
+
+export function getInitialMockAppointments(): AppointmentsByDate {
+  const todayStr = format(new Date(), 'yyyy-MM-dd');
+  const todayAppointments = [
+    {
+      id: 'apptToday1',
+      patientId: 'apptToday1',
+      startTime: '15:00',
+      endTime: '16:00',
+      patient: 'Paciente Teste Hoje',
+      type: 'Consulta Teste',
+      psychologistId: 'psy1',
+      status: 'Scheduled' as AppointmentStatus,
+      notes: 'Consulta de rotina.',
+    },
+    {
+      id: 'apptToday2',
+      patientId: '4',
+      startTime: '17:00',
+      endTime: '17:30',
+      patient: 'Diana Prince',
+      type: 'Revisão',
+      psychologistId: 'psy2',
+      status: 'NoShow' as AppointmentStatus,
+    },
+  ];
+
+  const initialData = JSON.parse(JSON.stringify(baseMockAppointments));
+
+  if (initialData[todayStr]) {
+    initialData[todayStr] = [...initialData[todayStr], ...todayAppointments];
+  } else {
+    initialData[todayStr] = [...todayAppointments];
+  }
+
+  const aFewDaysAgo = format(subDays(new Date(), 3), 'yyyy-MM-dd');
+  if (!initialData[aFewDaysAgo]) initialData[aFewDaysAgo] = [];
+  initialData[aFewDaysAgo] = [
+    ...initialData[aFewDaysAgo],
+    {
+      id: 'apptOld1',
+      patientId: 'apptOld1',
+      startTime: '10:30',
+      endTime: '11:30',
+      patient: 'Old Patient',
+      type: 'Follow-up',
+      psychologistId: 'psy1',
+      status: 'Completed',
+    },
+  ];
+
+  const aFewDaysAhead = format(addDays(new Date(), 3), 'yyyy-MM-dd');
+  if (!initialData[aFewDaysAhead]) initialData[aFewDaysAhead] = [];
+  initialData[aFewDaysAhead] = [
+    ...initialData[aFewDaysAhead],
+    {
+      id: 'apptFuture1',
+      patientId: 'apptFuture1',
+      startTime: '16:00',
+      endTime: '17:00',
+      patient: 'Future Patient',
+      type: 'Initial Consultation',
+      psychologistId: 'psy2',
+      status: 'Confirmed',
+    },
+  ];
+
+  return initialData;
+}
 
 export function hasScheduleConflict(
   appointments: AppointmentsByDate,

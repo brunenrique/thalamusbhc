@@ -10,20 +10,24 @@ import { mockPatient } from '@/app/(app)/patients/[id]/page'; // Ensure mockPati
 
 // Helper to extract patientId and tabId. In a real app, you'd get this from route params
 // and ensure they are strings.
-function getRouteParams(): { patientId: string; tabId: string } {
+function getRouteParams(defaultTabId: string | undefined): { patientId: string; tabId: string } {
   const params = useParams();
   const patientId = Array.isArray(params.patientId) ? params.patientId[0] : params.patientId;
   const tabId = Array.isArray(params.tabId) ? params.tabId[0] : params.tabId;
-  return { 
-    patientId: patientId || mockPatient.id, // Fallback for safety, adjust as needed
-    tabId: tabId || useClinicalStore.getState().tabs[0]?.id || 'initialTab' // Fallback for safety
+  return {
+    patientId: patientId || mockPatient.id,
+    tabId: tabId || defaultTabId || 'initialTab'
   };
 }
 
 
 export default function ClinicalMapFullscreenPage() {
-  const { setActiveTab, fetchClinicalData } = useClinicalStore();
-  const { patientId, tabId } = getRouteParams();
+  const { setActiveTab, fetchClinicalData, tabs } = useClinicalStore((s) => ({
+    setActiveTab: s.setActiveTab,
+    fetchClinicalData: s.fetchClinicalData,
+    tabs: s.tabs,
+  }));
+  const { patientId, tabId } = getRouteParams(tabs[0]?.id);
 
   useEffect(() => {
     if (patientId && tabId) {

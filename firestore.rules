@@ -11,7 +11,7 @@ service cloud.firestore {
     function hasRole(roleName) {
       return isSignedIn() &&
              request.auth.token.role != null &&
-             request.auth.token.role.toLowerCase() == roleName.toLowerCase();
+             request.auth.token.role.lower() == roleName.lower();
     }
 
     function isAdmin() {
@@ -34,7 +34,7 @@ service cloud.firestore {
       return request.resource.data.keys().hasOnly(['ownerId', 'name', 'birthdate']) &&
              request.resource.data.ownerId is string &&
              request.resource.data.name is string &&
-             request.resource.data.birthdate is timestamp;
+             (!('birthdate' in request.resource.data) || request.resource.data.birthdate is timestamp);
     }
 
     function validAssessmentStatus(status) {
@@ -42,7 +42,9 @@ service cloud.firestore {
     }
 
     function patientOwnedByUser(patientId) {
-      return get(/databases/$(database)/documents/patients/$(patientId)).data.ownerId == request.auth.uid;
+      return exists(/databases/$(database)/documents/patients/$(patientId))
+        ? get(/databases/$(database)/documents/patients/$(patientId)).data.ownerId == request.auth.uid
+        : true;
     }
 
     // Users
@@ -105,10 +107,11 @@ service cloud.firestore {
       }
       function usersExist() {
         return request.resource.data.participants.keys().hasOnly(
-                 request.resource.data.participants.keys().map(uid =>
-                   exists(/databases/$(database)/documents/users/$(uid))
-                 )
-               );
+          request.resource.data.participants.keys().map(
+            uid,
+            exists(/databases/$(database)/documents/users/$(uid))
+          )
+        );
       }
 
       allow create: if isSignedIn() &&

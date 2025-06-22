@@ -23,7 +23,11 @@ import {
 import { Badge } from '../ui/badge';
 
 const QuickNotesPanel: React.FC = () => {
-  const { quickNotes, deleteQuickNote, openQuickNoteForm, cards, toggleQuickNotesPanelVisibility } = useClinicalStore();
+  const quickNotes = useClinicalStore((s) => s.quickNotes);
+  const deleteQuickNote = useClinicalStore((s) => s.deleteQuickNote);
+  const openQuickNoteForm = useClinicalStore((s) => s.openQuickNoteForm);
+  const cards = useClinicalStore((s) => s.cards);
+  const toggleQuickNotesPanelVisibility = useClinicalStore((s) => s.toggleQuickNotesPanelVisibility);
 
   return (
     <>

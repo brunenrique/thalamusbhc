@@ -6,7 +6,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { CalendarDays, PlusCircle, ChevronLeft, ChevronRight, ListFilter, Download, CheckSquare, Clock, UserCheck, CheckCircle, AlertTriangle, Ban, UserX, Repeat as RepeatIcon } from "lucide-react";
 import Link from "next/link";
-import AppointmentCalendar, { type AppointmentsByDate, getInitialMockAppointments } from "@/components/schedule/appointment-calendar";
+import AppointmentCalendar, { type AppointmentsByDate } from "@/components/schedule/appointment-calendar";
+import { getInitialMockAppointments } from '@/services/appointmentService';
 import TaskItem from '@/components/tasks/task-item';
 import { getTasksForDate } from '@/services/taskService'; // Importar o serviço
 import type { Task } from '@/types'; // Importar o tipo Task

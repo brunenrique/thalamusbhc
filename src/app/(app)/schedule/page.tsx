@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Card } from '@/components/ui/card';
 import { CalendarDays, PlusCircle, ChevronLeft, ChevronRight, ListFilter, Download, ShieldAlert, MapPin } from "lucide-react";
 import Link from "next/link";
-import AppointmentCalendar, { type AppointmentsByDate, getInitialMockAppointments } from "@/components/schedule/appointment-calendar";
+import AppointmentCalendar, { type AppointmentsByDate } from "@/components/schedule/appointment-calendar";
+import { getInitialMockAppointments } from '@/services/appointmentService';
 import {
   DropdownMenu,
   DropdownMenuContent,

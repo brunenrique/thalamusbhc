@@ -8,7 +8,9 @@ import { useChatStore } from '@/stores/chatStore';
 import { cn } from '@/shared/utils';
 
 export default function ChatFloatingButton() {
-  const { isChatOpen, toggleChat, currentUser } = useChatStore();
+  const isChatOpen = useChatStore((s) => s.isChatOpen);
+  const toggleChat = useChatStore((s) => s.toggleChat);
+  const currentUser = useChatStore((s) => s.currentUser);
 
   if (!currentUser?.uid) {
     return null; // Don't show chat button if user is not logged in

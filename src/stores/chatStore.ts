@@ -19,10 +19,7 @@ const chatStore: StateCreator<ChatState> = (set, get) => ({
   isChatOpen: false,
   currentChatId: "global", // Default chat channel
   currentUser: { uid: null, displayName: null, avatarUrl: null }, // Initialize with null
-  onlineUsers: [ // Mock data
-    { id: 'user1', name: 'Dr. Admin', avatar: 'https://placehold.co/40x40/D0BFFF/4F3A76?text=DA' },
-    { id: 'user2', name: 'Alice P.', avatar: 'https://placehold.co/40x40/70C1B3/FFFFFF?text=AP' },
-  ],
+  onlineUsers: [],
   toggleChat: () => set((state) => ({ isChatOpen: !state.isChatOpen })),
   openChat: () => set({ isChatOpen: true }),
   closeChat: () => set({ isChatOpen: false }),

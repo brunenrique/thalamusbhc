@@ -36,8 +36,12 @@ function PatientListItemComponent({ patient }: PatientListItemProps) {
     return (names[0][0] + (names[names.length - 1][0] || '')).toUpperCase();
   };
 
-  const formattedNextAppointment = patient.nextAppointment 
-    ? format(new Date(patient.nextAppointment), "P", { locale: ptBR }) 
+  const formattedNextAppointment = patient.nextAppointment
+    ? format(new Date(patient.nextAppointment), "P", { locale: ptBR })
+    : null;
+
+  const formattedLastAppointment = patient.lastAppointmentDate
+    ? format(patient.lastAppointmentDate.toDate(), "P", { locale: ptBR })
     : null;
 
   const handleDeletePatient = () => {
@@ -71,6 +75,11 @@ function PatientListItemComponent({ patient }: PatientListItemProps) {
               {formattedNextAppointment && (
                 <p className="text-sm text-muted-foreground flex items-center gap-1">
                   <CalendarDays className="h-3 w-3" /> Próx.: {formattedNextAppointment}
+                </p>
+              )}
+              {formattedLastAppointment && (
+                <p className="text-sm text-muted-foreground flex items-center gap-1">
+                  <CalendarDays className="h-3 w-3" /> Últ.: {formattedLastAppointment}
                 </p>
               )}
             </div>

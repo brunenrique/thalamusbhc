@@ -3,8 +3,12 @@ const tsParser = require('@typescript-eslint/parser');
 const tsPlugin = require('@typescript-eslint/eslint-plugin');
 const next = require('@next/eslint-plugin-next');
 const prettierPlugin = require('eslint-plugin-prettier');
+const globals = require('globals');
 
 module.exports = [
+  {
+    ignores: ['node_modules', '.next', 'dist', 'firebase-debug.log'],
+  },
   js.configs.recommended,
   next.flatConfig.coreWebVitals,
   {
@@ -24,6 +28,13 @@ module.exports = [
       '@typescript-eslint/no-explicit-any': 'warn',
       'no-console': ['warn', { allow: ['warn', 'error'] }],
       'prettier/prettier': 'error',
+    },
+  },
+  {
+    files: ['**/__tests__/**', '**/*.test.ts', '**/*.test.tsx'],
+    languageOptions: {
+      parser: tsParser,
+      globals: globals.jest,
     },
   },
 ];

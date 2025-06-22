@@ -22,6 +22,9 @@ describe("usePreferredFields", () => {
     act(() => {
       result.current.save([{ id: "x", label: "X", pinned: true }]);
     });
+    expect(result.current.fields).toEqual([
+      { id: "x", label: "X", pinned: true },
+    ]);
     expect(
       JSON.parse(window.localStorage.getItem("preferredFields") || "null"),
     ).toEqual([{ id: "x", label: "X", pinned: true }]);

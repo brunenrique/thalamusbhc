@@ -34,4 +34,4 @@ jobs:
         run: npm run typecheck
 
       - name: Test
-        run: npm test
+        run: ./scripts/test.sh

@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import { useState } from "react";
 import PreferencesForm from "../components/PreferencesForm";
 import { usePreferredFields } from "../hooks/usePreferredFields";

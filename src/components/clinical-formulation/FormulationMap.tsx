@@ -22,7 +22,8 @@ import ReactFlow, {
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 
-import { useClinicalStore, allCardColors } from '@/stores/clinicalStore';
+import { useClinicalStore } from '@/stores/clinicalStore';
+import { clinicalCardColors } from '../../../tailwind.config';
 import ABCCardNode from './ABCCardNode';
 import SchemaNode from './SchemaNode';
 import NodeContextMenu from './NodeContextMenu';
@@ -174,7 +175,7 @@ const FormulationMap: React.FC = () => {
         formulationGuideAnswers: initialFormulationGuideQuestions.reduce((acc, q) => { acc[q.id] = false; return acc; }, {} as Record<string, boolean>),
         quickNotes: [],
         cardGroups: [],
-        activeColorFilters: [...allCardColors],
+        activeColorFilters: cardColorDisplayOptions.map(opt => opt.value),
         showSchemaNodes: true,
         emotionIntensityFilter: 0,
       };
@@ -287,7 +288,8 @@ const FormulationMap: React.FC = () => {
       nodesToDisplay = nodesToDisplay.filter(node => node.type !== 'schemaNode');
     }
 
-    const allColorsActive = activeTabData.activeColorFilters.length === allCardColors.length;
+    const allColorsActive =
+      activeTabData.activeColorFilters.length === cardColorDisplayOptions.length;
     if (!allColorsActive && activeTabData.activeColorFilters.length > 0) { 
       nodesToDisplay = nodesToDisplay.filter(node => {
         if (node.type === 'abcCard' && isABCCardData(node.data)) {

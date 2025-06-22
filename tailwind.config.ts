@@ -1,5 +1,21 @@
 import type { Config } from "tailwindcss"
 
+export const clinicalCardColors = {
+  abc: "#FFC0CB",
+  chain: "#ADD8E6",
+  matrix: "#90EE90",
+  generic: "#D3D3D3",
+  schema: "#FFB347",
+  note: "#B19CD9",
+  assessment: "#FFFF99",
+  goal: "#A7C7E7",
+  intervention: "#C3B1E1",
+  resource: "#ACE1AF",
+  session: "#FFDDAF",
+  problem: "#FF6961",
+  solution: "#77DD77",
+} as const
+
 const config = {
   darkMode: ["class"],
   content: [

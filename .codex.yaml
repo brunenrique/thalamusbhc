@@ -8,4 +8,5 @@ tasks:
   - run: npm ci
   - run: npm run lint
   - run: npm run typecheck
+  - run: npm run build
   - run: ./run-tests.sh

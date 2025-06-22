@@ -28,20 +28,52 @@ service cloud.firestore {
       return isAdmin() || isPsychologist() || isSecretary();
     }
 
+    function validPatient() {
+      return request.resource.data.keys().hasAll(['ownerId', 'name', 'birthdate']) &&
+             request.resource.data.ownerId is string &&
+             request.resource.data.name is string &&
+             request.resource.data.birthdate is timestamp;
+    }
+
+    function validAssessmentStatus(status) {
+      return status in ['assigned', 'in-progress', 'completed'];
+    }
+
     // Users
     match /users/{userId} {
-      allow read: if isStaff() || request.auth.uid == userId;
-      allow write: if request.auth.uid == userId || isAdmin();
+      allow get: if isStaff() || request.auth.uid == userId;
+      allow list: if isAdmin();
+      allow create: if request.auth.uid == userId || isAdmin();
+      allow update: if (request.auth.uid == userId &&
+                       request.resource.data.role == resource.data.role &&
+                       request.resource.data.isApproved == resource.data.isApproved)
+                     || isAdmin();
+      allow delete: if isAdmin();
     }
 
     // Patients
     match /patients/{id} {
       allow create: if isSignedIn() &&
-                      request.resource.data.ownerId == request.auth.uid;
+                      request.resource.data.ownerId == request.auth.uid &&
+                      validPatient();
 
-      allow read, update, delete: if isSignedIn() &&
-                                    resource.data != null &&
-                                    resource.data.ownerId == request.auth.uid;
+      allow read: if isStaff() ||
+                     (isSignedIn() && resource.data.ownerId == request.auth.uid);
+
+      allow update: if isStaff() ||
+                       (isSignedIn() &&
+                        resource.data.ownerId == request.auth.uid &&
+                        request.resource.data.ownerId == resource.data.ownerId);
+
+      allow delete: if isAdmin() ||
+                       (isSignedIn() && resource.data.ownerId == request.auth.uid);
+    }
+
+    // Chats
+    match /chats/{chatId} {
+      allow create: if isSignedIn() &&
+                      request.resource.data.participants[request.auth.uid] == true;
+      allow read: if isSignedIn() && request.auth.uid in resource.data.participants;
     }
 
     // Chat messages
@@ -60,14 +92,20 @@ service cloud.firestore {
 
     // Assessments
     match /assessments/{assessmentId} {
-      allow read: if isSignedIn();
+      allow read: if isAdmin() ||
+                     resource.data.assignedBy == request.auth.uid ||
+                     resource.data.patientId == request.auth.uid;
 
-      allow create: if isSignedIn() &&
-        request.resource.data.patientId is string &&
-        request.resource.data.assignedBy is string &&
-        request.resource.data.status in ['assigned', 'in-progress', 'completed'];
+      allow create: if isStaff() &&
+                      request.resource.data.assignedBy == request.auth.uid &&
+                      request.resource.data.patientId is string &&
+                      validAssessmentStatus(request.resource.data.status);
 
-      allow update: if isSignedIn();
+      allow update: if (isAdmin() || request.auth.uid == resource.data.assignedBy) &&
+                       request.resource.data.patientId == resource.data.patientId &&
+                       request.resource.data.assignedBy == resource.data.assignedBy &&
+                       validAssessmentStatus(request.resource.data.status);
+
       allow delete: if isAdmin();
     }
 

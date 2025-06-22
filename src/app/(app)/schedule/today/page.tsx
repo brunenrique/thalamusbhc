@@ -25,7 +25,7 @@ import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { Label } from '@/components/ui/label';
 import { format, getDay, startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachDayOfInterval, isWithinInterval, parse } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { generateICS } from '@/services/ics-generator';
+import { generateICS } from '@/lib/ics-generator';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
 

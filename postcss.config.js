@@ -1,8 +1,8 @@
-/* global module require */
+/* global module */
 /* eslint-env node */
 module.exports = {
   plugins: {
-    tailwindcss: {},
+    '@tailwindcss/postcss': {},
     autoprefixer: {},
   },
 };

@@ -11,21 +11,6 @@ import type {
 type PanelType = "hexaflex" | "chain" | "matrix" | null;
 
 // Define the colors for each card type
-export const allCardColors: Record<string, string> = {
-  abc: "#FFC0CB", // Pink
-  chain: "#ADD8E6", // LightBlue
-  matrix: "#90EE90", // LightGreen
-  generic: "#D3D3D3", // LightGrey
-  schema: "#FFB347", // LightOrange
-  note: "#B19CD9", // LightPurple
-  assessment: "#FFFF99", // LightYellow
-  goal: "#A7C7E7", // LightSteelBlue
-  intervention: "#C3B1E1", // Plum
-  resource: "#ACE1AF", // MintGreen
-  session: "#FFDDAF", // Peach
-  problem: "#FF6961", // LightCoral
-  solution: "#77DD77", // PastelGreen
-};
 
 interface ClinicalState {
   tabs: ClinicalTab[];

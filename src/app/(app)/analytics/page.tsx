@@ -34,6 +34,7 @@ import { useEffect, useState } from 'react';
 import { checkUserRole } from '@/services/authRole';
 import { getTotalPatients, getSessionsThisMonth } from '@/services/metricsService';
 
+// --- Dynamic Component Imports ---
 const SessionsTrendChart = dynamic(
   () => import('@/components/dashboard/sessions-trend-chart').then((mod) => mod.SessionsTrendChart),
   {
@@ -59,12 +60,14 @@ const OccupancyChart = dynamic(
   }
 );
 
+// --- Type Definitions ---
 interface OverallStats {
   activePatients: number;
   sessionsThisMonth: number;
-  avgOccupancyRate: number;
+  avgOccupancyRate: number; // Placeholder for now
 }
 
+// --- Mock Data (for sections pending integration) ---
 const mockPsychologistStats = {
   sessionsThisMonth: 52,
   activePatients: 25,
@@ -88,22 +91,6 @@ const mockAllPsychologistsPerformance = [
     avgSessionRating: 4.9,
     noShowRate: '3%',
   },
-  {
-    id: 'psy3',
-    name: 'Dra. Eva',
-    activePatients: 22,
-    sessionsThisMonth: 45,
-    avgSessionRating: 4.7,
-    noShowRate: '8%',
-  },
-  {
-    id: 'psy4',
-    name: 'Dr. Carlos',
-    activePatients: 18,
-    sessionsThisMonth: 40,
-    avgSessionRating: 4.6,
-    noShowRate: '10%',
-  },
 ];
 
 const mockDetailedOccupancyData = [
@@ -125,17 +112,9 @@ const mockDetailedOccupancyData = [
     blockedSlots: 0,
     occupancy: '100%',
   },
-  {
-    day: 'Quarta',
-    date: '2024-07-24',
-    psychologist: 'Dra. Jones',
-    totalSlots: 7,
-    bookedSlots: 5,
-    blockedSlots: 0,
-    occupancy: '71.4%',
-  },
 ];
 
+// --- Helper Functions ---
 const getOccupancyBadgeVariant = (
   occupancy: string
 ): 'default' | 'secondary' | 'outline' | 'destructive' => {
@@ -147,9 +126,12 @@ const getOccupancyBadgeVariant = (
   return 'destructive';
 };
 
+// --- Component Definition ---
 export default function AnalyticsHubPage() {
   const router = useRouter();
+  // TODO: Replace with a real role from an auth hook
   const userRole: 'Admin' | 'Psychologist' = 'Admin';
+
   const [overallStats, setOverallStats] = useState<OverallStats>({
     activePatients: 0,
     sessionsThisMonth: 0,
@@ -157,18 +139,25 @@ export default function AnalyticsHubPage() {
   });
 
   useEffect(() => {
-    checkUserRole(['Admin', 'Psychologist']).then((ok) => {
-      if (!ok) router.replace('/');
+    // 1. Check user role for route protection
+    checkUserRole(['Admin', 'Psychologist']).then((isAuthorized) => {
+      if (!isAuthorized) {
+        router.replace('/');
+      }
     });
 
-    (async () => {
+    // 2. Fetch data from Firestore
+    const fetchMetrics = async () => {
+      // Use Promise.all for parallel fetching
       const [patients, sessions] = await Promise.all([getTotalPatients(), getSessionsThisMonth()]);
       setOverallStats({
         activePatients: patients,
         sessionsThisMonth: sessions,
-        avgOccupancyRate: 0,
+        avgOccupancyRate: 0, // Placeholder - to be calculated in a future task
       });
-    })();
+    };
+
+    fetchMetrics();
   }, [router]);
 
   return (

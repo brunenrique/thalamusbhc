@@ -22,8 +22,12 @@ service firebase.storage {
       return hasRole('Psychologist');
     }
 
-    function isPsychologistOrAdmin() {
-      return isPsychologist() || isAdmin();
+    function isSecretary() {
+      return hasRole('Secretary');
+    }
+
+    function isStaff() {
+      return isPsychologist() || isAdmin() || isSecretary();
     }
 
     // Verifica se o usuário autenticado está vinculado ao paciente informado
@@ -37,8 +41,8 @@ service firebase.storage {
     match /resources/{fileName} {
       allow read: if isSignedIn(); // Todos os usuários logados podem baixar
       
-      // Psicólogos ou Admins podem fazer upload, com validações
-      allow write: if isPsychologistOrAdmin()
+      // Equipe autorizada pode fazer upload, com validações
+      allow write: if isStaff()
                     && request.resource.size < 10 * 1024 * 1024 // Limite de 10MB
                     && request.resource.contentType.matches('application/pdf|image/jpeg|image/png|application/msword|application/vnd.openxmlformats-officedocument.wordprocessingml.document');
     }

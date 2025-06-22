@@ -1,27 +1,33 @@
+'use client';
 
-"use client";
-
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { useRouter, usePathname } from 'next/navigation';
+import { checkUserRole } from '@/services/authRole';
 
 interface AppLayoutProps {
   children: React.ReactNode;
 }
 
 export default function AppLayout({ children }: AppLayoutProps) {
-  // All sidebar, header, and chat functionalities have been removed
-  // for debugging a Turbopack error.
-  // The currentUser logic from useChatStore and Firebase auth listeners
-  // have also been removed as they are tied to the chat components.
+  const router = useRouter();
+  const pathname = usePathname();
+  const [authorized, setAuthorized] = useState(false);
+
+  useEffect(() => {
+    checkUserRole(['Admin', 'Psychologist', 'Secretary']).then((ok) => {
+      if (!ok) {
+        router.replace('/');
+      } else {
+        setAuthorized(true);
+      }
+    });
+  }, [router, pathname]);
+
+  if (!authorized) return null;
 
   return (
     <div className="flex flex-col min-h-screen">
-      {/* 
-        The AppHeader, Sidebar, and Chat components have been removed.
-        The main content is now rendered directly.
-      */}
-      <main className="flex-1 p-4 md:p-6 lg:p-8">
-        {children}
-      </main>
+      <main className="flex-1 p-4 md:p-6 lg:p-8">{children}</main>
     </div>
   );
 }

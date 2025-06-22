@@ -19,6 +19,9 @@ module.exports = [
         ecmaVersion: 'latest',
         sourceType: 'module',
       },
+      globals: {
+        ...globals.browser,
+      },
     },
     plugins: {
       '@typescript-eslint': tsPlugin,
@@ -31,10 +34,29 @@ module.exports = [
     },
   },
   {
-    files: ['**/__tests__/**', '**/*.test.ts', '**/*.test.tsx'],
+    files: ['**/*.config.ts', 'tailwind.config.ts', 'eslint.config.js'],
     languageOptions: {
       parser: tsParser,
-      globals: globals.jest,
+      globals: globals.node,
+    },
+  },
+  {
+    files: [
+      '**/__tests__/**',
+      '**/*.test.ts',
+      '**/*.test.tsx',
+      'tests/**/*.ts',
+      'tests/**/*.tsx',
+      'src/tests/**/*.ts',
+      'src/tests/**/*.tsx',
+    ],
+    languageOptions: {
+      parser: tsParser,
+      globals: {
+        ...globals.jest,
+        ...globals.node,
+        ...globals.browser,
+      },
     },
   },
 ];

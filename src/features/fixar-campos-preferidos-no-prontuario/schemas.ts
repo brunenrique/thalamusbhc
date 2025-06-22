@@ -8,7 +8,9 @@ export const fieldSchema = z.object({
 
 export type Field = z.infer<typeof fieldSchema>;
 
-export const fieldsSchema = z.array(fieldSchema);
+export const fieldsSchema = z.object({
+  fields: z.array(fieldSchema),
+});
 
 export const DEFAULT_FIELDS: Field[] = [
   { id: "lastPlan", label: "Plano da Última Sessão", pinned: true },

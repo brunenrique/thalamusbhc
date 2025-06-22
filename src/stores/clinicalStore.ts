@@ -2,8 +2,9 @@
 
 import { create } from "zustand";
 import { fetchClinicalData as fetchClinicalDataSvc, saveClinicalData as saveClinicalDataSvc } from '@/services/clinicalService';
-import type { BaseCard, Label } from "@/types/cards";
 import type {
+  BaseCard,
+  Label,
   ClinicalTab,
   ClinicalTabType,
   TabSpecificFormulationData,
@@ -46,6 +47,7 @@ interface ClinicalState {
   editingSchemaId?: string;
   openSchemaForm: (schemaId?: string, prefillRule?: string) => void;
   closeSchemaForm: () => void;
+  prefillSchemaRule?: string;
 
   isQuickNoteFormOpen: boolean;
   quickNoteFormTarget?: { cardId?: string; noteIdToEdit?: string; defaultText?: string };

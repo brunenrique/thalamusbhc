@@ -13,7 +13,7 @@ export function usePreferredFields(defaultFields: Field[]) {
     if (stored) {
       try {
         const parsed = fieldsSchema.parse(JSON.parse(stored));
-        setFields(parsed);
+        setFields(parsed.fields);
       } catch {
         setFields(defaultFields);
       }
@@ -22,7 +22,7 @@ export function usePreferredFields(defaultFields: Field[]) {
 
   const save = (newFields: Field[]) => {
     setFields(newFields);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(newFields));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ fields: newFields }));
   };
 
   return { fields, save };

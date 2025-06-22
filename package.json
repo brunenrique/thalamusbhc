@@ -8,7 +8,7 @@
     "npm": "10.2.4"
   },
   "scripts": {
-    "dev": "next dev --turbopack -p 9003",
+    "dev": "next dev",
     "dev:force": "lsof -ti:9003 | xargs kill -9 || true && sleep 2 && next dev --turbopack -p 9003",
     "start": "next start",
     "build": "next build",

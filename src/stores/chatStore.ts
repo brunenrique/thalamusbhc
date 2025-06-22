@@ -1,5 +1,5 @@
 
-import { create } from 'zustand';
+import { create, type StateCreator } from 'zustand';
 import type { User, CurrentUser } from '@/types/user';
 
 interface ChatState {
@@ -15,7 +15,7 @@ interface ChatState {
   setOnlineUsers: (users: User[]) => void; // For mocking
 }
 
-export const useChatStore = create<ChatState>((set) => ({
+const chatStore: StateCreator<ChatState> = (set, get) => ({
   isChatOpen: false,
   currentChatId: "global", // Default chat channel
   currentUser: { uid: null, displayName: null, avatarUrl: null }, // Initialize with null
@@ -26,10 +26,12 @@ export const useChatStore = create<ChatState>((set) => ({
   toggleChat: () => set((state) => ({ isChatOpen: !state.isChatOpen })),
   openChat: () => set({ isChatOpen: true }),
   closeChat: () => set({ isChatOpen: false }),
-  setCurrentChatId: (chatId) => set({ currentChatId: chatId }),
-  setCurrentUser: (user) => set({ currentUser: user }),
-  setOnlineUsers: (users) => set({ onlineUsers: users }), // For updating mock users
-}));
+  setCurrentChatId: (chatId: string) => set({ currentChatId: chatId }),
+  setCurrentUser: (user: CurrentUser) => set({ currentUser: user }),
+  setOnlineUsers: (users: User[]) => set({ onlineUsers: users }), // For updating mock users
+});
+
+export const useChatStore = create<ChatState>(chatStore);
 
 // Example: How to set the current user after authentication
 // Somewhere in your auth flow (e.g., after successful login):

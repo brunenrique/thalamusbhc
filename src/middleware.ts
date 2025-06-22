@@ -1,34 +1,38 @@
+import { type NextRequest, NextResponse } from 'next/server';
 
-import { type NextRequest, NextResponse } from 'next/server'
-import { auth as adminAuth } from 'firebase-admin'
-
-const PUBLIC_PATHS = ['/login']
+const PUBLIC_PATHS = ['/login'];
 
 function isPublic(pathname: string) {
-  return PUBLIC_PATHS.includes(pathname)
+  return PUBLIC_PATHS.includes(pathname);
 }
 
 export async function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl
+  const { pathname } = request.nextUrl;
 
   if (isPublic(pathname)) {
-    return NextResponse.next()
+    return NextResponse.next();
   }
 
-  const authHeader = request.headers.get('authorization')
-  const token = authHeader?.split('Bearer ')[1]
+  const authHeader = request.headers.get('authorization');
+  const token = authHeader?.split('Bearer ')[1];
 
   if (token) {
     try {
-      await adminAuth().verifyIdToken(token)
-      return NextResponse.next()
+      const verifyUrl = new globalThis.URL('/api/verifyToken', request.url);
+      const res = await globalThis.fetch(verifyUrl.toString(), {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        return NextResponse.next();
+      }
     } catch (err) {
-      console.error('Token Firebase inválido', err)
+      globalThis.console.error('Erro ao verificar token', err);
     }
   }
-  return NextResponse.redirect(new URL('/login', request.url))
+  return NextResponse.redirect(new globalThis.URL('/login', request.url));
 }
 
 export const config = {
-  matcher: ['/((?!api/public|_next|favicon.ico|login).*)'],
-}
+  matcher: ['/((?!api/verifyToken|api/public|_next|favicon.ico|login).*)'],
+};

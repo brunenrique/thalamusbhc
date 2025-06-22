@@ -3,7 +3,7 @@ set -euo pipefail
 
 # Pasta do projeto (Firebase Studio)
 SCRIPT_DIR="$(dirname "$0")"
-PROJECT_DIR="$SCRIPT_DIR/studio"
+PROJECT_DIR="$SCRIPT_DIR"
 
 # Ativa Volta para usar versoes fixadas
 export VOLTA_HOME="$HOME/.volta"

@@ -3,14 +3,14 @@
 
 import React from 'react';
 import dynamic from 'next/dynamic';
-const LineChart = dynamic(() => import('recharts').then(m => m.LineChart), { ssr: false });
-const Line = dynamic(() => import('recharts').then(m => m.Line), { ssr: false });
-const XAxis = dynamic(() => import('recharts').then(m => m.XAxis), { ssr: false });
-const YAxis = dynamic(() => import('recharts').then(m => m.YAxis), { ssr: false });
-const CartesianGrid = dynamic(() => import('recharts').then(m => m.CartesianGrid), { ssr: false });
-const Tooltip = dynamic(() => import('recharts').then(m => m.Tooltip), { ssr: false });
-const Legend = dynamic(() => import('recharts').then(m => m.Legend), { ssr: false });
-const ResponsiveContainer = dynamic(() => import('recharts').then(m => m.ResponsiveContainer), { ssr: false });
+const LineChart = dynamic(() => import('recharts').then(m => m.LineChart as React.ComponentType<any>), { ssr: false });
+const Line = dynamic(() => import('recharts').then(m => m.Line as React.ComponentType<any>), { ssr: false });
+const XAxis = dynamic(() => import('recharts').then(m => m.XAxis as React.ComponentType<any>), { ssr: false });
+const YAxis = dynamic(() => import('recharts').then(m => m.YAxis as React.ComponentType<any>), { ssr: false });
+const CartesianGrid = dynamic(() => import('recharts').then(m => m.CartesianGrid as React.ComponentType<any>), { ssr: false });
+const Tooltip = dynamic(() => import('recharts').then(m => m.Tooltip as React.ComponentType<any>), { ssr: false });
+const Legend = dynamic(() => import('recharts').then(m => m.Legend as React.ComponentType<any>), { ssr: false });
+const ResponsiveContainer = dynamic(() => import('recharts').then(m => m.ResponsiveContainer as React.ComponentType<any>), { ssr: false });
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { ChartConfig, ChartContainer, ChartTooltip as RechartsChartTooltip, ChartTooltipContent } from "@/components/ui/chart"

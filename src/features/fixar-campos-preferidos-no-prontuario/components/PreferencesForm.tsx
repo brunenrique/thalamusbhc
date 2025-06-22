@@ -36,7 +36,16 @@ export default function PreferencesForm({ initialFields, onSave }: Props) {
             <Controller
               name={`fields.${idx}.pinned` as const}
               control={control}
-              render={({ field }) => <input type="checkbox" {...field} />}
+              render={({ field }) => (
+                <input
+                  type="checkbox"
+                  onChange={field.onChange}
+                  onBlur={field.onBlur}
+                  name={field.name}
+                  ref={field.ref}
+                  checked={field.value}
+                />
+              )}
             />
             <span className="flex-1">{field.label}</span>
             <button

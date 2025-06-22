@@ -122,11 +122,11 @@ const FormControl = React.forwardRef<
     )
   }
 
-  const Comp = hasSingleValidChild ? Slot : "div"
+  const Comp: any = hasSingleValidChild ? Slot : "div"
 
   return (
     <Comp
-      ref={ref}
+      ref={ref as any}
       id={formItemId}
       aria-describedby={
         !error

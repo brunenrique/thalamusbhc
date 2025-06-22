@@ -234,7 +234,7 @@ function AppointmentCalendarComponent({ view, currentDate, filters, workingDaysO
               <h4 className="font-headline text-md">{appt.type === "Blocked Slot" ? `Horário Bloqueado: ${appt.blockReason}` : appt.patient}</h4>
               <InfoDisplay label="Tipo" value={appt.type} icon={appt.isGroupSession ? UsersIcon : GripVertical} className="p-0 bg-transparent"/>
               <InfoDisplay label="Horário" value={`${appt.startTime} - ${appt.endTime}`} icon={Clock} className="p-0 bg-transparent"/>
-              <InfoDisplay label="Status" value={getStatusLabel(appt.status)} icon={() => getStatusIcon(appt.status, "w-4 h-4 mr-1", appt.isGroupSession)} className="p-0 bg-transparent"/>
+                <InfoDisplay label="Status" value={getStatusLabel(appt.status)} icon={getStatusIcon(appt.status, "w-4 h-4 mr-1", appt.isGroupSession)} className="p-0 bg-transparent"/>
               {appt.psychologistId && <InfoDisplay label="Com" value={mockPsychologists.find(p => p.id === appt.psychologistId)?.name || appt.psychologistId} icon={User} className="p-0 bg-transparent"/> }
               {appt.notes && !appt.isGroupSession && <InfoDisplay label="Notas" value={appt.notes} icon={Edit} className="p-0 bg-transparent"/>}
               {appt.isGroupSession && appt.notes && <InfoDisplay label="Roteiro (Início)" value={appt.notes} icon={FileText} className="p-0 bg-transparent"/>}

@@ -29,11 +29,11 @@ service cloud.firestore {
 
     // Valida a estrutura dos dados de um paciente.
     function validPatient() {
-      return request.resource.data.keys().hasOnly(['ownerId', 'name', 'birthdate']) &&
-             request.resource.data.ownerId is string &&
+      return request.resource.data.keys().hasOnly(['psychologistId', 'name', 'birthdate']) &&
+             request.resource.data.psychologistId is string &&
              request.resource.data.name is string &&
              (!('birthdate' in request.resource.data) || request.resource.data.birthdate is timestamp);
-    }
+   }
     
     // Valida os status permitidos para uma avaliação.
     function validAssessmentStatus(status) {
@@ -63,9 +63,23 @@ service cloud.firestore {
 
     // Coleção de Agendamentos (Appointments)
     match /appointments/{id} {
-      allow read: if isStaff();
-      allow create, update: if isStaff();
-      allow delete: if isAdmin();
+      // Apenas o psicólogo ou o paciente envolvido podem ler o agendamento
+      allow read: if request.auth != null && (
+        request.auth.uid == resource.data.psychologistId ||
+        request.auth.uid == resource.data.patientId
+      );
+
+      // Criação e edição também restritas ao psicólogo ou paciente relacionado
+      allow create, update: if request.auth != null && (
+        request.auth.uid == request.resource.data.psychologistId ||
+        request.auth.uid == request.resource.data.patientId
+      );
+
+      // Exclusão segue a mesma lógica de autorização
+      allow delete: if request.auth != null && (
+        request.auth.uid == resource.data.psychologistId ||
+        request.auth.uid == resource.data.patientId
+      );
     }
 
     // Coleção de Avaliações (Assessments)
@@ -136,20 +150,15 @@ service cloud.firestore {
 
     // Coleção de Pacientes (Patients)
     match /patients/{id} {
-      allow create: if isStaff() && // Apenas equipe pode criar pacientes
-                      request.resource.data.ownerId == request.auth.uid &&
+      allow create: if isStaff() &&
+                      request.resource.data.psychologistId == request.auth.uid &&
                       validPatient();
 
-      allow read: if (isStaff() && resource.data.ownerId == request.auth.uid) || isAdmin();
-      
-      allow list: if isStaff(); // Permite que a equipe liste, a query no app deve filtrar por ownerId.
+      // Leitura, edição e exclusão apenas pelo psicólogo responsável
+      allow read, update, delete: if request.auth != null &&
+        request.auth.uid == resource.data.psychologistId;
 
-      allow update: if (isStaff() &&
-                       resource.data.ownerId == request.auth.uid &&
-                       request.resource.data.ownerId == resource.data.ownerId &&
-                       validPatient()) || isAdmin();
-
-      allow delete: if (isStaff() && resource.data.ownerId == request.auth.uid) || isAdmin();
+      allow list: if isStaff();
     }
 
     // Coleção de Notas de Sessão (Criptografadas)

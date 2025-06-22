@@ -1,6 +1,7 @@
 import { encrypt, decrypt } from '../src/lib/crypto-utils'
+import { deriveKeyFromPassword } from '../src/lib/encryptionKey'
 
-const key = Buffer.alloc(32, 0)
+const key = deriveKeyFromPassword('senha-teste')
 
 describe('crypto-utils', () => {
   it('encrypts and decrypts a string', () => {

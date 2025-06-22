@@ -8,6 +8,7 @@ export const FIRESTORE_COLLECTIONS = {
   NOTIFICATIONS: 'notifications',
   FCM_TOKENS: 'fcmTokens',
   MESSAGES: 'messages',
+  SESSION_NOTES: 'sessionNotes',
 } as const;
 
 export type FirestoreCollectionKeys = keyof typeof FIRESTORE_COLLECTIONS;

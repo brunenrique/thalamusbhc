@@ -29,7 +29,9 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { checkUserRole } from '@/services/authRole';
 import { getTotalPatients, getSessionsThisMonth } from '@/services/metricsService';
 
 const SessionsTrendChart = dynamic(
@@ -146,6 +148,7 @@ const getOccupancyBadgeVariant = (
 };
 
 export default function AnalyticsHubPage() {
+  const router = useRouter();
   const userRole: 'Admin' | 'Psychologist' = 'Admin';
   const [overallStats, setOverallStats] = useState<OverallStats>({
     activePatients: 0,
@@ -154,6 +157,10 @@ export default function AnalyticsHubPage() {
   });
 
   useEffect(() => {
+    checkUserRole(['Admin', 'Psychologist']).then((ok) => {
+      if (!ok) router.replace('/');
+    });
+
     (async () => {
       const [patients, sessions] = await Promise.all([getTotalPatients(), getSessionsThisMonth()]);
       setOverallStats({
@@ -162,7 +169,7 @@ export default function AnalyticsHubPage() {
         avgOccupancyRate: 0,
       });
     })();
-  }, []);
+  }, [router]);
 
   return (
     <div className="space-y-6">

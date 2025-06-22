@@ -1,6 +1,4 @@
-"use client";
-
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import {
   Card,
   CardContent,
@@ -24,9 +22,7 @@ import Link from "next/link";
 import StatsCard from "@/components/dashboard/stats-card";
 import dynamic from "next/dynamic";
 import { Skeleton } from "@/components/ui/skeleton";
-import useAuth from "@/hooks/use-auth";
-import { checkUserRole } from "@/services/authRole";
-import { useRouter } from "next/navigation";
+import { getTotalPatients, getSessionsThisMonth, getOpenTasksCount } from "@/services/metricsService";
 import { RecentActivityItem } from "@/components/dashboard/recent-activity-item";
 import DashboardWeeklySchedule from "@/components/dashboard/dashboard-weekly-schedule";
 
@@ -88,26 +84,22 @@ const mockRecentActivities = [
   }
 ];
 
-export default function DashboardPage() {
-  const { user } = useAuth();
-  const router = useRouter();
-  const [userRole, setUserRole] = useState<string | null>(null);
+export default async function DashboardPage() {
+  const [activePatients, sessionsThisMonth, openTasks] = await Promise.all([
+    getTotalPatients(),
+    getSessionsThisMonth(),
+    getOpenTasksCount(),
+  ]);
 
-  useEffect(() => {
-    const fetchRoleAndCheck = async () => {
-      const role = await checkUserRole([
-        "Admin",
-        "Psychologist",
-        "Secretary"
-      ]);
-      if (!role) {
-        router.replace("/");
-      } else {
-        setUserRole(user?.role || "Psychologist");
-      }
-    };
-    fetchRoleAndCheck();
-  }, [router, user]);
+  const userRole = "Psychologist";
+
+  const mockKpis = {
+    activePatients,
+    sessionsThisMonth,
+    avgSessionDuration: 52,
+    upcomingAppointments: 15,
+    openTasks,
+  };
 
   return (
     <div className="space-y-6">

@@ -1,3 +1,5 @@
+import type { Timestamp } from 'firebase/firestore';
+
 export interface Patient {
   id: string;
   name: string;
@@ -6,4 +8,5 @@ export interface Patient {
   nextAppointment?: string | null;
   avatarUrl?: string;
   dataAiHint?: string;
+  lastAppointmentDate?: Timestamp | null;
 }

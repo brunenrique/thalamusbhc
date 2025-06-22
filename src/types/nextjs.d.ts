@@ -1,7 +1,9 @@
-import 'next'
+import 'next';
+
+export {};
 
 declare module 'next' {
-  interface NextConfig {
-    allowedDevOrigins?: string[]
+  export interface NextConfig {
+    allowedDevOrigins?: string[];
   }
 }

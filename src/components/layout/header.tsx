@@ -1,11 +1,11 @@
+'use client';
 
-"use client";
-
-import React from "react";
-import useAuth from "@/hooks/use-auth";
-import { SidebarTrigger } from "@/components/ui/sidebar";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import React from 'react';
+import useAuth from '@/hooks/use-auth';
+import { useRouter } from 'next/navigation';
+import { getAuth, signOut } from 'firebase/auth';
+import { SidebarTrigger } from '@/components/ui/sidebar';
+import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,22 +13,29 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Search, Bell, UserCircle, Settings, LogOut } from "lucide-react";
-import Link from "next/link";
-import ThemeToggle from "@/components/ui/theme-toggle";
+} from '@/components/ui/dropdown-menu';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Bell, UserCircle, Settings, LogOut } from 'lucide-react';
+import Link from 'next/link';
+import ThemeToggle from '@/components/ui/theme-toggle';
 // import { useTheme } from "next-themes"; // Assuming next-themes is installed for theme toggling
 
 export default function AppHeader() {
   // const { setTheme, theme } = useTheme(); // Uncomment if using next-themes
 
   const { user } = useAuth();
+  const router = useRouter();
 
-
+  const handleLogout = async () => {
+    await signOut(getAuth());
+    router.push('/login');
+  };
 
   return (
-    <header role="banner" className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b bg-background/80 backdrop-blur-sm px-4 md:px-6">
+    <header
+      role="banner"
+      className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b bg-background/80 backdrop-blur-sm px-4 md:px-6"
+    >
       <SidebarTrigger className="md:hidden" />
       <div className="flex-1">
         {/* Optional: Global Search can go here */}
@@ -50,9 +57,18 @@ export default function AppHeader() {
         </Button>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="rounded-full" aria-label="Menu do usuário">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="rounded-full"
+              aria-label="Menu do usuário"
+            >
               <Avatar className="h-8 w-8">
-                <AvatarImage src={user.photoURL || "https://placehold.co/100x100.png"} alt={user.displayName || "Usuário"} data-ai-hint="user avatar" />
+                <AvatarImage
+                  src={user.photoURL || 'https://placehold.co/100x100.png'}
+                  alt={user.displayName || 'Usuário'}
+                  data-ai-hint="user avatar"
+                />
                 <AvatarFallback>
                   <UserCircle className="h-6 w-6" />
                 </AvatarFallback>
@@ -60,7 +76,9 @@ export default function AppHeader() {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">
-            <DropdownMenuLabel>Minha Conta{user.displayName ? ` - ${user.displayName}` : ''}</DropdownMenuLabel>
+            <DropdownMenuLabel>
+              Minha Conta{user.displayName ? ` - ${user.displayName}` : ''}
+            </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild>
               <Link href="/profile">
@@ -79,10 +97,9 @@ export default function AppHeader() {
               </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            {/* Logout functionality commented out as auth is disabled */}
-            <DropdownMenuItem disabled>
+            <DropdownMenuItem onClick={handleLogout}>
               <LogOut className="mr-2 h-4 w-4" />
-              <span>Sair (Desabilitado)</span>
+              <span>Sair</span>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

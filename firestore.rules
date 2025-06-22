@@ -170,6 +170,36 @@ service cloud.firestore {
       allow create, delete: if isAdmin();
     }
 
+    match /backupSettings/{id} {
+      allow read, write: if isAdmin();
+    }
+
+    match /backups/{id} {
+      allow read, create: if isAdmin();
+    }
+
+    // Waiting list
+    match /waitingList/{id} {
+      allow read, update: if isStaff();
+      allow create, delete: if isAdmin();
+    }
+
+    function validSessionNote() {
+      return request.resource.data.keys().hasOnly(['patientId','data','createdAt']) &&
+             request.resource.data.patientId is string &&
+             request.resource.data.createdAt is timestamp &&
+             request.resource.data.data.keys().hasOnly(['ciphertext','iv','tag']) &&
+             request.resource.data.data.ciphertext is string &&
+             request.resource.data.data.iv is string &&
+             request.resource.data.data.tag is string;
+    }
+
+    match /sessionNotes/{noteId} {
+      allow read: if isStaff();
+      allow create: if isStaff() && validSessionNote();
+      allow update, delete: if false;
+    }
+
     // Catch-all
     match /{document=**} {
       allow read, write: if false;

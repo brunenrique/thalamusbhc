@@ -20,9 +20,7 @@
     "typecheck": "tsc --noEmit",
     "test": "echo '⚠️ Use \"npm run test:all\" para rodar os testes corretamente com o Firebase Emulator ativo.' && exit 1",
     "test:all": "./scripts/test.sh",
-    "test:unit": "vitest run",
     "test:e2e": "playwright test",
-    "test:coverage": "vitest run --coverage",
     "test:rules": "firebase emulators:exec --project=demo-project \"npx jest --selectProjects firestore\"",
     "jest": "jest",
     "ci": "./scripts/ci.sh",
@@ -91,7 +89,6 @@
     "ts-jest": "^29.4.0",
     "tsx": "^4.20.3",
     "typescript": "^5.8.3",
-    "vitest": "^3.2.4",
     "@eslint/js": "^9.2.0",
     "eslint-plugin-prettier": "^5.1.3",
     "globals": "^13.24.0"

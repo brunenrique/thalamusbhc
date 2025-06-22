@@ -1,7 +1,14 @@
-export { generateSessionInsightsPrompt } from './session-insights';
-export { generateReportDraftPrompt } from './report-draft';
-export { generateSessionNoteTemplatePrompt } from './session-note-template';
-export { clinicalSupervisionMasterPrompt } from './clinical-supervision';
+import { generateSessionInsightsPrompt } from './session-insights';
+import { generateReportDraftPrompt } from './report-draft';
+import { generateSessionNoteTemplatePrompt } from './session-note-template';
+import { clinicalSupervisionMasterPrompt } from './clinical-supervision';
+
+export {
+  generateSessionInsightsPrompt,
+  generateReportDraftPrompt,
+  generateSessionNoteTemplatePrompt,
+  clinicalSupervisionMasterPrompt,
+};
 
 const prompts = {
   generateSessionInsights: generateSessionInsightsPrompt,

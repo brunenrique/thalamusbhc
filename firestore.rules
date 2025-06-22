@@ -170,6 +170,12 @@ service cloud.firestore {
       allow create, delete: if isAdmin();
     }
 
+    // Waiting list
+    match /waitingList/{id} {
+      allow read, update: if isStaff();
+      allow create, delete: if isAdmin();
+    }
+
     function validSessionNote() {
       return request.resource.data.keys().hasOnly(['patientId','data','createdAt']) &&
              request.resource.data.patientId is string &&

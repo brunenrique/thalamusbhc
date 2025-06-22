@@ -61,6 +61,21 @@ export const scheduleReminders = functions.pubsub
     );
   });
 
+export const onNotificationCreate = functions.firestore
+  .document('users/{userId}/notifications/{notifId}')
+  .onCreate(async (snap, context) => {
+    const { userId, notifId } = context.params as { userId: string; notifId: string };
+    const data = snap.data();
+    const tokensSnap = await db.collection('users').doc(userId).collection('fcmTokens').get();
+    const tokens = tokensSnap.docs.map(d => d.id);
+    if (!tokens.length) return;
+    await admin.messaging().sendEachForMulticast({
+      tokens,
+      notification: { title: 'PsiGuard', body: data.message },
+      data: { type: data.type || 'generic', id: notifId },
+    });
+  });
+
 export const healthcheck = functions.https.onRequest((_, res) => {
   res.status(200).send('ok');
 });

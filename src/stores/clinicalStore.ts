@@ -1,95 +1,155 @@
-import type { Config } from "tailwindcss"
+// src/stores/clinicalStore.ts
 
-const config = {
-  darkMode: ["class"],
-  content: [
-    "./pages/**/*.{ts,tsx}",
-    "./components/**/*.{ts,tsx}",
-    "./app/**/*.{ts,tsx}",
-    "./src/**/*.{ts,tsx}",
-	],
-  prefix: "",
-  theme: {
-  	container: {
-  		center: true,
-  		padding: '2rem',
-  		screens: {
-  			'2xl': '1400px'
-  		}
-  	},
-  	extend: {
-  		colors: {
-  			border: 'hsl(var(--border))',
-  			input: 'hsl(var(--input))',
-  			ring: 'hsl(var(--ring))',
-  			background: 'hsl(var(--background))',
-  			foreground: 'hsl(var(--foreground))',
-  			primary: {
-  				DEFAULT: 'hsl(var(--primary))',
-  				foreground: 'hsl(var(--primary-foreground))'
-  			},
-  			secondary: {
-  				DEFAULT: 'hsl(var(--secondary))',
-  				foreground: 'hsl(var(--secondary-foreground))'
-  			},
-  			destructive: {
-  				DEFAULT: 'hsl(var(--destructive))',
-  				foreground: 'hsl(var(--destructive-foreground))'
-  			},
-  			muted: {
-  				DEFAULT: 'hsl(var(--muted))',
-  				foreground: 'hsl(var(--muted-foreground))'
-  			},
-  			accent: {
-  				DEFAULT: 'hsl(var(--accent))',
-  				foreground: 'hsl(var(--accent-foreground))'
-  			},
-  			popover: {
-  				DEFAULT: 'hsl(var(--popover))',
-  				foreground: 'hsl(var(--popover-foreground))'
-  			},
-  			card: {
-  				DEFAULT: 'hsl(var(--card))',
-  				foreground: 'hsl(var(--card-foreground))'
-  			},
-  			chart: {
-  				'1': 'hsl(var(--chart-1))',
-  				'2': 'hsl(var(--chart-2))',
-  				'3': 'hsl(var(--chart-3))',
-  				'4': 'hsl(var(--chart-4))',
-  				'5': 'hsl(var(--chart-5))'
-  			}
-  		},
-  		borderRadius: {
-  			lg: 'var(--radius)',
-  			md: 'calc(var(--radius) - 2px)',
-  			sm: 'calc(var(--radius) - 4px)'
-  		},
-  		keyframes: {
-  			'accordion-down': {
-  				from: {
-  					height: '0'
-  				},
-  				to: {
-  					height: 'var(--radix-accordion-content-height)'
-  				}
-  			},
-  			'accordion-up': {
-  				from: {
-  					height: 'var(--radix-accordion-content-height)'
-  				},
-  				to: {
-  					height: '0'
-  				}
-  			}
-  		},
-  		animation: {
-  			'accordion-down': 'accordion-down 0.2s ease-out',
-  			'accordion-up': 'accordion-up 0.2s ease-out'
-  		}
-  	}
+import { create } from "zustand";
+import type { BaseCard, Label } from "@/types/cards";
+import type {
+  ClinicalTab,
+  ClinicalTabType,
+  TabSpecificFormulationData,
+} from "@/types/clinicalTypes";
+
+type PanelType = "hexaflex" | "chain" | "matrix" | null;
+
+// Define the colors for each card type
+export const allCardColors: Record<string, string> = {
+  abc: "#FFC0CB", // Pink
+  chain: "#ADD8E6", // LightBlue
+  matrix: "#90EE90", // LightGreen
+  generic: "#D3D3D3", // LightGrey
+  schema: "#FFB347", // LightOrange
+  note: "#B19CD9", // LightPurple
+  assessment: "#FFFF99", // LightYellow
+  goal: "#A7C7E7", // LightSteelBlue
+  intervention: "#C3B1E1", // Plum
+  resource: "#ACE1AF", // MintGreen
+  session: "#FFDDAF", // Peach
+  problem: "#FF6961", // LightCoral
+  solution: "#77DD77", // PastelGreen
+};
+
+interface ClinicalState {
+  tabs: ClinicalTab[];
+  activeTabId?: string;
+  formulationTabData: Record<string, TabSpecificFormulationData>;
+  cards: BaseCard[];
+  labels: Label[];
+  activePanel: PanelType;
+  panelState: Record<string, any>;
+  addCard: (card: BaseCard) => void;
+  archiveCard: (cardId: string) => void;
+  restoreCard: (cardId: string) => void;
+
+  addLabel: (label: Omit<Label, "id">) => void;
+  assignLabelToCard: (cardId: string, labelId: string) => void;
+
+  addTab: (type: ClinicalTabType, title: string) => string;
+  removeTab: (id: string) => void;
+  renameTab: (id: string, title: string) => void;
+  setActiveTab: (id: string) => void;
+  fetchClinicalData: (patientId: string, tabId: string) => void;
+
+  setActivePanel: (panel: PanelType) => void;
+  setPanelState: (panel: string, state: any) => void;
+}
+
+export const useClinicalStore = create<ClinicalState>((set, get) => ({
+  // ----- Tab Management -----
+  tabs: [
+    { id: "initialTab", type: "formulation", title: "Formulação Inicial" },
+  ],
+  activeTabId: "initialTab",
+  formulationTabData: {},
+
+  addTab: (type, title) => {
+    const id = crypto.randomUUID();
+    set((state) => ({
+      tabs: [...state.tabs, { id, type, title }],
+      activeTabId: id,
+    }));
+    return id;
   },
-  plugins: [require("tailwindcss-animate")], // Mantido pois é comum com Shadcn
-} satisfies Config
+  removeTab: (id) =>
+    set((state) => ({
+      tabs: state.tabs.filter((t) => t.id !== id),
+      activeTabId:
+        state.activeTabId === id ? state.tabs[0]?.id : state.activeTabId,
+    })),
+  renameTab: (id, title) =>
+    set((state) => ({
+      tabs: state.tabs.map((t) => (t.id === id ? { ...t, title } : t)),
+    })),
+  setActiveTab: (id) => set({ activeTabId: id }),
+  fetchClinicalData: (patientId, tabId) => {
+    console.log("fetchClinicalData", patientId, tabId);
+    set((state) => ({
+      formulationTabData: {
+        ...state.formulationTabData,
+        [tabId]:
+          state.formulationTabData[tabId] || {
+            cards: [],
+            schemas: [],
+            nodes: [],
+            edges: [],
+            viewport: { x: 0, y: 0, zoom: 1 },
+            insights: [],
+            formulationGuideAnswers: {},
+            quickNotes: [],
+            cardGroups: [],
+            activeColorFilters: [],
+            showSchemaNodes: true,
+            emotionIntensityFilter: 0,
+          },
+      },
+    }));
+  },
 
-export default config
+  prefillSchemaRule: undefined,
+
+  // ----- Existing card/label management -----
+  cards: [],
+  labels: [],
+  activePanel: null,
+  panelState: {},
+
+  addCard: (card) => set((state) => ({ cards: [...state.cards, card] })),
+
+  archiveCard: (cardId) =>
+    set((state) => ({
+      cards: state.cards.map((card) =>
+        card.id === cardId ? { ...card, archived: true } : card
+      ),
+    })),
+
+  restoreCard: (cardId) =>
+    set((state) => ({
+      cards: state.cards.map((card) =>
+        card.id === cardId ? { ...card, archived: false } : card
+      ),
+    })),
+
+  addLabel: (label) =>
+    set((state) => ({
+      labels: [...state.labels, { ...label, id: crypto.randomUUID() }],
+    })),
+
+  assignLabelToCard: (cardId, labelId) =>
+    set((state) => ({
+      cards: state.cards.map((card) =>
+        card.id === cardId
+          ? {
+              ...card,
+              labels: card.labels
+                ? [...card.labels, labelId]
+                : [labelId],
+            }
+          : card
+      ),
+    })),
+
+  setActivePanel: (panel) => set({ activePanel: panel }),
+
+  setPanelState: (panel, newState) =>
+    set((state) => ({
+      panelState: { ...state.panelState, [panel]: newState },
+    })),
+}));

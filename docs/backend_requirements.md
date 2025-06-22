@@ -27,6 +27,11 @@ Este documento lista funcionalidades e regras de negócio que precisam ser imple
     *   **Escopo da Criptografia:**
         *   Identificar claramente quais campos de dados são considerados sensíveis e requerem criptografia. Campos não sensíveis (ex: nome do paciente para listagem, datas de agendamento) podem permanecer não criptografados para permitir buscas e indexação.
         *   Notas de sessão, diagnósticos, resumos de tratamento, e respostas detalhadas de avaliações são candidatos primários para criptografia.
+        *   **Campos obrigatoriamente cifrados:**
+            - `sessionSummary` e demais anotações clínicas.
+            - `diagnosis` e `treatmentPlan` registrados no prontuário.
+            - `assessmentResponses` armazenadas para avaliações psicológicas.
+            - Qualquer "histórico médico" com informações sensíveis do paciente.
     *   **Impacto na Funcionalidade:**
         *   **Busca:** Dados criptografados no Firestore não podem ser pesquisados diretamente pelo conteúdo (ex: buscar todas as notas que mencionam "ansiedade"). Estratégias de metadados não criptografados ou técnicas de "searchable encryption" (altamente complexas) podem ser necessárias para funcionalidades de busca limitadas.
         *   **Compartilhamento de Dados:** Se os dados precisarem ser compartilhados entre profissionais, o gerenciamento e compartilhamento seguro das chaves de descriptografia se torna um desafio adicional.

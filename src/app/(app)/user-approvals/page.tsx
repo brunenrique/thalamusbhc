@@ -1,16 +1,34 @@
+'use client';
 
-"use client";
-
-import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { Users, CheckCircle, ShieldQuestion, UserX } from "lucide-react";
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { checkUserRole } from '@/services/authRole';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { Badge } from '@/components/ui/badge';
+import { Users, CheckCircle, ShieldQuestion, UserX } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { collection, doc, getFirestore, query, updateDoc, where, deleteDoc, onSnapshot, Unsubscribe } from "firebase/firestore";
-import { app } from "@/services/firebase";
+import {
+  collection,
+  doc,
+  getFirestore,
+  query,
+  updateDoc,
+  where,
+  deleteDoc,
+  onSnapshot,
+  Unsubscribe,
+} from 'firebase/firestore';
+import { app } from '@/services/firebase';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -21,8 +39,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { useToast } from "@/hooks/use-toast";
+} from '@/components/ui/alert-dialog';
+import { useToast } from '@/hooks/use-toast';
 
 interface PendingUser {
   id: string;
@@ -34,59 +52,71 @@ interface PendingUser {
 }
 
 export default function UserApprovalsPage() {
+  const router = useRouter();
   const [pendingUsers, setPendingUsers] = useState<PendingUser[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
   useEffect(() => {
+    checkUserRole('Admin').then((ok) => {
+      if (!ok) {
+        router.replace('/');
+        return;
+      }
+    });
     setLoading(true);
     const db = getFirestore(app);
-    const q = query(collection(db, "users"), where("isApproved", "==", false));
+    const q = query(collection(db, 'users'), where('isApproved', '==', false));
 
-    const unsubscribe: Unsubscribe = onSnapshot(q, (snapshot) => {
-      const users = snapshot.docs.map(docSnap => {
-        const data = docSnap.data() as Record<string, unknown>;
-        return {
-          id: docSnap.id,
-          name: data.name || "Nome não informado",
-          email: data.email,
-          role: data.role || "Função não definida",
-          dateRegistered: (data as any).dateRegistered?.toDate ? (data as any).dateRegistered.toDate().toISOString() : new Date().toISOString(),
-          status: "Pendente",
-        } as PendingUser;
-      });
-      setPendingUsers(users);
-      setLoading(false);
-    }, (error) => {
-      
-      toast({
-        title: "Erro ao Carregar Usuários",
-        description: "Não foi possível buscar os usuários pendentes em tempo real. Tente novamente mais tarde.",
-        variant: "destructive",
-      });
-      setLoading(false);
-    });
+    const unsubscribe: Unsubscribe = onSnapshot(
+      q,
+      (snapshot) => {
+        const users = snapshot.docs.map((docSnap) => {
+          const data = docSnap.data() as Record<string, unknown>;
+          return {
+            id: docSnap.id,
+            name: data.name || 'Nome não informado',
+            email: data.email,
+            role: data.role || 'Função não definida',
+            dateRegistered: (data as any).dateRegistered?.toDate
+              ? (data as any).dateRegistered.toDate().toISOString()
+              : new Date().toISOString(),
+            status: 'Pendente',
+          } as PendingUser;
+        });
+        setPendingUsers(users);
+        setLoading(false);
+      },
+      () => {
+        toast({
+          title: 'Erro ao Carregar Usuários',
+          description:
+            'Não foi possível buscar os usuários pendentes em tempo real. Tente novamente mais tarde.',
+          variant: 'destructive',
+        });
+        setLoading(false);
+      }
+    );
 
     // Cleanup listener on component unmount
     return () => {
       unsubscribe();
     };
-  }, [toast]);
+  }, [toast, router]);
 
   const handleApproveUser = async (userId: string) => {
     try {
       const db = getFirestore(app);
-      await updateDoc(doc(db, "users", userId), { isApproved: true });
+      await updateDoc(doc(db, 'users', userId), { isApproved: true });
       toast({
-        title: "Usuário Aprovado",
-        description: "O usuário foi aprovado com sucesso e agora tem acesso ao sistema.",
+        title: 'Usuário Aprovado',
+        description: 'O usuário foi aprovado com sucesso e agora tem acesso ao sistema.',
       });
-    } catch (error) {
-      
+    } catch {
       toast({
-        title: "Erro ao Aprovar",
-        description: "Não foi possível aprovar o usuário. Tente novamente.",
-        variant: "destructive",
+        title: 'Erro ao Aprovar',
+        description: 'Não foi possível aprovar o usuário. Tente novamente.',
+        variant: 'destructive',
       });
     }
   };
@@ -94,33 +124,32 @@ export default function UserApprovalsPage() {
   const handleRejectUser = async (userId: string, userName: string) => {
     try {
       const db = getFirestore(app);
-      await deleteDoc(doc(db, "users", userId));
+      await deleteDoc(doc(db, 'users', userId));
       toast({
-        title: "Usuário Rejeitado",
+        title: 'Usuário Rejeitado',
         description: `O usuário ${userName} foi rejeitado e removido da lista de pendências.`,
-        variant: "default",
+        variant: 'default',
       });
-    } catch (error) {
-      
+    } catch {
       toast({
-        title: "Erro ao Rejeitar",
-        description: "Não foi possível rejeitar o usuário. Tente novamente.",
-        variant: "destructive",
+        title: 'Erro ao Rejeitar',
+        description: 'Não foi possível rejeitar o usuário. Tente novamente.',
+        variant: 'destructive',
       });
     }
   };
 
-  const getRoleBadge = (role: string): "secondary" | "outline" | "default" => {
-    if (role === "Psychologist") return "secondary";
-    if (role === "Admin") return "default";
-    return "outline";
+  const getRoleBadge = (role: string): 'secondary' | 'outline' | 'default' => {
+    if (role === 'Psychologist') return 'secondary';
+    if (role === 'Admin') return 'default';
+    return 'outline';
   };
 
   const getRoleLabel = (role: string): string => {
     const roleMap: Record<string, string> = {
-      Psychologist: "Psicólogo(a)",
-      Secretary: "Secretário(a)",
-      Admin: "Administrador(a)",
+      Psychologist: 'Psicólogo(a)',
+      Secretary: 'Secretário(a)',
+      Admin: 'Administrador(a)',
     };
     return roleMap[role] || role;
   };
@@ -156,7 +185,9 @@ export default function UserApprovalsPage() {
       <Card className="shadow-sm">
         <CardHeader>
           <CardTitle className="font-headline">Registros de Usuários Pendentes</CardTitle>
-          <CardDescription>Revise e aprove ou rejeite novos usuários solicitando acesso ao PsiGuard.</CardDescription>
+          <CardDescription>
+            Revise e aprove ou rejeite novos usuários solicitando acesso ao PsiGuard.
+          </CardDescription>
         </CardHeader>
         <CardContent>
           {pendingUsers.length > 0 ? (
@@ -173,16 +204,16 @@ export default function UserApprovalsPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {pendingUsers.map(user => (
+                  {pendingUsers.map((user) => (
                     <TableRow key={user.id}>
                       <TableCell className="font-medium">{user.name}</TableCell>
                       <TableCell>{user.email}</TableCell>
                       <TableCell>
-                        <Badge variant={getRoleBadge(user.role)}>
-                          {getRoleLabel(user.role)}
-                        </Badge>
+                        <Badge variant={getRoleBadge(user.role)}>{getRoleLabel(user.role)}</Badge>
                       </TableCell>
-                      <TableCell>{format(new Date(user.dateRegistered), "P 'às' HH:mm", { locale: ptBR })}</TableCell>
+                      <TableCell>
+                        {format(new Date(user.dateRegistered), "P 'às' HH:mm", { locale: ptBR })}
+                      </TableCell>
                       <TableCell>
                         <Badge variant="outline">{user.status}</Badge>
                       </TableCell>
@@ -208,7 +239,8 @@ export default function UserApprovalsPage() {
                             <AlertDialogHeader>
                               <AlertDialogTitle>Rejeitar Usuário?</AlertDialogTitle>
                               <AlertDialogDescription>
-                                Tem certeza que deseja rejeitar e excluir a solicitação de acesso de {user.name} ({user.email})? Esta ação não pode ser desfeita.
+                                Tem certeza que deseja rejeitar e excluir a solicitação de acesso de{' '}
+                                {user.name} ({user.email})? Esta ação não pode ser desfeita.
                               </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>
@@ -231,8 +263,12 @@ export default function UserApprovalsPage() {
           ) : (
             <div className="text-center py-10">
               <Users className="mx-auto h-12 w-12 text-muted-foreground" />
-              <h3 className="mt-2 text-sm font-medium text-foreground">Nenhuma aprovação pendente</h3>
-              <p className="mt-1 text-sm text-muted-foreground">Todos os usuários foram revisados.</p>
+              <h3 className="mt-2 text-sm font-medium text-foreground">
+                Nenhuma aprovação pendente
+              </h3>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Todos os usuários foram revisados.
+              </p>
             </div>
           )}
         </CardContent>

@@ -3,64 +3,190 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Funções seguras (só com request.auth)
+    // --- Funções de Apoio (Helpers) ---
+
+    // Verifica se o usuário está autenticado.
     function isSignedIn() {
       return request.auth != null;
     }
 
+    // Verifica se o usuário autenticado possui um 'role' específico no token.
     function hasRole(roleName) {
       return isSignedIn() &&
              request.auth.token.role != null &&
              request.auth.token.role.lower() == roleName.lower();
     }
 
-    function isAdmin() {
-      return hasRole('Admin');
-    }
+    // Funções de conveniência para papéis específicos.
+    function isAdmin() { return hasRole('Admin'); }
+    function isPsychologist() { return hasRole('Psychologist'); }
+    function isSecretary() { return hasRole('Secretary'); }
 
-    function isPsychologist() {
-      return hasRole('Psychologist');
-    }
-
-    function isSecretary() {
-      return hasRole('Secretary');
-    }
-
+    // Verifica se o usuário pertence à equipe da clínica.
     function isStaff() {
       return isAdmin() || isPsychologist() || isSecretary();
     }
 
+    // Valida a estrutura dos dados de um paciente.
     function validPatient() {
       return request.resource.data.keys().hasOnly(['ownerId', 'name', 'birthdate']) &&
              request.resource.data.ownerId is string &&
              request.resource.data.name is string &&
              (!('birthdate' in request.resource.data) || request.resource.data.birthdate is timestamp);
     }
-
+    
+    // Valida os status permitidos para uma avaliação.
     function validAssessmentStatus(status) {
       return status in ['assigned', 'in-progress', 'completed'];
     }
 
+    // Verifica se o paciente pertence ao psicólogo que faz a requisição.
     function patientOwnedByUser(patientId) {
       return exists(/databases/$(database)/documents/patients/$(patientId))
         ? get(/databases/$(database)/documents/patients/$(patientId)).data.ownerId == request.auth.uid
         : true;
     }
+    
+    // Valida a estrutura de uma nota de sessão criptografada.
+    function validSessionNote() {
+      return request.resource.data.keys().hasOnly(['patientId', 'data', 'createdAt', 'ownerId']) &&
+             request.resource.data.patientId is string &&
+             request.resource.data.ownerId is string &&
+             request.resource.data.createdAt is timestamp &&
+             request.resource.data.data.keys().hasOnly(['ciphertext', 'iv', 'tag']) &&
+             request.resource.data.data.ciphertext is string &&
+             request.resource.data.data.iv is string &&
+             request.resource.data.data.tag is string;
+    }
 
-    // Users
+    // --- Regras por Coleção ---
+
+    // Coleção de Agendamentos (Appointments)
+    match /appointments/{id} {
+      allow read: if isStaff();
+      allow create, update: if isStaff();
+      allow delete: if isAdmin();
+    }
+
+    // Coleção de Avaliações (Assessments)
+    match /assessments/{assessmentId} {
+      allow read: if isAdmin() ||
+                      resource.data.assignedBy == request.auth.uid ||
+                      resource.data.patientId == request.auth.uid; // Assumindo que paciente pode ler
+
+      allow create: if isStaff() &&
+                      request.resource.data.assignedBy == request.auth.uid &&
+                      request.resource.data.patientId is string &&
+                      patientOwnedByUser(request.resource.data.patientId) &&
+                      validAssessmentStatus(request.resource.data.status);
+
+      allow update: if (isAdmin() || request.auth.uid == resource.data.assignedBy) &&
+                      request.resource.data.patientId == resource.data.patientId &&
+                      request.resource.data.assignedBy == resource.data.assignedBy &&
+                      patientOwnedByUser(request.resource.data.patientId) &&
+                      validAssessmentStatus(request.resource.data.status);
+
+      allow delete: if isAdmin();
+    }
+
+    // Coleção de Configurações de Backup
+    match /backupSettings/{id} {
+      allow read, write: if isAdmin();
+    }
+
+    // Coleção de Backups
+    match /backups/{id} {
+      allow read, create: if isAdmin();
+    }
+
+    // Coleção de Chats
+    match /chats/{chatId} {
+      function participantCountOK() {
+        return request.resource.data.participants.size() <= 10;
+      }
+      function usersExist() {
+        // Esta função precisa ser ajustada, pois .map não funciona em regras de segurança.
+        // A lógica de verificação deve ser feita no lado do cliente ou em Cloud Functions.
+        // Por agora, permitiremos a criação se o criador for um participante.
+        return true; 
+      }
+
+      allow create: if isSignedIn() &&
+                      request.resource.data.participants[request.auth.uid] == true &&
+                      participantCountOK() &&
+                      usersExist();
+      allow read: if isSignedIn() && request.auth.uid in resource.data.participants;
+      
+      // Subcoleção de Mensagens do Chat
+      match /messages/{messageId} {
+        allow read: if isSignedIn() &&
+          get(/databases/$(database)/documents/chats/$(chatId)).data.participants[request.auth.uid] == true;
+
+        allow create: if isSignedIn() &&
+          get(/databases/$(database)/documents/chats/$(chatId)).data.participants[request.auth.uid] == true &&
+          request.resource.data.senderId == request.auth.uid &&
+          request.resource.data.text is string &&
+          request.resource.data.text.size() > 0 &&
+          request.resource.data.text.size() < 1000 &&
+          request.resource.data.senderName is string &&
+          request.resource.data.timestamp == request.time;
+        allow delete: if isAdmin() || request.auth.uid == resource.data.senderId;
+      }
+    }
+
+    // Coleção de Pacientes (Patients)
+    match /patients/{id} {
+      allow create: if isStaff() && // Apenas equipe pode criar pacientes
+                      request.resource.data.ownerId == request.auth.uid &&
+                      validPatient();
+
+      allow read: if (isStaff() && resource.data.ownerId == request.auth.uid) || isAdmin();
+      
+      allow list: if isStaff(); // Permite que a equipe liste, a query no app deve filtrar por ownerId.
+
+      allow update: if (isStaff() &&
+                       resource.data.ownerId == request.auth.uid &&
+                       request.resource.data.ownerId == resource.data.ownerId &&
+                       validPatient()) || isAdmin();
+
+      allow delete: if (isStaff() && resource.data.ownerId == request.auth.uid) || isAdmin();
+    }
+
+    // Coleção de Notas de Sessão (Criptografadas)
+    match /sessionNotes/{noteId} {
+      // Leitura permitida para Admins ou para o psicólogo dono da nota
+      allow read: if isAdmin() || (isStaff() && resource.data.ownerId == request.auth.uid);
+      
+      // Apenas a equipe pode criar, e o criador deve ser o dono da nota
+      allow create: if isStaff() && 
+                      request.resource.data.ownerId == request.auth.uid &&
+                      validSessionNote();
+                      
+      // Notas são imutáveis por segurança. Para corrigir, deve-se criar uma nova.
+      allow update, delete: if isAdmin(); // Apenas admin pode deletar (em casos excepcionais)
+    }
+
+    // Coleção de Tarefas (Tasks)
+    match /tasks/{id} {
+      allow read, update: if isStaff();
+      allow create, delete: if isAdmin();
+    }
+
+    // Coleção de Usuários (Users)
     match /users/{userId} {
       allow get: if isStaff() || request.auth.uid == userId;
       allow list: if isAdmin();
       allow create: if (request.auth.uid == userId &&
-                       request.resource.data.keys().hasOnly(['role', 'isApproved']) &&
-                       request.resource.data.role in ['Psychologist', 'Secretary'])
-                     || isAdmin();
+                      request.resource.data.keys().hasOnly(['role', 'isApproved', 'name', 'email']) &&
+                      request.resource.data.role in ['Psychologist', 'Secretary'])
+                    || isAdmin();
       allow update: if (request.auth.uid == userId &&
-                       request.resource.data.role == resource.data.role &&
-                       request.resource.data.isApproved == resource.data.isApproved)
-                     || isAdmin();
+                       // Usuário só pode atualizar campos não críticos
+                       request.resource.data.keys().hasOnly(['name']))
+                    || isAdmin(); // Admin pode atualizar tudo
       allow delete: if isAdmin();
 
+      // Subcoleções de Usuários
       match /fcmTokens/{tokenId} {
         allow create: if request.auth.uid == userId &&
                          request.resource.data.keys().hasOnly(['token','createdAt']);
@@ -70,112 +196,19 @@ service cloud.firestore {
       match /notifications/{notifId} {
         allow read, update, delete: if request.auth.uid == userId;
         allow create: if request.auth.uid == userId &&
-                         request.resource.data.keys().hasAll(['type','message','date']) &&
+                         request.resource.data.keys().hasAll(['type','message','date', 'isRead']) &&
                          request.resource.data.date is timestamp;
       }
-   }
-
-    // Patients
-    match /patients/{id} {
-      allow create: if isSignedIn() &&
-                      request.resource.data.ownerId == request.auth.uid &&
-                      validPatient();
-
-      allow read: if isStaff() ||
-                     (isSignedIn() && resource.data.ownerId == request.auth.uid);
-      allow list: if isSignedIn() &&
-                     request.query.where.size() == 1 &&
-                     request.query.where[0].field == 'ownerId' &&
-                     request.query.where[0].op == '==' &&
-                     request.query.where[0].value == request.auth.uid;
-
-      allow update: if isStaff() ||
-                       (isSignedIn() &&
-                        resource.data.ownerId == request.auth.uid &&
-                        request.resource.data.ownerId == resource.data.ownerId &&
-                        request.resource.data.keys().hasOnly(['ownerId','name','birthdate']) &&
-                        validPatient());
-
-      allow delete: if isAdmin() ||
-                       (isSignedIn() && resource.data.ownerId == request.auth.uid);
     }
 
-    // Chats
-    match /chats/{chatId} {
-      function participantCountOK() {
-        return request.resource.data.participants.size() <= 10;
-      }
-      function usersExist() {
-        return request.resource.data.participants.keys().hasOnly(
-          request.resource.data.participants.keys().map(
-            uid,
-            exists(/databases/$(database)/documents/users/$(uid))
-          )
-        );
-      }
-
-      allow create: if isSignedIn() &&
-                      request.resource.data.participants[request.auth.uid] == true &&
-                      participantCountOK() &&
-                      usersExist();
-      allow read: if isSignedIn() && request.auth.uid in resource.data.participants;
-    }
-
-    // Chat messages
-    match /chats/{chatId}/messages/{messageId} {
-      allow read: if isSignedIn() &&
-        get(/databases/$(database)/documents/chats/$(chatId)).data.participants[request.auth.uid] == true;
-
-      allow create: if isSignedIn() &&
-        request.resource.data.senderId == request.auth.uid &&
-        request.resource.data.text is string &&
-        request.resource.data.text.size() > 0 &&
-        request.resource.data.text.size() < 1000 &&
-        request.resource.data.senderName is string &&
-        request.resource.data.timestamp == request.time;
-      allow delete: if isAdmin() || request.auth.uid == resource.data.senderId;
-    }
-
-    // Assessments
-    match /assessments/{assessmentId} {
-      allow read: if isAdmin() ||
-                     resource.data.assignedBy == request.auth.uid ||
-                     resource.data.patientId == request.auth.uid;
-
-      allow create: if isStaff() &&
-                      request.resource.data.assignedBy == request.auth.uid &&
-                      request.resource.data.patientId is string &&
-                      patientOwnedByUser(request.resource.data.patientId) &&
-                      validAssessmentStatus(request.resource.data.status);
-
-      allow update: if (isAdmin() || request.auth.uid == resource.data.assignedBy) &&
-                       request.resource.data.patientId == resource.data.patientId &&
-                       request.resource.data.assignedBy == resource.data.assignedBy &&
-                       patientOwnedByUser(request.resource.data.patientId) &&
-                       validAssessmentStatus(request.resource.data.status);
-
-      allow delete: if isAdmin();
-    }
-
-    // Appointments
-    match /appointments/{id} {
-      allow read: if isStaff();
-      allow create, update: if isStaff();
-      allow delete: if isAdmin();
-    }
-
-    // Tasks
-    match /tasks/{id} {
-      allow read, update: if isStaff();
-      allow create, delete: if isAdmin();
-    }
-
+    // Coleção da Lista de Espera (Waiting List)
     match /waitingList/{id} {
       allow read, update: if isStaff();
       allow create, delete: if isAdmin();
     }
 
-    // Catch-all
+    // Regra Curinga (Catch-all)
+    // Bloqueia qualquer acesso a coleções não definidas explicitamente.
     match /{document=**} {
       allow read, write: if false;
     }

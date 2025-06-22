@@ -7,7 +7,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { UserPlus, Search, Filter, Users } from "lucide-react";
 import Link from "next/link";
 import PatientListItem from "@/components/patients/patient-list-item";
-import { mockPatients, type MockPatient } from "@/mocks/patients";
+import type { Patient } from "@/types/patient";
+import { fetchPatients } from "@/services/patientService";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { checkUserRole } from "@/services/authRole";
@@ -17,7 +18,7 @@ import { APP_ROUTES } from "@/lib/routes";
 
 export default function PatientsPage() {
   const router = useRouter();
-  const [patients, setPatients] = useState<MockPatient[]>([]);
+  const [patients, setPatients] = useState<Patient[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -25,12 +26,17 @@ export default function PatientsPage() {
       if (!ok) router.replace("/");
     });
 
-    const timer = setTimeout(() => {
-      setPatients(mockPatients);
-      setLoading(false);
-    }, 600);
-
-    return () => clearTimeout(timer);
+    async function load() {
+      try {
+        const list = await fetchPatients();
+        setPatients(list);
+      } catch (err) {
+        console.error('Falha ao carregar pacientes', err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
   }, [router]);
 
   return (

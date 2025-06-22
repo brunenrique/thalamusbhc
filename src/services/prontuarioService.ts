@@ -7,6 +7,11 @@ export interface SessionNote {
   [key: string]: unknown;
 }
 
+import { addDoc, collection, getDocs, orderBy, query, where, type Firestore } from 'firebase/firestore';
+import { encrypt, decrypt, type EncryptionResult } from '@/lib/crypto-utils';
+import { getEncryptionKey } from '@/lib/encryptionKey';
+import { FIRESTORE_COLLECTIONS } from '@/lib/firestore-collections';
+
 export async function gerarProntuario(
   patientId: string,
   notes: SessionNote[],
@@ -33,4 +38,46 @@ export async function gerarProntuario(
   }
 
   return res.json();
+}
+
+export async function saveSessionNote(
+  db: Firestore,
+  patientId: string,
+  summary: string,
+): Promise<string> {
+  const key = getEncryptionKey();
+  const encrypted = encrypt(summary, key);
+  const docRef = await addDoc(
+    collection(db, FIRESTORE_COLLECTIONS.SESSION_NOTES),
+    {
+      patientId,
+      data: encrypted,
+      createdAt: new Date().toISOString(),
+    },
+  );
+  return docRef.id;
+}
+
+export async function getSessionNotes(
+  db: Firestore,
+  patientId: string,
+): Promise<SessionNote[]> {
+  const key = getEncryptionKey();
+  const q = query(
+    collection(db, FIRESTORE_COLLECTIONS.SESSION_NOTES),
+    where('patientId', '==', patientId),
+    orderBy('createdAt', 'asc'),
+  );
+  const snap = await getDocs(q);
+  return snap.docs.map((d) => {
+    const data = d.data() as {
+      data: EncryptionResult;
+      createdAt: string;
+    };
+    return {
+      id: d.id,
+      date: data.createdAt,
+      summary: decrypt(data.data, key),
+    };
+  });
 }

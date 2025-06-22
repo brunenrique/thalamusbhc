@@ -22,9 +22,11 @@ interface Notification {
 
 interface NotificationItemProps {
   notification: Notification;
+  onMarkRead: (id: string) => void;
+  onDismiss: (id: string) => void;
 }
 
-function NotificationItemComponent({ notification }: NotificationItemProps) {
+function NotificationItemComponent({ notification, onMarkRead, onDismiss }: NotificationItemProps) {
   const [timeAgo, setTimeAgo] = useState<string>('');
 
   useEffect(() => {
@@ -87,18 +89,25 @@ function NotificationItemComponent({ notification }: NotificationItemProps) {
               </Button>
             )}
             {!notification.read && (
-              <Button variant="outline" size="sm" className="h-7 px-2" aria-label="Marcar como lida">
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-7 px-2"
+                aria-label="Marcar como lida"
+                onClick={() => onMarkRead(notification.id)}
+              >
                 <span>
                   <Check className="mr-1 h-3.5 w-3.5" /> Marcar como lida
                 </span>
               </Button>
             )}
-             {notification.read && (
+            {notification.read && (
               <Button
                 variant="ghost"
                 size="sm"
                 className="h-7 px-2 text-muted-foreground hover:text-foreground"
                 aria-label="Dispensar notificação"
+                onClick={() => onDismiss(notification.id)}
               >
                 <span>
                   <X className="mr-1 h-3.5 w-3.5" /> Dispensar

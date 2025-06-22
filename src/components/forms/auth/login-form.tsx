@@ -1,28 +1,19 @@
 // src/components/forms/auth/login-form.tsx
 
-"use client";
+'use client';
 
-// 🔒 Login desabilitado temporariamente. Para reativar, remova os comentários abaixo e substitua o export atual pelo componente completo.
-
-export default function LoginFormDisabled() {
-  return null;
-}
-
-/*
-
-import * as React from "react";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import * as z from "zod";
-import Link from "next/link";
+import * as React from 'react';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import * as z from 'zod';
 import {
   signInWithEmailAndPassword,
   getIdToken,
   setPersistence,
   browserLocalPersistence,
   browserSessionPersistence,
-} from "firebase/auth";
-import { Button } from "@/components/ui/button";
+} from 'firebase/auth';
+import { Button } from '@/components/ui/button';
 import {
   Form,
   FormControl,
@@ -30,23 +21,23 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import { useRouter } from "next/navigation";
-import { auth } from "@/lib/firebase";
-import { useToast } from "@/hooks/use-toast";
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Card, CardContent } from '@/components/ui/card';
+import { useRouter } from 'next/navigation';
+import { auth } from '@/lib/firebase';
+import { useToast } from '@/hooks/use-toast';
 
 const loginSchema = z.object({
-  email: z.string().email({ message: "Por favor, insira um endereço de e-mail válido." }),
-  password: z.string().min(6, { message: "A senha deve ter pelo menos 6 caracteres." }),
+  email: z.string().email({ message: 'Por favor, insira um endereço de e-mail válido.' }),
+  password: z.string().min(6, { message: 'A senha deve ter pelo menos 6 caracteres.' }),
   rememberMe: z.boolean().optional(),
 });
 
 type LoginFormValues = z.infer<typeof loginSchema>;
 
-export function LoginForm() {
+export default function LoginForm() {
   const router = useRouter();
   const [isLoading, setIsLoading] = React.useState(false);
   const { toast } = useToast();
@@ -54,8 +45,8 @@ export function LoginForm() {
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: "",
-      password: "",
+      email: '',
+      password: '',
       rememberMe: false,
     },
   });
@@ -67,41 +58,37 @@ export function LoginForm() {
         auth,
         data.rememberMe ? browserLocalPersistence : browserSessionPersistence
       );
-      const userCredential = await signInWithEmailAndPassword(
-        auth,
-        data.email,
-        data.password
-      );
+      const userCredential = await signInWithEmailAndPassword(auth, data.email, data.password);
       const idToken = await getIdToken(userCredential.user);
-      await fetch("/api/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ idToken }),
       });
-      router.push("/dashboard");
+      router.push('/dashboard');
     } catch (error) {
-      console.error("DEBUG: Erro detalhado do Firebase Auth:", error);
-      let errorMessage = "Erro ao fazer login.";
+      console.error('DEBUG: Erro detalhado do Firebase Auth:', error);
+      let errorMessage = 'Erro ao fazer login.';
 
-      if (error instanceof Error && "code" in error) {
+      if (error instanceof Error && 'code' in error) {
         const errorCode = (error as { code: string }).code;
         switch (errorCode) {
-          case "auth/invalid-credential":
-            errorMessage = "E-mail ou senha incorretos.";
+          case 'auth/invalid-credential':
+            errorMessage = 'E-mail ou senha incorretos.';
             break;
-          case "auth/user-disabled":
-            errorMessage = "Usuário desabilitado.";
+          case 'auth/user-disabled':
+            errorMessage = 'Usuário desabilitado.';
             break;
-          case "auth/too-many-requests":
-            errorMessage = "Acesso bloqueado temporariamente.";
+          case 'auth/too-many-requests':
+            errorMessage = 'Acesso bloqueado temporariamente.';
             break;
         }
       }
 
       toast({
-        title: "Erro ao fazer login",
+        title: 'Erro ao fazer login',
         description: errorMessage,
-        variant: "destructive",
+        variant: 'destructive',
       });
     } finally {
       setIsLoading(false);
@@ -162,7 +149,7 @@ export function LoginForm() {
               className="w-full bg-accent hover:bg-accent/90 text-accent-foreground"
               disabled={isLoading}
             >
-              {isLoading ? "Entrando..." : "Entrar"}
+              {isLoading ? 'Entrando...' : 'Entrar'}
             </Button>
           </form>
         </Form>
@@ -170,5 +157,3 @@ export function LoginForm() {
     </Card>
   );
 }
-
-*/

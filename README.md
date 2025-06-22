@@ -94,7 +94,7 @@ _Ao adicionar `FIREBASE_PRIVATE_KEY` ao seu arquivo `.env.local` ou variável de
 - `NEXT_PUBLIC_GAS_PRONTUARIO_URL`: URL do script Google Apps Script para geração de prontuários.
 - `NEXT_PUBLIC_GOOGLE_CLIENT_ID`, `NEXT_PUBLIC_GOOGLE_CLIENT_SECRET`, `NEXT_PUBLIC_GOOGLE_REDIRECT_URI`: Para integração com o Google Calendar (opcional).
 - `NEXT_PUBLIC_FIREBASE_VAPID_KEY`: Chave VAPID para Firebase Cloud Messaging (Web Push). Encontrada no Console do Firebase -> Configurações do Projeto -> Cloud Messaging -> Web configuration -> Web Push certificates.
-- `NEXT_PUBLIC_DISABLE_AUTH`: Quando definido como `true`, desativa o sistema de login e autenticação. As verificações de autenticação nas rotas são contornadas e o acesso é liberado. **Atualmente, o código está configurado para operar como se esta variável estivesse sempre `true`, ignorando a necessidade de login.**
+- `NEXT_PUBLIC_DISABLE_AUTH`: Quando definido como `true`, desativa temporariamente o sistema de login. Por padrão esta variável é `false`, exigindo autenticação real.
 
 ## Importante sobre Segurança
 

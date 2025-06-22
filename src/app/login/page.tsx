@@ -1,16 +1,11 @@
-// src/app/login/page.tsx
-"use client";
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { APP_ROUTES } from '@/lib/routes';
+'use client';
 
-export default function LoginPageDisabled() {
-  const router = useRouter();
+import LoginForm from '@/components/forms/auth/login-form';
 
-  useEffect(() => {
-    // Redireciona para o dashboard, já que o login está desabilitado
-    router.replace(APP_ROUTES.dashboard);
-  }, [router]);
-
-  return null; // Renderiza nada enquanto redireciona
+export default function LoginPage() {
+  return (
+    <div className="flex min-h-screen items-center justify-center p-4">
+      <LoginForm />
+    </div>
+  );
 }

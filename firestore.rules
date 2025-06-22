@@ -9,7 +9,9 @@ service cloud.firestore {
     }
 
     function hasRole(roleName) {
-      return isSignedIn() && request.auth.token.role == roleName;
+      return isSignedIn() &&
+             request.auth.token.role != null &&
+             request.auth.token.role.toLowerCase() == roleName.toLowerCase();
     }
 
     function isAdmin() {
@@ -29,7 +31,7 @@ service cloud.firestore {
     }
 
     function validPatient() {
-      return request.resource.data.keys().hasAll(['ownerId', 'name', 'birthdate']) &&
+      return request.resource.data.keys().hasOnly(['ownerId', 'name', 'birthdate']) &&
              request.resource.data.ownerId is string &&
              request.resource.data.name is string &&
              request.resource.data.birthdate is timestamp;
@@ -39,17 +41,37 @@ service cloud.firestore {
       return status in ['assigned', 'in-progress', 'completed'];
     }
 
+    function patientOwnedByUser(patientId) {
+      return get(/databases/$(database)/documents/patients/$(patientId)).data.ownerId == request.auth.uid;
+    }
+
     // Users
     match /users/{userId} {
       allow get: if isStaff() || request.auth.uid == userId;
       allow list: if isAdmin();
-      allow create: if request.auth.uid == userId || isAdmin();
+      allow create: if (request.auth.uid == userId &&
+                       request.resource.data.keys().hasOnly(['role', 'isApproved']) &&
+                       request.resource.data.role in ['Psychologist', 'Secretary'])
+                     || isAdmin();
       allow update: if (request.auth.uid == userId &&
                        request.resource.data.role == resource.data.role &&
                        request.resource.data.isApproved == resource.data.isApproved)
                      || isAdmin();
       allow delete: if isAdmin();
-    }
+
+      match /fcmTokens/{tokenId} {
+        allow create: if request.auth.uid == userId &&
+                         request.resource.data.keys().hasOnly(['token','createdAt']);
+        allow delete: if request.auth.uid == userId;
+      }
+
+      match /notifications/{notifId} {
+        allow read, update, delete: if request.auth.uid == userId;
+        allow create: if request.auth.uid == userId &&
+                         request.resource.data.keys().hasAll(['type','message','date']) &&
+                         request.resource.data.date is timestamp;
+      }
+   }
 
     // Patients
     match /patients/{id} {
@@ -59,11 +81,18 @@ service cloud.firestore {
 
       allow read: if isStaff() ||
                      (isSignedIn() && resource.data.ownerId == request.auth.uid);
+      allow list: if isSignedIn() &&
+                     request.query.where.size() == 1 &&
+                     request.query.where[0].field == 'ownerId' &&
+                     request.query.where[0].op == '==' &&
+                     request.query.where[0].value == request.auth.uid;
 
       allow update: if isStaff() ||
                        (isSignedIn() &&
                         resource.data.ownerId == request.auth.uid &&
-                        request.resource.data.ownerId == resource.data.ownerId);
+                        request.resource.data.ownerId == resource.data.ownerId &&
+                        request.resource.data.keys().hasOnly(['ownerId','name','birthdate']) &&
+                        validPatient());
 
       allow delete: if isAdmin() ||
                        (isSignedIn() && resource.data.ownerId == request.auth.uid);
@@ -71,8 +100,21 @@ service cloud.firestore {
 
     // Chats
     match /chats/{chatId} {
+      function participantCountOK() {
+        return request.resource.data.participants.size() <= 10;
+      }
+      function usersExist() {
+        return request.resource.data.participants.keys().hasOnly(
+                 request.resource.data.participants.keys().map(uid =>
+                   exists(/databases/$(database)/documents/users/$(uid))
+                 )
+               );
+      }
+
       allow create: if isSignedIn() &&
-                      request.resource.data.participants[request.auth.uid] == true;
+                      request.resource.data.participants[request.auth.uid] == true &&
+                      participantCountOK() &&
+                      usersExist();
       allow read: if isSignedIn() && request.auth.uid in resource.data.participants;
     }
 
@@ -88,6 +130,7 @@ service cloud.firestore {
         request.resource.data.text.size() < 1000 &&
         request.resource.data.senderName is string &&
         request.resource.data.timestamp == request.time;
+      allow delete: if isAdmin() || request.auth.uid == resource.data.senderId;
     }
 
     // Assessments
@@ -99,14 +142,29 @@ service cloud.firestore {
       allow create: if isStaff() &&
                       request.resource.data.assignedBy == request.auth.uid &&
                       request.resource.data.patientId is string &&
+                      patientOwnedByUser(request.resource.data.patientId) &&
                       validAssessmentStatus(request.resource.data.status);
 
       allow update: if (isAdmin() || request.auth.uid == resource.data.assignedBy) &&
                        request.resource.data.patientId == resource.data.patientId &&
                        request.resource.data.assignedBy == resource.data.assignedBy &&
+                       patientOwnedByUser(request.resource.data.patientId) &&
                        validAssessmentStatus(request.resource.data.status);
 
       allow delete: if isAdmin();
+    }
+
+    // Appointments
+    match /appointments/{id} {
+      allow read: if isStaff();
+      allow create, update: if isStaff();
+      allow delete: if isAdmin();
+    }
+
+    // Tasks
+    match /tasks/{id} {
+      allow read, update: if isStaff();
+      allow create, delete: if isAdmin();
     }
 
     // Catch-all

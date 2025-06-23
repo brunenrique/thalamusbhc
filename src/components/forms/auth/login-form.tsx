@@ -27,6 +27,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Card, CardContent } from '@/components/ui/card';
 import { useRouter } from 'next/navigation';
 import { auth } from '@/lib/firebase';
+import { logAction } from '@/lib/logger';
 import { useToast } from '@/hooks/use-toast';
 import * as Sentry from '@sentry/nextjs';
 
@@ -66,6 +67,7 @@ export default function LoginForm() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ idToken }),
       });
+      logAction(userCredential.user.uid, 'login_success');
       router.push('/dashboard');
     } catch (error) {
       Sentry.captureException(error);

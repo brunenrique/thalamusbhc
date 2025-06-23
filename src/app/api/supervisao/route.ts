@@ -1,4 +1,26 @@
 
+/**
+ * @openapi
+ * /api/supervisao:
+ *   post:
+ *     summary: Gera orientações de supervisão clínica via IA.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               transcript:
+ *                 type: string
+ *     responses:
+ *       '200':
+ *         description: Orientações geradas com sucesso.
+ *       '400':
+ *         description: Dados de entrada inválidos.
+ *       '500':
+ *         description: Erro interno ao gerar supervisão.
+ */
 import { NextResponse } from 'next/server';
 import * as Sentry from '@sentry/nextjs';
 import { ZodError } from 'zod';

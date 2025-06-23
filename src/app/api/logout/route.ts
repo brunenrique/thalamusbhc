@@ -1,3 +1,12 @@
+/**
+ * @openapi
+ * /api/logout:
+ *   post:
+ *     summary: Remove o cookie de sessão do usuário.
+ *     responses:
+ *       '200':
+ *         description: Sessão encerrada com sucesso.
+ */
 import { NextResponse } from 'next/server';
 
 export async function POST() {

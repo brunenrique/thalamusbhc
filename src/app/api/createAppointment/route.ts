@@ -1,3 +1,41 @@
+/**
+ * @openapi
+ * /api/createAppointment:
+ *   post:
+ *     summary: Cria um novo agendamento individual ou bloqueio de horário.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               appointmentDate:
+ *                 type: string
+ *               startTime:
+ *                 type: string
+ *               endTime:
+ *                 type: string
+ *               psychologistId:
+ *                 type: string
+ *               patient:
+ *                 type: string
+ *               type:
+ *                 type: string
+ *               notes:
+ *                 type: string
+ *               isBlockTime:
+ *                 type: boolean
+ *     responses:
+ *       '200':
+ *         description: Agendamento criado.
+ *       '400':
+ *         description: Dados de entrada inválidos.
+ *       '409':
+ *         description: Conflito com horário existente.
+ *       '500':
+ *         description: Erro interno ao criar agendamento.
+ */
 import { NextResponse } from 'next/server';
 import * as Sentry from '@sentry/nextjs';
 import { z } from 'zod';

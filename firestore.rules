@@ -138,10 +138,13 @@ service cloud.firestore {
         return request.resource.data.participants.size() <= 10;
       }
       function usersExist() {
-        // Esta função precisa ser ajustada, pois .map não funciona em regras de segurança.
-        // A lógica de verificação deve ser feita no lado do cliente ou em Cloud Functions.
-        // Por agora, permitiremos a criação se o criador for um participante.
-        return true; 
+        let ids = request.resource.data.participants.keys();
+        for (id in ids) {
+          if !exists(/databases/$(database)/documents/users/$(id)) {
+            return false;
+          }
+        }
+        return true;
       }
 
       allow create: if isSignedIn() &&

@@ -111,6 +111,7 @@ _Ao adicionar `FIREBASE_PRIVATE_KEY` ao seu arquivo `.env.local` ou variável de
 - `NEXT_PUBLIC_FIREBASE_VAPID_KEY`: Chave VAPID para Firebase Cloud Messaging (Web Push). Encontrada no Console do Firebase -> Configurações do Projeto -> Cloud Messaging -> Web configuration -> Web Push certificates.
 - `NEXT_PUBLIC_DISABLE_AUTH`: Quando definido como `true`, desativa temporariamente o sistema de login. Por padrão esta variável é `false`, exigindo autenticação real.
 - `SENTRY_DSN`: DSN do Sentry usado pelas Cloud Functions para registrar erros.
+- `SENTRY_AUTH_TOKEN`: Token utilizado pelo Sentry CLI para enviar sourcemaps durante o build.
 
 ## Importante sobre Segurança
 
@@ -182,6 +183,7 @@ Principais variáveis usadas:
 - `NEXT_PUBLIC_FIREBASE_EMULATOR_HOST`
 - `NEXT_PUBLIC_DISABLE_AUTH`
 - `SENTRY_DSN`
+- `SENTRY_AUTH_TOKEN`
 - `NEXT_PUBLIC_SENTRY_DSN`
 - `LHCI_GITHUB_APP_TOKEN`
 

@@ -33,6 +33,6 @@ A seguir estão os principais pontos a serem avaliados e implementados.
 
 ## 6. Monitoramento de Erros com Sentry
 
-- Integrar o SDK do Sentry no cliente e servidor, usando as variáveis `NEXT_PUBLIC_SENTRY_DSN` e `SENTRY_DSN`.
+- Integrar o SDK do Sentry no cliente e servidor, usando as variáveis `NEXT_PUBLIC_SENTRY_DSN`, `SENTRY_DSN` e `SENTRY_AUTH_TOKEN` para upload de sourcemaps.
 - Envolver rotas de API e componentes críticos com `ErrorBoundary` ou blocos `try/catch` que reportam para o Sentry.
 - Analisar periodicamente os erros coletados para priorizar correções.

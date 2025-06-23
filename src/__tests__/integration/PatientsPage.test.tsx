@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react';
+import { axe } from 'jest-axe';
 import PatientsPage from '@/app/(app)/patients/page';
 import { fetchPatients } from '@/services/patientService';
 import { checkUserRole } from '@/services/authRole';
@@ -21,5 +22,13 @@ describe('PatientsPage', () => {
     render(<PatientsPage />);
     expect(await screen.findByText('Alice')).toBeInTheDocument();
     expect(screen.getByText('Bob')).toBeInTheDocument();
+  });
+
+  it('não apresenta violações de acessibilidade', async () => {
+    (fetchPatients as jest.Mock).mockResolvedValue(mockedPatients);
+    (checkUserRole as jest.Mock).mockResolvedValue(true);
+    const { container } = render(<PatientsPage />);
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
   });
 });

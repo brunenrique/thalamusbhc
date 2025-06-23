@@ -203,6 +203,17 @@ service cloud.firestore {
       allow create, delete: if isAdmin();
     }
 
+    // Coleção de Grupos Terapêuticos
+    match /groups/{id} {
+      allow read: if isStaff();
+      allow create, update, delete: if isAdmin() || (isPsychologist() && request.auth.uid == request.resource.data.psychologistId);
+    }
+
+    // Coleção de Agendamentos Simples
+    match /schedules/{id} {
+      allow read, write: if isStaff();
+    }
+
     // Coleção de Usuários (Users)
     match /users/{userId} {
       allow get: if isStaff() || request.auth.uid == userId;

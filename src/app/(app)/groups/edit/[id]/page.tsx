@@ -1,19 +1,17 @@
+'use client';
 
-"use client";
-
-import React, { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
-import GroupForm, { type GroupFormValues } from "@/components/forms/group-form";
-import { mockTherapeuticGroups } from "@/app/(app)/groups/page";
-import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Users, Edit, FileWarning } from "lucide-react";
-import Link from "next/link";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import React, { useEffect, useState } from 'react';
+import { useParams } from 'next/navigation';
+import GroupForm, { type GroupFormValues } from '@/components/forms/group-form';
+import { fetchGroup } from '@/services/groupService';
+import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Edit, FileWarning } from 'lucide-react';
+import Link from 'next/link';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 
 export default function EditGroupPage() {
   const params = useParams();
-  const router = useRouter();
   const groupId = params.id as string;
 
   const [groupData, setGroupData] = useState<GroupFormValues | null>(null);
@@ -21,27 +19,36 @@ export default function EditGroupPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (groupId) {
-      const foundGroup = mockTherapeuticGroups.find(g => g.id === groupId);
-      if (foundGroup) {
-        setGroupData({
-          name: foundGroup.name,
-          description: foundGroup.description || "",
-          psychologistId: foundGroup.psychologistId,
-          patientIds: foundGroup.participants.map(p => p.id),
-          dayOfWeek: foundGroup.dayOfWeek,
-          startTime: foundGroup.startTime,
-          endTime: foundGroup.endTime,
-          meetingAgenda: foundGroup.meetingAgenda || "",
-        });
-      } else {
-        setError("Grupo não encontrado.");
+    async function load() {
+      if (!groupId) {
+        setError('ID do grupo não fornecido.');
+        setLoading(false);
+        return;
       }
-      setLoading(false);
-    } else {
-      setError("ID do grupo não fornecido.");
-      setLoading(false);
+      try {
+        const group = await fetchGroup(groupId);
+        if (group) {
+          setGroupData({
+            name: group.name,
+            description: group.description || '',
+            psychologistId: group.psychologistId,
+            patientIds: group.participants.map((p) => p.id),
+            dayOfWeek: group.dayOfWeek,
+            startTime: group.startTime,
+            endTime: group.endTime,
+            meetingAgenda: group.meetingAgenda || '',
+          });
+        } else {
+          setError('Grupo não encontrado.');
+        }
+      } catch (e) {
+        console.error(e);
+        setError('Erro ao carregar grupo.');
+      } finally {
+        setLoading(false);
+      }
     }
+    load();
   }, [groupId]);
 
   if (loading) {
@@ -52,7 +59,9 @@ export default function EditGroupPage() {
           <h1 className="text-3xl font-headline font-bold">Carregando Grupo...</h1>
         </div>
         <Card className="shadow-lg">
-          <CardHeader><Skeleton className="h-8 w-1/3" /></CardHeader>
+          <CardHeader>
+            <Skeleton className="h-8 w-1/3" />
+          </CardHeader>
           <CardContent className="space-y-4">
             <Skeleton className="h-10 w-full" />
             <Skeleton className="h-20 w-full" />
@@ -60,7 +69,9 @@ export default function EditGroupPage() {
             <Skeleton className="h-10 w-1/2" />
             <Skeleton className="h-40 w-full" /> {/* For patient selection */}
             <Skeleton className="h-20 w-full" />
-            <div className="flex justify-end"><Skeleton className="h-10 w-24" /></div>
+            <div className="flex justify-end">
+              <Skeleton className="h-10 w-24" />
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -72,11 +83,9 @@ export default function EditGroupPage() {
       <div className="space-y-6 text-center py-10">
         <FileWarning className="mx-auto h-16 w-16 text-destructive" />
         <h1 className="text-3xl font-headline font-bold text-destructive">
-          {error || "Grupo não encontrado"}
+          {error || 'Grupo não encontrado'}
         </h1>
-        <p className="text-muted-foreground">
-          Não foi possível carregar o grupo para edição.
-        </p>
+        <p className="text-muted-foreground">Não foi possível carregar o grupo para edição.</p>
         <Button variant="outline" asChild>
           <Link href="/groups">Voltar para Grupos</Link>
         </Button>

@@ -74,16 +74,14 @@ function validQuickNote() {
 
 // --- Regras por Coleção ---
 
-match /appointments/{id} {
-  allow read: if isAdmin() || (isSignedIn() && (
-    request.auth.uid == resource.data.psychologistId ||
-    request.auth.uid == resource.data.patientId
-  ));
-  allow create: if (isPsychologist() && request.auth.uid == request.resource.data.psychologistId) || isAdmin();
-  allow update: if (isPsychologist() && request.auth.uid == resource.data.psychologistId &&
-                  request.resource.data.psychologistId == resource.data.psychologistId) || isAdmin();
-  allow delete: if (isPsychologist() && request.auth.uid == resource.data.psychologistId) || isAdmin();
-}
+  match /appointments/{id} {
+    // Psicólogos e secretários podem registrar novos agendamentos
+    allow create: if ((isPsychologist() || isSecretary()) && request.auth.uid == request.resource.data.psychologistId) || isAdmin();
+    // Todos os membros da equipe podem visualizar agendas
+    allow read: if isAdmin() || isPsychologist() || isSecretary();
+    // Apenas o psicólogo responsável pode alterar ou excluir
+    allow update, delete: if (isPsychologist() && request.auth.uid == resource.data.psychologistId) || isAdmin();
+  }
 
 match /assessments/{assessmentId} {
   allow read: if isAdmin() ||
@@ -135,17 +133,17 @@ match /chats/{chatId} {
   }
 }
 
-match /patients/{id} {
-  allow create: if isStaff() && request.resource.data.ownerId == request.auth.uid && validPatient();
-  allow read, update, delete: if isSignedIn() && request.auth.uid == resource.data.ownerId;
-  allow list: if isStaff();
-}
+  match /patients/{id} {
+    // Somente o psicólogo responsável pode criar e gerenciar seus pacientes
+    allow create: if (isPsychologist() && request.resource.data.ownerId == request.auth.uid && validPatient()) || isAdmin();
+    allow read, update, delete: if (isPsychologist() && request.auth.uid == resource.data.ownerId) || isAdmin();
+    allow list: if isPsychologist() || isAdmin();
+  }
 
-match /sessionNotes/{noteId} {
-  allow read: if isAdmin() || (isStaff() && resource.data.ownerId == request.auth.uid);
-  allow create: if isStaff() && request.resource.data.ownerId == request.auth.uid && validSessionNote();
-  allow update, delete: if isAdmin();
-}
+  match /sessionNotes/{noteId} {
+    // Notas de sessão são restritas ao psicólogo responsável
+    allow read, create, update, delete: if (isPsychologist() && resource.data.ownerId == request.auth.uid) || isAdmin();
+  }
 
 match /quickNotes/{id} {
   allow create: if isStaff() && request.resource.data.ownerId == request.auth.uid && validQuickNote();

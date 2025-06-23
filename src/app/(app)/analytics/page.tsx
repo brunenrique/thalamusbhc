@@ -31,6 +31,7 @@ import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import useAuth from '@/hooks/use-auth';
 import { checkUserRole } from '@/services/authRole';
 import { getTotalPatients, getSessionsThisMonth } from '@/services/metricsService';
 
@@ -129,8 +130,8 @@ const getOccupancyBadgeVariant = (
 // --- Component Definition ---
 export default function AnalyticsHubPage() {
   const router = useRouter();
-  // TODO: Replace with a real role from an auth hook
-  const userRole: 'Admin' | 'Psychologist' = 'Admin';
+  const { user } = useAuth();
+  const userRole = user?.role as 'Admin' | 'Psychologist' | undefined;
 
   const [overallStats, setOverallStats] = useState<OverallStats>({
     activePatients: 0,

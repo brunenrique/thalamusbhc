@@ -93,8 +93,44 @@ describe('Firestore security rules', () => {
 
       const patientDb = testEnv.authenticatedContext('patRead').firestore();
       await assertSucceeds(patientDb.collection('appointments').doc('apptPatient').get());
-      await assertFails(patientDb.collection('appointments').doc('apptPatient').update({ foo: 'bar' }));
+      await assertFails(
+        patientDb.collection('appointments').doc('apptPatient').update({ foo: 'bar' })
+      );
       await assertFails(patientDb.collection('appointments').doc('apptPatient').delete());
+    });
+  });
+
+  describe('Audit Logs Rules', () => {
+    test('authenticated user can create audit log', async () => {
+      const auth = { sub: 'userAudit', role: 'Psychologist' };
+      const db = getAuthedDb(auth);
+      await assertSucceeds(
+        db.collection('auditLogs').doc('log1').set({
+          action: 'test',
+          createdAt: '2024-01-01T00:00:00Z',
+        })
+      );
+    });
+
+    test('unauthenticated user cannot create audit log', async () => {
+      const db = testEnv.unauthenticatedContext().firestore();
+      await assertFails(db.collection('auditLogs').doc('logUnauth').set({ action: 'x' }));
+    });
+
+    test('authenticated user cannot update audit log', async () => {
+      const auth = { sub: 'userAudit', role: 'Psychologist' };
+      const db = getAuthedDb(auth);
+      const docRef = db.collection('auditLogs').doc('logUpdate');
+      await assertSucceeds(docRef.set({ action: 'create', createdAt: '2024-01-01T00:00:00Z' }));
+      await assertFails(docRef.update({ action: 'update' }));
+    });
+
+    test('authenticated user cannot delete audit log', async () => {
+      const auth = { sub: 'userAudit', role: 'Psychologist' };
+      const db = getAuthedDb(auth);
+      const docRef = db.collection('auditLogs').doc('logDelete');
+      await assertSucceeds(docRef.set({ action: 'create', createdAt: '2024-01-01T00:00:00Z' }));
+      await assertFails(docRef.delete());
     });
   });
 });

@@ -1,16 +1,1 @@
-import '@testing-library/jest-dom';
-import './src/tests/__mocks__/test-utils';
-
-declare global {
-  interface Window {
-    ResizeObserver: any;
-  }
-}
-
-if (typeof window.ResizeObserver === 'undefined') {
-  window.ResizeObserver = class ResizeObserver {
-    observe() {}
-    unobserve() {}
-    disconnect() {}
-  };
-}
+import '@testing-library/jest-dom/extend-expect'

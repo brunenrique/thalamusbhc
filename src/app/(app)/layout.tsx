@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import ErrorBoundary from '@/components/layout/error-boundary';
 import { useRouter, usePathname } from 'next/navigation';
 import { checkUserRole } from '@/services/authRole';
 
@@ -27,7 +28,9 @@ export default function AppLayout({ children }: AppLayoutProps) {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <main className="flex-1 p-4 md:p-6 lg:p-8">{children}</main>
+      <main className="flex-1 p-4 md:p-6 lg:p-8">
+        <ErrorBoundary>{children}</ErrorBoundary>
+      </main>
     </div>
   );
 }

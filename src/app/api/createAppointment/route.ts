@@ -1,5 +1,6 @@
 
 import { NextResponse } from 'next/server';
+import * as Sentry from '@sentry/nextjs';
 import { z } from 'zod';
 import { firestoreAdmin } from '@/lib/firebaseAdmin';
 import { mockTherapeuticGroups } from '@/app/(app)/groups/page'; // Import mock group data
@@ -76,6 +77,7 @@ export async function POST(req: Request) {
     if (e instanceof z.ZodError) {
       return NextResponse.json({ error: 'Dados de entrada inválidos.', details: e.errors }, { status: 400 });
     }
+    Sentry.captureException(e);
     console.error("Error creating appointment:", e);
     return NextResponse.json({ error: 'Erro interno ao criar agendamento.' }, { status: 500 });
   }

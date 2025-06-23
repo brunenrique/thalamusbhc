@@ -40,6 +40,10 @@ Plataforma web para gestão de clínicas de psicologia, com agenda integrada, pr
     ```
     O aplicativo ficará disponível em `http://localhost:9003`.
 
+6.  **Problemas de CORS em ambientes remotos:**
+    - Se estiver executando o dev server em uma URL diferente de `localhost` (ex.: Cloud Workstations), adicione essa origem ao array `allowedDevOrigins` em `next.config.mjs`.
+
+
 ### Comandos úteis
 
 - `npm run dev` &mdash; inicia o servidor Next.js em modo desenvolvimento na porta `9003` (geralmente com Turbopack).

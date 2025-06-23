@@ -1,6 +1,7 @@
 # Thalamus
 
 [![Build Status](https://github.com/seu-usuario/thalamus/actions/workflows/ci.yml/badge.svg)](https://github.com/seu-usuario/thalamus/actions/workflows/ci.yml) [![Release](https://img.shields.io/github/v/release/seu-usuario/thalamus)](https://github.com/seu-usuario/thalamus/releases/latest) [![Dependabot](https://img.shields.io/badge/dependabot-enabled-brightgreen?logo=dependabot)](https://github.com/seu-usuario/thalamus/pulls?q=is%3Apr+label%3Adependencies) [![CodeQL](https://github.com/seu-usuario/thalamus/actions/workflows/codeql.yml/badge.svg)](https://github.com/seu-usuario/thalamus/actions/workflows/codeql.yml) [![Coverage Status](https://coveralls.io/repos/github/seu-usuario/thalamus/badge.svg?branch=main)](https://coveralls.io/github/seu-usuario/thalamus?branch=main)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 Plataforma web para gestão de clínicas de psicologia, com agenda integrada, prontuários seguros e funcionalidades auxiliadas por IA. O projeto é baseado em **Next.js** e **Firebase**, utilizando **TypeScript** e **Tailwind CSS** no frontend e **Cloud Functions** no backend. Fluxos de IA são implementados com **Genkit** e Google AI.
 
@@ -188,6 +189,10 @@ Principais variáveis usadas:
 - `SENTRY_AUTH_TOKEN`
 - `NEXT_PUBLIC_SENTRY_DSN`
 - `LHCI_GITHUB_APP_TOKEN`
+
+## Como Contribuir
+
+Contribuições são bem-vindas! Consulte o [CONTRIBUTING.md](CONTRIBUTING.md) e o [Código de Conduta](CODE_OF_CONDUCT.md) antes de enviar pull requests.
 
 ## Solucao de Problemas
 

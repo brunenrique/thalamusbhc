@@ -18,6 +18,9 @@ jobs:
         with:
           node-version: 20.11.0
 
+      - name: Install Firebase CLI
+        run: npm install -g firebase-tools
+
       - name: Cache node_modules
         uses: actions/cache@v3
         with:
@@ -45,7 +48,7 @@ jobs:
         run: npx playwright test
 
       - name: Test and Coverage
-        run: npm run coverage
+        run: npx firebase emulators:exec --project=thalamus-dev --only firestore "npm run test:all -- --runInBand"
 
       - name: Upload coverage to Coveralls
         uses: coverallsapp/github-action@v2

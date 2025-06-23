@@ -34,7 +34,7 @@ module.exports = [
     },
   },
   {
-    files: ['**/*.config.ts', 'tailwind.config.ts', 'eslint.config.js', 'jest.config.js'],
+    files: ['**/*.config.ts', 'tailwind.config.ts', 'eslint.config.js', 'jest.config.ts'],
     languageOptions: {
       parser: tsParser,
       globals: globals.node,

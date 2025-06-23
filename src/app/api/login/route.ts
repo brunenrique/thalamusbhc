@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 import { auth as adminAuth } from 'firebase-admin';
+import { firestoreAdmin } from '@/lib/firebaseAdmin';
+import { writeAuditLog } from '@/services/auditLogService';
 
 export async function POST(request: Request) {
   try {
@@ -20,6 +22,12 @@ export async function POST(request: Request) {
       maxAge: expiresIn / 1000,
       path: '/',
     });
+    await writeAuditLog({
+      userId: decoded.uid,
+      actionType: 'login',
+      timestamp: new Date().toISOString(),
+      targetResourceId: decoded.uid,
+    }, firestoreAdmin);
     return response;
   } catch (e) {
     console.error('Login API error', e);

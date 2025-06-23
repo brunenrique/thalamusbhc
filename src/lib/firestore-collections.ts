@@ -12,6 +12,7 @@ export const FIRESTORE_COLLECTIONS = {
   BACKUP_SETTINGS: 'backupSettings',
   BACKUPS: 'backups',
   SESSION_NOTES: 'sessionNotes',
+  AUDIT_LOGS: 'auditLogs',
 } as const;
 
 export type FirestoreCollectionKeys = keyof typeof FIRESTORE_COLLECTIONS;

@@ -216,6 +216,13 @@ service cloud.firestore {
       allow create, delete: if isAdmin();
     }
 
+    // Coleção de Logs de Auditoria
+    match /auditLogs/{id} {
+      allow create: if isSignedIn();
+      allow read: if isAdmin();
+      allow update, delete: if false;
+    }
+
     // Regra Curinga (Catch-all)
     // Bloqueia qualquer acesso a coleções não definidas explicitamente.
     match /{document=**} {

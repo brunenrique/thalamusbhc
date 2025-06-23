@@ -1,7 +1,8 @@
 import type { AppointmentStatus, AppointmentsByDate, Appointment } from '@/types/appointment';
-import { addDoc, collection, doc, updateDoc, Timestamp } from 'firebase/firestore';
+import { addDoc, collection, doc, updateDoc, Timestamp, type Firestore } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { FIRESTORE_COLLECTIONS } from '@/lib/firestore-collections';
+import { writeAuditLog } from './auditLogService';
 import { addDays, format, subDays } from 'date-fns';
 
 const baseMockAppointments: AppointmentsByDate = {
@@ -152,16 +153,23 @@ export interface AppointmentPayload extends Omit<Appointment, 'id'> {
 }
 
 export async function createAppointment(
-  data: AppointmentPayload
+  data: AppointmentPayload,
+  firestore: Firestore = db
 ): Promise<string> {
   const docRef = await addDoc(
-    collection(db, FIRESTORE_COLLECTIONS.APPOINTMENTS),
+    collection(firestore, FIRESTORE_COLLECTIONS.APPOINTMENTS),
     data
   );
   if (data.patientId) {
-    await updateDoc(doc(db, FIRESTORE_COLLECTIONS.PATIENTS, data.patientId), {
+    await updateDoc(doc(firestore, FIRESTORE_COLLECTIONS.PATIENTS, data.patientId), {
       lastAppointmentDate: Timestamp.fromDate(new Date(data.appointmentDate)),
     });
   }
+  await writeAuditLog({
+    userId: data.psychologistId,
+    actionType: 'createAppointment',
+    timestamp: new Date().toISOString(),
+    targetResourceId: docRef.id,
+  }, firestore);
   return docRef.id;
 }

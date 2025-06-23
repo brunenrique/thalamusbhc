@@ -1,8 +1,11 @@
 "use client";
 
 import { google, calendar_v3 } from 'googleapis';
+import { encrypt, decrypt, type EncryptionResult } from '@/lib/crypto-utils';
+import { deriveKeyFromPassword } from '@/lib/encryptionKey';
 
 const SCOPES = ['https://www.googleapis.com/auth/calendar'];
+const TOKEN_SALT = 'gcal_salt';
 
 interface StoredToken {
   access_token?: string;
@@ -14,6 +17,25 @@ interface StoredToken {
 
 function tokenKey(userId: string): string {
   return `gcal_token_${userId}`;
+}
+
+function getKey(userId: string): Buffer {
+  return deriveKeyFromPassword(`${userId}_${TOKEN_SALT}`);
+}
+
+function decodeTokens(userId: string, stored: string): StoredToken | null {
+  try {
+    const enc = JSON.parse(stored) as EncryptionResult;
+    const json = decrypt(enc, getKey(userId));
+    return JSON.parse(json) as StoredToken;
+  } catch {
+    return null;
+  }
+}
+
+function encodeTokens(userId: string, tokens: StoredToken): string {
+  const enc = encrypt(JSON.stringify(tokens), getKey(userId));
+  return JSON.stringify(enc);
 }
 
 function createClient() {
@@ -29,7 +51,10 @@ export function getOAuthClient(userId: string) {
   if (typeof window !== 'undefined') {
     const stored = localStorage.getItem(tokenKey(userId));
     if (stored) {
-      client.setCredentials(JSON.parse(stored) as StoredToken);
+      const tokens = decodeTokens(userId, stored);
+      if (tokens) {
+        client.setCredentials(tokens);
+      }
     }
   }
   return client;
@@ -37,7 +62,9 @@ export function getOAuthClient(userId: string) {
 
 export function hasTokens(userId: string): boolean {
   if (typeof window === 'undefined') return false;
-  return !!localStorage.getItem(tokenKey(userId));
+  const item = localStorage.getItem(tokenKey(userId));
+  if (!item) return false;
+  return decodeTokens(userId, item) !== null;
 }
 
 export function clearTokens(userId: string) {
@@ -66,12 +93,25 @@ export function setTokens(userId: string, tokens: StoredToken) {
   const client = getOAuthClient(userId);
   client.setCredentials(tokens);
   if (typeof window !== 'undefined') {
-    localStorage.setItem(tokenKey(userId), JSON.stringify(tokens));
+    localStorage.setItem(tokenKey(userId), encodeTokens(userId, tokens));
+  }
+}
+
+async function ensureFreshToken(
+  client: ReturnType<typeof createClient>,
+  userId: string,
+) {
+  const creds = client.credentials as StoredToken;
+  if (creds.expiry_date && creds.expiry_date <= Date.now()) {
+    const { credentials } = await client.refreshAccessToken();
+    const merged = { ...creds, ...credentials } as StoredToken;
+    setTokens(userId, merged);
   }
 }
 
 export async function insertOrUpdateEvent(userId: string, event: calendar_v3.Schema$Event) {
   const auth = getOAuthClient(userId);
+  await ensureFreshToken(auth, userId);
   const calendar = google.calendar({ version: 'v3', auth });
 
   if (event.id) {
@@ -91,6 +131,7 @@ export async function insertOrUpdateEvent(userId: string, event: calendar_v3.Sch
 
 export async function listUpcomingEvents(userId: string, maxResults = 10) {
   const auth = getOAuthClient(userId);
+  await ensureFreshToken(auth, userId);
   const calendar = google.calendar({ version: 'v3', auth });
   const res = await calendar.events.list({
     calendarId: 'primary',

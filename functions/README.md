@@ -16,4 +16,4 @@ firebase deploy --only functions
 
 ## Configuração
 
-Defina a variável de ambiente `SENTRY_DSN` nas configurações das Functions para habilitar o envio de erros ao Sentry.
+Defina as variáveis `SENTRY_DSN` e `SENTRY_AUTH_TOKEN` nas configurações das Functions para habilitar o envio de erros ao Sentry e o upload de sourcemaps.

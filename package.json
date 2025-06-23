@@ -14,7 +14,7 @@
     "dev": "next dev",
     "dev:force": "lsof -ti:9003 | xargs kill -9 || true && sleep 2 && next dev --turbopack -p 9003",
     "start": "next start",
-    "build": "next build",
+    "build": "next build && ./scripts/sentry-release.sh",
     "genkit:dev": "genkit start -- tsx src/ai/dev.ts",
     "genkit:watch": "genkit start -- tsx --watch src/ai/dev.ts",
     "lint": "eslint . --ext .ts,.tsx",
@@ -42,7 +42,8 @@
     "docker:build": "docker build -t meu-app-web .",
     "docker:functions:build": "docker build -t meu-app-func functions/ -f functions/Dockerfile.functions",
     "docker:up": "docker-compose up --build",
-    "docker:down": "docker-compose down"
+    "docker:down": "docker-compose down",
+    "sentry:release": "./scripts/sentry-release.sh"
   },
   "dependencies": {
     "@genkit-ai/core": "^1.13.0",

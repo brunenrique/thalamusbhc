@@ -18,9 +18,16 @@ import {
 } from 'firebase/firestore';
 
 export async function getWaitingList(): Promise<WaitingListEntry[]> {
-  const q = query(collection(db, FIRESTORE_COLLECTIONS.WAITING_LIST), orderBy('dateAdded', 'desc'));
+  const q = query(
+    collection(db, FIRESTORE_COLLECTIONS.WAITING_LIST),
+    orderBy('dateAdded', 'desc'),
+  );
   const snap = await getDocs(q);
   return snap.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<WaitingListEntry, 'id'>) }));
+}
+
+export async function getWaitingListEntries(): Promise<WaitingListEntry[]> {
+  return getWaitingList();
 }
 
 export async function getWaitingListEntryById(id: string): Promise<WaitingListEntry | undefined> {

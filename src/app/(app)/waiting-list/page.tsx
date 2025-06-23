@@ -32,7 +32,7 @@ import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { getWaitingList } from '@/services/waitingListService';
+import { getWaitingListEntries } from '@/services/waitingListService';
 import type { WaitingListEntry } from '@/types';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -47,7 +47,7 @@ export default function WaitingListPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    getWaitingList().then((l) => {
+    getWaitingListEntries().then((l) => {
       setList(l);
       setLoading(false);
     });
@@ -92,6 +92,7 @@ export default function WaitingListPage() {
                     <TableHead>Nome</TableHead>
                     <TableHead>Psicólogo(a) Solicitado(a)</TableHead>
                     <TableHead>Data de Adição</TableHead>
+                    <TableHead>Status</TableHead>
                     <TableHead>Prioridade</TableHead>
                     <TableHead>Observações</TableHead>
                     <TableHead className="text-right">Ações</TableHead>
@@ -112,6 +113,7 @@ export default function WaitingListPage() {
                       <TableCell>
                         {format(new Date(item.dateAdded), 'P', { locale: ptBR })}
                       </TableCell>
+                      <TableCell>{item.status || priorityLabels[item.priority] || 'Pendente'}</TableCell>
                       <TableCell>
                         <Badge
                           variant={

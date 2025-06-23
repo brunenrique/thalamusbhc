@@ -1,5 +1,8 @@
-import { messaging, db } from '@/lib/firebase'; // Alterado de @/services/firebase
+import { messaging, db, auth } from '@/lib/firebase';
 import { getToken } from 'firebase/messaging';
+import * as Sentry from '@sentry/nextjs';
+import { type Firestore } from 'firebase/firestore';
+import { writeAuditLog } from './auditLogService';
 import {
   doc,
   setDoc,
@@ -16,7 +19,6 @@ import {
   onSnapshot,
   Unsubscribe,
 } from 'firebase/firestore';
-import * as Sentry from '@sentry/nextjs';
 
 export interface Notification {
   id: string;
@@ -42,44 +44,143 @@ export async function registerFcmToken(userId: string): Promise<string | null> {
     return token;
   } catch (err) {
     Sentry.captureException(err);
-    console.error('Unable to get FCM token', err);
     return null;
   }
 }
 
-export function listenToNotifications(userId: string, callback: (n: Notification[]) => void): Unsubscribe {
-  const q = query(collection(db, 'users', userId, 'notifications'), orderBy('date', 'desc'));
+export function listenToNotifications(
+  userId: string,
+  callback: (n: Notification[]) => void,
+): Unsubscribe {
+  const q = query(
+    collection(db, 'users', userId, 'notifications'),
+    orderBy('date', 'desc'),
+  );
   return onSnapshot(q, snap => {
-    const list: Notification[] = snap.docs.map(d => ({ id: d.id, ...(d.data() as Omit<Notification,'id'>) }));
+    const list: Notification[] = snap.docs.map(d => ({
+      id: d.id,
+      ...(d.data() as Omit<Notification, 'id'>),
+    }));
     callback(list);
   });
 }
 
-export async function addNotification(userId: string, data: Omit<Notification, 'id'>): Promise<string> {
-  const ref = await addDoc(collection(db, 'users', userId, 'notifications'), data);
+export async function addNotification(
+  userId: string,
+  data: Omit<Notification, 'id'>,
+  firestore: Firestore = db,
+): Promise<string> {
+  const ref = await addDoc(
+    collection(firestore, 'users', userId, 'notifications'),
+    data,
+  );
+  const uid = auth.currentUser?.uid;
+  if (uid) {
+    await writeAuditLog(
+      {
+        userId: uid,
+        actionType: 'addNotification',
+        timestamp: new Date().toISOString(),
+        targetResourceId: ref.id,
+      },
+      firestore,
+    );
+  }
   return ref.id;
 }
 
-export async function markNotificationRead(userId: string, notifId: string, read = true): Promise<void> {
-  await updateDoc(doc(db, 'users', userId, 'notifications', notifId), { read });
+export async function markNotificationRead(
+  userId: string,
+  notifId: string,
+  read = true,
+  firestore: Firestore = db,
+): Promise<void> {
+  await updateDoc(
+    doc(firestore, 'users', userId, 'notifications', notifId),
+    { read },
+  );
+  const uid = auth.currentUser?.uid;
+  if (uid) {
+    await writeAuditLog(
+      {
+        userId: uid,
+        actionType: 'markNotificationRead',
+        timestamp: new Date().toISOString(),
+        targetResourceId: notifId,
+      },
+      firestore,
+    );
+  }
 }
 
-export async function deleteNotification(userId: string, notifId: string): Promise<void> {
-  await deleteDoc(doc(db, 'users', userId, 'notifications', notifId));
+export async function deleteNotification(
+  userId: string,
+  notifId: string,
+  firestore: Firestore = db,
+): Promise<void> {
+  await deleteDoc(
+    doc(firestore, 'users', userId, 'notifications', notifId),
+  );
+  const uid = auth.currentUser?.uid;
+  if (uid) {
+    await writeAuditLog(
+      {
+        userId: uid,
+        actionType: 'deleteNotification',
+        timestamp: new Date().toISOString(),
+        targetResourceId: notifId,
+      },
+      firestore,
+    );
+  }
 }
 
-export async function markAllNotificationsRead(userId: string): Promise<void> {
-  const q = query(collection(db, 'users', userId, 'notifications'), where('read', '==', false));
+export async function markAllNotificationsRead(
+  userId: string,
+  firestore: Firestore = db,
+): Promise<void> {
+  const q = query(
+    collection(firestore, 'users', userId, 'notifications'),
+    where('read', '==', false),
+  );
   const snap = await getDocs(q);
-  const batch = writeBatch(db);
+  const batch = writeBatch(firestore);
   snap.docs.forEach(d => batch.update(d.ref, { read: true }));
   await batch.commit();
+  const uid = auth.currentUser?.uid;
+  if (uid) {
+    await writeAuditLog(
+      {
+        userId: uid,
+        actionType: 'markAllNotificationsRead',
+        timestamp: new Date().toISOString(),
+      },
+      firestore,
+    );
+  }
 }
 
-export async function clearReadNotifications(userId: string): Promise<void> {
-  const q = query(collection(db, 'users', userId, 'notifications'), where('read', '==', true));
+export async function clearReadNotifications(
+  userId: string,
+  firestore: Firestore = db,
+): Promise<void> {
+  const q = query(
+    collection(firestore, 'users', userId, 'notifications'),
+    where('read', '==', true),
+  );
   const snap = await getDocs(q);
-  const batch = writeBatch(db);
+  const batch = writeBatch(firestore);
   snap.docs.forEach(d => batch.delete(d.ref));
   await batch.commit();
+  const uid = auth.currentUser?.uid;
+  if (uid) {
+    await writeAuditLog(
+      {
+        userId: uid,
+        actionType: 'clearReadNotifications',
+        timestamp: new Date().toISOString(),
+      },
+      firestore,
+    );
+  }
 }

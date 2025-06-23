@@ -1,16 +1,39 @@
-
-"use client";
-import React, { useState } from "react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
-import { Users as GroupIcon, User as UserIcon, CalendarDays, Clock, FileText, Edit, Trash2, ArrowLeft, Settings, ListChecks, Users2 as UsersIconLucide, Paperclip, UploadCloud, Download, Link as LinkIcon } from "lucide-react";
-import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
-import { mockTherapeuticGroups } from "@/app/(app)/groups/page"; 
+'use client';
+import React, { useState } from 'react';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardFooter,
+} from '@/components/ui/card';
+import {
+  Users as GroupIcon,
+  User as UserIcon,
+  CalendarDays,
+  Clock,
+  FileText,
+  Edit,
+  Trash2,
+  ArrowLeft,
+  Settings,
+  ListChecks,
+  Users2 as UsersIconLucide,
+  Paperclip,
+  UploadCloud,
+  Download,
+  Link as LinkIcon,
+} from 'lucide-react';
+import Link from 'next/link';
+import { useParams, useRouter } from 'next/navigation';
+import { mockTherapeuticGroups } from '@/app/(app)/groups/page';
+import RequireRole from '@/components/RequireRole';
 import { format, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { Badge } from "@/components/ui/badge";
+import { Badge } from '@/components/ui/badge';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -21,7 +44,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+} from '@/components/ui/alert-dialog';
 import {
   Dialog,
   DialogContent,
@@ -30,13 +53,13 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { useToast } from "@/hooks/use-toast";
-import { Separator } from "@/components/ui/separator";
-import type { Participant, GroupResource, Group } from "@/types/group";
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { useToast } from '@/hooks/use-toast';
+import { Separator } from '@/components/ui/separator';
+import type { Participant, GroupResource, Group } from '@/types/group';
 
 const getInitials = (name: string) => {
   const names = name.split(' ');
@@ -45,35 +68,35 @@ const getInitials = (name: string) => {
 };
 
 const dayOfWeekDisplay: Record<string, string> = {
-  monday: "Segundas",
-  tuesday: "Terças",
-  wednesday: "Quartas",
-  thursday: "Quintas",
-  friday: "Sextas",
-  saturday: "Sábados",
-  sunday: "Domingos",
+  monday: 'Segundas',
+  tuesday: 'Terças',
+  wednesday: 'Quartas',
+  thursday: 'Quintas',
+  friday: 'Sextas',
+  saturday: 'Sábados',
+  sunday: 'Domingos',
 };
-
 
 export default function GroupDetailPage({ params }: { params: { id: string } }) {
   const router = useRouter();
   const { toast } = useToast();
-  const group: Group | undefined = mockTherapeuticGroups.find(g => g.id === params.id);
+  const group: Group | undefined = mockTherapeuticGroups.find((g) => g.id === params.id);
 
   // State for Add Resource Dialog
   const [isAddResourceDialogOpen, setIsAddResourceDialogOpen] = useState(false);
-  const [newResourceName, setNewResourceName] = useState("");
-  const [newResourceType, setNewResourceType] = useState<GroupResource["type"]>("pdf");
-  const [newResourceUrl, setNewResourceUrl] = useState("");
-  const [newResourceDescription, setNewResourceDescription] = useState("");
-
+  const [newResourceName, setNewResourceName] = useState('');
+  const [newResourceType, setNewResourceType] = useState<GroupResource['type']>('pdf');
+  const [newResourceUrl, setNewResourceUrl] = useState('');
+  const [newResourceDescription, setNewResourceDescription] = useState('');
 
   if (!group) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[calc(100vh-200px)] text-center">
         <GroupIcon className="w-24 h-24 text-muted-foreground mb-4" />
         <h1 className="text-2xl font-bold text-destructive mb-2">Grupo Não Encontrado</h1>
-        <p className="text-muted-foreground mb-6">O grupo que você está procurando não existe ou foi movido.</p>
+        <p className="text-muted-foreground mb-6">
+          O grupo que você está procurando não existe ou foi movido.
+        </p>
         <Button asChild variant="outline">
           <Link href="/groups">
             <span className="inline-flex items-center gap-2">
@@ -90,51 +113,62 @@ export default function GroupDetailPage({ params }: { params: { id: string } }) 
 
   const handleDeleteGroup = () => {
     toast({
-      title: "Grupo Excluído (Simulado)",
+      title: 'Grupo Excluído (Simulado)',
       description: `O grupo "${currentGroup.name}" foi excluído com sucesso.`,
-      variant: "destructive"
+      variant: 'destructive',
     });
-    router.push("/groups");
+    router.push('/groups');
   };
 
   const handleAddResource = () => {
     if (!newResourceName || (newResourceType === 'link' && !newResourceUrl)) {
-        toast({ title: "Erro", description: "Nome do recurso e URL (para links) são obrigatórios.", variant: "destructive" });
-        return;
+      toast({
+        title: 'Erro',
+        description: 'Nome do recurso e URL (para links) são obrigatórios.',
+        variant: 'destructive',
+      });
+      return;
     }
     // Simulate adding resource
     const newResource: GroupResource = {
-        id: `res_${Date.now()}`,
-        name: newResourceName,
-        type: newResourceType,
-        url: newResourceType === 'link' ? newResourceUrl : undefined,
-        uploadDate: new Date().toISOString(),
-        description: newResourceDescription,
+      id: `res_${Date.now()}`,
+      name: newResourceName,
+      type: newResourceType,
+      url: newResourceType === 'link' ? newResourceUrl : undefined,
+      uploadDate: new Date().toISOString(),
+      description: newResourceDescription,
     };
     // In a real app, update backend and then update local state or re-fetch
-    currentGroup.resources = [...(currentGroup.resources || []), newResource]; 
-    toast({ title: "Recurso Adicionado (Simulado)", description: `"${newResourceName}" foi adicionado ao grupo.` });
+    currentGroup.resources = [...(currentGroup.resources || []), newResource];
+    toast({
+      title: 'Recurso Adicionado (Simulado)',
+      description: `"${newResourceName}" foi adicionado ao grupo.`,
+    });
     setIsAddResourceDialogOpen(false);
-    setNewResourceName("");
-    setNewResourceType("pdf");
-    setNewResourceUrl("");
-    setNewResourceDescription("");
-};
-
+    setNewResourceName('');
+    setNewResourceType('pdf');
+    setNewResourceUrl('');
+    setNewResourceDescription('');
+  };
 
   const formattedNextSession = currentGroup.nextSession
-    ? format(parseISO(currentGroup.nextSession), "PPPp", { locale: ptBR })
-    : "Não agendada";
+    ? format(parseISO(currentGroup.nextSession), 'PPPp', { locale: ptBR })
+    : 'Não agendada';
 
   const displaySchedule = `${dayOfWeekDisplay[currentGroup.dayOfWeek] || currentGroup.dayOfWeek}, ${currentGroup.startTime} - ${currentGroup.endTime}`;
 
-  const getResourceTypeIcon = (type: GroupResource["type"]) => {
-    switch(type) {
-      case "pdf": return <FileText className="h-5 w-5 text-red-500 flex-shrink-0" />;
-      case "docx": return <FileText className="h-5 w-5 text-blue-500 flex-shrink-0" />;
-      case "image": return <FileText className="h-5 w-5 text-green-500 flex-shrink-0" />; // Using FileText for consistency, could be ImageIcon
-      case "link": return <LinkIcon className="h-5 w-5 text-accent flex-shrink-0" />;
-      default: return <Paperclip className="h-5 w-5 text-muted-foreground flex-shrink-0" />;
+  const getResourceTypeIcon = (type: GroupResource['type']) => {
+    switch (type) {
+      case 'pdf':
+        return <FileText className="h-5 w-5 text-red-500 flex-shrink-0" />;
+      case 'docx':
+        return <FileText className="h-5 w-5 text-blue-500 flex-shrink-0" />;
+      case 'image':
+        return <FileText className="h-5 w-5 text-green-500 flex-shrink-0" />; // Using FileText for consistency, could be ImageIcon
+      case 'link':
+        return <LinkIcon className="h-5 w-5 text-accent flex-shrink-0" />;
+      default:
+        return <Paperclip className="h-5 w-5 text-muted-foreground flex-shrink-0" />;
     }
   };
 
@@ -144,35 +178,44 @@ export default function GroupDetailPage({ params }: { params: { id: string } }) 
         <Button variant="outline" size="sm" onClick={() => router.back()} className="mb-4 sm:mb-0">
           <ArrowLeft className="mr-2 h-4 w-4" /> Voltar
         </Button>
-        <div className="flex gap-2">
+        <RequireRole role="Admin">
+          <div className="flex gap-2">
             <Button variant="outline" asChild>
-                <Link href={`/groups/edit/${currentGroup.id}`} className="inline-flex items-center gap-2">
-                    <Edit className="h-4 w-4" />
-                    Editar Grupo
-                </Link>
+              <Link
+                href={`/groups/edit/${currentGroup.id}`}
+                className="inline-flex items-center gap-2"
+              >
+                <Edit className="h-4 w-4" />
+                Editar Grupo
+              </Link>
             </Button>
-             <AlertDialog>
-                <AlertDialogTrigger asChild>
-                    <Button variant="destructive" className="bg-destructive/90 hover:bg-destructive">
-                        <Trash2 className="mr-2 h-4 w-4" /> Excluir Grupo
-                    </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                    <AlertDialogHeader>
-                    <AlertDialogTitle>Excluir Grupo Permanentemente?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                        Esta ação não pode ser desfeita. Todos os dados associados ao grupo &quot;{currentGroup.name}&quot; serão removidos. Tem certeza?
-                    </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                    <AlertDialogAction onClick={handleDeleteGroup} className="bg-destructive hover:bg-destructive/90">
-                        Excluir
-                    </AlertDialogAction>
-                    </AlertDialogFooter>
-                </AlertDialogContent>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="destructive" className="bg-destructive/90 hover:bg-destructive">
+                  <Trash2 className="mr-2 h-4 w-4" /> Excluir Grupo
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Excluir Grupo Permanentemente?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Esta ação não pode ser desfeita. Todos os dados associados ao grupo &quot;
+                    {currentGroup.name}&quot; serão removidos. Tem certeza?
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={handleDeleteGroup}
+                    className="bg-destructive hover:bg-destructive/90"
+                  >
+                    Excluir
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
             </AlertDialog>
-        </div>
+          </div>
+        </RequireRole>
       </div>
 
       <Card className="shadow-lg overflow-hidden">
@@ -183,32 +226,54 @@ export default function GroupDetailPage({ params }: { params: { id: string } }) 
             </div>
             <div>
               <h1 className="text-3xl font-headline font-bold">{currentGroup.name}</h1>
-              <p className="text-muted-foreground">Psicólogo(a) Responsável: {currentGroup.psychologist}</p>
+              <p className="text-muted-foreground">
+                Psicólogo(a) Responsável: {currentGroup.psychologist}
+              </p>
             </div>
           </div>
         </CardHeader>
         <CardContent className="p-6 grid md:grid-cols-2 gap-x-6 gap-y-4">
           <InfoItem icon={<CalendarDays />} label="Horário Regular" value={displaySchedule} />
-          <InfoItem icon={<Clock />} label="Próxima Sessão (Avulsa/Exemplo)" value={formattedNextSession} />
-          <InfoItem icon={<GroupIcon />} label="Contagem de Membros" value={`${currentGroup.participants?.length || 0} participante(s)`} />
+          <InfoItem
+            icon={<Clock />}
+            label="Próxima Sessão (Avulsa/Exemplo)"
+            value={formattedNextSession}
+          />
+          <InfoItem
+            icon={<GroupIcon />}
+            label="Contagem de Membros"
+            value={`${currentGroup.participants?.length || 0} participante(s)`}
+          />
         </CardContent>
       </Card>
 
       <Card className="shadow-sm">
         <CardHeader>
-          <CardTitle className="font-headline flex items-center"><UserIcon className="mr-2 h-5 w-5 text-primary" /> Participantes ({(currentGroup.participants || []).length})</CardTitle>
+          <CardTitle className="font-headline flex items-center">
+            <UserIcon className="mr-2 h-5 w-5 text-primary" /> Participantes (
+            {(currentGroup.participants || []).length})
+          </CardTitle>
           <CardDescription>Membros atuais do grupo terapêutico.</CardDescription>
         </CardHeader>
         <CardContent>
           {(currentGroup.participants || []).length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {(currentGroup.participants || []).map(participant => (
+              {(currentGroup.participants || []).map((participant) => (
                 <Link key={participant.id} href={`/patients/${participant.id}`} className="block">
                   <Card className="hover:shadow-md transition-shadow hover:border-accent">
                     <CardContent className="p-3 flex items-center gap-3">
                       <Avatar className="h-10 w-10">
-                        <AvatarImage src={participant.avatarUrl || `https://placehold.co/100x100.png?text=${getInitials(participant.name)}`} alt={participant.name} data-ai-hint={participant.dataAiHint || "avatar pessoa"} />
-                        <AvatarFallback className="bg-secondary text-secondary-foreground">{getInitials(participant.name)}</AvatarFallback>
+                        <AvatarImage
+                          src={
+                            participant.avatarUrl ||
+                            `https://placehold.co/100x100.png?text=${getInitials(participant.name)}`
+                          }
+                          alt={participant.name}
+                          data-ai-hint={participant.dataAiHint || 'avatar pessoa'}
+                        />
+                        <AvatarFallback className="bg-secondary text-secondary-foreground">
+                          {getInitials(participant.name)}
+                        </AvatarFallback>
                       </Avatar>
                       <span className="font-medium text-sm">{participant.name}</span>
                     </CardContent>
@@ -217,74 +282,105 @@ export default function GroupDetailPage({ params }: { params: { id: string } }) 
               ))}
             </div>
           ) : (
-            <p className="text-muted-foreground">Nenhum participante adicionado a este grupo ainda.</p>
+            <p className="text-muted-foreground">
+              Nenhum participante adicionado a este grupo ainda.
+            </p>
           )}
         </CardContent>
         <CardFooter>
+          <RequireRole role="Admin">
             <Button variant="outline" asChild>
-                <Link href={`/groups/edit/${currentGroup.id}?tab=participants`} className="inline-flex items-center gap-2">
-                    <Settings className="h-4 w-4" />
-                    Gerenciar Participantes
-                </Link>
+              <Link
+                href={`/groups/edit/${currentGroup.id}?tab=participants`}
+                className="inline-flex items-center gap-2"
+              >
+                <Settings className="h-4 w-4" />
+                Gerenciar Participantes
+              </Link>
             </Button>
+          </RequireRole>
         </CardFooter>
       </Card>
 
       <Card className="shadow-sm">
         <CardHeader>
-          <CardTitle className="font-headline flex items-center"><FileText className="mr-2 h-5 w-5 text-primary" /> Descrição do Grupo</CardTitle>
+          <CardTitle className="font-headline flex items-center">
+            <FileText className="mr-2 h-5 w-5 text-primary" /> Descrição do Grupo
+          </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
             <p className="text-sm text-muted-foreground whitespace-pre-wrap">
-              {currentGroup.description || "Nenhuma descrição fornecida."}
+              {currentGroup.description || 'Nenhuma descrição fornecida.'}
             </p>
           </div>
         </CardContent>
-         <CardFooter>
+        <CardFooter>
+          <RequireRole role="Admin">
             <Button variant="outline" asChild>
-                <Link href={`/groups/edit/${currentGroup.id}?tab=details`} className="inline-flex items-center gap-2">
-                    <Edit className="h-4 w-4" />
-                    Editar Descrição
-                </Link>
+              <Link
+                href={`/groups/edit/${currentGroup.id}?tab=details`}
+                className="inline-flex items-center gap-2"
+              >
+                <Edit className="h-4 w-4" />
+                Editar Descrição
+              </Link>
             </Button>
+          </RequireRole>
         </CardFooter>
       </Card>
 
       <Card className="shadow-sm">
         <CardHeader>
-          <CardTitle className="font-headline flex items-center"><ListChecks className="mr-2 h-5 w-5 text-primary" /> Roteiro dos Encontros</CardTitle>
+          <CardTitle className="font-headline flex items-center">
+            <ListChecks className="mr-2 h-5 w-5 text-primary" /> Roteiro dos Encontros
+          </CardTitle>
           <CardDescription>Planejamento e tópicos para as sessões do grupo.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="bg-muted/30 p-4 rounded-md">
             <p className="text-sm text-muted-foreground whitespace-pre-wrap">
-              {currentGroup.meetingAgenda || "Nenhum roteiro de encontros definido para este grupo."}
+              {currentGroup.meetingAgenda ||
+                'Nenhum roteiro de encontros definido para este grupo.'}
             </p>
           </div>
         </CardContent>
-         <CardFooter>
+        <CardFooter>
+          <RequireRole role="Admin">
             <Button variant="outline" asChild>
-                <Link href={`/groups/edit/${currentGroup.id}?tab=agenda`} className="inline-flex items-center gap-2">
-                    <Edit className="h-4 w-4" />
-                    Editar Roteiro
-                </Link>
+              <Link
+                href={`/groups/edit/${currentGroup.id}?tab=agenda`}
+                className="inline-flex items-center gap-2"
+              >
+                <Edit className="h-4 w-4" />
+                Editar Roteiro
+              </Link>
             </Button>
+          </RequireRole>
         </CardFooter>
       </Card>
 
       <Card className="shadow-sm">
         <CardHeader className="flex flex-row justify-between items-center">
           <div>
-            <CardTitle className="font-headline flex items-center"><Paperclip className="mr-2 h-5 w-5 text-primary" /> Materiais e Atividades do Grupo</CardTitle>
-            <CardDescription>Recursos, exercícios e links compartilhados com o grupo.</CardDescription>
+            <CardTitle className="font-headline flex items-center">
+              <Paperclip className="mr-2 h-5 w-5 text-primary" /> Materiais e Atividades do Grupo
+            </CardTitle>
+            <CardDescription>
+              Recursos, exercícios e links compartilhados com o grupo.
+            </CardDescription>
           </div>
           <Dialog open={isAddResourceDialogOpen} onOpenChange={setIsAddResourceDialogOpen}>
-            <DialogTrigger asChild>
-              <Button variant="outline" className="bg-accent hover:bg-accent/90 text-accent-foreground">
-                <UploadCloud className="mr-2 h-4 w-4" /> Adicionar Material
-              </Button>
-            </DialogTrigger>
+            <RequireRole role="Admin">
+              <DialogTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="bg-accent hover:bg-accent/90 text-accent-foreground"
+                >
+                  <UploadCloud className="mr-2 h-4 w-4" /> Adicionar Material
+                </Button>
+              </DialogTrigger>
+            </RequireRole>
             <DialogContent className="sm:max-w-md">
               <DialogHeader>
                 <DialogTitle>Adicionar Novo Material ao Grupo</DialogTitle>
@@ -293,11 +389,21 @@ export default function GroupDetailPage({ params }: { params: { id: string } }) 
               <div className="grid gap-4 py-4">
                 <div className="space-y-1">
                   <Label htmlFor="resource-name">Nome do Material *</Label>
-                  <Input id="resource-name" value={newResourceName} onChange={(e) => setNewResourceName(e.target.value)} placeholder="Ex: Guia de Mindfulness.pdf" />
+                  <Input
+                    id="resource-name"
+                    value={newResourceName}
+                    onChange={(e) => setNewResourceName(e.target.value)}
+                    placeholder="Ex: Guia de Mindfulness.pdf"
+                  />
                 </div>
                 <div className="space-y-1">
                   <Label htmlFor="resource-type">Tipo *</Label>
-                  <select id="resource-type" value={newResourceType} onChange={(e) => setNewResourceType(e.target.value as GroupResource["type"])} className="w-full p-2 border rounded-md bg-background">
+                  <select
+                    id="resource-type"
+                    value={newResourceType}
+                    onChange={(e) => setNewResourceType(e.target.value as GroupResource['type'])}
+                    className="w-full p-2 border rounded-md bg-background"
+                  >
                     <option value="pdf">PDF</option>
                     <option value="docx">Documento (DOCX)</option>
                     <option value="image">Imagem</option>
@@ -305,20 +411,37 @@ export default function GroupDetailPage({ params }: { params: { id: string } }) 
                     <option value="other">Outro</option>
                   </select>
                 </div>
-                {newResourceType === "link" && (
+                {newResourceType === 'link' && (
                   <div className="space-y-1">
                     <Label htmlFor="resource-url">URL do Link *</Label>
-                    <Input id="resource-url" value={newResourceUrl} onChange={(e) => setNewResourceUrl(e.target.value)} placeholder="https://exemplo.com/material" />
+                    <Input
+                      id="resource-url"
+                      value={newResourceUrl}
+                      onChange={(e) => setNewResourceUrl(e.target.value)}
+                      placeholder="https://exemplo.com/material"
+                    />
                   </div>
                 )}
                 <div className="space-y-1">
                   <Label htmlFor="resource-description">Descrição (Opcional)</Label>
-                  <Textarea id="resource-description" value={newResourceDescription} onChange={(e) => setNewResourceDescription(e.target.value)} placeholder="Breve descrição do material..." />
+                  <Textarea
+                    id="resource-description"
+                    value={newResourceDescription}
+                    onChange={(e) => setNewResourceDescription(e.target.value)}
+                    placeholder="Breve descrição do material..."
+                  />
                 </div>
               </div>
               <DialogFooter>
-                <Button variant="outline" onClick={() => setIsAddResourceDialogOpen(false)}>Cancelar</Button>
-                <Button onClick={handleAddResource} className="bg-accent hover:bg-accent/90 text-accent-foreground">Adicionar</Button>
+                <Button variant="outline" onClick={() => setIsAddResourceDialogOpen(false)}>
+                  Cancelar
+                </Button>
+                <Button
+                  onClick={handleAddResource}
+                  className="bg-accent hover:bg-accent/90 text-accent-foreground"
+                >
+                  Adicionar
+                </Button>
               </DialogFooter>
             </DialogContent>
           </Dialog>
@@ -326,44 +449,69 @@ export default function GroupDetailPage({ params }: { params: { id: string } }) 
         <CardContent>
           {(currentGroup.resources || []).length > 0 ? (
             <div className="space-y-3">
-              {(currentGroup.resources || []).map(resource => (
+              {(currentGroup.resources || []).map((resource) => (
                 <Card key={resource.id} className="shadow-xs hover:shadow-sm transition-shadow">
                   <CardContent className="p-3 flex items-center justify-between gap-3">
                     <div className="flex items-center gap-3 flex-1 min-w-0">
                       {getResourceTypeIcon(resource.type)}
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium truncate" title={resource.name}>{resource.name}</p>
-                        {resource.description && <p className="text-xs text-muted-foreground truncate" title={resource.description}>{resource.description}</p>}
-                        <p className="text-xs text-muted-foreground">Adicionado em: {format(new Date(resource.uploadDate), "P", { locale: ptBR })}</p>
+                        <p className="text-sm font-medium truncate" title={resource.name}>
+                          {resource.name}
+                        </p>
+                        {resource.description && (
+                          <p
+                            className="text-xs text-muted-foreground truncate"
+                            title={resource.description}
+                          >
+                            {resource.description}
+                          </p>
+                        )}
+                        <p className="text-xs text-muted-foreground">
+                          Adicionado em:{' '}
+                          {format(new Date(resource.uploadDate), 'P', { locale: ptBR })}
+                        </p>
                       </div>
                     </div>
                     <div className="flex-shrink-0">
-                    {resource.type === "link" && resource.url ? (
-                         <Button variant="outline" size="sm" asChild>
-                            <a href={resource.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2">
-                                <LinkIcon className="h-3.5 w-3.5" />
-                                Acessar Link
-                            </a>
+                      {resource.type === 'link' && resource.url ? (
+                        <Button variant="outline" size="sm" asChild>
+                          <a
+                            href={resource.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-2"
+                          >
+                            <LinkIcon className="h-3.5 w-3.5" />
+                            Acessar Link
+                          </a>
                         </Button>
-                    ) : (
-                         <Button variant="outline" size="sm">
-                            <Download className="mr-1.5 h-3.5 w-3.5" /> Download
+                      ) : (
+                        <Button variant="outline" size="sm">
+                          <Download className="mr-1.5 h-3.5 w-3.5" /> Download
                         </Button>
-                    )}
-                    <Button variant="ghost" size="icon" className="h-8 w-8 ml-1 text-destructive hover:text-destructive/80" aria-label={`Excluir recurso ${resource.name}`}>
-                        <Trash2 className="h-4 w-4" />
-                    </Button>
+                      )}
+                      <RequireRole role="Admin">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 ml-1 text-destructive hover:text-destructive/80"
+                          aria-label={`Excluir recurso ${resource.name}`}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </RequireRole>
                     </div>
                   </CardContent>
                 </Card>
               ))}
             </div>
           ) : (
-            <p className="text-muted-foreground text-sm py-4 text-center">Nenhum material ou atividade adicionado a este grupo ainda.</p>
+            <p className="text-muted-foreground text-sm py-4 text-center">
+              Nenhum material ou atividade adicionado a este grupo ainda.
+            </p>
           )}
         </CardContent>
       </Card>
-
     </div>
   );
 }

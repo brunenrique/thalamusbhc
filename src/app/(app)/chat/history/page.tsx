@@ -2,25 +2,51 @@
 
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { MessageCircle } from "lucide-react";
-import { format } from "date-fns";
-import { ptBR } from "date-fns/locale";
-import Link from "next/link";
-
-interface ChatSummary {
-  id: string;
-  participant: string;
-  lastMessage: string;
-  lastDate: string; // ISO
-}
-
-const mockChats: ChatSummary[] = [
-  { id: "chat1", participant: "Alice Wonderland", lastMessage: "Oi, só confirmando nosso horário", lastDate: "2024-07-20T14:35:00Z" },
-  { id: "chat2", participant: "Bob Marley", lastMessage: "Obrigado pela última sessão", lastDate: "2024-07-18T09:10:00Z" },
-  { id: "chat3", participant: "Charlie Brown", lastMessage: "Quando será nosso próximo encontro?", lastDate: "2024-07-17T16:45:00Z" },
-];
+import { MessageCircle, MessagesSquare } from "lucide-react";
+import { collection, query, orderBy, onSnapshot, Timestamp, DocumentData, QueryDocumentSnapshot } from "firebase/firestore";
+import { db } from "@/lib/firebase";
+import { useChatStore } from "@/stores/chatStore";
+import type { Message } from "@/hooks/useChatMessages";
+import MessageItem from "@/components/chat/MessageItem";
 
 export default function ChatHistoryPage() {
+  const { currentUser } = useChatStore();
+  const [messages, setMessages] = React.useState<Message[]>([]);
+  const [loading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    if (!currentUser?.uid) {
+      setMessages([]);
+      setLoading(false);
+      return;
+    }
+
+    const messagesRef = collection(db, "chats", currentUser.uid, "messages");
+    const q = query(messagesRef, orderBy("timestamp", "desc"));
+
+    const unsubscribe = onSnapshot(
+      q,
+      (snapshot) => {
+        const list: Message[] = [];
+        snapshot.forEach((doc: QueryDocumentSnapshot<DocumentData>) => {
+          const data = doc.data();
+          list.push({
+            id: doc.id,
+            senderId: data.senderId,
+            senderName: data.senderName,
+            senderAvatar: data.senderAvatar ?? null,
+            text: data.text,
+            timestamp: data.timestamp as Timestamp | null,
+          });
+        });
+        setMessages(list.reverse());
+        setLoading(false);
+      },
+      () => setLoading(false)
+    );
+
+    return () => unsubscribe();
+  }, [currentUser?.uid]);
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-2">
@@ -32,29 +58,21 @@ export default function ChatHistoryPage() {
       </CardDescription>
       <Card className="shadow-sm">
         <CardHeader>
-          <CardTitle className="font-headline">Conversas Passadas</CardTitle>
+          <CardTitle className="font-headline">Mensagens</CardTitle>
         </CardHeader>
         <CardContent>
-          {mockChats.length > 0 ? (
+          {loading ? (
+            <div className="text-center py-10 text-muted-foreground">Carregando...</div>
+          ) : messages.length > 0 ? (
             <div className="space-y-3">
-              {mockChats.map(chat => (
-                <Link key={chat.id} href={`/chat/${chat.id}`} className="block p-3 border rounded-md hover:bg-secondary/50">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <p className="font-medium">{chat.participant}</p>
-                      <p className="text-xs text-muted-foreground line-clamp-1">{chat.lastMessage}</p>
-                    </div>
-                    <time className="text-xs text-muted-foreground">
-                      {format(new Date(chat.lastDate), "P", { locale: ptBR })}
-                    </time>
-                  </div>
-                </Link>
+              {messages.map((msg) => (
+                <MessageItem key={msg.id} message={msg} isOwnMessage={msg.senderId === currentUser?.uid} />
               ))}
             </div>
           ) : (
             <div className="text-center py-10">
-              <MessageCircle className="mx-auto h-12 w-12 text-muted-foreground" />
-              <h3 className="mt-2 text-sm font-medium text-foreground">Nenhuma conversa encontrada</h3>
+              <MessagesSquare className="mx-auto h-12 w-12 text-muted-foreground" />
+              <h3 className="mt-2 text-sm font-medium text-foreground">Nenhuma mensagem encontrada</h3>
               <p className="mt-1 text-sm text-muted-foreground">Inicie um chat para que ele apareça aqui.</p>
             </div>
           )}

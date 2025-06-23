@@ -1,3 +1,25 @@
+/**
+ * @openapi
+ * /api/ai/report-draft:
+ *   post:
+ *     summary: Gera rascunho de relatório terapêutico via IA.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               transcript:
+ *                 type: string
+ *     responses:
+ *       '200':
+ *         description: Rascunho gerado com sucesso.
+ *       '400':
+ *         description: Dados de entrada inválidos.
+ *       '500':
+ *         description: Erro ao gerar rascunho de relatório.
+ */
 import { NextResponse } from "next/server";
 import * as Sentry from '@sentry/nextjs';
 import {

@@ -1,3 +1,31 @@
+/**
+ * @openapi
+ * /api/admin/setUserRole:
+ *   post:
+ *     summary: Define o papel de um usuário no Firebase.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               uid:
+ *                 type: string
+ *               role:
+ *                 type: string
+ *     responses:
+ *       '200':
+ *         description: Papel atualizado.
+ *       '400':
+ *         description: Dados ausentes.
+ *       '401':
+ *         description: Não autenticado.
+ *       '403':
+ *         description: Usuário sem permissão.
+ *       '500':
+ *         description: Erro interno.
+ */
 import { NextRequest, NextResponse } from 'next/server';
 import { auth as adminAuth } from 'firebase-admin';
 import * as Sentry from '@sentry/nextjs';

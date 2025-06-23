@@ -1,3 +1,24 @@
+/**
+ * @openapi
+ * /api/verifyToken:
+ *   post:
+ *     summary: Verifica a validade de um token Firebase.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               authorization:
+ *                 type: string
+ *                 description: Bearer token no header Authorization.
+ *     responses:
+ *       '200':
+ *         description: Token válido.
+ *       '401':
+ *         description: Token ausente ou inválido.
+ */
 import { NextResponse, type NextRequest } from 'next/server';
 import { auth as adminAuth } from 'firebase-admin';
 import * as Sentry from '@sentry/nextjs';

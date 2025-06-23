@@ -1,3 +1,25 @@
+/**
+ * @openapi
+ * /api/login:
+ *   post:
+ *     summary: Cria cookie de sessão a partir do idToken do Firebase.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               idToken:
+ *                 type: string
+ *     responses:
+ *       '200':
+ *         description: Sessão criada com sucesso.
+ *       '400':
+ *         description: Falta o idToken no corpo da requisição.
+ *       '500':
+ *         description: Erro interno ao processar o login.
+ */
 import { NextResponse } from 'next/server';
 import * as Sentry from '@sentry/nextjs';
 import { auth as adminAuth } from 'firebase-admin';

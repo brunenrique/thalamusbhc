@@ -1,3 +1,25 @@
+/**
+ * @openapi
+ * /api/ai/session-insights:
+ *   post:
+ *     summary: Gera insights de uma sessão terapêutica via IA.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               transcript:
+ *                 type: string
+ *     responses:
+ *       '200':
+ *         description: Insights gerados.
+ *       '400':
+ *         description: Dados de entrada inválidos.
+ *       '500':
+ *         description: Falha ao gerar insights.
+ */
 import { NextResponse } from "next/server";
 import * as Sentry from '@sentry/nextjs';
 import {

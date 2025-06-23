@@ -38,7 +38,11 @@ Plataforma web para gestão de clínicas de psicologia, com agenda integrada, pr
     - Inicie os emuladores: `firebase emulators:start --project=demo-project`
     - Certifique-se de que o `firebase.json` possua a entrada `"storage": { "rules": "storage.rules" }` para que o emulador de Storage possa iniciar.
     - Verifique se os emuladores estão rodando nas portas corretas (Firestore: 8084, Storage: 9200, UI: 4004). O arquivo `firebase.json` está configurado para usar `host: "0.0.0.0"` para os emuladores.
+
+5.  **Inicie o Servidor de Desenvolvimento Next.js (em outro terminal):**
+=======
 6.  **Inicie o Servidor de Desenvolvimento Next.js (em outro terminal):**
+
 
     ```bash
     npm run dev
@@ -104,6 +108,7 @@ _Ao adicionar `FIREBASE_PRIVATE_KEY` ao seu arquivo `.env.local` ou variável de
 - `NEXT_PUBLIC_GOOGLE_CLIENT_ID`, `NEXT_PUBLIC_GOOGLE_CLIENT_SECRET`, `NEXT_PUBLIC_GOOGLE_REDIRECT_URI`: Para integração com o Google Calendar (opcional).
 - `NEXT_PUBLIC_FIREBASE_VAPID_KEY`: Chave VAPID para Firebase Cloud Messaging (Web Push). Encontrada no Console do Firebase -> Configurações do Projeto -> Cloud Messaging -> Web configuration -> Web Push certificates.
 - `NEXT_PUBLIC_DISABLE_AUTH`: Quando definido como `true`, desativa temporariamente o sistema de login. Por padrão esta variável é `false`, exigindo autenticação real.
+- `SENTRY_DSN`: DSN do Sentry usado pelas Cloud Functions para registrar erros.
 
 ## Importante sobre Segurança
 

@@ -1,20 +1,87 @@
 
+"use client";
+
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { FolderArchive, PlusCircle, Search, Filter, UploadCloud } from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
+import { FolderArchive, Search, Filter, UploadCloud } from "lucide-react";
 import Link from "next/link";
 import ResourceCard from "@/components/resources/resource-card";
+import { storage } from "@/lib/firebase";
+import {
+  ref,
+  listAll,
+  getMetadata,
+  getDownloadURL,
+} from "firebase/storage";
 
-const mockResources = [
- { id: "res1", name: "Guia de Mindfulness para Ansiedade.pdf", type: "pdf" as const, size: "1.2MB", uploadDate: "2024-07-02", sharedWith: 5, dataAiHint:"documento mindfulness"},
- { id: "res2", name: "Melhores Práticas de Higiene do Sono.pdf", type: "pdf" as const, size: "800KB", uploadDate: "2024-06-20", sharedWith: 12, dataAiHint:"documento sono" },
- { id: "res3", name: "Planilha de Reestruturação Cognitiva.docx", type: "docx" as const, size: "50KB", uploadDate: "2024-05-15", sharedWith: 3, dataAiHint:"documento planilha" },
- { id: "res4", name: "Princípios do Cuidado Informado pelo Trauma.png", type: "image" as const, size: "2.5MB", uploadDate: "2024-07-10", sharedWith: 8, dataAiHint:"imagem infográfico" },
-];
+interface ResourceItem {
+  id: string;
+  name: string;
+  type: "pdf" | "docx" | "image" | "other";
+  size: string;
+  uploadDate: string;
+  downloadUrl: string;
+}
 
+function formatFileSize(bytes: number): string {
+  if (bytes >= 1024 * 1024) {
+    return `${(bytes / (1024 * 1024)).toFixed(1)}MB`;
+  }
+  if (bytes >= 1024) {
+    return `${(bytes / 1024).toFixed(1)}KB`;
+  }
+  return `${bytes}B`;
+}
 
 export default function ResourcesPage() {
+  const [resources, setResources] = useState<ResourceItem[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchResources() {
+      try {
+        const listRef = ref(storage, "resources");
+        const result = await listAll(listRef);
+        const items = await Promise.all(
+          result.items.map(async (item) => {
+            const metadata = await getMetadata(item);
+            const url = await getDownloadURL(item);
+            const contentType = metadata.contentType || "";
+            const type = contentType.includes("pdf")
+              ? "pdf"
+              : contentType.includes("word") || contentType.includes("msword")
+              ? "docx"
+              : contentType.startsWith("image")
+              ? "image"
+              : "other";
+            return {
+              id: item.fullPath,
+              name: metadata.name,
+              type,
+              size: formatFileSize(Number(metadata.size)),
+              uploadDate: metadata.timeCreated,
+              downloadUrl: url,
+            } as ResourceItem;
+          })
+        );
+        setResources(items);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchResources();
+  }, []);
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -45,9 +112,11 @@ export default function ResourcesPage() {
           </div>
         </CardHeader>
         <CardContent>
-          {mockResources.length > 0 ? (
+          {loading ? (
+            <p className="text-center text-sm text-muted-foreground">Carregando...</p>
+          ) : resources.length > 0 ? (
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {mockResources.map(resource => (
+              {resources.map((resource) => (
                 <ResourceCard key={resource.id} resource={resource} isGlobalList={true} />
               ))}
             </div>

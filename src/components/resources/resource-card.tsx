@@ -16,10 +16,11 @@ interface Resource {
   name: string;
   type: "pdf" | "docx" | "image" | "other";
   size: string;
-  uploadDate?: string; 
-  sharedDate?: string; 
-  sharedWith?: number; 
+  uploadDate?: string;
+  sharedDate?: string;
+  sharedWith?: number;
   dataAiHint?: string;
+  downloadUrl?: string;
 }
 
 interface ResourceCardProps {
@@ -64,11 +65,14 @@ function ResourceCardComponent({ resource, isGlobalList = false }: ResourceCardP
       <CardFooter className="border-t pt-3">
         <div className="flex w-full justify-end gap-1.5">
           <Button
+            asChild
             variant="ghost"
             className="flex items-center gap-2 text-sm font-medium"
             aria-label={`Baixar recurso ${resource.name}`}
           >
-            <Download className="h-4 w-4" /> Baixar
+            <a href={resource.downloadUrl} target="_blank" rel="noopener noreferrer" download>
+              <Download className="h-4 w-4" /> Baixar
+            </a>
           </Button>
           {isGlobalList && (
             <>

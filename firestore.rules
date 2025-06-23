@@ -3,7 +3,6 @@ rules\_version = '2';
 service cloud.firestore {
 match /databases/{database}/documents {
 
-```
 // --- Funções de Apoio (Helpers) ---
 
 function isSignedIn() {
@@ -205,7 +204,6 @@ match /auditLogs/{id} {
 match /{document=**} {
   allow read, write: if false;
 }
-```
 
 }
 }

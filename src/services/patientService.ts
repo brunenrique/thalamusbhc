@@ -11,6 +11,7 @@ import {
   Timestamp,
 } from 'firebase/firestore';
 import { db, auth } from '@/lib/firebase';
+import { writeAuditLog } from './auditLogService';
 import type { Patient } from '@/types/patient';
 import { FIRESTORE_COLLECTIONS } from '@/lib/firestore-collections';
 import { encrypt, decrypt, type EncryptionResult } from '@/lib/crypto-utils';
@@ -119,6 +120,15 @@ export async function createPatient(
   if (data.identifier) docData.identifierEnc = encrypt(data.identifier, key);
   if (data.notes) docData.notes = data.notes;
   const ref = await addDoc(collection(firestore, FIRESTORE_COLLECTIONS.PATIENTS), docData);
+  await writeAuditLog(
+    {
+      userId: uid,
+      actionType: 'createPatient',
+      timestamp: new Date().toISOString(),
+      targetResourceId: ref.id,
+    },
+    firestore
+  );
   return ref.id;
 }
 
@@ -149,4 +159,16 @@ export async function updatePatient(
     update.notes = data.notes;
   }
   await setDoc(ref, update, { merge: true });
+  const uid = auth.currentUser?.uid;
+  if (uid) {
+    await writeAuditLog(
+      {
+        userId: uid,
+        actionType: 'updatePatient',
+        timestamp: new Date().toISOString(),
+        targetResourceId: id,
+      },
+      firestore
+    );
+  }
 }

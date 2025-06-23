@@ -138,5 +138,22 @@
     "ts-jest": "^29.4.0",
     "tsx": "^4.20.3",
     "typescript": "^5.8.3"
+  },
+  "overrides": {
+    "swagger-ui-react": {
+      "@braintree/sanitize-url": "^7.1.1",
+      "cookie": "^1.0.2",
+      "fast-json-patch": "^3.1.1",
+      "dompurify": "^3.2.6",
+      "swagger-client": "^3.35.5",
+      "prismjs": "^1.30.0"
+    },
+    "react-syntax-highlighter": {
+      "prismjs": "^1.30.0",
+      "refractor": "^5.0.0"
+    },
+    "refractor": {
+      "prismjs": "^1.30.0"
+    }
   }
 }

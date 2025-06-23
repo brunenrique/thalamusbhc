@@ -14,6 +14,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Skeleton } from '../ui/skeleton';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import logger from '@/lib/logger';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -69,7 +70,7 @@ function SessionNoteCardComponent({ note, patientName, therapistName = "Psicólo
       toast({ title: "Insights Gerados" });
     } catch (e) {
       Sentry.captureException(e);
-      console.error("Falha ao gerar insights:", e);
+      logger.error({ action: 'generate_insights_error', meta: { error: e } });
       setErrorInsights("Falha ao gerar insights. Por favor, tente novamente.");
     } finally {
       setIsLoadingInsights(false);
@@ -102,7 +103,7 @@ function SessionNoteCardComponent({ note, patientName, therapistName = "Psicólo
       toast({ title: "Rascunho de relatório gerado" });
     } catch (e) {
       Sentry.captureException(e);
-      console.error("Falha ao gerar rascunho de relatório:", e);
+      logger.error({ action: 'generate_report_error', meta: { error: e } });
       setErrorReport(`Falha ao gerar rascunho de ${reportTypeName}. Por favor, tente novamente.`);
     } finally {
       setIsGeneratingReport(false);

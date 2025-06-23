@@ -3,6 +3,7 @@ import { db } from '@/lib/firebase';
 import { FIRESTORE_COLLECTIONS } from '@/lib/firestore-collections';
 import type { TabSpecificFormulationData } from '@/types/clinicalTypes';
 import * as Sentry from '@sentry/nextjs';
+import logger from '@/lib/logger';
 
 export async function fetchClinicalData(
   patientId: string,
@@ -21,7 +22,7 @@ export async function fetchClinicalData(
     return snap.exists() ? (snap.data() as TabSpecificFormulationData) : null;
   } catch (err) {
     Sentry.captureException(err);
-    console.error('Erro ao buscar dados clínicos', err);
+    logger.error({ action: 'fetch_clinical_error', meta: { error: err } });
     return null;
   }
 }
@@ -43,7 +44,7 @@ export async function saveClinicalData(
     await setDoc(ref, data, { merge: true });
   } catch (err) {
     Sentry.captureException(err);
-    console.error('Erro ao salvar dados clínicos', err);
+    logger.error({ action: 'save_clinical_error', meta: { error: err } });
     throw err;
   }
 }

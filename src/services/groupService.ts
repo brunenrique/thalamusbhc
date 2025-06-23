@@ -15,6 +15,7 @@ import { FIRESTORE_COLLECTIONS } from '@/lib/firestore-collections';
 import { writeAuditLog } from './auditLogService';
 import * as Sentry from '@sentry/nextjs';
 import type { GroupResource } from '@/types/group';
+import logger from '@/lib/logger';
 
 export interface GroupInput {
   name: string;
@@ -46,7 +47,7 @@ export async function fetchGroups(firestore: Firestore = db): Promise<GroupRecor
     return snap.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<GroupRecord, 'id'>) }));
   } catch (err) {
     Sentry.captureException(err);
-    console.error('Erro ao buscar grupos', err);
+    logger.error({ action: 'fetch_groups_error', meta: { error: err } });
     return [];
   }
 }
@@ -63,7 +64,7 @@ export async function fetchGroup(
     return { id: snap.id, ...data };
   } catch (err) {
     Sentry.captureException(err);
-    console.error(`Erro ao buscar grupo ${id}`, err);
+    logger.error({ action: 'fetch_group_error', meta: { id, error: err } });
     return null;
   }
 }
@@ -115,7 +116,7 @@ export async function updateGroup(
     }
   } catch (err) {
     Sentry.captureException(err);
-    console.error(`Erro ao atualizar grupo ${id}`, err);
+    logger.error({ action: 'update_group_error', meta: { id, error: err } });
     throw err;
   }
 }
@@ -142,7 +143,7 @@ export async function deleteGroup(
     }
   } catch (err) {
     Sentry.captureException(err);
-    console.error(`Erro ao deletar grupo ${id}`, err);
+    logger.error({ action: 'delete_group_error', meta: { id, error: err } });
     throw err;
   }
 }

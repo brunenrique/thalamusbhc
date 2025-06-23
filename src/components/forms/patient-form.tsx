@@ -7,6 +7,7 @@ import * as z from 'zod';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import * as Sentry from '@sentry/nextjs';
+import logger from '@/lib/logger';
 import {
   Form,
   FormControl,
@@ -98,7 +99,7 @@ export default function PatientForm({ patientData }: PatientFormProps) {
       router.push('/patients');
     } catch (err) {
       Sentry.captureException(err);
-      console.error(err);
+      logger.error({ action: 'save_patient_error', meta: { error: err } });
       toast({ title: 'Erro ao salvar paciente', variant: 'destructive' });
     } finally {
       setIsLoading(false);

@@ -8,6 +8,7 @@ import {
   fetchClinicalData as fetchClinicalDataSvc,
   saveClinicalData as saveClinicalDataSvc,
 } from '@/services/clinicalService';
+import logger from '@/lib/logger';
 import type {
   BaseCard,
   Label,
@@ -128,7 +129,7 @@ export const useClinicalStore = create<ClinicalState>((set, get) => ({
         },
       }));
     } catch (error: any) {
-      console.error('Erro ao carregar dados clínicos', error);
+      logger.error({ action: 'fetch_clinical_data', meta: { error } });
       set({ clinicalDataError: error?.message ?? 'Falha ao carregar dados clínicos.' });
     } finally {
       set({ isLoadingClinicalData: false });

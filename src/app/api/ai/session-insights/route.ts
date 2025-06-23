@@ -22,6 +22,7 @@
  */
 import { NextResponse } from "next/server";
 import * as Sentry from '@sentry/nextjs';
+import logger from '@/lib/logger';
 import {
   generateSessionInsights,
   GenerateSessionInsightsInputSchema,
@@ -42,7 +43,7 @@ export async function POST(req: Request) {
       );
     }
     Sentry.captureException(e);
-    console.error("Error generating session insights:", e);
+    logger.error({ action: 'generate_session_insights_error', meta: { error: e } });
     return NextResponse.json(
       { error: "Failed to generate session insights" },
       { status: 500 },

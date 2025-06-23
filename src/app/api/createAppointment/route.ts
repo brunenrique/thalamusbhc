@@ -38,6 +38,7 @@
  */
 import { NextResponse } from 'next/server';
 import * as Sentry from '@sentry/nextjs';
+import logger from '@/lib/logger';
 import { z } from 'zod';
 import { firestoreAdmin } from '@/lib/firebaseAdmin';
 
@@ -138,7 +139,7 @@ export async function POST(req: Request) {
       );
     }
     Sentry.captureException(e);
-    console.error('Error creating appointment:', e);
+    logger.error({ action: 'create_appointment_error', meta: { error: e } });
     return NextResponse.json({ error: 'Erro interno ao criar agendamento.' }, { status: 500 });
   }
 }

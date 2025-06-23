@@ -3,6 +3,7 @@
 
 import { Button } from "@/components/ui/button";
 import * as Sentry from '@sentry/nextjs';
+import logger from '@/lib/logger';
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { UserPlus, Search, Filter, Users } from "lucide-react";
@@ -33,7 +34,7 @@ export default function PatientsPage() {
         setPatients(list);
       } catch (err) {
         Sentry.captureException(err);
-        console.error('Falha ao carregar pacientes', err);
+        logger.error({ action: 'fetch_patients_page_error', meta: { error: err } });
       } finally {
         setLoading(false);
       }

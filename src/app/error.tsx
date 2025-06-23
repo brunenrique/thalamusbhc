@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import * as Sentry from '@sentry/nextjs';
+import logger from '@/lib/logger';
 import Link from "next/link";
 import { Button, buttonVariants } from "@/components/ui/button";
 
@@ -14,7 +15,7 @@ export default function GlobalError({
 }) {
   useEffect(() => {
     Sentry.captureException(error);
-    console.error(error);
+    logger.error({ action: 'global_error', meta: { error } });
   }, [error]);
 
   return (

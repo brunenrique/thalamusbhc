@@ -27,7 +27,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Card, CardContent } from '@/components/ui/card';
 import { useRouter } from 'next/navigation';
 import { auth } from '@/lib/firebase';
-import { logAction } from '@/lib/logger';
+import logger, { logAction } from '@/lib/logger';
 import { useToast } from '@/hooks/use-toast';
 import * as Sentry from '@sentry/nextjs';
 
@@ -71,7 +71,7 @@ export default function LoginForm() {
       router.push('/dashboard');
     } catch (error) {
       Sentry.captureException(error);
-      console.error('DEBUG: Erro detalhado do Firebase Auth:', error);
+      logger.error({ action: 'login_error', meta: { error } });
       let errorMessage = 'Erro ao fazer login.';
 
       if (error instanceof Error && 'code' in error) {

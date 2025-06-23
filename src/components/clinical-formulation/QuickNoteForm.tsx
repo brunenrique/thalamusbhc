@@ -16,6 +16,7 @@ import { useClinicalStore } from '@/stores/clinicalStore';
 import { useParams } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 import { createQuickNote } from '@/services/quickNoteService';
+import logger from '@/lib/logger';
 
 const QuickNoteForm: React.FC = () => {
   const {
@@ -49,7 +50,7 @@ const QuickNoteForm: React.FC = () => {
       });
       toast({ title: 'Anotação salva' });
     } catch (err) {
-      console.error(err);
+      logger.error({ action: 'quicknote_save_error', meta: { error: err } });
       toast({ title: 'Erro ao salvar anotação', variant: 'destructive' });
     }
     closeQuickNoteForm();

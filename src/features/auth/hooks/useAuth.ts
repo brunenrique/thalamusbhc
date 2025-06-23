@@ -1,6 +1,7 @@
 
 import { useEffect, useState } from 'react';
 import * as Sentry from '@sentry/nextjs';
+import logger from '@/lib/logger';
 import {
   getAuth,
   onAuthStateChanged,
@@ -37,7 +38,7 @@ export default function useAuth() {
         });
       } catch (error) {
         Sentry.captureException(error);
-        console.error('Erro ao obter token do usuário', error);
+        logger.error({ action: 'get_token_error', meta: { error } });
         setUser({
           uid: firebaseUser.uid,
           displayName: firebaseUser.displayName,

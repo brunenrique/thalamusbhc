@@ -5,6 +5,7 @@ import * as React from "react"
 import * as LabelPrimitive from "@radix-ui/react-label"
 import { Slot } from "@radix-ui/react-slot"
 import * as Sentry from '@sentry/nextjs'
+import logger from '@/lib/logger'
 import {
   Controller,
   FormProvider,
@@ -122,7 +123,7 @@ const FormControl = React.forwardRef<
       "FormControl expects a single React element child. Rendering a <div> wrapper instead."
     )
     Sentry.captureException(err)
-    console.error(err)
+    logger.error({ action: 'formcontrol_error', meta: { error: err } })
   }
 
   const Comp: any = hasSingleValidChild ? Slot : "div"

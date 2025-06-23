@@ -3,6 +3,7 @@
 
 import React, { useCallback, useState, useEffect, useMemo, useRef } from 'react';
 import * as Sentry from '@sentry/nextjs';
+import logger from '@/lib/logger';
 import ReactFlow, {
   Controls,
   Background,
@@ -247,7 +248,7 @@ const FormulationMap: React.FC = () => {
     if (!document.fullscreenElement) {
       mapContainerRef.current.requestFullscreen().catch(err => {
         Sentry.captureException(err);
-        console.error("Error attempting to enable full-screen mode: " + err.message + " (" + err.name + ")");
+        logger.error({ action: 'fullscreen_error', meta: { error: err } });
       });
     } else {
       document.exitFullscreen();

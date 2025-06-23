@@ -1,7 +1,11 @@
+/* eslint-disable no-unused-vars */
 // src/stores/clinicalStore.ts
 
-import { create } from "zustand";
-import { fetchClinicalData as fetchClinicalDataSvc, saveClinicalData as saveClinicalDataSvc } from '@/services/clinicalService';
+import { create } from 'zustand';
+import {
+  fetchClinicalData as fetchClinicalDataSvc,
+  saveClinicalData as saveClinicalDataSvc,
+} from '@/services/clinicalService';
 import type {
   BaseCard,
   Label,
@@ -9,9 +13,9 @@ import type {
   ClinicalTabType,
   TabSpecificFormulationData,
   QuickNote,
-} from "@/types/clinicalTypes";
+} from '@/types/clinicalTypes';
 
-type PanelType = "hexaflex" | "chain" | "matrix" | null;
+type PanelType = 'hexaflex' | 'chain' | 'matrix' | null;
 
 const defaultTabData: TabSpecificFormulationData = {
   cards: [],
@@ -51,7 +55,11 @@ interface ClinicalState {
 
   isQuickNoteFormOpen: boolean;
   quickNoteFormTarget?: { cardId?: string; noteIdToEdit?: string; defaultText?: string };
-  openQuickNoteForm: (opts?: { cardId?: string; noteIdToEdit?: string; defaultText?: string }) => void;
+  openQuickNoteForm: (opts?: {
+    cardId?: string;
+    noteIdToEdit?: string;
+    defaultText?: string;
+  }) => void;
   closeQuickNoteForm: () => void;
 
   isQuickNotesPanelVisible: boolean;
@@ -63,13 +71,17 @@ interface ClinicalState {
   archiveCard: (cardId: string) => void;
   restoreCard: (cardId: string) => void;
 
-  addLabel: (label: Omit<Label, "id">) => void;
+  addLabel: (label: Omit<Label, 'id'>) => void;
   assignLabelToCard: (cardId: string, labelId: string) => void;
 
   addTab: (type: ClinicalTabType, title: string) => string;
   removeTab: (id: string) => void;
   renameTab: (id: string, title: string) => void;
   setActiveTab: (id: string) => void;
+  /** Indica se dados clínicos estão sendo carregados */
+  isLoadingClinicalData: boolean;
+  /** Mensagem de erro durante operações de clínica */
+  clinicalDataError?: string | null;
   fetchClinicalData: (patientId: string, tabId: string) => void;
   saveClinicalData: (patientId: string, tabId: string) => void;
 
@@ -79,11 +91,11 @@ interface ClinicalState {
 
 export const useClinicalStore = create<ClinicalState>((set, get) => ({
   // ----- Tab Management -----
-  tabs: [
-    { id: "initialTab", type: "formulation", title: "Formulação Inicial" },
-  ],
-  activeTabId: "initialTab",
+  tabs: [{ id: 'initialTab', type: 'formulation', title: 'Formulação Inicial' }],
+  activeTabId: 'initialTab',
   formulationTabData: {},
+  isLoadingClinicalData: false,
+  clinicalDataError: null,
 
   addTab: (type, title) => {
     const id = crypto.randomUUID();
@@ -96,8 +108,7 @@ export const useClinicalStore = create<ClinicalState>((set, get) => ({
   removeTab: (id) =>
     set((state) => ({
       tabs: state.tabs.filter((t) => t.id !== id),
-      activeTabId:
-        state.activeTabId === id ? state.tabs[0]?.id : state.activeTabId,
+      activeTabId: state.activeTabId === id ? state.tabs[0]?.id : state.activeTabId,
     })),
   renameTab: (id, title) =>
     set((state) => ({
@@ -105,17 +116,31 @@ export const useClinicalStore = create<ClinicalState>((set, get) => ({
     })),
   setActiveTab: (id) => set({ activeTabId: id }),
   fetchClinicalData: async (patientId, tabId) => {
-    await fetchClinicalDataSvc(patientId, tabId);
-    set((state) => ({
-      formulationTabData: {
-        ...state.formulationTabData,
-        [tabId]: state.formulationTabData[tabId] || { ...defaultTabData },
-      },
-    }));
+    set({ isLoadingClinicalData: true, clinicalDataError: null });
+    try {
+      await fetchClinicalDataSvc(patientId, tabId);
+      set((state) => ({
+        formulationTabData: {
+          ...state.formulationTabData,
+          [tabId]: state.formulationTabData[tabId] || { ...defaultTabData },
+        },
+      }));
+    } catch (error: any) {
+      set({ clinicalDataError: error?.message ?? String(error) });
+    } finally {
+      set({ isLoadingClinicalData: false });
+    }
   },
   saveClinicalData: async (patientId, tabId) => {
-    const data = get().formulationTabData[tabId];
-    await saveClinicalDataSvc(patientId, tabId, data);
+    set({ isLoadingClinicalData: true, clinicalDataError: null });
+    try {
+      const data = get().formulationTabData[tabId];
+      await saveClinicalDataSvc(patientId, tabId, data);
+    } catch (error: any) {
+      set({ clinicalDataError: error?.message ?? String(error) });
+    } finally {
+      set({ isLoadingClinicalData: false });
+    }
   },
 
   prefillSchemaRule: undefined,
@@ -129,7 +154,8 @@ export const useClinicalStore = create<ClinicalState>((set, get) => ({
   editingSchemaId: undefined,
   openSchemaForm: (schemaId, prefillRule) =>
     set({ isSchemaFormOpen: true, editingSchemaId: schemaId, prefillSchemaRule: prefillRule }),
-  closeSchemaForm: () => set({ isSchemaFormOpen: false, editingSchemaId: undefined, prefillSchemaRule: undefined }),
+  closeSchemaForm: () =>
+    set({ isSchemaFormOpen: false, editingSchemaId: undefined, prefillSchemaRule: undefined }),
 
   isQuickNoteFormOpen: false,
   quickNoteFormTarget: undefined,
@@ -137,10 +163,12 @@ export const useClinicalStore = create<ClinicalState>((set, get) => ({
   closeQuickNoteForm: () => set({ isQuickNoteFormOpen: false, quickNoteFormTarget: undefined }),
 
   isQuickNotesPanelVisible: false,
-  toggleQuickNotesPanelVisibility: () => set((s) => ({ isQuickNotesPanelVisible: !s.isQuickNotesPanelVisible })),
+  toggleQuickNotesPanelVisibility: () =>
+    set((s) => ({ isQuickNotesPanelVisible: !s.isQuickNotesPanelVisible })),
   quickNotes: [],
   addQuickNote: (note) => set((state) => ({ quickNotes: [...state.quickNotes, note] })),
-  deleteQuickNote: (id) => set((state) => ({ quickNotes: state.quickNotes.filter(n => n.id !== id) })),
+  deleteQuickNote: (id) =>
+    set((state) => ({ quickNotes: state.quickNotes.filter((n) => n.id !== id) })),
 
   // ----- Existing card/label management -----
   cards: [],
@@ -152,16 +180,12 @@ export const useClinicalStore = create<ClinicalState>((set, get) => ({
 
   archiveCard: (cardId) =>
     set((state) => ({
-      cards: state.cards.map((card) =>
-        card.id === cardId ? { ...card, archived: true } : card
-      ),
+      cards: state.cards.map((card) => (card.id === cardId ? { ...card, archived: true } : card)),
     })),
 
   restoreCard: (cardId) =>
     set((state) => ({
-      cards: state.cards.map((card) =>
-        card.id === cardId ? { ...card, archived: false } : card
-      ),
+      cards: state.cards.map((card) => (card.id === cardId ? { ...card, archived: false } : card)),
     })),
 
   addLabel: (label) =>
@@ -175,9 +199,7 @@ export const useClinicalStore = create<ClinicalState>((set, get) => ({
         card.id === cardId
           ? {
               ...card,
-              labels: card.labels
-                ? [...card.labels, labelId]
-                : [labelId],
+              labels: card.labels ? [...card.labels, labelId] : [labelId],
             }
           : card
       ),

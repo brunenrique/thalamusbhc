@@ -197,6 +197,21 @@ service cloud.firestore {
       allow update, delete: if isAdmin(); // Apenas admin pode deletar (em casos excepcionais)
     }
 
+    function validQuickNote() {
+      return request.resource.data.keys().hasOnly(['ownerId','patientId','text','title','linkedCardId','createdAt']) &&
+             request.resource.data.ownerId is string &&
+             request.resource.data.patientId is string &&
+             request.resource.data.text is string &&
+             (!('title' in request.resource.data) || request.resource.data.title is string) &&
+             (!('linkedCardId' in request.resource.data) || request.resource.data.linkedCardId is string) &&
+             request.resource.data.createdAt is timestamp;
+    }
+
+    match /quickNotes/{id} {
+      allow read, update, delete: if isStaff() && resource.data.ownerId == request.auth.uid;
+      allow create: if isStaff() && request.resource.data.ownerId == request.auth.uid && validQuickNote();
+    }
+
     // Coleção de Tarefas (Tasks)
     match /tasks/{id} {
       allow read, update: if isStaff();

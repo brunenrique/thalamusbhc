@@ -13,6 +13,9 @@ import {
 import { Button } from '@/components/ui/button';
 import { X, PlusCircle, Pencil } from 'lucide-react';
 import { useClinicalStore } from '@/stores/clinicalStore';
+import { useParams } from 'next/navigation';
+import { useToast } from '@/hooks/use-toast';
+import { createQuickNote } from '@/services/quickNoteService';
 
 const QuickNoteForm: React.FC = () => {
   const {
@@ -20,13 +23,35 @@ const QuickNoteForm: React.FC = () => {
     closeQuickNoteForm,
     quickNoteFormTarget,
   } = useClinicalStore();
+  const addQuickNote = useClinicalStore((s) => s.addQuickNote);
+  const { toast } = useToast();
+  const params = useParams();
+  const patientId = Array.isArray(params.patientId) ? params.patientId[0] : params.patientId;
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [note, setNote] = useState('');
   const noteToEdit = quickNoteFormTarget?.noteIdToEdit;
 
-  const handleSubmit = () => {
-    if (!note.trim()) return;
+  const handleSubmit = async () => {
+    if (!note.trim() || !patientId) return;
+    try {
+      const id = await createQuickNote(patientId, {
+        text: note.trim(),
+        title: quickNoteFormTarget?.defaultText,
+        linkedCardId: quickNoteFormTarget?.cardId,
+      });
+      addQuickNote({
+        id,
+        text: note.trim(),
+        title: quickNoteFormTarget?.defaultText,
+        linkedCardId: quickNoteFormTarget?.cardId,
+        createdAt: new Date().toISOString(),
+      });
+      toast({ title: 'Anotação salva' });
+    } catch (err) {
+      console.error(err);
+      toast({ title: 'Erro ao salvar anotação', variant: 'destructive' });
+    }
     closeQuickNoteForm();
   };
 

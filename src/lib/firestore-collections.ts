@@ -12,6 +12,7 @@ export const FIRESTORE_COLLECTIONS = {
   BACKUP_SETTINGS: 'backupSettings',
   BACKUPS: 'backups',
   SESSION_NOTES: 'sessionNotes',
+  QUICK_NOTES: 'quickNotes',
   AUDIT_LOGS: 'auditLogs',
 } as const;
 

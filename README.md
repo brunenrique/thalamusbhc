@@ -204,3 +204,9 @@ Erros genéricos como **"An unexpected Turbopack error occurred"** costumam esta
 4. Apague a pasta `.next` (cache do Next.js) e tente novamente: `rm -rf .next && npm run dev`.
 5. Observe o log completo gerado pelo `next dev` para identificar possíveis mensagens adicionais de erro.
 6. Se encontrar a mensagem **"React.Children.only expected to receive a single React element child"**, verifique se componentes como `Button`, `FormControl` ou `SidebarMenuButton` (quando usados com `asChild`) recebem **apenas um** elemento React filho. Envolva múltiplos elementos em uma tag `<div>` ou `<span>` caso necessário. O projeto inclui uma regra do **ESLint** (`local-rules/aschild-single-child`) que sinaliza esse problema durante o desenvolvimento.
+
+## Segurança e Atualizações
+
+- Utilizamos o [Snyk](https://snyk.io/) para inspeções de vulnerabilidades (workflow `security.yml`).
+- O [Dependabot](https://github.com/dependabot) atualiza dependências semanalmente.
+- Há também o workflow `security-scan.yml` que roda `npm audit --audit-level=moderate` todo mês.

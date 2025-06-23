@@ -139,6 +139,8 @@ _Ao adicionar `FIREBASE_PRIVATE_KEY` ao seu arquivo `.env.local` ou variável de
 
 Consulte [docs/blueprint.md](docs/blueprint.md) para uma visão geral das funcionalidades planejadas.
 Diretrizes adicionais sobre confiabilidade e processos de desenvolvimento estão em [docs/phase4-reliability.md](docs/phase4-reliability.md).
+Os principais fluxos de verificação manual encontram-se em [docs/fluxos-de-teste.md](docs/fluxos-de-teste.md).
+O passo a passo para gerar credenciais temporárias de staging está em [docs/staging-credentials.md](docs/staging-credentials.md).
 
 ## 🏗️ Containerização & Deploy
 

@@ -29,16 +29,27 @@ export const scheduleSchema = z.object({
 
 export type ScheduleFormValues = z.infer<typeof scheduleSchema>;
 
-export default function ScheduleForm() {
+interface ScheduleFormProps {
+  patientName?: string;
+  onScheduled?: () => void;
+}
+
+export default function ScheduleForm({ patientName, onScheduled }: ScheduleFormProps) {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = React.useState(false);
   const form = useForm<ScheduleFormValues>({
     resolver: zodResolver(scheduleSchema),
     defaultValues: {
       dateTime: new Date(),
-      notes: '',
+      notes: patientName ? `Paciente: ${patientName}` : '',
     },
   });
+
+  React.useEffect(() => {
+    if (patientName) {
+      form.setValue('notes', `Paciente: ${patientName}`);
+    }
+  }, [patientName, form]);
 
   const onSubmit = async (data: ScheduleFormValues) => {
     setIsLoading(true);
@@ -48,6 +59,7 @@ export default function ScheduleForm() {
         title: 'Agendamento Registrado',
         description: data.dateTime.toLocaleString(),
       });
+      onScheduled?.();
     } catch (e) {
       logger.error({ action: 'save_schedule_error', meta: { error: e } });
       toast({
@@ -63,6 +75,11 @@ export default function ScheduleForm() {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        {patientName && (
+          <p className="text-sm text-muted-foreground">
+            Paciente: <span className="font-medium">{patientName}</span>
+          </p>
+        )}
         <fieldset className="space-y-4" role="group">
           <FormField
             control={form.control}

@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { auth as adminAuth } from 'firebase-admin';
+import * as Sentry from '@sentry/nextjs';
 
 export async function POST(request: NextRequest) {
   const authHeader = request.headers.get('authorization');
@@ -13,6 +14,7 @@ export async function POST(request: NextRequest) {
     await adminAuth().verifyIdToken(token);
     return NextResponse.json({ ok: true });
   } catch (err) {
+    Sentry.captureException(err);
     globalThis.console.error('Falha ao verificar token', err);
     return NextResponse.json({ error: 'Token inválido' }, { status: 401 });
   }

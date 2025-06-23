@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import * as Sentry from '@sentry/nextjs';
 import { auth as adminAuth } from 'firebase-admin';
 
 export async function POST(request: Request) {
@@ -22,6 +23,7 @@ export async function POST(request: Request) {
     });
     return response;
   } catch (e) {
+    Sentry.captureException(e);
     console.error('Login API error', e);
     return NextResponse.json({ error: 'Internal error' }, { status: 500 });
   }

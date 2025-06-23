@@ -30,3 +30,9 @@ A seguir estão os principais pontos a serem avaliados e implementados.
 
 - Definir versão mínima de Node.js no arquivo `package.json` e configurar ferramentas como Volta ou nvm.
 - Garantir que todos os ambientes locais e de CI usem a mesma versão para evitar inconsistências.
+
+## 6. Monitoramento de Erros com Sentry
+
+- Integrar o SDK do Sentry no cliente e servidor, usando as variáveis `NEXT_PUBLIC_SENTRY_DSN` e `SENTRY_DSN`.
+- Envolver rotas de API e componentes críticos com `ErrorBoundary` ou blocos `try/catch` que reportam para o Sentry.
+- Analisar periodicamente os erros coletados para priorizar correções.

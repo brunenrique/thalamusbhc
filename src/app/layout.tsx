@@ -1,4 +1,5 @@
 import './globals.css'; // Manter esta importação
+import ErrorBoundary from '@/components/layout/error-boundary';
 
 // Removido: Toaster, usePageView, headLinks e lógica relacionada.
 
@@ -14,7 +15,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {/* Removido: headLinks.map(...) */}
       </head>
       <body className="font-body antialiased"> {/* Estas classes dependem do Tailwind */}
-        {children}
+        <ErrorBoundary>
+          {children}
+        </ErrorBoundary>
         {/* Removido: <Toaster /> */}
       </body>
     </html>

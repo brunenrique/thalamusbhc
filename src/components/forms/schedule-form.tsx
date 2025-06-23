@@ -1,49 +1,62 @@
+'use client';
 
-"use client";
-
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
-import { CalendarPlus } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import React from 'react';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Button } from '@/components/ui/button';
+import { CalendarPlus } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { createSchedule } from '@/services/scheduleService';
 
 export const scheduleSchema = z.object({
   dateTime: z.coerce.date().refine((d) => d >= new Date(), {
-    message: "Escolha uma data e hora futura",
+    message: 'Escolha uma data e hora futura',
   }),
-  notes: z.string().min(5, { message: "Escreva pelo menos 5 caracteres" }),
+  notes: z.string().min(5, { message: 'Escreva pelo menos 5 caracteres' }),
 });
 
 export type ScheduleFormValues = z.infer<typeof scheduleSchema>;
 
 export default function ScheduleForm() {
   const { toast } = useToast();
+  const [isLoading, setIsLoading] = React.useState(false);
   const form = useForm<ScheduleFormValues>({
     resolver: zodResolver(scheduleSchema),
     defaultValues: {
       dateTime: new Date(),
-      notes: "",
+      notes: '',
     },
   });
 
-  const onSubmit = (data: ScheduleFormValues) => {
-    const date = data.dateTime;
-    if (date.getHours() === 13) {
+  const onSubmit = async (data: ScheduleFormValues) => {
+    setIsLoading(true);
+    try {
+      await createSchedule(data);
       toast({
-        title: "Conflito de Horário",
-        description: "Já existe um agendamento às 13:00." ,
-        variant: "destructive",
+        title: 'Agendamento Registrado',
+        description: data.dateTime.toLocaleString(),
       });
-      return;
+    } catch (e) {
+      console.error(e);
+      toast({
+        title: 'Erro ao Salvar',
+        description: 'Não foi possível registrar o agendamento.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsLoading(false);
     }
-    toast({
-      title: "Agendamento Registrado (Simulado)",
-      description: date.toLocaleString(),
-    });
   };
 
   return (
@@ -77,9 +90,13 @@ export default function ScheduleForm() {
             )}
           />
         </fieldset>
-        <Button type="submit" className="bg-accent hover:bg-accent/90 text-accent-foreground">
+        <Button
+          type="submit"
+          className="bg-accent hover:bg-accent/90 text-accent-foreground"
+          disabled={isLoading}
+        >
           <CalendarPlus className="mr-2 h-4 w-4" />
-          Agendar
+          {isLoading ? 'Salvando...' : 'Agendar'}
         </Button>
       </form>
     </Form>

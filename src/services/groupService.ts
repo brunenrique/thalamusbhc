@@ -5,6 +5,7 @@ import {
   setDoc,
   deleteDoc,
   doc,
+  getDoc,
   query,
   where,
   type Firestore,
@@ -39,7 +40,7 @@ export async function fetchGroups(firestore: Firestore = db): Promise<GroupRecor
     if (!uid) return [];
     const q = query(
       collection(firestore, FIRESTORE_COLLECTIONS.GROUPS),
-      where('ownerId', '==', uid)
+      where('ownerId', '==', uid),
     );
     const snap = await getDocs(q);
     return snap.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<GroupRecord, 'id'>) }));
@@ -50,13 +51,33 @@ export async function fetchGroups(firestore: Firestore = db): Promise<GroupRecor
   }
 }
 
-export async function createGroup(data: GroupInput, firestore: Firestore = db): Promise<string> {
+export async function fetchGroup(
+  id: string,
+  firestore: Firestore = db,
+): Promise<GroupRecord | null> {
+  try {
+    const ref = doc(firestore, FIRESTORE_COLLECTIONS.GROUPS, id);
+    const snap = await getDoc(ref);
+    if (!snap.exists()) return null;
+    const data = snap.data() as Omit<GroupRecord, 'id'>;
+    return { id: snap.id, ...data };
+  } catch (err) {
+    Sentry.captureException(err);
+    console.error(`Erro ao buscar grupo ${id}`, err);
+    return null;
+  }
+}
+
+export async function createGroup(
+  data: GroupInput,
+  firestore: Firestore = db,
+): Promise<string> {
   const uid = auth.currentUser?.uid;
   if (!uid) throw new Error('Usuário não autenticado');
-  const docRef = await addDoc(collection(firestore, FIRESTORE_COLLECTIONS.GROUPS), {
-    ...data,
-    ownerId: uid,
-  });
+  const docRef = await addDoc(
+    collection(firestore, FIRESTORE_COLLECTIONS.GROUPS),
+    { ...data, ownerId: uid },
+  );
   await writeAuditLog(
     {
       userId: uid,
@@ -64,7 +85,7 @@ export async function createGroup(data: GroupInput, firestore: Firestore = db): 
       timestamp: new Date().toISOString(),
       targetResourceId: docRef.id,
     },
-    firestore
+    firestore,
   );
   return docRef.id;
 }
@@ -72,35 +93,56 @@ export async function createGroup(data: GroupInput, firestore: Firestore = db): 
 export async function updateGroup(
   id: string,
   data: Partial<GroupInput>,
-  firestore: Firestore = db
+  firestore: Firestore = db,
 ): Promise<void> {
-  await setDoc(doc(firestore, FIRESTORE_COLLECTIONS.GROUPS, id), data, { merge: true });
-  const uid = auth.currentUser?.uid;
-  if (uid) {
-    await writeAuditLog(
-      {
-        userId: uid,
-        actionType: 'updateGroup',
-        timestamp: new Date().toISOString(),
-        targetResourceId: id,
-      },
-      firestore
+  try {
+    await setDoc(
+      doc(firestore, FIRESTORE_COLLECTIONS.GROUPS, id),
+      data,
+      { merge: true },
     );
+    const uid = auth.currentUser?.uid;
+    if (uid) {
+      await writeAuditLog(
+        {
+          userId: uid,
+          actionType: 'updateGroup',
+          timestamp: new Date().toISOString(),
+          targetResourceId: id,
+        },
+        firestore,
+      );
+    }
+  } catch (err) {
+    Sentry.captureException(err);
+    console.error(`Erro ao atualizar grupo ${id}`, err);
+    throw err;
   }
 }
 
-export async function deleteGroup(id: string, firestore: Firestore = db): Promise<void> {
-  await deleteDoc(doc(firestore, FIRESTORE_COLLECTIONS.GROUPS, id));
-  const uid = auth.currentUser?.uid;
-  if (uid) {
-    await writeAuditLog(
-      {
-        userId: uid,
-        actionType: 'deleteGroup',
-        timestamp: new Date().toISOString(),
-        targetResourceId: id,
-      },
-      firestore
+export async function deleteGroup(
+  id: string,
+  firestore: Firestore = db,
+): Promise<void> {
+  try {
+    await deleteDoc(
+      doc(firestore, FIRESTORE_COLLECTIONS.GROUPS, id),
     );
+    const uid = auth.currentUser?.uid;
+    if (uid) {
+      await writeAuditLog(
+        {
+          userId: uid,
+          actionType: 'deleteGroup',
+          timestamp: new Date().toISOString(),
+          targetResourceId: id,
+        },
+        firestore,
+      );
+    }
+  } catch (err) {
+    Sentry.captureException(err);
+    console.error(`Erro ao deletar grupo ${id}`, err);
+    throw err;
   }
 }

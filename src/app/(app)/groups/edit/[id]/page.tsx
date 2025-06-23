@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import GroupForm, { type GroupFormValues } from '@/components/forms/group-form';
-import { fetchGroups } from '@/services/groupService';
+import { fetchGroup } from '@/services/groupService';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Edit, FileWarning } from 'lucide-react';
@@ -19,32 +19,38 @@ export default function EditGroupPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!groupId) {
-      setError('ID do grupo não fornecido.');
-      setLoading(false);
-      return;
-    }
+    async function load() {
+      if (!groupId) {
+        setError('ID do grupo não fornecido.');
+        setLoading(false);
+        return;
+      }
 
-    fetchGroups()
-      .then((list) => {
-        const found = list.find((g) => g.id === groupId);
-        if (found) {
+      try {
+        const group = await fetchGroup(groupId);
+        if (group) {
           setGroupData({
-            name: found.name,
-            description: found.description || '',
-            psychologistId: found.psychologistId,
-            patientIds: found.patientIds || [],
-            dayOfWeek: found.dayOfWeek,
-            startTime: found.startTime,
-            endTime: found.endTime,
-            meetingAgenda: found.meetingAgenda || '',
+            name: group.name,
+            description: group.description || '',
+            psychologistId: group.psychologistId,
+            patientIds: group.participants.map((p) => p.id),
+            dayOfWeek: group.dayOfWeek,
+            startTime: group.startTime,
+            endTime: group.endTime,
+            meetingAgenda: group.meetingAgenda || '',
           });
         } else {
           setError('Grupo não encontrado.');
         }
-      })
-      .catch(() => setError('Erro ao carregar grupo.'))
-      .finally(() => setLoading(false));
+      } catch (e) {
+        console.error(e);
+        setError('Erro ao carregar grupo.');
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    load();
   }, [groupId]);
 
   if (loading) {

@@ -22,6 +22,7 @@ Plataforma web para gestão de clínicas de psicologia, com agenda integrada, pr
     ```bash
     npm install
     ```
+    > **Dica:** execute `npm install` ou `npm ci` sempre antes de rodar `npm run prepare:commit` ou realizar `git commit`. Os hooks do Husky utilizam o ESLint e outras dependências que exigem a pasta `node_modules` presente, caso contrário o commit será abortado.
 3.  **Configure as Variáveis de Ambiente:**
     - Copie o arquivo `env.example` (na raiz do projeto) para um novo arquivo chamado `.env.local`:
       ```bash
@@ -33,16 +34,15 @@ Plataforma web para gestão de clínicas de psicologia, com agenda integrada, pr
     - Você pode definir manualmente a senha chamando `setEncryptionPassword()` no início da aplicação ou configurando a variável de ambiente `ENCRYPTION_KEY`.
     - Sem essa senha, os dados sensíveis gravados no Firestore não poderão ser descriptografados.
 5.  **Inicie os Emuladores Firebase (em um terminal separado):**
+
     - É altamente recomendado usar os emuladores do Firebase para desenvolvimento local.
     - Se esta é a primeira vez, configure os emuladores: `firebase init emulators` (selecione Firestore, Storage, Functions).
     - Inicie os emuladores: `firebase emulators:start --project=demo-project`
     - Certifique-se de que o `firebase.json` possua a entrada `"storage": { "rules": "storage.rules" }` para que o emulador de Storage possa iniciar.
     - Verifique se os emuladores estão rodando nas portas corretas (Firestore: 8084, Storage: 9200, UI: 4004). O arquivo `firebase.json` está configurado para usar `host: "0.0.0.0"` para os emuladores.
 
-5.  **Inicie o Servidor de Desenvolvimento Next.js (em outro terminal):**
-=======
-6.  **Inicie o Servidor de Desenvolvimento Next.js (em outro terminal):**
-
+6.  # **Inicie o Servidor de Desenvolvimento Next.js (em outro terminal):**
+7.  **Inicie o Servidor de Desenvolvimento Next.js (em outro terminal):**
 
     ```bash
     npm run dev
@@ -50,7 +50,7 @@ Plataforma web para gestão de clínicas de psicologia, com agenda integrada, pr
 
     O aplicativo ficará disponível em `http://localhost:9003`.
 
-7.  **Problemas de CORS em ambientes remotos:**
+8.  **Problemas de CORS em ambientes remotos:**
     - Se estiver executando o dev server em uma URL diferente de `localhost` (ex.: Cloud Workstations), adicione essa origem ao array `allowedDevOrigins` em `next.config.mjs`.
 
 ### Comandos úteis

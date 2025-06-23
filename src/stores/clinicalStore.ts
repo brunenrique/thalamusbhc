@@ -1,6 +1,8 @@
 /* eslint-disable no-unused-vars */
 // src/stores/clinicalStore.ts
 
+'use client';
+
 import { create } from 'zustand';
 import {
   fetchClinicalData as fetchClinicalDataSvc,
@@ -32,8 +34,6 @@ const defaultTabData: TabSpecificFormulationData = {
   emotionIntensityFilter: 0,
 };
 
-// Define the colors for each card type
-
 interface ClinicalState {
   tabs: ClinicalTab[];
   activeTabId?: string;
@@ -42,6 +42,7 @@ interface ClinicalState {
   labels: Label[];
   activePanel: PanelType;
   panelState: Record<string, any>;
+
   isABCFormOpen: boolean;
   editingCardId?: string;
   openABCForm: (cardId?: string) => void;
@@ -49,9 +50,9 @@ interface ClinicalState {
 
   isSchemaFormOpen: boolean;
   editingSchemaId?: string;
+  prefillSchemaRule?: string;
   openSchemaForm: (schemaId?: string, prefillRule?: string) => void;
   closeSchemaForm: () => void;
-  prefillSchemaRule?: string;
 
   isQuickNoteFormOpen: boolean;
   quickNoteFormTarget?: { cardId?: string; noteIdToEdit?: string; defaultText?: string };
@@ -67,6 +68,7 @@ interface ClinicalState {
   quickNotes: QuickNote[];
   addQuickNote: (note: QuickNote) => void;
   deleteQuickNote: (id: string) => void;
+
   addCard: (card: BaseCard) => void;
   archiveCard: (cardId: string) => void;
   restoreCard: (cardId: string) => void;
@@ -78,10 +80,11 @@ interface ClinicalState {
   removeTab: (id: string) => void;
   renameTab: (id: string, title: string) => void;
   setActiveTab: (id: string) => void;
+
   /** Indica se dados clínicos estão sendo carregados */
   isLoadingClinicalData: boolean;
   /** Mensagem de erro durante operações de clínica */
-  clinicalDataError?: string | null;
+  clinicalDataError: string | null;
   fetchClinicalData: (patientId: string, tabId: string) => void;
   saveClinicalData: (patientId: string, tabId: string) => void;
 
@@ -111,10 +114,9 @@ export const useClinicalStore = create<ClinicalState>((set, get) => ({
       activeTabId: state.activeTabId === id ? state.tabs[0]?.id : state.activeTabId,
     })),
   renameTab: (id, title) =>
-    set((state) => ({
-      tabs: state.tabs.map((t) => (t.id === id ? { ...t, title } : t)),
-    })),
+    set((state) => ({ tabs: state.tabs.map((t) => (t.id === id ? { ...t, title } : t)) })),
   setActiveTab: (id) => set({ activeTabId: id }),
+
   fetchClinicalData: async (patientId, tabId) => {
     set({ isLoadingClinicalData: true, clinicalDataError: null });
     try {
@@ -126,7 +128,8 @@ export const useClinicalStore = create<ClinicalState>((set, get) => ({
         },
       }));
     } catch (error: any) {
-      set({ clinicalDataError: error?.message ?? String(error) });
+      console.error('Erro ao carregar dados clínicos', error);
+      set({ clinicalDataError: error?.message ?? 'Falha ao carregar dados clínicos.' });
     } finally {
       set({ isLoadingClinicalData: false });
     }
@@ -177,38 +180,31 @@ export const useClinicalStore = create<ClinicalState>((set, get) => ({
   panelState: {},
 
   addCard: (card) => set((state) => ({ cards: [...state.cards, card] })),
-
   archiveCard: (cardId) =>
     set((state) => ({
-      cards: state.cards.map((card) => (card.id === cardId ? { ...card, archived: true } : card)),
+      cards: state.cards.map((card) =>
+        card.id === cardId ? { ...card, archived: true } : card
+      ),
     })),
-
   restoreCard: (cardId) =>
     set((state) => ({
-      cards: state.cards.map((card) => (card.id === cardId ? { ...card, archived: false } : card)),
+      cards: state.cards.map((card) =>
+        card.id === cardId ? { ...card, archived: false } : card
+      ),
     })),
 
   addLabel: (label) =>
-    set((state) => ({
-      labels: [...state.labels, { ...label, id: crypto.randomUUID() }],
-    })),
-
+    set((state) => ({ labels: [...state.labels, { ...label, id: crypto.randomUUID() }] })),
   assignLabelToCard: (cardId, labelId) =>
     set((state) => ({
       cards: state.cards.map((card) =>
         card.id === cardId
-          ? {
-              ...card,
-              labels: card.labels ? [...card.labels, labelId] : [labelId],
-            }
+          ? { ...card, labels: card.labels ? [...card.labels, labelId] : [labelId] }
           : card
       ),
     })),
 
   setActivePanel: (panel) => set({ activePanel: panel }),
-
   setPanelState: (panel, newState) =>
-    set((state) => ({
-      panelState: { ...state.panelState, [panel]: newState },
-    })),
+    set((state) => ({ panelState: { ...state.panelState, [panel]: newState } })),
 }));

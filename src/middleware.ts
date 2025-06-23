@@ -1,6 +1,11 @@
 import { type NextRequest, NextResponse } from 'next/server';
 import * as Sentry from '@sentry/nextjs';
-import logger from '@/lib/logger';
+// logger based on console to ensure Edge compatibility
+const edgeLogger = {
+  error: console.error,
+  info: console.info,
+  warn: console.warn,
+};
 
 const PUBLIC_PATHS = ['/login'];
 
@@ -30,7 +35,7 @@ export async function middleware(request: NextRequest) {
       }
     } catch (err) {
       Sentry.captureException(err);
-      logger.error({ action: 'token_verify_error', meta: { error: err } });
+      edgeLogger.error({ action: 'token_verify_error', meta: { error: err } });
     }
   }
   return NextResponse.redirect(new globalThis.URL('/login', request.url));

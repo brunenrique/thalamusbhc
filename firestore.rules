@@ -152,6 +152,10 @@ match /quickNotes/{id} {
   allow read, update, delete: if isStaff() && resource.data.ownerId == request.auth.uid;
 }
 
+match /patients/{patientId}/clinicalTabs/{tabId} {
+  allow read, write: if isStaff() && patientOwnedByUser(patientId);
+}
+
 match /groups/{id} {
   allow read: if isStaff();
   allow create: if (isPsychologist() && request.auth.uid == request.resource.data.psychologistId) || isAdmin();

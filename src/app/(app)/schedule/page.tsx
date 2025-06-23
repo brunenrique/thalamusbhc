@@ -344,7 +344,7 @@ export default function SchedulePage() {
               className="w-full sm:w-auto"
             >
               <Download className="mr-0 sm:mr-1 h-4 w-4" />{' '}
-              <span className="hidden sm:inline">Exportar</span>
+              <span className="hidden sm:inline">Exportar .ics</span>
             </Button>
 
             <DropdownMenu>

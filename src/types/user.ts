@@ -11,3 +11,16 @@ export interface CurrentUser {
   displayName: string | null;
   avatarUrl?: string | null;
 }
+
+export interface UserProfile {
+  id: string;
+  name: string;
+  email: string;
+  role: 'Psychologist' | 'Admin' | 'Secretary';
+  gender?: UserGender;
+  specialty?: string;
+  phone?: string;
+  clinicName?: string;
+  dateRegistered?: string;
+  avatarUrl?: string;
+}

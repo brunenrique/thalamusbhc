@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,7 +11,9 @@ import Link from "next/link";
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { useToast } from '@/hooks/use-toast';
-import type { UserGender } from '@/types/user';
+import useAuth from '@/hooks/use-auth';
+import type { UserGender, UserProfile } from '@/types/user';
+import { fetchUserProfile } from '@/services/userService';
 
 const getDefaultAvatarByGender = (gender?: UserGender, name?: string) => {
   const initials = name ? (name.split(' ')[0][0] + (name.split(' ').length > 1 ? name.split(' ')[name.split(' ').length - 1][0] : '')).toUpperCase() : "??";
@@ -25,20 +27,6 @@ const getDefaultAvatarByGender = (gender?: UserGender, name?: string) => {
   }
 };
 
-// Mock data for the logged-in user
-const mockUserProfileData = {
-  id: "usr123",
-  name: "Dr. Carlos Silva",
-  email: "carlos.silva@psiguard.app",
-  gender: "masculino" as UserGender,
-  role: "Psychologist" as "Psychologist" | "Admin" | "Secretary",
-  specialty: "Terapia Cognitivo-Comportamental",
-  phone: "(11) 98765-4321",
-  dateRegistered: "2023-05-10T10:00:00Z",
-  clinicName: "PsiGuard Clínica Central",
-  avatarUrl: "" // Will be set by getDefaultAvatarByGender
-};
-mockUserProfileData.avatarUrl = getDefaultAvatarByGender(mockUserProfileData.gender, mockUserProfileData.name);
 
 
 const predefinedAvatars = [
@@ -54,10 +42,23 @@ const predefinedAvatars = [
 
 export default function ProfilePage() {
   const { toast } = useToast();
-  const [currentUserProfile, setCurrentUserProfile] = useState({
-    ...mockUserProfileData,
-    avatarUrl: getDefaultAvatarByGender(mockUserProfileData.gender, mockUserProfileData.name)
-  });
+  const { user } = useAuth();
+  const [currentUserProfile, setCurrentUserProfile] = useState<UserProfile | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!user?.uid) return;
+    fetchUserProfile(user.uid)
+      .then((profile) => {
+        if (profile) {
+          setCurrentUserProfile({
+            ...profile,
+            avatarUrl: profile.avatarUrl || getDefaultAvatarByGender(profile.gender, profile.name),
+          });
+        }
+      })
+      .finally(() => setLoading(false));
+  }, [user]);
 
 
   const getInitials = (name: string) => {
@@ -76,13 +77,29 @@ export default function ProfilePage() {
   };
 
   const handleAvatarChange = (newAvatarUrl: string) => {
-    setCurrentUserProfile(prev => ({ ...prev, avatarUrl: newAvatarUrl }));
+    setCurrentUserProfile(prev => prev ? { ...prev, avatarUrl: newAvatarUrl } : null);
     toast({
       title: "Avatar Atualizado (Simulado)",
       description: "Seu avatar foi alterado com sucesso.",
     });
     // Em uma aplicação real, aqui você chamaria a função updateUserAvatar do Firebase.
   };
+
+  if (loading || !currentUserProfile) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center gap-2">
+          <UserCircle className="h-7 w-7 text-primary" />
+          <h1 className="text-3xl font-headline font-bold">Meu Perfil</h1>
+        </div>
+        <Card className="shadow-lg">
+          <CardHeader>
+            <CardTitle className="font-headline">Carregando...</CardTitle>
+          </CardHeader>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

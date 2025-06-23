@@ -29,21 +29,25 @@ Plataforma web para gestão de clínicas de psicologia, com agenda integrada, pr
       ```
       (O arquivo `.env.local` é ignorado pelo Git e é onde suas chaves reais devem ser armazenadas localmente.)
     - Preencha o arquivo `.env.local` com as credenciais do seu projeto Firebase e outras chaves necessárias. Veja a seção "Variáveis de Ambiente" abaixo para detalhes sobre cada variável.
-4.  **Inicie os Emuladores Firebase (em um terminal separado):**
+4.  **Defina a senha de criptografia:**
+    - Você pode definir manualmente a senha chamando `setEncryptionPassword()` no início da aplicação ou configurando a variável de ambiente `ENCRYPTION_KEY`.
+    - Sem essa senha, os dados sensíveis gravados no Firestore não poderão ser descriptografados.
+5.  **Inicie os Emuladores Firebase (em um terminal separado):**
     - É altamente recomendado usar os emuladores do Firebase para desenvolvimento local.
     - Se esta é a primeira vez, configure os emuladores: `firebase init emulators` (selecione Firestore, Storage, Functions).
     - Inicie os emuladores: `firebase emulators:start --project=demo-project`
     - Certifique-se de que o `firebase.json` possua a entrada `"storage": { "rules": "storage.rules" }` para que o emulador de Storage possa iniciar.
     - Verifique se os emuladores estão rodando nas portas corretas (Firestore: 8084, Storage: 9200, UI: 4004). O arquivo `firebase.json` está configurado para usar `host: "0.0.0.0"` para os emuladores.
-5.  **Inicie o Servidor de Desenvolvimento Next.js (em outro terminal):**
+6.  **Inicie o Servidor de Desenvolvimento Next.js (em outro terminal):**
+
     ```bash
     npm run dev
     ```
+
     O aplicativo ficará disponível em `http://localhost:9003`.
 
-6.  **Problemas de CORS em ambientes remotos:**
+7.  **Problemas de CORS em ambientes remotos:**
     - Se estiver executando o dev server em uma URL diferente de `localhost` (ex.: Cloud Workstations), adicione essa origem ao array `allowedDevOrigins` em `next.config.mjs`.
-
 
 ### Comandos úteis
 

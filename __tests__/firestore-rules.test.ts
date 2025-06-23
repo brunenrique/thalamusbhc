@@ -133,4 +133,44 @@ describe('Firestore security rules', () => {
       await assertFails(docRef.delete());
     });
   });
+
+  describe('Chat Rules', () => {
+    test('chat creation succeeds when all users exist', async () => {
+      const user1 = { sub: 'chatUser1', role: 'Psychologist' };
+      const user2 = { sub: 'chatUser2', role: 'Psychologist' };
+      const db1 = getAuthedDb(user1);
+      const db2 = getAuthedDb(user2);
+
+      await assertSucceeds(
+        db1
+          .collection('users')
+          .doc(user1.sub)
+          .set({ role: 'Psychologist', isApproved: true, name: 'U1', email: 'u1@test' })
+      );
+      await assertSucceeds(
+        db2
+          .collection('users')
+          .doc(user2.sub)
+          .set({ role: 'Psychologist', isApproved: true, name: 'U2', email: 'u2@test' })
+      );
+
+      const chatRef = db1.collection('chats').doc('ok');
+      await assertSucceeds(chatRef.set({ participants: { [user1.sub]: true, [user2.sub]: true } }));
+    });
+
+    test('chat creation fails if some user does not exist', async () => {
+      const user1 = { sub: 'chatUser3', role: 'Psychologist' };
+      const db1 = getAuthedDb(user1);
+
+      await assertSucceeds(
+        db1
+          .collection('users')
+          .doc(user1.sub)
+          .set({ role: 'Psychologist', isApproved: true, name: 'U3', email: 'u3@test' })
+      );
+
+      const chatRef = db1.collection('chats').doc('fail');
+      await assertFails(chatRef.set({ participants: { [user1.sub]: true, missing: true } }));
+    });
+  });
 });

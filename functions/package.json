@@ -1,13 +1,15 @@
-
 {
   "name": "functions",
-  "engines": {"node": "18"},
+  "engines": {
+    "node": "18"
+  },
   "main": "lib/index.js",
   "scripts": {
     "build": "tsc",
     "deploy": "npm run build && firebase deploy --only functions"
   },
   "dependencies": {
+    "@sentry/node": "^9.30.0",
     "firebase-admin": "^11.10.1",
     "firebase-functions": "^4.4.1"
   },

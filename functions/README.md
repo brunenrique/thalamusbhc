@@ -13,3 +13,7 @@ Run the TypeScript build inside `functions/` and deploy:
 cd functions && npm run build
 firebase deploy --only functions
 ```
+
+## Configuração
+
+Defina a variável de ambiente `SENTRY_DSN` nas configurações das Functions para habilitar o envio de erros ao Sentry.

@@ -28,6 +28,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { useRouter } from 'next/navigation';
 import { auth } from '@/lib/firebase';
 import { useToast } from '@/hooks/use-toast';
+import * as Sentry from '@sentry/nextjs';
 
 const loginSchema = z.object({
   email: z.string().email({ message: 'Por favor, insira um endereço de e-mail válido.' }),
@@ -67,6 +68,7 @@ export default function LoginForm() {
       });
       router.push('/dashboard');
     } catch (error) {
+      Sentry.captureException(error);
       console.error('DEBUG: Erro detalhado do Firebase Auth:', error);
       let errorMessage = 'Erro ao fazer login.';
 

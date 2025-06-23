@@ -4,6 +4,7 @@
 
 import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
+import * as Sentry from '@sentry/nextjs'
 import { VariantProps, cva } from "class-variance-authority"
 import { PanelLeft } from "lucide-react"
 
@@ -578,9 +579,11 @@ const SidebarMenuButton = React.forwardRef<HTMLButtonElement, SidebarMenuButtonP
       (children as React.ReactElement).type !== React.Fragment
 
     if (ownAsChildProp && !hasSingleValidChild) {
-      console.error(
+      const err = new Error(
         "SidebarMenuButton with asChild expects a single React element child. Rendering a <button> instead."
       )
+      Sentry.captureException(err)
+      console.error(err)
     }
 
     const Comp = ownAsChildProp && hasSingleValidChild ? Slot : "button";

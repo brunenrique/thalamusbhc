@@ -1,4 +1,5 @@
 import { type NextRequest, NextResponse } from 'next/server';
+import * as Sentry from '@sentry/nextjs';
 
 const PUBLIC_PATHS = ['/login'];
 
@@ -27,6 +28,7 @@ export async function middleware(request: NextRequest) {
         return NextResponse.next();
       }
     } catch (err) {
+      Sentry.captureException(err);
       globalThis.console.error('Erro ao verificar token', err);
     }
   }

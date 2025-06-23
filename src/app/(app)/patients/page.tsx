@@ -2,6 +2,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import * as Sentry from '@sentry/nextjs';
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { UserPlus, Search, Filter, Users } from "lucide-react";
@@ -31,6 +32,7 @@ export default function PatientsPage() {
         const list = await fetchPatients();
         setPatients(list);
       } catch (err) {
+        Sentry.captureException(err);
         console.error('Falha ao carregar pacientes', err);
       } finally {
         setLoading(false);

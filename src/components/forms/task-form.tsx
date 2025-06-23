@@ -40,6 +40,7 @@ import { ptBR } from 'date-fns/locale';
 import { useToast } from '@/hooks/use-toast';
 import type { Task, TaskPriority, TaskStatus } from '@/types';
 import { createTask, updateTask } from '@/services/taskService';
+import * as Sentry from '@sentry/nextjs';
 
 const taskFormSchema = z.object({
   title: z.string().min(3, { message: 'O título deve ter pelo menos 3 caracteres.' }),
@@ -126,6 +127,7 @@ export default function TaskForm({ initialData, isEditMode = false }: TaskFormPr
       }
       router.push('/tasks');
     } catch (err) {
+      Sentry.captureException(err);
       console.error(err);
       toast({
         title: 'Erro',

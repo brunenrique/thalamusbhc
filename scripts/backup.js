@@ -3,6 +3,7 @@ const { getFirestore } = require('firebase-admin/firestore');
 const { getStorage } = require('firebase-admin/storage');
 const path = require('path');
 const fs = require('fs').promises;
+const Sentry = require('@sentry/node');
 
 initializeApp({
   credential: cert({
@@ -36,6 +37,7 @@ async function run() {
 }
 
 run().catch(err => {
+  Sentry.captureException(err);
   console.error(err);
   process.exit(1);
 });

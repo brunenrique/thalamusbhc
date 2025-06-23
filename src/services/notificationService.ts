@@ -16,6 +16,7 @@ import {
   onSnapshot,
   Unsubscribe,
 } from 'firebase/firestore';
+import * as Sentry from '@sentry/nextjs';
 
 export interface Notification {
   id: string;
@@ -40,6 +41,7 @@ export async function registerFcmToken(userId: string): Promise<string | null> {
     }
     return token;
   } catch (err) {
+    Sentry.captureException(err);
     console.error('Unable to get FCM token', err);
     return null;
   }

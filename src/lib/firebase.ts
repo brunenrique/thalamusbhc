@@ -1,5 +1,6 @@
 
 import { initializeApp, getApps, getApp, type FirebaseApp } from 'firebase/app';
+import * as Sentry from '@sentry/nextjs';
 import { getAuth, connectAuthEmulator, type Auth } from 'firebase/auth';
 import { getFirestore, connectFirestoreEmulator, type Firestore } from 'firebase/firestore';
 import { getStorage, connectStorageEmulator, type FirebaseStorage } from 'firebase/storage';
@@ -69,6 +70,7 @@ if (process.env.NODE_ENV === 'development') {
     // console.info(`Functions Emulator connected to ${host}:${functionsPort}`);
     
   } catch (error) {
+    Sentry.captureException(error);
     console.error('Error connecting to Firebase Emulators:', error);
   }
 }

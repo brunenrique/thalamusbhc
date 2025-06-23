@@ -4,6 +4,7 @@ import { Clipboard, Check } from "lucide-react";
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { copyToClipboard } from "@/utils/copyToClipboard";
+import * as Sentry from '@sentry/nextjs';
 
 interface CopyButtonProps {
   value: string;
@@ -21,6 +22,7 @@ export default function CopyButton({ value, className }: CopyButtonProps) {
         setTimeout(() => setCopied(false), 1500);
       }
     } catch (e) {
+      Sentry.captureException(e);
       console.error("Failed to copy", e);
     }
   };

@@ -12,6 +12,7 @@ import type {
   GenerateSessionNoteTemplateInput,
   GenerateSessionNoteTemplateOutput,
 } from '@/ai/flows/generate-session-note-template';
+import * as Sentry from '@sentry/nextjs';
 
 export const DEFAULT_CACHE_TTL_MS = 10 * 60 * 1000; // 10 minutos
 
@@ -67,6 +68,7 @@ async function requestAI<T>(url: string, body: unknown, ttlMs = DEFAULT_CACHE_TT
     }
     return data;
   } catch (e) {
+    Sentry.captureException(e);
     console.error('Erro na comunicação com o serviço de IA:', e);
     throw new Error(
       'Não foi possível conectar ao serviço de IA. Verifique sua conexão e tente novamente.'

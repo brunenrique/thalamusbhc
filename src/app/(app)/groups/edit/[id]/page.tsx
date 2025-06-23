@@ -25,6 +25,7 @@ export default function EditGroupPage() {
         setLoading(false);
         return;
       }
+
       try {
         const group = await fetchGroup(groupId);
         if (group) {
@@ -48,6 +49,7 @@ export default function EditGroupPage() {
         setLoading(false);
       }
     }
+
     load();
   }, [groupId]);
 

@@ -197,6 +197,13 @@ service cloud.firestore {
       allow update, delete: if isAdmin(); // Apenas admin pode deletar (em casos excepcionais)
     }
 
+    // Coleção de Grupos Terapêuticos (Groups)
+    match /groups/{id} {
+      allow read: if isStaff();
+      allow create: if (isPsychologist() && request.auth.uid == request.resource.data.psychologistId) || isAdmin();
+      allow update, delete: if (isPsychologist() && request.auth.uid == resource.data.psychologistId) || isAdmin();
+    }
+
     // Coleção de Tarefas (Tasks)
     match /tasks/{id} {
       allow read, update: if isStaff();

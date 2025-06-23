@@ -32,7 +32,15 @@ import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { getWaitingListEntries } from '@/services/waitingListService';
+import { getWaitingListEntries, deleteWaitingListEntry } from '@/services/waitingListService';
+import ScheduleForm from '@/components/forms/schedule-form';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from '@/components/ui/dialog';
 import type { WaitingListEntry } from '@/types';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -45,6 +53,7 @@ const priorityLabels: Record<string, string> = {
 export default function WaitingListPage() {
   const [list, setList] = useState<WaitingListEntry[]>([]);
   const [loading, setLoading] = useState(true);
+  const [entryToSchedule, setEntryToSchedule] = useState<WaitingListEntry | null>(null);
 
   useEffect(() => {
     getWaitingListEntries().then((l) => {
@@ -52,6 +61,13 @@ export default function WaitingListPage() {
       setLoading(false);
     });
   }, []);
+
+  const handleScheduleCreated = async () => {
+    if (!entryToSchedule) return;
+    await deleteWaitingListEntry(entryToSchedule.id);
+    setList((prev) => prev.filter((e) => e.id !== entryToSchedule.id));
+    setEntryToSchedule(null);
+  };
 
   return (
     <div className="space-y-6">
@@ -138,14 +154,10 @@ export default function WaitingListPage() {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <DropdownMenuItem asChild>
-                              <Link
-                                href={`/schedule/new?patientName=${encodeURIComponent(item.name)}&psychologistId=${item.requestedPsychologistId || 'any'}`}
-                              >
-                                <span className="inline-flex items-center gap-2 w-full">
-                                  <CalendarPlus className="mr-2 h-4 w-4" /> Alocar Horário
-                                </span>
-                              </Link>
+                            <DropdownMenuItem onSelect={() => setEntryToSchedule(item)}>
+                              <span className="inline-flex items-center gap-2 w-full">
+                                <CalendarPlus className="mr-2 h-4 w-4" /> Alocar Horário
+                              </span>
                             </DropdownMenuItem>
                             <DropdownMenuItem asChild>
                               <Link href={`/waiting-list/edit/${item.id}`}>
@@ -177,6 +189,22 @@ export default function WaitingListPage() {
           )}
         </CardContent>
       </Card>
+      <Dialog open={!!entryToSchedule} onOpenChange={(o) => !o && setEntryToSchedule(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Novo Agendamento</DialogTitle>
+            <DialogDescription>
+              {entryToSchedule && `Converter entrada de ${entryToSchedule.name}`}
+            </DialogDescription>
+          </DialogHeader>
+          {entryToSchedule && (
+            <ScheduleForm
+              patientName={entryToSchedule.name}
+              onScheduled={handleScheduleCreated}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

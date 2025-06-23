@@ -4,6 +4,10 @@ import {
   assertFails,
 } from '@firebase/rules-unit-testing';
 import { readFileSync } from 'fs';
+import { encrypt } from '../src/lib/crypto-utils';
+import { deriveKeyFromPassword } from '../src/lib/encryptionKey';
+
+const key = deriveKeyFromPassword('test-pass');
 
 let testEnv: Awaited<ReturnType<typeof initializeTestEnvironment>>;
 
@@ -32,7 +36,14 @@ describe('Patient Rules Tests', () => {
     const db = testEnv.authenticatedContext(auth.uid).firestore();
     const patientDoc = db.collection('patients').doc('patient1');
 
-    await assertSucceeds(patientDoc.set({ psychologistId: auth.uid, name: 'Test Patient' }));
+    await assertSucceeds(
+      patientDoc.set({
+        ownerId: auth.uid,
+        name: 'Test Patient',
+        email: 'test@example.com',
+        phoneEnc: encrypt('123', key),
+      })
+    );
     await assertSucceeds(patientDoc.get());
   });
 
@@ -40,14 +51,18 @@ describe('Patient Rules Tests', () => {
     const ownerAuth = { uid: 'user1' };
     const ownerDb = testEnv.authenticatedContext(ownerAuth.uid).firestore();
     const ownerDoc = ownerDb.collection('patients').doc('patient2');
-    await assertSucceeds(ownerDoc.set({ psychologistId: ownerAuth.uid, name: 'Test Patient' }));
+    await assertSucceeds(
+      ownerDoc.set({ ownerId: ownerAuth.uid, name: 'Test Patient', email: 'a@b.c' })
+    );
 
     const otherAuth = { uid: 'user2' };
     const otherDb = testEnv.authenticatedContext(otherAuth.uid).firestore();
     const otherDoc = otherDb.collection('patients').doc('patient2');
 
     await assertFails(otherDoc.get());
-    await assertFails(otherDoc.set({ psychologistId: otherAuth.uid, name: 'Should Fail' }));
+    await assertFails(
+      otherDoc.set({ ownerId: otherAuth.uid, name: 'Should Fail', email: 'x@y.z' })
+    );
   });
 
   test('unauthenticated user cannot access patient document', async () => {
@@ -57,6 +72,6 @@ describe('Patient Rules Tests', () => {
       .collection('patients')
       .doc('patient3');
     await assertFails(patientDoc.get());
-    await assertFails(patientDoc.set({ psychologistId: 'someone', name: 'Nope' }));
+    await assertFails(patientDoc.set({ ownerId: 'someone', name: 'Nope', email: 'n@o.pe' }));
   });
 });

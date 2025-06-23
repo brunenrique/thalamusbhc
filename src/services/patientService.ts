@@ -1,18 +1,72 @@
-import { collection, getDocs, query, where, doc, getDoc } from 'firebase/firestore';
+import {
+  collection,
+  getDocs,
+  query,
+  where,
+  doc,
+  getDoc,
+  addDoc,
+  setDoc,
+  type Firestore,
+  Timestamp,
+} from 'firebase/firestore';
 import { db, auth } from '@/lib/firebase';
 import type { Patient } from '@/types/patient';
 import { FIRESTORE_COLLECTIONS } from '@/lib/firestore-collections';
+import { encrypt, decrypt, type EncryptionResult } from '@/lib/crypto-utils';
+import { getEncryptionKey } from '@/lib/encryptionKey';
+
+interface FirestorePatient {
+  ownerId: string;
+  name: string;
+  email: string;
+  birthdate?: Timestamp | null;
+  phoneEnc?: EncryptionResult | null;
+  addressEnc?: EncryptionResult | null;
+  identifierEnc?: EncryptionResult | null;
+  notes?: string;
+  lastSession?: string | null;
+  nextAppointment?: string | null;
+  avatarUrl?: string;
+  dataAiHint?: string;
+  lastAppointmentDate?: Timestamp | null;
+}
+
+export interface PatientInput {
+  name: string;
+  email: string;
+  phone?: string;
+  address?: string;
+  identifier?: string;
+  dob?: Date | null;
+  notes?: string;
+}
 
 export async function fetchPatients(): Promise<Patient[]> {
   try {
     const uid = auth.currentUser?.uid;
     if (!uid) return [];
-    const q = query(
-      collection(db, FIRESTORE_COLLECTIONS.PATIENTS),
-      where('ownerId', '==', uid)
-    );
+    const q = query(collection(db, FIRESTORE_COLLECTIONS.PATIENTS), where('ownerId', '==', uid));
     const snap = await getDocs(q);
-    return snap.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<Patient, 'id'>) }));
+    const key = getEncryptionKey();
+    return snap.docs.map((d) => {
+      const data = d.data() as FirestorePatient;
+      return {
+        id: d.id,
+        name: data.name,
+        email: data.email,
+        phone: data.phoneEnc ? decrypt(data.phoneEnc, key) : undefined,
+        address: data.addressEnc ? decrypt(data.addressEnc, key) : undefined,
+        identifier: data.identifierEnc ? decrypt(data.identifierEnc, key) : undefined,
+        dob: data.birthdate ?? null,
+        notes: data.notes,
+        lastSession: data.lastSession,
+        nextAppointment: data.nextAppointment,
+        avatarUrl: data.avatarUrl,
+        dataAiHint: data.dataAiHint,
+        lastAppointmentDate: data.lastAppointmentDate ?? null,
+      } as Patient;
+    });
   } catch (err) {
     console.error('Erro ao buscar pacientes', err);
     return [];
@@ -24,9 +78,75 @@ export async function fetchPatient(id: string): Promise<Patient | null> {
     const ref = doc(db, FIRESTORE_COLLECTIONS.PATIENTS, id);
     const snap = await getDoc(ref);
     if (!snap.exists()) return null;
-    return { id: snap.id, ...(snap.data() as Omit<Patient, 'id'>) };
+    const data = snap.data() as FirestorePatient;
+    const key = getEncryptionKey();
+    return {
+      id: snap.id,
+      name: data.name,
+      email: data.email,
+      phone: data.phoneEnc ? decrypt(data.phoneEnc, key) : undefined,
+      address: data.addressEnc ? decrypt(data.addressEnc, key) : undefined,
+      identifier: data.identifierEnc ? decrypt(data.identifierEnc, key) : undefined,
+      dob: data.birthdate ?? null,
+      notes: data.notes,
+      lastSession: data.lastSession,
+      nextAppointment: data.nextAppointment,
+      avatarUrl: data.avatarUrl,
+      dataAiHint: data.dataAiHint,
+      lastAppointmentDate: data.lastAppointmentDate ?? null,
+    } as Patient;
   } catch (err) {
     console.error('Erro ao buscar paciente', err);
     return null;
   }
+}
+
+export async function createPatient(
+  data: PatientInput,
+  firestore: Firestore = db
+): Promise<string> {
+  const uid = auth.currentUser?.uid;
+  if (!uid) throw new Error('Usuário não autenticado');
+  const key = getEncryptionKey();
+  const docData: FirestorePatient = {
+    ownerId: uid,
+    name: data.name,
+    email: data.email,
+  };
+  if (data.dob) docData.birthdate = Timestamp.fromDate(data.dob);
+  if (data.phone) docData.phoneEnc = encrypt(data.phone, key);
+  if (data.address) docData.addressEnc = encrypt(data.address, key);
+  if (data.identifier) docData.identifierEnc = encrypt(data.identifier, key);
+  if (data.notes) docData.notes = data.notes;
+  const ref = await addDoc(collection(firestore, FIRESTORE_COLLECTIONS.PATIENTS), docData);
+  return ref.id;
+}
+
+export async function updatePatient(
+  id: string,
+  data: PatientInput,
+  firestore: Firestore = db
+): Promise<void> {
+  const key = getEncryptionKey();
+  const ref = doc(firestore, FIRESTORE_COLLECTIONS.PATIENTS, id);
+  const update: Partial<FirestorePatient> = {
+    name: data.name,
+    email: data.email,
+  };
+  if (data.dob !== undefined) {
+    update.birthdate = data.dob ? Timestamp.fromDate(data.dob) : null;
+  }
+  if (data.phone !== undefined) {
+    update.phoneEnc = data.phone ? encrypt(data.phone, key) : null;
+  }
+  if (data.address !== undefined) {
+    update.addressEnc = data.address ? encrypt(data.address, key) : null;
+  }
+  if (data.identifier !== undefined) {
+    update.identifierEnc = data.identifier ? encrypt(data.identifier, key) : null;
+  }
+  if (data.notes !== undefined) {
+    update.notes = data.notes;
+  }
+  await setDoc(ref, update, { merge: true });
 }

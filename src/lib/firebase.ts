@@ -55,11 +55,11 @@ if (process.env.NODE_ENV === 'development') {
     connectAuthEmulator(auth, `http://${host}:${authPort}`, { disableWarnings: true });
     console.info(`Auth Emulator connected to http://${host}:${authPort}`);
 
-    const firestorePort = 8083;
+    const firestorePort = 8084;
     connectFirestoreEmulator(db, host, firestorePort);
     console.info(`Firestore Emulator connected to ${host}:${firestorePort}`);
 
-    const storagePort = 9199;
+    const storagePort = 9200;
     connectStorageEmulator(storage, host, storagePort);
     console.info(`Storage Emulator connected to ${host}:${storagePort}`);
 

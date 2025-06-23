@@ -18,6 +18,7 @@ export interface WaitingListEntry {
   requestedPsychologist?: string;
   requestedPsychologistId?: string;
   dateAdded: string; // ISO date
+  status?: string;
   priority: TaskPriority;
   notes?: string;
   contactPhone?: string;

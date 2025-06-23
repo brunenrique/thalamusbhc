@@ -1,5 +1,7 @@
 # Thalamus
 
+![Coverage](https://img.shields.io/codecov/c/github/SEU_USUARIO/SEU_REPO)
+
 Plataforma web para gestão de clínicas de psicologia, com agenda integrada, prontuários seguros e funcionalidades auxiliadas por IA. O projeto é baseado em **Next.js** e **Firebase**, utilizando **TypeScript** e **Tailwind CSS** no frontend e **Cloud Functions** no backend. Fluxos de IA são implementados com **Genkit** e Google AI.
 
 ## Tecnologias Principais

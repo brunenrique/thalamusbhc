@@ -15,7 +15,10 @@ function hasRole(roleName) {
          request.auth.token.role.lower() == roleName.lower();
 }
 
-function isAdmin() { return hasRole('Admin'); }
+// Apenas usuarios com customClaims.role == "admin" sao considerados administradores
+function isAdmin() {
+  return isSignedIn() && request.auth.token.role == 'admin';
+}
 function isPsychologist() { return hasRole('Psychologist'); }
 function isSecretary() { return hasRole('Secretary'); }
 function isStaff() { return isAdmin() || isPsychologist() || isSecretary(); }
@@ -144,6 +147,16 @@ match /chats/{chatId} {
     allow read, create, update, delete: if (isPsychologist() && resource.data.ownerId == request.auth.uid) || isAdmin();
   }
 
+  // Sessões de atendimento vinculadas ao psicólogo
+  match /sessions/{sessionId} {
+    allow read, write: if (
+      (isPsychologist() &&
+        ((resource.data.psychologistId == request.auth.uid) ||
+         (request.resource.data.psychologistId == request.auth.uid))) ||
+      isAdmin()
+    );
+  }
+
 match /quickNotes/{id} {
   allow create: if isStaff() && request.resource.data.ownerId == request.auth.uid && validQuickNote();
   allow read, update, delete: if isStaff() && resource.data.ownerId == request.auth.uid;
@@ -191,7 +204,9 @@ match /users/{userId} {
 }
 
 match /waitingList/{id} {
-  allow read, update: if isStaff();
+  // Somente secretarias podem visualizar a lista de espera
+  allow read: if isSecretary() || isAdmin();
+  allow update: if isAdmin();
   allow create, delete: if isAdmin();
 }
 

@@ -20,6 +20,7 @@
  *       '500':
  *         description: Erro interno ao processar o login.
  */
+/* eslint-env node */
 import { NextResponse } from 'next/server';
 import * as Sentry from '@sentry/nextjs';
 import { auth as adminAuth } from 'firebase-admin';
@@ -34,23 +35,28 @@ export async function POST(request: Request) {
     }
     const expiresIn = 60 * 60 * 24 * 5 * 1000; // 5 days
     const decoded = await adminAuth().verifyIdToken(idToken);
-    const sessionCookie = await adminAuth().createSessionCookie(idToken, { expiresIn });
+    await adminAuth().createSessionCookie(idToken, { expiresIn });
     const userRecord = await adminAuth().getUser(decoded.uid);
     const role = userRecord.customClaims?.role || 'Psychologist';
     const session = { user: { uid: decoded.uid, role } };
     const response = NextResponse.json({ success: true });
     response.cookies.set('session', JSON.stringify(session), {
       httpOnly: true,
+      // eslint-disable-next-line no-undef
       secure: process.env.NODE_ENV === 'production',
       maxAge: expiresIn / 1000,
       path: '/',
     });
-    await writeAuditLog({
-      userId: decoded.uid,
-      actionType: 'login',
-      timestamp: new Date().toISOString(),
-      targetResourceId: decoded.uid,
-    }, firestoreAdmin);
+    console.info({ userId: decoded.uid, action: 'login_api' });
+    await writeAuditLog(
+      {
+        userId: decoded.uid,
+        actionType: 'login',
+        timestamp: new Date().toISOString(),
+        targetResourceId: decoded.uid,
+      },
+      firestoreAdmin
+    );
     return response;
   } catch (e) {
     Sentry.captureException(e);

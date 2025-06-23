@@ -11,6 +11,7 @@ import { addDoc, collection, getDocs, orderBy, query, where, type Firestore } fr
 import { encrypt, decrypt, type EncryptionResult } from '@/lib/crypto-utils';
 import { getEncryptionKey } from '@/lib/encryptionKey';
 import { FIRESTORE_COLLECTIONS } from '@/lib/firestore-collections';
+import { writeAuditLog } from './auditLogService';
 
 export async function gerarProntuario(
   patientId: string,
@@ -44,6 +45,7 @@ export async function saveSessionNote(
   db: Firestore,
   patientId: string,
   summary: string,
+  userId: string,
 ): Promise<string> {
   const key = getEncryptionKey();
   const encrypted = encrypt(summary, key);
@@ -54,6 +56,15 @@ export async function saveSessionNote(
       data: encrypted,
       createdAt: new Date().toISOString(),
     },
+  );
+  await writeAuditLog(
+    {
+      userId,
+      actionType: 'createSessionNote',
+      timestamp: new Date().toISOString(),
+      targetResourceId: docRef.id,
+    },
+    db,
   );
   return docRef.id;
 }

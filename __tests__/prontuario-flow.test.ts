@@ -34,7 +34,7 @@ test('save and retrieve encrypted session note', async () => {
   const db = getAuthedDb(auth)
   setEncryptionPassword('senha-teste')
 
-  const noteId = await saveSessionNote(db, 'patient1', 'conteudo sigiloso')
+  const noteId = await saveSessionNote(db, 'patient1', 'conteudo sigiloso', auth.sub)
   expect(noteId).toBeDefined()
 
   const notes = await getSessionNotes(db, 'patient1')

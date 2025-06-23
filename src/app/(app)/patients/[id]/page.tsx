@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import * as Sentry from '@sentry/nextjs';
 import type { Patient } from '@/types/patient';
 import { fetchPatient } from '@/services/patientService';
 
@@ -21,6 +22,7 @@ export default function PatientDetailPage() {
           setPatient(data);
         }
       } catch (err) {
+        Sentry.captureException(err);
         console.error('Falha ao carregar paciente', err);
       } finally {
         setLoading(false);

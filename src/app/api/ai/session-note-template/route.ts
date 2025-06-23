@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import * as Sentry from '@sentry/nextjs';
 import {
   generateSessionNoteTemplate,
   GenerateSessionNoteTemplateInputSchema,
@@ -18,6 +19,7 @@ export async function POST(req: Request) {
         { status: 400 },
       );
     }
+    Sentry.captureException(e);
     console.error("Error generating session note template:", e);
     return NextResponse.json(
       { error: "Failed to generate session note template" },

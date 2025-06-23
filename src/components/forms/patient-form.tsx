@@ -6,6 +6,7 @@ import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
+import * as Sentry from '@sentry/nextjs';
 import {
   Form,
   FormControl,
@@ -96,6 +97,7 @@ export default function PatientForm({ patientData }: PatientFormProps) {
       }
       router.push('/patients');
     } catch (err) {
+      Sentry.captureException(err);
       console.error(err);
       toast({ title: 'Erro ao salvar paciente', variant: 'destructive' });
     } finally {

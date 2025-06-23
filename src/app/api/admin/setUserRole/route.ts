@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth as adminAuth } from 'firebase-admin';
+import * as Sentry from '@sentry/nextjs';
 
 export async function POST(request: NextRequest) {
   try {
@@ -22,6 +23,7 @@ export async function POST(request: NextRequest) {
     await adminAuth().setCustomUserClaims(uid, { role });
     return NextResponse.json({ success: true });
   } catch (e) {
+    Sentry.captureException(e);
     console.error('Erro ao definir papel', e);
     return NextResponse.json({ error: 'Erro interno' }, { status: 500 });
   }

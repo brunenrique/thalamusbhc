@@ -16,6 +16,7 @@ import { useForm } from "react-hook-form";
 import { Form } from "@/components/ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import * as Sentry from '@sentry/nextjs';
 
 interface TemplateEditorProps {
   templateId?: string; 
@@ -103,6 +104,7 @@ export default function TemplateEditor({
         description: "Um rascunho de modelo foi gerado e preenchido no editor.",
       });
     } catch (error) {
+      Sentry.captureException(error);
       console.error("Erro ao gerar modelo:", error);
       toast({
         title: "Falha na Geração com IA",

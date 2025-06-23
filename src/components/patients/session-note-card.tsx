@@ -32,6 +32,7 @@ import {
 } from "@/components/ui/dialog";
 import { Textarea } from '../ui/textarea';
 import { useToast } from '@/hooks/use-toast';
+import * as Sentry from '@sentry/nextjs';
 
 interface SessionNote {
   id: string;
@@ -67,6 +68,7 @@ function SessionNoteCardComponent({ note, patientName, therapistName = "Psicólo
       setInsights(result);
       toast({ title: "Insights Gerados" });
     } catch (e) {
+      Sentry.captureException(e);
       console.error("Falha ao gerar insights:", e);
       setErrorInsights("Falha ao gerar insights. Por favor, tente novamente.");
     } finally {
@@ -99,6 +101,7 @@ function SessionNoteCardComponent({ note, patientName, therapistName = "Psicólo
       setReportDraft(result.draftContent);
       toast({ title: "Rascunho de relatório gerado" });
     } catch (e) {
+      Sentry.captureException(e);
       console.error("Falha ao gerar rascunho de relatório:", e);
       setErrorReport(`Falha ao gerar rascunho de ${reportTypeName}. Por favor, tente novamente.`);
     } finally {

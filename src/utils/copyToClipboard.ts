@@ -1,3 +1,5 @@
+import * as Sentry from '@sentry/nextjs';
+
 export async function copyToClipboard(text: string): Promise<boolean> {
   if (navigator.clipboard) {
     try {
@@ -21,6 +23,7 @@ export async function copyToClipboard(text: string): Promise<boolean> {
   try {
     success = document.execCommand('copy')
   } catch (err) {
+    Sentry.captureException(err)
     console.error('Fallback copy failed', err)
   }
   document.body.removeChild(textArea)

@@ -3,6 +3,7 @@
 
 import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
+import * as Sentry from '@sentry/nextjs'
 import { cva, type VariantProps } from "class-variance-authority"
 import { Check } from "lucide-react"
 
@@ -56,9 +57,11 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       (children as React.ReactElement).type !== React.Fragment;
 
     if (asChild && !hasSingleValidChild) {
-      console.error(
+      const err = new Error(
         "Button with asChild expects a single React element child that is not a Fragment. Rendering a default <button> instead."
       )
+      Sentry.captureException(err)
+      console.error(err)
     }
 
     const Comp = asChild && hasSingleValidChild ? Slot : "button"

@@ -8,6 +8,7 @@ import { useChatStore } from '@/stores/chatStore';
 import { db } from '@/lib/firebase'; // Alterado de @/services/firebase
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
+import * as Sentry from '@sentry/nextjs';
 
 interface MessageInputProps {
   chatId: string;
@@ -44,6 +45,7 @@ export default function MessageInput({ chatId }: MessageInputProps) {
       });
       setNewMessage('');
     } catch (error) {
+      Sentry.captureException(error);
       console.error("Error sending message: ", error);
       toast({
         title: "Erro ao Enviar Mensagem",

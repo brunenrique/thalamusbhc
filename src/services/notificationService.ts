@@ -1,5 +1,8 @@
 import { messaging, db, auth } from '@/lib/firebase';
 import { getToken } from 'firebase/messaging';
+import * as Sentry from '@sentry/nextjs';
+import { type Firestore } from 'firebase/firestore';
+import { writeAuditLog } from './auditLogService';
 import {
   doc,
   setDoc,
@@ -16,8 +19,6 @@ import {
   onSnapshot,
   Unsubscribe,
 } from 'firebase/firestore';
-import { type Firestore } from 'firebase/firestore';
-import { writeAuditLog } from './auditLogService';
 
 export interface Notification {
   id: string;
@@ -42,15 +43,24 @@ export async function registerFcmToken(userId: string): Promise<string | null> {
     }
     return token;
   } catch (err) {
-    console.error('Unable to get FCM token', err);
+    Sentry.captureException(err);
     return null;
   }
 }
 
-export function listenToNotifications(userId: string, callback: (n: Notification[]) => void): Unsubscribe {
-  const q = query(collection(db, 'users', userId, 'notifications'), orderBy('date', 'desc'));
+export function listenToNotifications(
+  userId: string,
+  callback: (n: Notification[]) => void,
+): Unsubscribe {
+  const q = query(
+    collection(db, 'users', userId, 'notifications'),
+    orderBy('date', 'desc'),
+  );
   return onSnapshot(q, snap => {
-    const list: Notification[] = snap.docs.map(d => ({ id: d.id, ...(d.data() as Omit<Notification,'id'>) }));
+    const list: Notification[] = snap.docs.map(d => ({
+      id: d.id,
+      ...(d.data() as Omit<Notification, 'id'>),
+    }));
     callback(list);
   });
 }
@@ -60,7 +70,10 @@ export async function addNotification(
   data: Omit<Notification, 'id'>,
   firestore: Firestore = db,
 ): Promise<string> {
-  const ref = await addDoc(collection(firestore, 'users', userId, 'notifications'), data);
+  const ref = await addDoc(
+    collection(firestore, 'users', userId, 'notifications'),
+    data,
+  );
   const uid = auth.currentUser?.uid;
   if (uid) {
     await writeAuditLog(
@@ -82,7 +95,10 @@ export async function markNotificationRead(
   read = true,
   firestore: Firestore = db,
 ): Promise<void> {
-  await updateDoc(doc(firestore, 'users', userId, 'notifications', notifId), { read });
+  await updateDoc(
+    doc(firestore, 'users', userId, 'notifications', notifId),
+    { read },
+  );
   const uid = auth.currentUser?.uid;
   if (uid) {
     await writeAuditLog(
@@ -102,7 +118,9 @@ export async function deleteNotification(
   notifId: string,
   firestore: Firestore = db,
 ): Promise<void> {
-  await deleteDoc(doc(firestore, 'users', userId, 'notifications', notifId));
+  await deleteDoc(
+    doc(firestore, 'users', userId, 'notifications', notifId),
+  );
   const uid = auth.currentUser?.uid;
   if (uid) {
     await writeAuditLog(
@@ -121,7 +139,10 @@ export async function markAllNotificationsRead(
   userId: string,
   firestore: Firestore = db,
 ): Promise<void> {
-  const q = query(collection(firestore, 'users', userId, 'notifications'), where('read', '==', false));
+  const q = query(
+    collection(firestore, 'users', userId, 'notifications'),
+    where('read', '==', false),
+  );
   const snap = await getDocs(q);
   const batch = writeBatch(firestore);
   snap.docs.forEach(d => batch.update(d.ref, { read: true }));
@@ -143,7 +164,10 @@ export async function clearReadNotifications(
   userId: string,
   firestore: Firestore = db,
 ): Promise<void> {
-  const q = query(collection(firestore, 'users', userId, 'notifications'), where('read', '==', true));
+  const q = query(
+    collection(firestore, 'users', userId, 'notifications'),
+    where('read', '==', true),
+  );
   const snap = await getDocs(q);
   const batch = writeBatch(firestore);
   snap.docs.forEach(d => batch.delete(d.ref));

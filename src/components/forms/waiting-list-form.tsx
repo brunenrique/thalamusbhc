@@ -6,6 +6,7 @@ import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
+import * as Sentry from '@sentry/nextjs';
 import {
   Form,
   FormControl,
@@ -117,6 +118,7 @@ export default function WaitingListForm({ initialData, entryId }: WaitingListFor
       }
       router.push('/waiting-list');
     } catch (err) {
+      Sentry.captureException(err);
       console.error(err);
       toast({
         title: 'Erro',

@@ -23,7 +23,7 @@
     "typecheck": "tsc --noEmit",
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:all": "jest --coverage",
+    "test:all": "jest --coverage --config jest.config.js",
     "coverage": "jest --coverage",
     "test:rules": "jest tests/firestore.rules.test.ts",
     "test:a11y": "pa11y http://localhost:3000 --chrome --threshold 0 && pa11y http://localhost:3000/analytics --chrome --threshold 0",
@@ -84,6 +84,7 @@
     "lucide-react": "^0.522.0",
     "nanoid": "^5.1.5",
     "next": "^14.2.30",
+    "pino": "^9.7.0",
     "react": "^18.3.1",
     "react-day-picker": "^9.7.0",
     "react-dom": "^18.3.1",
@@ -94,8 +95,7 @@
     "swagger-ui-react": "^5.25.2",
     "tailwind-merge": "^3.3.1",
     "zod": "^3.25.67",
-    "zustand": "^5.0.5",
-    "pino": "^9.7.0"
+    "zustand": "^5.0.5"
   },
   "devDependencies": {
     "@eslint/js": "^9.2.0",
@@ -137,6 +137,7 @@
     "tailwindcss": "^4.1.10",
     "tailwindcss-animate": "^1.0.7",
     "ts-jest": "^29.4.0",
+    "ts-node": "^10.9.2",
     "tsx": "^4.20.3",
     "typescript": "^5.8.3"
   },

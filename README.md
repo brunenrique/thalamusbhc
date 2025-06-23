@@ -33,6 +33,7 @@ Plataforma web para gestão de clínicas de psicologia, com agenda integrada, pr
     - É altamente recomendado usar os emuladores do Firebase para desenvolvimento local.
     - Se esta é a primeira vez, configure os emuladores: `firebase init emulators` (selecione Firestore, Storage, Functions).
     - Inicie os emuladores: `firebase emulators:start --project=demo-project`
+    - Certifique-se de que o `firebase.json` possua a entrada `"storage": { "rules": "storage.rules" }` para que o emulador de Storage possa iniciar.
     - Verifique se os emuladores estão rodando nas portas corretas (Firestore: 8083, Storage: 9199, UI: 4003). O arquivo `firebase.json` está configurado para usar `host: "0.0.0.0"` para os emuladores.
 5.  **Inicie o Servidor de Desenvolvimento Next.js (em outro terminal):**
     ```bash

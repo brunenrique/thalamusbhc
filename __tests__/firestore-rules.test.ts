@@ -55,16 +55,16 @@ describe('Firestore security rules', () => {
 
   describe('Appointment Rules', () => {
     test('non participant cannot read appointment', async () => {
-      const auth1 = { uid: 'psy1' };
-      const auth2 = { uid: 'other' };
-      const db1 = testEnv.authenticatedContext(auth1.uid).firestore();
-      const db2 = testEnv.authenticatedContext(auth2.uid).firestore();
+      const psyAuth = { sub: 'psy1', role: 'Psychologist' };
+      const otherAuth = { uid: 'other' };
+      const psyDb = getAuthedDb(psyAuth);
+      const otherDb = testEnv.authenticatedContext(otherAuth.uid).firestore();
 
-      const docRef = db1.collection('appointments').doc('appt1');
-      await assertSucceeds(docRef.set({ psychologistId: auth1.uid, patientId: 'pat1' }));
+      const docRef = psyDb.collection('appointments').doc('appt1');
+      await assertSucceeds(docRef.set({ psychologistId: psyAuth.sub, patientId: 'pat1' }));
 
-      await assertFails(db2.collection('appointments').doc('appt1').get());
-      await assertFails(db2.collection('appointments').doc('appt1').update({ notes: 'x' }));
+      await assertFails(otherDb.collection('appointments').doc('appt1').get());
+      await assertFails(otherDb.collection('appointments').doc('appt1').update({ notes: 'x' }));
     });
 
     test('unauthenticated user cannot create appointment', async () => {
@@ -73,6 +73,28 @@ describe('Firestore security rules', () => {
         db.collection('appointments').doc('appt2').set({ psychologistId: 'p', patientId: 'pat1' })
       );
       await assertFails(db.collection('appointments').doc('appt1').get());
+    });
+
+    test('psychologist can manage own appointment', async () => {
+      const psyAuth = { sub: 'psy2', role: 'Psychologist' };
+      const db = getAuthedDb(psyAuth);
+      const docRef = db.collection('appointments').doc('apptManage');
+
+      await assertSucceeds(docRef.set({ psychologistId: psyAuth.sub, patientId: 'pat2' }));
+      await assertSucceeds(docRef.update({ notes: 'x' }));
+      await assertSucceeds(docRef.delete());
+    });
+
+    test('patient can read own appointment but cannot modify', async () => {
+      const psyAuth = { sub: 'psy3', role: 'Psychologist' };
+      const psyDb = getAuthedDb(psyAuth);
+      const docRef = psyDb.collection('appointments').doc('apptPatient');
+      await assertSucceeds(docRef.set({ psychologistId: psyAuth.sub, patientId: 'patRead' }));
+
+      const patientDb = testEnv.authenticatedContext('patRead').firestore();
+      await assertSucceeds(patientDb.collection('appointments').doc('apptPatient').get());
+      await assertFails(patientDb.collection('appointments').doc('apptPatient').update({ foo: 'bar' }));
+      await assertFails(patientDb.collection('appointments').doc('apptPatient').delete());
     });
   });
 });

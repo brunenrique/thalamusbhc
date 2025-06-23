@@ -63,23 +63,29 @@ service cloud.firestore {
 
     // Coleção de Agendamentos (Appointments)
     match /appointments/{id} {
-      // Apenas o psicólogo ou o paciente envolvido podem ler o agendamento
-      allow read: if request.auth != null && (
-        request.auth.uid == resource.data.psychologistId ||
-        request.auth.uid == resource.data.patientId
+      // Leitura permitida apenas aos participantes ou Admin
+      allow read: if isAdmin() || (
+        request.auth != null && (
+          request.auth.uid == resource.data.psychologistId ||
+          request.auth.uid == resource.data.patientId
+        )
       );
 
-      // Criação e edição também restritas ao psicólogo ou paciente relacionado
-      allow create, update: if request.auth != null && (
-        request.auth.uid == request.resource.data.psychologistId ||
-        request.auth.uid == request.resource.data.patientId
-      );
+      // Criação restrita ao psicólogo responsável ou Admin
+      allow create: if (isPsychologist() &&
+                      request.auth.uid == request.resource.data.psychologistId) ||
+                      isAdmin();
 
-      // Exclusão segue a mesma lógica de autorização
-      allow delete: if request.auth != null && (
-        request.auth.uid == resource.data.psychologistId ||
-        request.auth.uid == resource.data.patientId
-      );
+      // Atualização restrita ao psicólogo responsável ou Admin
+      allow update: if (isPsychologist() &&
+                      request.auth.uid == resource.data.psychologistId &&
+                      request.resource.data.psychologistId == resource.data.psychologistId) ||
+                      isAdmin();
+
+      // Exclusão restrita ao psicólogo responsável ou Admin
+      allow delete: if (isPsychologist() &&
+                      request.auth.uid == resource.data.psychologistId) ||
+                      isAdmin();
     }
 
     // Coleção de Avaliações (Assessments)

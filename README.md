@@ -1,9 +1,6 @@
 # Thalamus
 
-
 [![Build Status](https://github.com/seu-usuario/thalamus/actions/workflows/ci.yml/badge.svg)](https://github.com/seu-usuario/thalamus/actions/workflows/ci.yml) [![Release](https://img.shields.io/github/v/release/seu-usuario/thalamus)](https://github.com/seu-usuario/thalamus/releases/latest) [![Dependabot](https://img.shields.io/badge/dependabot-enabled-brightgreen?logo=dependabot)](https://github.com/seu-usuario/thalamus/pulls?q=is%3Apr+label%3Adependencies) [![CodeQL](https://github.com/seu-usuario/thalamus/actions/workflows/codeql.yml/badge.svg)](https://github.com/seu-usuario/thalamus/actions/workflows/codeql.yml) [![Coverage Status](https://coveralls.io/repos/github/seu-usuario/thalamus/badge.svg?branch=main)](https://coveralls.io/github/seu-usuario/thalamus?branch=main)
-
-
 
 Plataforma web para gestão de clínicas de psicologia, com agenda integrada, prontuários seguros e funcionalidades auxiliadas por IA. O projeto é baseado em **Next.js** e **Firebase**, utilizando **TypeScript** e **Tailwind CSS** no frontend e **Cloud Functions** no backend. Fluxos de IA são implementados com **Genkit** e Google AI.
 
@@ -170,6 +167,23 @@ npm run docker:down
 ### Variáveis de ambiente
 
 Utilize arquivos `.env.docker` e `.env.functions` (baseados em `env.example`) para definir as chaves necessárias quando rodar via Docker.
+
+Principais variáveis usadas:
+
+- `FIREBASE_PROJECT_ID`
+- `FIREBASE_CLIENT_EMAIL`
+- `FIREBASE_PRIVATE_KEY`
+- `NEXT_PUBLIC_FIREBASE_API_KEY`
+- `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN`
+- `NEXT_PUBLIC_FIREBASE_PROJECT_ID`
+- `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET`
+- `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID`
+- `NEXT_PUBLIC_FIREBASE_APP_ID`
+- `NEXT_PUBLIC_FIREBASE_EMULATOR_HOST`
+- `NEXT_PUBLIC_DISABLE_AUTH`
+- `SENTRY_DSN`
+- `NEXT_PUBLIC_SENTRY_DSN`
+- `LHCI_GITHUB_APP_TOKEN`
 
 ## Solucao de Problemas
 

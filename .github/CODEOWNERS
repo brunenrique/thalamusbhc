@@ -1,0 +1,9 @@
+# Código principal
+/src/ @brunenrique
+/functions/ @brunenrique
+/e2e/ @brunenrique
+
+# Regras do Firebase
+firestore.rules @brunenrique
+firestore.indexes.json @brunenrique
+storage.rules @brunenrique

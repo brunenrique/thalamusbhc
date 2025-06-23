@@ -1,18 +1,19 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { useClinicalStore } from "@/stores/clinicalStore";
-import { Button } from "@/components/ui/button";
+import { useState } from 'react';
+import { useClinicalStore } from '@/stores/clinicalStore';
+import { useMapFilters, MapFilters } from '@/hooks/useMapFilters';
+import { Button } from '@/components/ui/button';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
+} from '@/components/ui/select';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,28 +21,22 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Archive, Filter, Plus } from "lucide-react"; // Example icons
+} from '@/components/ui/dropdown-menu';
+import { Archive, Filter, Plus } from 'lucide-react'; // Example icons
 
 export function MapToolbar() {
-  const {
-    addCard,
-    filters,
-    setFilters,
-    labels,
-    archiveCard,
-    restoreCard,
-    cards,
-  } = useClinicalStore();
+  const { addCard, labels, restoreCard, cards } = useClinicalStore();
 
-  const [newCardType, setNewCardType] = useState("Generic");
+  const { filters, setFilters } = useMapFilters();
+
+  const [newCardType, setNewCardType] = useState('Generic');
 
   const handleAddCard = () => {
     addCard(newCardType);
   };
 
-  const handleFilterChange = (key: keyof typeof filters, value: any) => {
-    setFilters({ ...filters, [key]: value });
+  const handleFilterChange = (key: keyof MapFilters, value: any) => {
+    setFilters(key, value);
   };
 
   return (
@@ -86,10 +81,8 @@ export function MapToolbar() {
               <div className="flex flex-col w-full">
                 <Label htmlFor="filterCardType">Card Type</Label>
                 <Select
-                  value={filters.type || ""}
-                  onValueChange={(value) =>
-                    handleFilterChange("type", value === "" ? null : value)
-                  }
+                  value={filters.type || ''}
+                  onValueChange={(value) => handleFilterChange('type', value === '' ? null : value)}
                 >
                   <SelectTrigger id="filterCardType">
                     <SelectValue placeholder="All Types" />
@@ -114,13 +107,11 @@ export function MapToolbar() {
                   id="filterSessionNumber"
                   type="number"
                   placeholder="All Sessions"
-                  value={filters.sessionNumber || ""}
+                  value={filters.sessionNumber || ''}
                   onChange={(e) =>
                     handleFilterChange(
-                      "sessionNumber",
-                      e.target.value === ""
-                        ? null
-                        : parseInt(e.target.value, 10)
+                      'sessionNumber',
+                      e.target.value === '' ? null : parseInt(e.target.value, 10)
                     )
                   }
                 />
@@ -132,29 +123,26 @@ export function MapToolbar() {
               <div className="flex flex-col w-full">
                 <Label>Labels</Label>
                 {labels.map((label) => (
- <div
- key={label.id}
- className="flex items-center space-x-2"
- >
+                  <div key={label.id} className="flex items-center space-x-2">
                     <Switch
                       checked={filters.labels?.includes(label.id) || false}
                       onCheckedChange={(checked) => {
                         const currentLabels = filters.labels || [];
                         if (checked) {
                           handleFilterChange(
-                            "labels",
+                            'labels',
                             [...currentLabels, label.id].filter(
                               (value, index, self) => self.indexOf(value) === index
                             ) // Ensure unique labels
                           );
                         } else {
                           handleFilterChange(
-                            "labels",
+                            'labels',
                             currentLabels.filter((id) => id !== label.id)
                           );
                         }
                       }}
- id={`filterLabel-${label.id}`}
+                      id={`filterLabel-${label.id}`}
                     />
 
                     <Label htmlFor={`filterLabel-${label.id}`}>{label.text}</Label>
@@ -169,9 +157,7 @@ export function MapToolbar() {
                 <Label htmlFor="filterArchived">Show Archived</Label>
                 <Switch
                   id="filterArchived"
-                  onCheckedChange={(checked) =>
-                    handleFilterChange("showArchived", checked)
-                  }
+                  onCheckedChange={(checked) => handleFilterChange('showArchived', checked)}
                 />
               </div>
             </DropdownMenuItem>
@@ -181,7 +167,7 @@ export function MapToolbar() {
 
       {/* Archived Cards Section (Optional - could be a separate button or part of filters) */}
       <div className="flex items-center gap-2 ml-auto">
- <Label htmlFor="archiveButton">
+        <Label htmlFor="archiveButton">
           <Archive className="h-4 w-4" />
         </Label>
         <DropdownMenu>
@@ -193,14 +179,16 @@ export function MapToolbar() {
           <DropdownMenuContent className="w-56">
             <DropdownMenuLabel>Archived Cards</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            {cards.filter(card => card.isArchived).length > 0 ? (
-                cards.filter(card => card.isArchived).map(card => (
-                    <DropdownMenuItem key={card.id} onSelect={() => restoreCard(card.id)}>
-                        {card.type} Card ({card.sessionNumber}) - Restore
-                    </DropdownMenuItem>
+            {cards.filter((card) => card.isArchived).length > 0 ? (
+              cards
+                .filter((card) => card.isArchived)
+                .map((card) => (
+                  <DropdownMenuItem key={card.id} onSelect={() => restoreCard(card.id)}>
+                    {card.type} Card ({card.sessionNumber}) - Restore
+                  </DropdownMenuItem>
                 ))
             ) : (
-                <DropdownMenuItem disabled>No archived cards</DropdownMenuItem>
+              <DropdownMenuItem disabled>No archived cards</DropdownMenuItem>
             )}
           </DropdownMenuContent>
         </DropdownMenu>

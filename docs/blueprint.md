@@ -28,3 +28,7 @@
 - Use professional, clean icons related to healthcare and psychology.
 - Use a consistent grid system for responsive design across different screen sizes.
 - Implement visual states (hover, focus, active, disabled) and feedback (loading, success/error, confirmation) for all interactions.
+
+## Fase 4: Confiabilidade e Desenvolvimento
+
+Diretrizes sobre segurança de prompts de IA, controle de custos e padronização do ambiente estão detalhadas em [phase4-reliability.md](./phase4-reliability.md).

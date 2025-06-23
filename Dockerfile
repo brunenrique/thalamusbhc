@@ -19,6 +19,8 @@ RUN npm prune --production && yarn cache clean || true
 FROM node:20-alpine AS runtime
 WORKDIR /app
 ENV NODE_ENV=production
+ENV GOOGLE_APPLICATION_CREDENTIALS=/app/credentials.json
+COPY credentials.json /app/credentials.json
 
 # Copy only necessary files from build stage
 COPY --from=build /app/package.json ./

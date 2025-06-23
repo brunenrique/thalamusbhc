@@ -37,7 +37,6 @@ Plataforma web para gestão de clínicas de psicologia, com agenda integrada, pr
     - Você pode definir manualmente a senha chamando `setEncryptionPassword()` no início da aplicação ou configurando a variável de ambiente `ENCRYPTION_KEY`.
     - Sem essa senha, os dados sensíveis gravados no Firestore não poderão ser descriptografados.
 5.  **Inicie os Emuladores Firebase (em um terminal separado):**
-
     - É altamente recomendado usar os emuladores do Firebase para desenvolvimento local.
     - Se esta é a primeira vez, configure os emuladores: `firebase init emulators` (selecione Firestore, Storage, Functions).
     - Inicie os emuladores: `firebase emulators:start --project=demo-project`
@@ -142,6 +141,7 @@ Consulte [docs/blueprint.md](docs/blueprint.md) para uma visão geral das funcio
 Diretrizes adicionais sobre confiabilidade e processos de desenvolvimento estão em [docs/phase4-reliability.md](docs/phase4-reliability.md).
 Os principais fluxos de verificação manual encontram-se em [docs/fluxos-de-teste.md](docs/fluxos-de-teste.md).
 O passo a passo para gerar credenciais temporárias de staging está em [docs/staging-credentials.md](docs/staging-credentials.md).
+Detalhes sobre logs e alertas estão em [docs/observability.md](docs/observability.md).
 
 ## 🏗️ Containerização & Deploy
 

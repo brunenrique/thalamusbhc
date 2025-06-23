@@ -1,0 +1,19 @@
+steps:
+  - name: 'gcr.io/cloud-builders/gcloud'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        cp credentials.json /workspace/credentials.json
+    env:
+      - 'GOOGLE_APPLICATION_CREDENTIALS=/workspace/credentials.json'
+  - name: 'gcr.io/cloud-builders/npm'
+    args: ['install']
+    env:
+      - 'GOOGLE_APPLICATION_CREDENTIALS=/workspace/credentials.json'
+  - name: 'gcr.io/cloud-builders/npm'
+    args: ['run','build']
+    env:
+      - 'GOOGLE_APPLICATION_CREDENTIALS=/workspace/credentials.json'
+images:
+  - 'gcr.io/$PROJECT_ID/thalamus'

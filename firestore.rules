@@ -28,11 +28,24 @@ service cloud.firestore {
     }
 
     // Valida a estrutura dos dados de um paciente.
+    function validEncryptedField(field) {
+      return field.keys().hasOnly(['ciphertext', 'iv', 'tag']) &&
+             field.ciphertext is string &&
+             field.iv is string &&
+             field.tag is string;
+    }
+
     function validPatient() {
-      return request.resource.data.keys().hasOnly(['psychologistId', 'name', 'birthdate']) &&
-             request.resource.data.psychologistId is string &&
+      return request.resource.data.keys().hasOnly([
+               'ownerId', 'name', 'birthdate', 'phoneEnc', 'addressEnc', 'identifierEnc', 'email', 'notes'
+             ]) &&
+             request.resource.data.ownerId is string &&
              request.resource.data.name is string &&
-             (!('birthdate' in request.resource.data) || request.resource.data.birthdate is timestamp);
+             request.resource.data.email is string &&
+             (!('birthdate' in request.resource.data) || request.resource.data.birthdate is timestamp) &&
+             (!('phoneEnc' in request.resource.data) || validEncryptedField(request.resource.data.phoneEnc)) &&
+             (!('addressEnc' in request.resource.data) || validEncryptedField(request.resource.data.addressEnc)) &&
+             (!('identifierEnc' in request.resource.data) || validEncryptedField(request.resource.data.identifierEnc));
    }
     
     // Valida os status permitidos para uma avaliação.
@@ -151,12 +164,12 @@ service cloud.firestore {
     // Coleção de Pacientes (Patients)
     match /patients/{id} {
       allow create: if isStaff() &&
-                      request.resource.data.psychologistId == request.auth.uid &&
+                      request.resource.data.ownerId == request.auth.uid &&
                       validPatient();
 
       // Leitura, edição e exclusão apenas pelo psicólogo responsável
       allow read, update, delete: if request.auth != null &&
-        request.auth.uid == resource.data.psychologistId;
+        request.auth.uid == resource.data.ownerId;
 
       allow list: if isStaff();
     }

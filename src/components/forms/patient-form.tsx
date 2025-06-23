@@ -1,12 +1,11 @@
+'use client';
 
-"use client";
-
-import * as React from "react";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import * as z from "zod";
-import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
+import * as React from 'react';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import * as z from 'zod';
+import { useRouter } from 'next/navigation';
+import { Button } from '@/components/ui/button';
 import {
   Form,
   FormControl,
@@ -14,29 +13,27 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-  FormDescription,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { CalendarIcon, Save } from "lucide-react";
-import { cn } from "@/shared/utils";
-import { format } from "date-fns";
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { CalendarIcon, Save } from 'lucide-react';
+import { cn } from '@/shared/utils';
+import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from '@/hooks/use-toast';
+import { createPatient, updatePatient } from '@/services/patientService';
 
 const patientFormSchema = z.object({
-  name: z
-    .string()
-    .min(3, { message: "O nome completo deve ter pelo menos 3 caracteres." }),
-  age: z
-    .coerce.number()
-    .min(0, { message: "Idade inválida." })
-    .max(120, { message: "Idade inválida." })
+  name: z.string().min(3, { message: 'O nome completo deve ter pelo menos 3 caracteres.' }),
+  age: z.coerce
+    .number()
+    .min(0, { message: 'Idade inválida.' })
+    .max(120, { message: 'Idade inválida.' })
     .optional(),
-  email: z.string().email({ message: "Por favor, insira um endereço de e-mail válido." }),
+  email: z.string().email({ message: 'Por favor, insira um endereço de e-mail válido.' }),
   phone: z.string().optional(),
   dob: z.date().optional(),
   address: z.string().optional(),
@@ -57,25 +54,53 @@ export default function PatientForm({ patientData }: PatientFormProps) {
   const form = useForm<PatientFormValues>({
     resolver: zodResolver(patientFormSchema),
     defaultValues: {
-      name: patientData?.name || "",
+      name: patientData?.name || '',
       age: patientData?.age || undefined,
-      email: patientData?.email || "",
-      phone: patientData?.phone || "",
+      email: patientData?.email || '',
+      phone: patientData?.phone || '',
       dob: patientData?.dob ? new Date(patientData.dob) : undefined,
-      address: patientData?.address || "",
-      notes: patientData?.notes || "",
+      address: patientData?.address || '',
+      notes: patientData?.notes || '',
     },
   });
 
   async function onSubmit(data: PatientFormValues) {
     setIsLoading(true);
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    setIsLoading(false);
-    toast({
-      title: patientData?.id ? "Paciente Atualizado (Simulado)" : "Paciente Adicionado (Simulado)",
-      description: `${data.name} foi ${patientData?.id ? 'atualizado(a)' : 'adicionado(a)'} com sucesso.`,
-    });
-    router.push(patientData?.id ? `/patients/${patientData.id}` : "/patients");
+    try {
+      if (patientData?.id) {
+        await updatePatient(patientData.id, {
+          name: data.name,
+          email: data.email,
+          phone: data.phone,
+          address: data.address,
+          dob: data.dob ?? null,
+          notes: data.notes,
+        });
+        toast({
+          title: 'Paciente Atualizado',
+          description: `${data.name} atualizado com sucesso.`,
+        });
+      } else {
+        await createPatient({
+          name: data.name,
+          email: data.email,
+          phone: data.phone,
+          address: data.address,
+          dob: data.dob ?? null,
+          notes: data.notes,
+        });
+        toast({
+          title: 'Paciente Adicionado',
+          description: `${data.name} foi adicionado com sucesso.`,
+        });
+      }
+      router.push('/patients');
+    } catch (err) {
+      console.error(err);
+      toast({ title: 'Erro ao salvar paciente', variant: 'destructive' });
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   return (
@@ -83,7 +108,9 @@ export default function PatientForm({ patientData }: PatientFormProps) {
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <CardHeader>
-            <CardTitle className="font-headline">{patientData?.id ? "Editar Detalhes do Paciente" : "Informações do Novo Paciente"}</CardTitle>
+            <CardTitle className="font-headline">
+              {patientData?.id ? 'Editar Detalhes do Paciente' : 'Informações do Novo Paciente'}
+            </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="grid md:grid-cols-2 gap-6">
@@ -151,14 +178,14 @@ export default function PatientForm({ patientData }: PatientFormProps) {
                       <PopoverTrigger asChild>
                         <FormControl>
                           <Button
-                            variant={"outline"}
+                            variant={'outline'}
                             className={cn(
-                              "w-full pl-3 text-left font-normal",
-                              !field.value && "text-muted-foreground"
+                              'w-full pl-3 text-left font-normal',
+                              !field.value && 'text-muted-foreground'
                             )}
                           >
                             {field.value ? (
-                              format(field.value, "P", { locale: ptBR })
+                              format(field.value, 'P', { locale: ptBR })
                             ) : (
                               <span>Escolha uma data</span>
                             )}
@@ -171,9 +198,7 @@ export default function PatientForm({ patientData }: PatientFormProps) {
                           mode="single"
                           selected={field.value}
                           onSelect={field.onChange}
-                          disabled={(date) =>
-                            date > new Date() || date < new Date("1900-01-01")
-                          }
+                          disabled={(date) => date > new Date() || date < new Date('1900-01-01')}
                           initialFocus
                           locale={ptBR}
                         />
@@ -191,7 +216,11 @@ export default function PatientForm({ patientData }: PatientFormProps) {
                 <FormItem>
                   <FormLabel>Endereço</FormLabel>
                   <FormControl>
-                    <Textarea placeholder="Rua Exemplo, 123, Bairro, Cidade - UF" {...field} rows={3} />
+                    <Textarea
+                      placeholder="Rua Exemplo, 123, Bairro, Cidade - UF"
+                      {...field}
+                      rows={3}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -212,9 +241,19 @@ export default function PatientForm({ patientData }: PatientFormProps) {
             />
           </CardContent>
           <CardFooter className="flex justify-end">
-            <Button type="submit" className="bg-accent hover:bg-accent/90 text-accent-foreground" disabled={isLoading}>
+            <Button
+              type="submit"
+              className="bg-accent hover:bg-accent/90 text-accent-foreground"
+              disabled={isLoading}
+            >
               <Save className="mr-2 h-4 w-4" />
-              {isLoading ? (patientData?.id ? "Salvando Alterações..." : "Adicionando Paciente...") : (patientData?.id ? "Salvar Alterações" : "Adicionar Paciente")}
+              {isLoading
+                ? patientData?.id
+                  ? 'Salvando Alterações...'
+                  : 'Adicionando Paciente...'
+                : patientData?.id
+                  ? 'Salvar Alterações'
+                  : 'Adicionar Paciente'}
             </Button>
           </CardFooter>
         </form>
@@ -222,5 +261,3 @@ export default function PatientForm({ patientData }: PatientFormProps) {
     </Card>
   );
 }
-
-    

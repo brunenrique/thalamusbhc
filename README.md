@@ -142,6 +142,35 @@ _Ao adicionar `FIREBASE_PRIVATE_KEY` ao seu arquivo `.env.local` ou variável de
 Consulte [docs/blueprint.md](docs/blueprint.md) para uma visão geral das funcionalidades planejadas.
 Diretrizes adicionais sobre confiabilidade e processos de desenvolvimento estão em [docs/phase4-reliability.md](docs/phase4-reliability.md).
 
+## 🏗️ Containerização & Deploy
+
+Este repositório possui Dockerfiles e um `docker-compose.yml` para executar a aplicação Next.js e as Cloud Functions de forma integrada.
+
+### Construir as imagens
+
+```bash
+npm run docker:build              # imagem do app Next.js
+npm run docker:functions:build    # imagem das Cloud Functions
+```
+
+### Subir os serviços
+
+```bash
+npm run docker:up
+```
+
+Para desligar:
+
+```bash
+npm run docker:down
+```
+
+É possível levantar cada serviço isoladamente, por exemplo `docker-compose up web`.
+
+### Variáveis de ambiente
+
+Utilize arquivos `.env.docker` e `.env.functions` (baseados em `env.example`) para definir as chaves necessárias quando rodar via Docker.
+
 ## Solucao de Problemas
 
 Erros genéricos como **"An unexpected Turbopack error occurred"** costumam estar relacionados a configurações de ambiente ou dependências ausentes. Caso se depare com essa mensagem ao rodar `npm run dev`, verifique os pontos abaixo:

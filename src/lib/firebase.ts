@@ -5,6 +5,7 @@ import { getAuth, connectAuthEmulator, type Auth } from 'firebase/auth';
 import { getFirestore, connectFirestoreEmulator, type Firestore } from 'firebase/firestore';
 import { getStorage, connectStorageEmulator, type FirebaseStorage } from 'firebase/storage';
 import { getMessaging, type Messaging } from 'firebase/messaging';
+import logger from '@/lib/logger';
 // Para Functions, se for usar diretamente no cliente no futuro:
 // import { getFunctions, connectFunctionsEmulator, type Functions } from 'firebase/functions';
 
@@ -22,7 +23,7 @@ if (process.env.NODE_ENV === 'development') {
     messagingSenderId: "000000000000_placeholder", // Placeholder
     appId: "1:000000000000:web:placeholderxxxxxxxxxxxxxx", // Placeholder
   };
-  console.info('Development mode: Initializing Firebase with placeholder config before connecting to emulators.');
+  logger.info({ action: 'init_firebase_dev' });
 } else {
   // Configuração de Produção
   firebaseConfig = {
@@ -47,22 +48,22 @@ if (typeof window !== 'undefined') {
 // const functions: Functions = getFunctions(app); // Descomente se for usar Functions no cliente
 
 if (process.env.NODE_ENV === 'development') {
-  console.info('Development mode: Attempting to connect to Firebase Emulators...');
+  logger.info({ action: 'connect_emulators_start' });
   try {
     // Use 'localhost' as a fallback, as '127.0.0.1' can sometimes be tricky in containerized/proxied environments.
     const host = process.env.NEXT_PUBLIC_FIREBASE_EMULATOR_HOST || 'localhost';
     
     const authPort = 9099;
     connectAuthEmulator(auth, `http://${host}:${authPort}`, { disableWarnings: true });
-    console.info(`Auth Emulator connected to http://${host}:${authPort}`);
+    logger.info({ action: 'auth_emulator_connected', meta: { host, port: authPort } });
 
     const firestorePort = 8084;
     connectFirestoreEmulator(db, host, firestorePort);
-    console.info(`Firestore Emulator connected to ${host}:${firestorePort}`);
+    logger.info({ action: 'firestore_emulator_connected', meta: { host, port: firestorePort } });
 
     const storagePort = 9200;
     connectStorageEmulator(storage, host, storagePort);
-    console.info(`Storage Emulator connected to ${host}:${storagePort}`);
+    logger.info({ action: 'storage_emulator_connected', meta: { host, port: storagePort } });
 
     // Functions Emulator (se necessário)
     // const functionsPort = 5001;
@@ -71,7 +72,7 @@ if (process.env.NODE_ENV === 'development') {
     
   } catch (error) {
     Sentry.captureException(error);
-    console.error('Error connecting to Firebase Emulators:', error);
+    logger.error({ action: 'emulator_connect_error', meta: { error } });
   }
 }
 

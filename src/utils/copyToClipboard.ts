@@ -1,4 +1,5 @@
 import * as Sentry from '@sentry/nextjs';
+import logger from '@/lib/logger';
 
 export async function copyToClipboard(text: string): Promise<boolean> {
   if (navigator.clipboard) {
@@ -6,7 +7,7 @@ export async function copyToClipboard(text: string): Promise<boolean> {
       await navigator.clipboard.writeText(text)
       return true
     } catch (err) {
-      console.warn('navigator.clipboard.writeText failed', err)
+      logger.warn({ action: 'clipboard_write_failed', meta: { error: err } })
     }
   }
 
@@ -24,7 +25,7 @@ export async function copyToClipboard(text: string): Promise<boolean> {
     success = document.execCommand('copy')
   } catch (err) {
     Sentry.captureException(err)
-    console.error('Fallback copy failed', err)
+    logger.error({ action: 'clipboard_fallback_failed', meta: { error: err } })
   }
   document.body.removeChild(textArea)
   return success

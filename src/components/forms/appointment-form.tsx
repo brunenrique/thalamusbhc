@@ -43,6 +43,7 @@ import { useToast } from '@/hooks/use-toast';
 import useAuth from '@/hooks/use-auth';
 import { insertOrUpdateEvent, hasTokens } from '@/services/googleCalendar';
 import * as Sentry from '@sentry/nextjs';
+import logger from '@/lib/logger';
 
 const mockPatients = [
   { id: '1', name: 'Alice Wonderland' },
@@ -316,7 +317,7 @@ export default function AppointmentForm({ appointmentData }: AppointmentFormProp
           });
         } catch (err) {
           Sentry.captureException(err);
-          console.error('Erro ao sincronizar com Google Calendar', err);
+          logger.error({ action: 'calendar_sync_error', meta: { error: err } });
         }
       }
       toast({
@@ -330,7 +331,7 @@ export default function AppointmentForm({ appointmentData }: AppointmentFormProp
       router.push('/schedule');
     } catch (e) {
       Sentry.captureException(e);
-      console.error(e);
+      logger.error({ action: 'save_appointment_error', meta: { error: e } });
       toast({
         title: 'Erro Inesperado',
         description: 'Ocorreu uma falha inesperada ao salvar. Tente novamente.',

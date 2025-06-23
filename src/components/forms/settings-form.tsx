@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import logger from '@/lib/logger';
 import { Save, SlidersHorizontal } from "lucide-react";
 import { Checkbox } from "../ui/checkbox";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -61,7 +62,7 @@ export default function SettingsForm({ section }: SettingsFormProps) {
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     // In a real app, you would persist these settings
-    console.info("Configurações de trabalho salvas (simulado):", workingDays);
+    logger.info({ action: 'save_settings_simulated', meta: { workingDays } });
     toast({
       title: "Configurações Salvas (Simulado)",
       description: `As configurações de ${section.charAt(0).toUpperCase() + section.slice(1)} foram atualizadas.`,

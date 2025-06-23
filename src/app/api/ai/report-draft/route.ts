@@ -22,6 +22,7 @@
  */
 import { NextResponse } from "next/server";
 import * as Sentry from '@sentry/nextjs';
+import logger from '@/lib/logger';
 import {
   generateReportDraft,
   GenerateReportDraftInputSchema,
@@ -42,7 +43,7 @@ export async function POST(req: Request) {
       );
     }
     Sentry.captureException(e);
-    console.error("Error generating report draft:", e);
+    logger.error({ action: 'generate_report_draft_error', meta: { error: e } });
     return NextResponse.json(
       { error: "Failed to generate report draft" },
       { status: 500 },

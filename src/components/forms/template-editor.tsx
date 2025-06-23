@@ -17,6 +17,7 @@ import { Form } from "@/components/ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import * as Sentry from '@sentry/nextjs';
+import logger from '@/lib/logger';
 
 interface TemplateEditorProps {
   templateId?: string; 
@@ -105,7 +106,7 @@ export default function TemplateEditor({
       });
     } catch (error) {
       Sentry.captureException(error);
-      console.error("Erro ao gerar modelo:", error);
+      logger.error({ action: 'ai_template_error', meta: { error } });
       toast({
         title: "Falha na Geração com IA",
         description: "Não foi possível gerar o modelo. Por favor, tente novamente.",

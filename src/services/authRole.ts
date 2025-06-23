@@ -3,6 +3,7 @@
 
 import { getAuth, getIdTokenResult } from 'firebase/auth';
 import * as Sentry from '@sentry/nextjs';
+import logger from '@/lib/logger';
 
 export type UserRole = 'Admin' | 'Psychologist' | 'Secretary';
 
@@ -17,7 +18,7 @@ export async function getCurrentUserRole(): Promise<UserRole | null> {
     return role ?? null;
   } catch (error) {
     Sentry.captureException(error);
-    console.error('Erro ao obter role do usuário', error);
+    logger.error({ action: 'get_role_error', meta: { error } });
     return null;
   }
 }

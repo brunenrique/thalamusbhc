@@ -18,6 +18,7 @@ import { Button } from '@/components/ui/button';
 import { CalendarPlus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { createSchedule } from '@/services/scheduleService';
+import logger from '@/lib/logger';
 
 export const scheduleSchema = z.object({
   dateTime: z.coerce.date().refine((d) => d >= new Date(), {
@@ -48,7 +49,7 @@ export default function ScheduleForm() {
         description: data.dateTime.toLocaleString(),
       });
     } catch (e) {
-      console.error(e);
+      logger.error({ action: 'save_schedule_error', meta: { error: e } });
       toast({
         title: 'Erro ao Salvar',
         description: 'Não foi possível registrar o agendamento.',

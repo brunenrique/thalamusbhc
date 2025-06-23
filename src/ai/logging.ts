@@ -1,3 +1,5 @@
+import logger from '@/lib/logger';
+
 export async function trackFlow<TInput, TOutput>(
   name: string,
   fn: (input: TInput) => Promise<TOutput>,
@@ -13,5 +15,5 @@ export async function trackFlow<TInput, TOutput>(
 function logUsage(name: string, input: unknown, output: unknown, ms: number) {
   const inSize = JSON.stringify(input).length;
   const outSize = JSON.stringify(output).length;
-  console.info(`[AI] ${name} ${ms}ms in/out ${inSize}/${outSize}`);
+  logger.info({ action: 'ai_usage', meta: { name, ms, inSize, outSize } });
 }

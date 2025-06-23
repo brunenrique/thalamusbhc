@@ -5,6 +5,7 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { copyToClipboard } from "@/utils/copyToClipboard";
 import * as Sentry from '@sentry/nextjs';
+import logger from '@/lib/logger';
 
 interface CopyButtonProps {
   value: string;
@@ -23,7 +24,7 @@ export default function CopyButton({ value, className }: CopyButtonProps) {
       }
     } catch (e) {
       Sentry.captureException(e);
-      console.error("Failed to copy", e);
+      logger.error({ action: 'copy_failed', meta: { error: e } });
     }
   };
 

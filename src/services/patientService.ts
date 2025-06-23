@@ -17,6 +17,7 @@ import { FIRESTORE_COLLECTIONS } from '@/lib/firestore-collections';
 import { encrypt, decrypt, type EncryptionResult } from '@/lib/crypto-utils';
 import { getEncryptionKey } from '@/lib/encryptionKey';
 import * as Sentry from '@sentry/nextjs';
+import logger from '@/lib/logger';
 
 interface FirestorePatient {
   ownerId: string;
@@ -71,7 +72,7 @@ export async function fetchPatients(): Promise<Patient[]> {
     });
   } catch (err) {
     Sentry.captureException(err);
-    console.error('Erro ao buscar pacientes', err);
+    logger.error({ action: 'fetch_patients_error', meta: { error: err } });
     return [];
   }
 }
@@ -100,7 +101,7 @@ export async function fetchPatient(id: string): Promise<Patient | null> {
     } as Patient;
   } catch (err) {
     Sentry.captureException(err);
-    console.error('Erro ao buscar paciente', err);
+    logger.error({ action: 'fetch_patient_error', meta: { error: err } });
     return null;
   }
 }

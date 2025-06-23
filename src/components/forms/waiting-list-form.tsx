@@ -7,6 +7,7 @@ import * as z from 'zod';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import * as Sentry from '@sentry/nextjs';
+import logger from '@/lib/logger';
 import {
   Form,
   FormControl,
@@ -119,7 +120,7 @@ export default function WaitingListForm({ initialData, entryId }: WaitingListFor
       router.push('/waiting-list');
     } catch (err) {
       Sentry.captureException(err);
-      console.error(err);
+      logger.error({ action: 'save_waiting_error', meta: { error: err } });
       toast({
         title: 'Erro',
         description: 'Não foi possível salvar os dados.',

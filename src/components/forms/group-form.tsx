@@ -37,6 +37,7 @@ import { useToast } from '@/hooks/use-toast';
 import { groupSchema } from '@/schemas/groupSchema';
 import { createGroup, updateGroup } from '@/services/groupService';
 import type { z } from 'zod';
+import logger from '@/lib/logger';
 
 // Mock data - ideally fetch from services or context
 const mockPatientsForSelect = [
@@ -103,7 +104,7 @@ export default function GroupForm({ initialData, groupId }: GroupFormProps) {
       });
       router.push('/groups');
     } catch (e) {
-      console.error(e);
+      logger.error({ action: 'save_group_error', meta: { error: e } });
       toast({
         title: 'Erro ao Salvar',
         description: 'Não foi possível salvar o grupo. Tente novamente.',

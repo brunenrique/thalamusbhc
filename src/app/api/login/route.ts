@@ -23,6 +23,7 @@
 /* eslint-env node */
 import { NextResponse } from 'next/server';
 import * as Sentry from '@sentry/nextjs';
+import logger from '@/lib/logger';
 import { auth as adminAuth } from 'firebase-admin';
 import { firestoreAdmin } from '@/lib/firebaseAdmin';
 import { writeAuditLog } from '@/services/auditLogService';
@@ -47,7 +48,7 @@ export async function POST(request: Request) {
       maxAge: expiresIn / 1000,
       path: '/',
     });
-    console.info({ userId: decoded.uid, action: 'login_api' });
+    logger.info({ userId: decoded.uid, action: 'login_api' });
     await writeAuditLog(
       {
         userId: decoded.uid,
@@ -60,7 +61,7 @@ export async function POST(request: Request) {
     return response;
   } catch (e) {
     Sentry.captureException(e);
-    console.error('Login API error', e);
+    logger.error({ action: 'login_api_error', meta: { error: e } });
     return NextResponse.json({ error: 'Internal error' }, { status: 500 });
   }
 }

@@ -29,6 +29,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth as adminAuth } from 'firebase-admin';
 import * as Sentry from '@sentry/nextjs';
+import logger from '@/lib/logger';
 
 export async function POST(request: NextRequest) {
   try {
@@ -52,7 +53,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: true });
   } catch (e) {
     Sentry.captureException(e);
-    console.error('Erro ao definir papel', e);
+    logger.error({ action: 'set_user_role_error', meta: { error: e } });
     return NextResponse.json({ error: 'Erro interno' }, { status: 500 });
   }
 }

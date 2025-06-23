@@ -23,6 +23,7 @@
  */
 import { NextResponse } from 'next/server';
 import * as Sentry from '@sentry/nextjs';
+import logger from '@/lib/logger';
 import { ZodError } from 'zod';
 import {
   getClinicalSupervision,
@@ -51,7 +52,7 @@ export async function POST(req: Request) {
       );
     }
     Sentry.captureException(e);
-    console.error('Erro na API de supervisão:', e);
+    logger.error({ action: 'supervisao_api_error', meta: { error: e } });
     const errorMessage = e instanceof Error ? e.message : 'Falha ao processar a solicitação de supervisão.';
     return NextResponse.json(
       { error: errorMessage },

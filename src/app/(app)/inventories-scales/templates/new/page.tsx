@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import logger from '@/lib/logger';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { PlusCircle, Save, FileText } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -48,7 +49,7 @@ export default function NewInventoryScaleTemplatePage() {
 
   async function onSubmit(data: AssessmentTemplateFormValues) {
     setIsLoading(true);
-    console.log("Criação de Modelo de Inventário/Escala (Simulado):", data);
+    logger.info({ action: 'create_inventory_template_simulated', meta: { data } });
     await new Promise((resolve) => setTimeout(resolve, 1000)); 
 
     setIsLoading(false);

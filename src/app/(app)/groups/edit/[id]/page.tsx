@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Edit, FileWarning } from 'lucide-react';
 import Link from 'next/link';
+import logger from '@/lib/logger';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 
 export default function EditGroupPage() {
@@ -43,7 +44,7 @@ export default function EditGroupPage() {
           setError('Grupo não encontrado.');
         }
       } catch (e) {
-        console.error(e);
+        logger.error({ action: 'load_group_error', meta: { error: e } });
         setError('Erro ao carregar grupo.');
       } finally {
         setLoading(false);

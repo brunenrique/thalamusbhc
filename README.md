@@ -121,13 +121,14 @@ _Ao adicionar `FIREBASE_PRIVATE_KEY` ao seu arquivo `.env.local` ou variável de
   ```
 
 Consulte [docs/blueprint.md](docs/blueprint.md) para uma visão geral das funcionalidades planejadas.
+Diretrizes adicionais sobre confiabilidade e processos de desenvolvimento estão em [docs/phase4-reliability.md](docs/phase4-reliability.md).
 
 ## Solucao de Problemas
 
 Erros genéricos como **"An unexpected Turbopack error occurred"** costumam estar relacionados a configurações de ambiente ou dependências ausentes. Caso se depare com essa mensagem ao rodar `npm run dev`, verifique os pontos abaixo:
 
 1. Execute `npm install` para garantir que todas as dependências estejam instaladas.
-2. Confirme se está utilizando uma versão do **Node.js** compatível (18 ou superior).
+2. Utilize a versão **Node.js 20.11.0** (padronizada no projeto).
 3. Copie `env.example` para `.env.local` e preencha as variáveis necessárias.
 4. Apague a pasta `.next` (cache do Next.js) e tente novamente: `rm -rf .next && npm run dev`.
 5. Observe o log completo gerado pelo `next dev` para identificar possíveis mensagens adicionais de erro.

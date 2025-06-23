@@ -1,4 +1,3 @@
-
 'use server';
 /**
  * @fileOverview Simulação de supervisão clínica utilizando IA.
@@ -9,6 +8,7 @@
  */
 
 import { ai } from '@/ai/genkit';
+import { trackFlow } from '@/ai/logging';
 import { z } from 'genkit';
 import { getPrompt } from '@/ai/prompts';
 
@@ -39,21 +39,25 @@ Sempre que possível, fundamente as respostas nas seguintes obras, bem como em d
 `;
 
 export const ClinicalSupervisionInputSchema = z.object({
-  clinicalMaterial: z.string().min(1, { message: "O material clínico não pode estar vazio." })
-    .describe("Material clínico anonimizado fornecido pelo psicólogo para supervisão."),
+  clinicalMaterial: z
+    .string()
+    .min(1, { message: 'O material clínico não pode estar vazio.' })
+    .describe('Material clínico anonimizado fornecido pelo psicólogo para supervisão.'),
 });
 export type ClinicalSupervisionInput = z.infer<typeof ClinicalSupervisionInputSchema>;
 
 export const ClinicalSupervisionOutputSchema = z.object({
-  analysis: z.string().describe("A análise de supervisão gerada pela IA."),
+  analysis: z.string().describe('A análise de supervisão gerada pela IA.'),
 });
 export type ClinicalSupervisionOutput = z.infer<typeof ClinicalSupervisionOutputSchema>;
 
 import type { Result } from '@/ai/types';
 
-export async function getClinicalSupervision(input: ClinicalSupervisionInput): Promise<Result<ClinicalSupervisionOutput>> {
+export async function getClinicalSupervision(
+  input: ClinicalSupervisionInput
+): Promise<Result<ClinicalSupervisionOutput>> {
   try {
-    const data = await clinicalSupervisionFlow(input);
+    const data = await trackFlow('clinicalSupervisionFlow', clinicalSupervisionFlow, input);
     return { success: true, data };
   } catch (_e) {
     return { success: false, error: 'Erro ao gerar resposta' };
@@ -65,10 +69,10 @@ const prompt = ai.definePrompt({
   input: { schema: ClinicalSupervisionInputSchema },
   output: { schema: ClinicalSupervisionOutputSchema },
   prompt: `${getPrompt('clinicalSupervisionMaster')}\n\nTexto do Terapeuta para Supervisão:\n{{{clinicalMaterial}}}`,
-  model: 'googleai/gemini-1.5-flash-latest', 
+  model: 'googleai/gemini-1.5-flash-latest',
   config: {
-    temperature: 0.6, 
-  }
+    temperature: 0.6,
+  },
 });
 
 const clinicalSupervisionFlow = ai.defineFlow(
@@ -80,7 +84,7 @@ const clinicalSupervisionFlow = ai.defineFlow(
   async (input) => {
     const { output } = await prompt(input);
     if (!output) {
-      throw new Error("A IA não retornou uma análise.");
+      throw new Error('A IA não retornou uma análise.');
     }
     return output;
   }

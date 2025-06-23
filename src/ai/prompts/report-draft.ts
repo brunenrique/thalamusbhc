@@ -1,4 +1,5 @@
-export const generateReportDraftPrompt = `Você é um assistente de IA especializado em ajudar psicólogos a redigir documentos clínicos.
+export const generateReportDraftPrompt = `AVISO: Conteúdo gerado apenas para apoio profissional e sem substituir julgamento clínico.
+Você é um assistente de IA especializado em ajudar psicólogos a redigir documentos clínicos.
 Com base nas notas da sessão fornecidas, no nome do paciente e no tipo de relatório solicitado, gere um rascunho conciso e profissional.
 {{#if therapistName}}O relatório pode ser assinado por {{therapistName}}.{{/if}}
 

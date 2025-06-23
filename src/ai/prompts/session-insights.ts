@@ -1,4 +1,5 @@
-export const generateSessionInsightsPrompt = `You are an AI assistant for psychologists. Analyze the following session notes to identify key themes, symptom evolution, provide suggestive insights, and flag important observations.
+export const generateSessionInsightsPrompt = `AVISO: Esta ferramenta não substitui avaliação profissional ou supervisão clínica.
+You are an AI assistant for psychologists. Analyze the following session notes to identify key themes, symptom evolution, provide suggestive insights, and flag important observations.
 
 Session Notes:
 {{{sessionNotes}}}

@@ -7,14 +7,17 @@
  * - GenerateReportDraftOutput - The return type for the generateReportDraft function.
  */
 
-import {ai} from '@/ai/genkit';
-import {z} from 'genkit';
-import {getPrompt} from '@/ai/prompts';
+import { ai } from '@/ai/genkit';
+import { trackFlow } from '@/ai/logging';
+import { z } from 'genkit';
+import { getPrompt } from '@/ai/prompts';
 
 export const GenerateReportDraftInputSchema = z.object({
   sessionNotes: z.string().describe('The session notes to base the report on.'),
   patientName: z.string().describe('The name of the patient.'),
-  reportType: z.enum(["progress_report", "referral_letter", "session_summary"]).describe('The type of report to generate.'),
+  reportType: z
+    .enum(['progress_report', 'referral_letter', 'session_summary'])
+    .describe('The type of report to generate.'),
   therapistName: z.string().optional().describe('The name of the therapist (e.g., Dr. Silva).'),
 });
 export type GenerateReportDraftInput = z.infer<typeof GenerateReportDraftInputSchema>;
@@ -26,9 +29,11 @@ export type GenerateReportDraftOutput = z.infer<typeof GenerateReportDraftOutput
 
 import type { Result } from '@/ai/types';
 
-export async function generateReportDraft(input: GenerateReportDraftInput): Promise<Result<GenerateReportDraftOutput>> {
+export async function generateReportDraft(
+  input: GenerateReportDraftInput
+): Promise<Result<GenerateReportDraftOutput>> {
   try {
-    const data = await generateReportDraftFlow(input);
+    const data = await trackFlow('generateReportDraftFlow', generateReportDraftFlow, input);
     return { success: true, data };
   } catch (err) {
     return { success: false, error: 'Erro ao gerar resposta' };
@@ -37,9 +42,9 @@ export async function generateReportDraft(input: GenerateReportDraftInput): Prom
 
 const prompt = ai.definePrompt({
   name: 'generateReportDraftPrompt',
-  input: {schema: GenerateReportDraftInputSchema},
-  output: {schema: GenerateReportDraftOutputSchema},
-  prompt: getPrompt("generateReportDraft"),
+  input: { schema: GenerateReportDraftInputSchema },
+  output: { schema: GenerateReportDraftOutputSchema },
+  prompt: getPrompt('generateReportDraft'),
 });
 
 const generateReportDraftFlow = ai.defineFlow(
@@ -49,7 +54,7 @@ const generateReportDraftFlow = ai.defineFlow(
     outputSchema: GenerateReportDraftOutputSchema,
   },
   async (input: GenerateReportDraftInput) => {
-    const {output} = await prompt(input);
+    const { output } = await prompt(input);
     return output!;
   }
 );

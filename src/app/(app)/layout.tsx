@@ -5,6 +5,8 @@ import ErrorBoundary from '@/components/layout/error-boundary';
 import { useRouter, usePathname } from 'next/navigation';
 import { checkUserRole } from '@/services/authRole';
 import { USER_ROLES } from '@/constants/roles';
+import { useFirstLoginStatus } from '@/hooks/use-first-login-status';
+import { WelcomeModal } from '@/components/onboarding/welcome-modal';
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -14,6 +16,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
   const router = useRouter();
   const pathname = usePathname();
   const [authorized, setAuthorized] = useState(false);
+  const { isFirstLogin, markOnboardingAsCompleted } = useFirstLoginStatus();
 
   useEffect(() => {
     checkUserRole([USER_ROLES.ADMIN, USER_ROLES.PSYCHOLOGIST, 'Secretary']).then((ok) => {
@@ -32,6 +35,10 @@ export default function AppLayout({ children }: AppLayoutProps) {
       <main className="flex-1 p-4 md:p-6 lg:p-8">
         <ErrorBoundary>{children}</ErrorBoundary>
       </main>
+      <WelcomeModal
+        isOpen={isFirstLogin}
+        onClose={markOnboardingAsCompleted}
+      />
     </div>
   );
 }

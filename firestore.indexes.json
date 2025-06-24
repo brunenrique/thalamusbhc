@@ -7,6 +7,15 @@
         { "fieldPath": "psychologistId", "order": "ASCENDING" },
         { "fieldPath": "appointmentDate", "order": "ASCENDING" }
       ]
+    },
+    {
+      "collectionGroup": "sessions",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "psychologistId", "order": "ASCENDING" },
+        { "fieldPath": "userId", "order": "ASCENDING" },
+        { "fieldPath": "date", "order": "ASCENDING" }
+      ]
     }
   ],
   "fieldOverrides": []

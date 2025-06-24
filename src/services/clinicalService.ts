@@ -48,3 +48,21 @@ export async function saveClinicalData(
     throw err;
   }
 }
+
+export async function updateNodes(
+  patientId: string,
+  tabId: string,
+  nodes: any[],
+  firestore: Firestore = db
+): Promise<void> {
+  await saveClinicalData(patientId, tabId, { nodes }, firestore);
+}
+
+export async function updateEdges(
+  patientId: string,
+  tabId: string,
+  edges: any[],
+  firestore: Firestore = db
+): Promise<void> {
+  await saveClinicalData(patientId, tabId, { edges }, firestore);
+}

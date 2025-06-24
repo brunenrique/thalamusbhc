@@ -1,4 +1,6 @@
 import Charts from './Charts';
+import StatsCard from '@/components/dashboard/stats-card';
+import { Clock } from 'lucide-react';
 import { firestoreAdmin } from '@/lib/firebaseAdmin';
 import { Timestamp } from 'firebase-admin/firestore';
 
@@ -40,10 +42,76 @@ export default async function AnalyticsPage() {
   });
   const notifications = Object.entries(rateMap).map(([day, success]) => ({ day, success }));
 
+  // --- Sessions Analytics ---
+  const nameMap: Record<string, string> = {};
+  usersSnap.forEach((doc) => {
+    const data = doc.data();
+    if (data.role === 'Psychologist') {
+      nameMap[doc.id] = data.name || doc.id;
+    }
+  });
+
+  const sessionsSnap = await firestoreAdmin.collection('sessions').get();
+
+  const sessionCount: Record<string, number> = {};
+  const weeklyMap: Record<string, number> = {};
+  let totalDuration = 0;
+  let durationCount = 0;
+  const weekStart = new Date();
+  weekStart.setDate(weekStart.getDate() - 6);
+
+  sessionsSnap.forEach((doc) => {
+    const data = doc.data() as any;
+    const psyId = data.psychologistId as string | undefined;
+    if (psyId) {
+      const key = nameMap[psyId] || psyId;
+      sessionCount[key] = (sessionCount[key] || 0) + 1;
+    }
+
+    const start = data.startTime?.toDate?.() as Date | undefined;
+    const end = data.endTime?.toDate?.() as Date | undefined;
+    let duration = data.duration as number | undefined;
+    if (!duration && start && end) {
+      duration = (end.getTime() - start.getTime()) / 60000;
+    }
+    if (typeof duration === 'number') {
+      totalDuration += duration;
+      durationCount += 1;
+    }
+    const trendDate = start ?? data.date?.toDate?.();
+    if (trendDate && trendDate >= weekStart) {
+      const k = trendDate.toISOString().slice(0, 10);
+      weeklyMap[k] = (weeklyMap[k] || 0) + 1;
+    }
+  });
+
+  const sessionsByPsychologist = Object.entries(sessionCount).map(([name, sessions]) => ({
+    name,
+    sessions,
+  }));
+
+  const avgDuration = durationCount ? totalDuration / durationCount : 0;
+  const weeklySessions = Object.entries(weeklyMap)
+    .map(([day, total]) => ({ day, total }))
+    .sort((a, b) => a.day.localeCompare(b.day));
+
   return (
     <main className="p-6 space-y-6">
       <h1 className="text-2xl font-bold font-headline">Analytics</h1>
-      <Charts userRoles={userRoles} appointments={appointments} notifications={notifications} />
+      <Charts
+        userRoles={userRoles}
+        appointments={appointments}
+        notifications={notifications}
+        sessionsByPsychologist={sessionsByPsychologist}
+        weeklySessions={weeklySessions}
+      />
+      <div className="max-w-xs">
+        <StatsCard
+          title="Duração Média da Sessão"
+          value={`${avgDuration.toFixed(1)} min`}
+          icon={<Clock className="text-primary" />}
+        />
+      </div>
     </main>
   );
 }

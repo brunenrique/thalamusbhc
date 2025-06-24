@@ -37,6 +37,7 @@ Plataforma web para gestão de clínicas de psicologia, com agenda integrada, pr
     - Você pode definir manualmente a senha chamando `setEncryptionPassword()` no início da aplicação ou configurando a variável de ambiente `ENCRYPTION_KEY`.
     - Sem essa senha, os dados sensíveis gravados no Firestore não poderão ser descriptografados.
 5.  **Inicie os Emuladores Firebase (em um terminal separado):**
+
     - É altamente recomendado usar os emuladores do Firebase para desenvolvimento local.
     - Se esta é a primeira vez, configure os emuladores: `firebase init emulators` (selecione Firestore, Storage, Functions).
     - Inicie os emuladores: `firebase emulators:start --project=demo-project`
@@ -62,8 +63,8 @@ Plataforma web para gestão de clínicas de psicologia, com agenda integrada, pr
 - `npm run genkit:dev` &mdash; executa os fluxos de IA em modo de desenvolvimento.
 - `npm run typecheck` &mdash; verifica os tipos TypeScript.
 - `npm run lint` &mdash; executa o ESLint.
-- `npm run test:all` &mdash; executa todos os testes com o Firebase Emulator em execução.
-- `./run-tests.sh` &mdash; script direto para rodar os testes (usado por `npm run test:all`).
+- `npm run test:all` &mdash; executa todos os testes iniciando automaticamente o Firebase Emulator.
+- `./run-tests.sh` &mdash; script opcional para rodar os testes manualmente.
 - `git p` &mdash; alias opcional para o comando acima.
 - `npm run build` &mdash; gera o build de produção.
 

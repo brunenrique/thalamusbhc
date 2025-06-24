@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useClinicalStore } from '@/stores/clinicalStore';
-import { useMapFilters, MapFilters } from '@/hooks/useMapFilters';
+import { useMapFilters, MapFilters } from '@/hooks/use-map-filters';
 import { Button } from '@/components/ui/button';
 import {
   Select,

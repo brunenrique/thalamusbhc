@@ -21,8 +21,8 @@
     "lint:fix": "./scripts/lint-fix.sh",
     "format": "prettier --write .",
     "typecheck": "tsc --noEmit",
-    "test": "jest --config jest.config.js",
-    "test:watch": "jest --watch --config jest.config.js",
+    "test": "jest --config jest.config.ts",
+    "test:watch": "jest --watch --config jest.config.ts",
     "test:all": "./scripts/test.sh",
     "coverage": "jest --coverage",
     "test:rules": "jest tests/firestore.rules.test.ts",
@@ -99,9 +99,11 @@
     "recharts": "^2.15.4",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-react": "^5.25.2",
+    "cmdk": "^0.2.0",
     "tailwind-merge": "^3.3.1",
     "zod": "^3.25.67",
-    "zustand": "^5.0.5"
+    "zustand": "^5.0.5",
+    "react-grid-layout": "^1.4.4"
   },
   "devDependencies": {
     "@eslint/js": "^9.2.0",

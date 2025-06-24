@@ -1,8 +1,15 @@
 import type { AppointmentStatus, AppointmentsByDate, Appointment } from '@/types/appointment';
-import { addDoc, collection, doc, updateDoc, Timestamp, type Firestore } from 'firebase/firestore';
+import {
+  collection,
+  doc,
+  Timestamp,
+  type Firestore,
+  runTransaction,
+  query,
+  where,
+} from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { FIRESTORE_COLLECTIONS } from '@/lib/firestore-collections';
-import { writeAuditLog } from './auditLogService';
 import { addDays, format, subDays } from 'date-fns';
 import logger from '@/lib/logger';
 import { ServiceError } from '@/lib/errors';
@@ -156,25 +163,56 @@ export interface AppointmentPayload extends Omit<Appointment, 'id'> {
 
 export async function createAppointment(
   data: AppointmentPayload,
-  firestore: Firestore = db
+  firestore: Firestore = db,
 ): Promise<string> {
   try {
-    const docRef = await addDoc(
-      collection(firestore, FIRESTORE_COLLECTIONS.APPOINTMENTS),
-      data
-    );
-    if (data.patientId) {
-      await updateDoc(doc(firestore, FIRESTORE_COLLECTIONS.PATIENTS, data.patientId), {
-        lastAppointmentDate: Timestamp.fromDate(new Date(data.appointmentDate)),
+    const apptId = await runTransaction(firestore, async (transaction) => {
+      const q = query(
+        collection(firestore, FIRESTORE_COLLECTIONS.APPOINTMENTS),
+        where('psychologistId', '==', data.psychologistId),
+        where('appointmentDate', '==', data.appointmentDate),
+      );
+      const snap = await transaction.get(q);
+
+      const conflict = snap.docs.some((d) => {
+        const appt = d.data() as AppointmentPayload;
+        if (appt.status === 'CancelledByPatient' || appt.status === 'CancelledByClinic') {
+          return false;
+        }
+        if (data.isBlockTime || appt.type === 'Blocked Slot') {
+          return data.startTime < appt.endTime && data.endTime > appt.startTime;
+        }
+        return data.startTime < appt.endTime && data.endTime > appt.startTime;
       });
-    }
-    await writeAuditLog({
-      userId: data.psychologistId,
-      actionType: 'createAppointment',
-      timestamp: new Date().toISOString(),
-      targetResourceId: docRef.id,
-    }, firestore);
-    return docRef.id;
+
+      if (conflict) {
+        throw new Error('Este horário não está mais disponível.');
+      }
+
+      const docRef = doc(collection(firestore, FIRESTORE_COLLECTIONS.APPOINTMENTS));
+      transaction.set(docRef, data);
+
+      if (data.patientId) {
+        transaction.update(
+          doc(firestore, FIRESTORE_COLLECTIONS.PATIENTS, data.patientId),
+          {
+            lastAppointmentDate: Timestamp.fromDate(new Date(data.appointmentDate)),
+          },
+        );
+      }
+
+      const logRef = doc(collection(firestore, FIRESTORE_COLLECTIONS.AUDIT_LOGS));
+      transaction.set(logRef, {
+        userId: data.psychologistId,
+        actionType: 'createAppointment',
+        timestamp: new Date().toISOString(),
+        targetResourceId: docRef.id,
+      });
+
+      return docRef.id;
+    });
+
+    return apptId;
   } catch (error) {
     logger.error({ action: 'create_appointment_error', meta: { error, service: 'appointmentService' } });
     throw new ServiceError('Não foi possível criar o agendamento. Tente novamente mais tarde.', error);

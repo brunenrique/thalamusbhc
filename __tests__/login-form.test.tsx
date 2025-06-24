@@ -65,8 +65,8 @@ describe('LoginForm', () => {
     await waitFor(() =>
       expect(mockToast).toHaveBeenCalledWith(
         expect.objectContaining({
-          title: 'Erro ao fazer login',
-          description: 'E-mail ou senha incorretos.',
+          title: 'Erro',
+          description: 'E-mail ou senha inválidos.',
           variant: 'destructive',
         })
       )

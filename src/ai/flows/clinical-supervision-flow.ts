@@ -39,7 +39,7 @@ Sempre que possível, fundamente as respostas nas seguintes obras, bem como em d
 `;
 
 export const ClinicalSupervisionInputSchema = z.object({
-  clinicalMaterial: z
+  caseData: z
     .string()
     .min(1, { message: 'O material clínico não pode estar vazio.' })
     .describe('Material clínico anonimizado fornecido pelo psicólogo para supervisão.'),
@@ -68,7 +68,7 @@ const prompt = ai.definePrompt({
   name: 'clinicalSupervisionPrompt',
   input: { schema: ClinicalSupervisionInputSchema },
   output: { schema: ClinicalSupervisionOutputSchema },
-  prompt: `${getPrompt('clinicalSupervisionMaster')}\n\nTexto do Terapeuta para Supervisão:\n{{{clinicalMaterial}}}`,
+  prompt: `${getPrompt('clinicalSupervisionMaster')}\n\nTexto do Terapeuta para Supervisão:\n<caso>{{{caseData}}}</caso>`,
   model: 'googleai/gemini-1.5-flash-latest',
   config: {
     temperature: 0.6,

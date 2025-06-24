@@ -1,3 +1,6 @@
+import { z } from 'zod';
+import { groupSchema } from '@/schemas/groupSchema';
+
 export interface Participant {
   id: string;
   name: string;
@@ -15,19 +18,4 @@ export interface GroupResource {
   dataAiHint?: string;
 }
 
-export interface Group {
-  id: string;
-  name: string;
-  psychologist: string;
-  psychologistId: string;
-  membersCount: number;
-  schedule: string;
-  dayOfWeek: string;
-  startTime: string;
-  endTime: string;
-  nextSession?: string;
-  description?: string;
-  participants: Participant[];
-  meetingAgenda?: string;
-  resources?: GroupResource[];
-}
+export type Group = z.infer<typeof groupSchema>;

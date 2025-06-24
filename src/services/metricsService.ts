@@ -9,6 +9,7 @@ import {
 import { db } from '@/lib/firebase';
 import { FIRESTORE_COLLECTIONS } from '@/lib/firestore-collections';
 import { startOfMonth, endOfMonth } from 'date-fns';
+import { USER_ROLES } from '@/constants/roles';
 
 export async function getTotalPatients(firestore: Firestore = db): Promise<number> {
   const patientsColl = collection(firestore, FIRESTORE_COLLECTIONS.PATIENTS);
@@ -38,7 +39,11 @@ export async function getSessionsThisMonth(firestore: Firestore = db): Promise<n
 
 export async function getTotalPsychologists(firestore: Firestore = db): Promise<number> {
   const usersColl = collection(firestore, FIRESTORE_COLLECTIONS.USERS);
-  const q = query(usersColl, where('role', '==', 'Psychologist'), where('isApproved', '==', true));
+  const q = query(
+    usersColl,
+    where('role', '==', USER_ROLES.PSYCHOLOGIST),
+    where('isApproved', '==', true)
+  );
   const snapshot = await getCountFromServer(q);
   return snapshot.data().count;
 }

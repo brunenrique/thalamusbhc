@@ -1,4 +1,4 @@
-export type UserGender = "masculino" | "feminino" | "outro";
+export type UserGender = 'masculino' | 'feminino' | 'outro';
 
 export interface User {
   id: string;
@@ -16,7 +16,7 @@ export interface UserProfile {
   id: string;
   name: string;
   email: string;
-  role: 'Psychologist' | 'Admin' | 'Secretary';
+  role: import('@/constants/roles').UserRole | 'Secretary';
   gender?: UserGender;
   specialty?: string;
   phone?: string;

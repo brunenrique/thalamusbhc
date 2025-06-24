@@ -27,9 +27,11 @@ import { NextResponse } from 'next/server';
 import * as Sentry from '@sentry/nextjs';
 import logger from '@/lib/logger';
 import { auth as adminAuth } from 'firebase-admin';
+import { USER_ROLES } from '@/constants/roles';
 import { firestoreAdmin } from '@/lib/firebaseAdmin';
 import { writeAuditLog } from '@/services/auditLogService';
 
+// eslint-disable-next-line no-undef
 const FIREBASE_API_KEY = process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
 
 export async function POST(request: Request) {
@@ -65,11 +67,12 @@ export async function POST(request: Request) {
 
     const expiresIn = 60 * 60 * 24 * 5 * 1000; // 5 days
     await adminAuth().createSessionCookie(idToken, { expiresIn });
-    const role = userRecord.customClaims?.role || 'Psychologist';
+    const role = (userRecord.customClaims?.role as string | undefined) || USER_ROLES.PSYCHOLOGIST;
     const session = { user: { uid: localId, role } };
     const response = NextResponse.json({ token: idToken });
     response.cookies.set('session', JSON.stringify(session), {
       httpOnly: true,
+      // eslint-disable-next-line no-undef
       secure: process.env.NODE_ENV === 'production',
       maxAge: expiresIn / 1000,
       path: '/',

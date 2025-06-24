@@ -35,14 +35,14 @@ afterAll(async () => {
   if (testEnv) await testEnv.cleanup();
 });
 
-function getAuthedDb(
-  auth: { uid: string; role: string; sessionsAggAllowed?: boolean }
-): Firestore {
+function getAuthedDb(auth: { uid: string; role: string; sessionsAggAllowed?: boolean }): Firestore {
   return testEnv.authenticatedContext(auth.uid, auth).firestore();
 }
 
+import { USER_ROLES } from '@/constants/roles';
+
 test('count patients and sessions', async () => {
-  const auth = { uid: 'admin', role: 'Admin' };
+  const auth = { uid: 'admin', role: USER_ROLES.ADMIN } as const;
   const db = getAuthedDb(auth);
 
   await setDoc(doc(db, 'patients/p1'), { ownerId: 'admin', name: 'Test', email: 't@e.st' });
@@ -59,20 +59,24 @@ test('count patients and sessions', async () => {
 });
 
 test('psychologist without permission cannot aggregate sessions', async () => {
-  const auth = { uid: 'psy1', role: 'Psychologist' };
+  const auth = { uid: 'psy1', role: USER_ROLES.PSYCHOLOGIST } as const;
   const db = getAuthedDb(auth);
   await setDoc(doc(db, 'sessions/s1'), { psychologistId: 'psy1' });
   await assertFails(getCountFromServer(collection(db, 'sessions')));
 });
 
 test('psychologist with permission can aggregate sessions', async () => {
-  const auth = { uid: 'psy2', role: 'Psychologist', sessionsAggAllowed: true };
+  const auth = {
+    uid: 'psy2',
+    role: USER_ROLES.PSYCHOLOGIST,
+    sessionsAggAllowed: true,
+  } as const;
   const db = getAuthedDb(auth);
   await assertSucceeds(getCountFromServer(collection(db, 'sessions')));
 });
 
 test('admin can aggregate sessions', async () => {
-  const auth = { uid: 'admin2', role: 'Admin' };
+  const auth = { uid: 'admin2', role: USER_ROLES.ADMIN } as const;
   const db = getAuthedDb(auth);
   await assertSucceeds(getCountFromServer(collection(db, 'sessions')));
 });

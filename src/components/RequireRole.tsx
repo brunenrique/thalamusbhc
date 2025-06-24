@@ -1,9 +1,10 @@
 'use client';
 import { ReactNode, useEffect, useState } from 'react';
 import { checkUserRole } from '@/services/authRole';
+import type { UserRole } from '@/constants/roles';
 
 interface RequireRoleProps {
-  role: string | string[];
+  role: UserRole | UserRole[];
   children: ReactNode;
 }
 

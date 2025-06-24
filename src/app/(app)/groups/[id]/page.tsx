@@ -28,12 +28,12 @@ import {
   Link as LinkIcon,
 } from 'lucide-react';
 import Link from 'next/link';
-import { useParams, useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { mockTherapeuticGroups } from '@/app/(app)/groups/page';
 import RequireRole from '@/components/RequireRole';
+import { USER_ROLES } from '@/constants/roles';
 import { format, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { Badge } from '@/components/ui/badge';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -58,8 +58,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { Separator } from '@/components/ui/separator';
-import type { Participant, GroupResource, Group } from '@/types/group';
+import type { GroupResource, Group } from '@/types/group';
 
 const getInitials = (name: string) => {
   const names = name.split(' ');
@@ -178,7 +177,7 @@ export default function GroupDetailPage({ params }: { params: { id: string } }) 
         <Button variant="outline" size="sm" onClick={() => router.back()} className="mb-4 sm:mb-0">
           <ArrowLeft className="mr-2 h-4 w-4" /> Voltar
         </Button>
-        <RequireRole role="Admin">
+        <RequireRole role={USER_ROLES.ADMIN}>
           <div className="flex gap-2">
             <Button variant="outline" asChild>
               <Link
@@ -288,7 +287,7 @@ export default function GroupDetailPage({ params }: { params: { id: string } }) 
           )}
         </CardContent>
         <CardFooter>
-          <RequireRole role="Admin">
+          <RequireRole role={USER_ROLES.ADMIN}>
             <Button variant="outline" asChild>
               <Link
                 href={`/groups/edit/${currentGroup.id}?tab=participants`}
@@ -316,7 +315,7 @@ export default function GroupDetailPage({ params }: { params: { id: string } }) 
           </div>
         </CardContent>
         <CardFooter>
-          <RequireRole role="Admin">
+          <RequireRole role={USER_ROLES.ADMIN}>
             <Button variant="outline" asChild>
               <Link
                 href={`/groups/edit/${currentGroup.id}?tab=details`}
@@ -346,7 +345,7 @@ export default function GroupDetailPage({ params }: { params: { id: string } }) 
           </div>
         </CardContent>
         <CardFooter>
-          <RequireRole role="Admin">
+          <RequireRole role={USER_ROLES.ADMIN}>
             <Button variant="outline" asChild>
               <Link
                 href={`/groups/edit/${currentGroup.id}?tab=agenda`}
@@ -371,7 +370,7 @@ export default function GroupDetailPage({ params }: { params: { id: string } }) 
             </CardDescription>
           </div>
           <Dialog open={isAddResourceDialogOpen} onOpenChange={setIsAddResourceDialogOpen}>
-            <RequireRole role="Admin">
+            <RequireRole role={USER_ROLES.ADMIN}>
               <DialogTrigger asChild>
                 <Button
                   variant="outline"
@@ -490,7 +489,7 @@ export default function GroupDetailPage({ params }: { params: { id: string } }) 
                           <Download className="mr-1.5 h-3.5 w-3.5" /> Download
                         </Button>
                       )}
-                      <RequireRole role="Admin">
+                      <RequireRole role={USER_ROLES.ADMIN}>
                         <Button
                           variant="ghost"
                           size="icon"

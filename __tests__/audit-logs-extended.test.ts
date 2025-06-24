@@ -1,6 +1,7 @@
 import { initializeTestEnvironment } from '@firebase/rules-unit-testing';
 import { readFileSync } from 'fs';
 import { Firestore, getDocs, collection } from 'firebase/firestore';
+import { USER_ROLES } from '@/constants/roles';
 
 let createTask: any;
 let updateTask: any;
@@ -30,7 +31,7 @@ beforeAll(async () => {
     },
   });
 
-  const auth = { uid: 'therapist1', role: 'Psychologist' };
+  const auth = { uid: 'therapist1', role: USER_ROLES.PSYCHOLOGIST } as const;
   const db = testEnv.authenticatedContext(auth.uid, auth).firestore();
 
   jest.doMock('../src/lib/firebase', () => ({
@@ -38,14 +39,14 @@ beforeAll(async () => {
     auth: { currentUser: { uid: auth.uid } },
   }));
 
-  ({ createTask, updateTask, deleteTask: deleteTaskFunc } = await import(
-    '../src/services/taskService'
-  ));
   ({
-    createWaitingListEntry,
-    updateWaitingListEntry,
-    deleteWaitingListEntry,
-  } = await import('../src/services/waitingListService'));
+    createTask,
+    updateTask,
+    deleteTask: deleteTaskFunc,
+  } = await import('../src/services/taskService'));
+  ({ createWaitingListEntry, updateWaitingListEntry, deleteWaitingListEntry } = await import(
+    '../src/services/waitingListService'
+  ));
   ({
     addNotification,
     markNotificationRead,
@@ -65,7 +66,7 @@ function getDb(auth: { uid: string; role: string }): Firestore {
 }
 
 test('audit log created for tasks, waiting list and notifications', async () => {
-  const auth = { uid: 'therapist1', role: 'Psychologist' };
+  const auth = { uid: 'therapist1', role: USER_ROLES.PSYCHOLOGIST } as const;
   const db = getDb(auth);
 
   // Tasks
@@ -77,7 +78,7 @@ test('audit log created for tasks, waiting list and notifications', async () => 
       status: 'Pendente',
       priority: 'Alta',
     },
-    db,
+    db
   );
   await updateTask(taskId, { status: 'Concluída' }, db);
   await deleteTaskFunc(taskId, db);
@@ -91,7 +92,7 @@ test('audit log created for tasks, waiting list and notifications', async () => 
   const n1 = await addNotification(
     auth.uid,
     { type: 'info', message: 'm1', date: new Date().toISOString(), read: false },
-    db,
+    db
   );
   await markNotificationRead(auth.uid, n1, true, db);
   await markAllNotificationsRead(auth.uid, db);
@@ -99,11 +100,10 @@ test('audit log created for tasks, waiting list and notifications', async () => 
   const n2 = await addNotification(
     auth.uid,
     { type: 'info', message: 'm2', date: new Date().toISOString(), read: false },
-    db,
+    db
   );
   await deleteNotification(auth.uid, n2, db);
 
   const logsSnap = await getDocs(collection(db, 'auditLogs'));
   expect(logsSnap.size).toBe(12);
 });
-

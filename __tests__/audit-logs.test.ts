@@ -1,6 +1,7 @@
 import { initializeTestEnvironment } from '@firebase/rules-unit-testing';
 import { readFileSync } from 'fs';
 import { Firestore, getDocs, collection } from 'firebase/firestore';
+import { USER_ROLES } from '@/constants/roles';
 import { saveSessionNote } from '../src/services/prontuarioService';
 import { createAppointment } from '../src/services/appointmentService';
 
@@ -26,7 +27,7 @@ beforeAll(async () => {
     },
   });
 
-  const auth = { uid: 'therapist1', role: 'Psychologist' };
+  const auth = { uid: 'therapist1', role: USER_ROLES.PSYCHOLOGIST } as const;
   const db = testEnv.authenticatedContext(auth.uid, auth).firestore();
 
   jest.doMock('../src/lib/firebase', () => ({
@@ -50,7 +51,7 @@ function getDb(auth: { uid: string; role: string }): Firestore {
 }
 
 test('audit log created for multiple actions', async () => {
-  const auth = { uid: 'therapist1', role: 'Psychologist' };
+  const auth = { uid: 'therapist1', role: USER_ROLES.PSYCHOLOGIST } as const;
   const db = getDb(auth);
   setEncryptionPassword('senha');
 

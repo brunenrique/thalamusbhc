@@ -3,6 +3,7 @@ import StatsCard from '@/components/dashboard/stats-card';
 import { Clock } from 'lucide-react';
 import { firestoreAdmin } from '@/lib/firebaseAdmin';
 import { Timestamp } from 'firebase-admin/firestore';
+import { USER_ROLES } from '@/constants/roles';
 
 export const revalidate = 60;
 
@@ -46,7 +47,7 @@ export default async function AnalyticsPage() {
   const nameMap: Record<string, string> = {};
   usersSnap.forEach((doc) => {
     const data = doc.data();
-    if (data.role === 'Psychologist') {
+    if (data.role === USER_ROLES.PSYCHOLOGIST) {
       nameMap[doc.id] = data.name || doc.id;
     }
   });

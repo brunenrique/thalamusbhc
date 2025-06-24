@@ -1,6 +1,7 @@
 import { initializeTestEnvironment } from '@firebase/rules-unit-testing';
 import { readFileSync } from 'fs';
 import { Firestore, doc, setDoc } from 'firebase/firestore';
+import { USER_ROLES } from '@/constants/roles';
 
 let checkScheduleConflict: any;
 let testEnv: Awaited<ReturnType<typeof initializeTestEnvironment>>;
@@ -19,7 +20,7 @@ beforeAll(async () => {
     },
   });
 
-  const auth = { uid: 'psy1', role: 'Psychologist' };
+  const auth = { uid: 'psy1', role: USER_ROLES.PSYCHOLOGIST } as const;
   const db = testEnv.authenticatedContext(auth.uid, auth).firestore();
 
   jest.doMock('../src/lib/firebase', () => ({
@@ -39,7 +40,7 @@ function getDb(auth: { uid: string; role: string }): Firestore {
 }
 
 test('detects conflict with existing appointment', async () => {
-  const auth = { uid: 'psy1', role: 'Psychologist' };
+  const auth = { uid: 'psy1', role: USER_ROLES.PSYCHOLOGIST } as const;
   const db = getDb(auth);
   await setDoc(doc(db, 'appointments/a1'), {
     psychologistId: auth.uid,
@@ -63,7 +64,7 @@ test('detects conflict with existing appointment', async () => {
 });
 
 test('block slot logic', async () => {
-  const auth = { uid: 'psy1', role: 'Psychologist' };
+  const auth = { uid: 'psy1', role: USER_ROLES.PSYCHOLOGIST } as const;
   const db = getDb(auth);
   await setDoc(doc(db, 'appointments/block1'), {
     psychologistId: auth.uid,
@@ -99,7 +100,7 @@ test('block slot logic', async () => {
 });
 
 test('detects conflict with group session', async () => {
-  const auth = { uid: 'psy1', role: 'Psychologist' };
+  const auth = { uid: 'psy1', role: USER_ROLES.PSYCHOLOGIST } as const;
   const db = getDb(auth);
   await setDoc(doc(db, 'groups/g1'), {
     psychologistId: auth.uid,

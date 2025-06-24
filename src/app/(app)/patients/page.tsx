@@ -1,22 +1,22 @@
+'use client';
 
-"use client";
-
-import { Button } from "@/components/ui/button";
+import { Button } from '@/components/ui/button';
 import * as Sentry from '@sentry/nextjs';
 import logger from '@/lib/logger';
-import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { UserPlus, Search, Filter, Users } from "lucide-react";
-import Link from "next/link";
-import PatientListItem from "@/components/patients/patient-list-item";
-import type { Patient } from "@/types/patient";
-import { fetchPatients } from "@/services/patientService";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import { checkUserRole } from "@/services/authRole";
-import EmptyState from "@/components/ui/empty-state";
-import PatientListItemSkeleton from "@/components/patients/patient-list-item-skeleton";
-import { APP_ROUTES } from "@/lib/routes";
+import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { UserPlus, Search, Filter, Users } from 'lucide-react';
+import Link from 'next/link';
+import PatientListItem from '@/components/patients/patient-list-item';
+import type { Patient } from '@/types/patient';
+import { fetchPatients } from '@/services/patientService';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { checkUserRole } from '@/services/authRole';
+import { USER_ROLES } from '@/constants/roles';
+import EmptyState from '@/components/ui/empty-state';
+import PatientListItemSkeleton from '@/components/patients/patient-list-item-skeleton';
+import { APP_ROUTES } from '@/lib/routes';
 
 export default function PatientsPage() {
   const router = useRouter();
@@ -24,8 +24,8 @@ export default function PatientsPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    checkUserRole(["Admin", "Psychologist", "Secretary"]).then((ok) => {
-      if (!ok) router.replace("/");
+    checkUserRole([USER_ROLES.ADMIN, USER_ROLES.PSYCHOLOGIST, 'Secretary']).then((ok) => {
+      if (!ok) router.replace('/');
     });
 
     async function load() {

@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import ErrorBoundary from '@/components/layout/error-boundary';
 import { useRouter, usePathname } from 'next/navigation';
 import { checkUserRole } from '@/services/authRole';
+import { USER_ROLES } from '@/constants/roles';
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -15,7 +16,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
   const [authorized, setAuthorized] = useState(false);
 
   useEffect(() => {
-    checkUserRole(['Admin', 'Psychologist', 'Secretary']).then((ok) => {
+    checkUserRole([USER_ROLES.ADMIN, USER_ROLES.PSYCHOLOGIST, 'Secretary']).then((ok) => {
       if (!ok) {
         router.replace('/');
       } else {

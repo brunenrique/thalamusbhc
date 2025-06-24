@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { checkUserRole } from '@/services/authRole';
+import { USER_ROLES, type UserRole } from '@/constants/roles';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import {
@@ -58,7 +59,7 @@ export default function UserApprovalsPage() {
   const { toast } = useToast();
 
   useEffect(() => {
-    checkUserRole('Admin').then((ok) => {
+    checkUserRole(USER_ROLES.ADMIN).then((ok) => {
       if (!ok) {
         router.replace('/');
         return;
@@ -139,17 +140,17 @@ export default function UserApprovalsPage() {
     }
   };
 
-  const getRoleBadge = (role: string): 'secondary' | 'outline' | 'default' => {
-    if (role === 'Psychologist') return 'secondary';
-    if (role === 'Admin') return 'default';
+  const getRoleBadge = (role: UserRole | 'Secretary'): 'secondary' | 'outline' | 'default' => {
+    if (role === USER_ROLES.PSYCHOLOGIST) return 'secondary';
+    if (role === USER_ROLES.ADMIN) return 'default';
     return 'outline';
   };
 
-  const getRoleLabel = (role: string): string => {
+  const getRoleLabel = (role: UserRole | 'Secretary'): string => {
     const roleMap: Record<string, string> = {
-      Psychologist: 'Psicólogo(a)',
+      [USER_ROLES.PSYCHOLOGIST]: 'Psicólogo(a)',
       Secretary: 'Secretário(a)',
-      Admin: 'Administrador(a)',
+      [USER_ROLES.ADMIN]: 'Administrador(a)',
     };
     return roleMap[role] || role;
   };

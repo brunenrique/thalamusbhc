@@ -1,6 +1,7 @@
 import { initializeTestEnvironment } from '@firebase/rules-unit-testing';
 import { readFileSync } from 'fs';
 import { Firestore } from 'firebase/firestore';
+import { USER_ROLES } from '@/constants/roles';
 
 let fetchClinicalData: any;
 let saveClinicalData: any;
@@ -21,7 +22,7 @@ beforeAll(async () => {
     },
   });
 
-  const auth = { uid: 'therapist1', role: 'Psychologist' };
+  const auth = { uid: 'therapist1', role: USER_ROLES.PSYCHOLOGIST } as const;
   const db = testEnv.authenticatedContext(auth.uid, auth).firestore();
 
   jest.doMock('../src/lib/firebase', () => ({
@@ -42,7 +43,7 @@ function getDb(auth: { uid: string; role: string }): Firestore {
 }
 
 test('salva e busca clinical data', async () => {
-  const auth = { uid: 'therapist1', role: 'Psychologist' };
+  const auth = { uid: 'therapist1', role: USER_ROLES.PSYCHOLOGIST } as const;
   const db = getDb(auth);
   const patientId = 'p1';
   const tabId = 't1';

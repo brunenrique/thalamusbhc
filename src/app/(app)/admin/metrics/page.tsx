@@ -8,6 +8,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { checkUserRole } from '@/services/authRole';
+import { USER_ROLES } from '@/constants/roles';
 import {
   getTotalPatients,
   getSessionsThisMonth,
@@ -60,7 +61,7 @@ export default function AdminMetricsPage() {
   });
 
   useEffect(() => {
-    checkUserRole('Admin').then((ok) => {
+    checkUserRole(USER_ROLES.ADMIN).then((ok) => {
       if (!ok) router.replace('/');
     });
 

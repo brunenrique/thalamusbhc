@@ -43,10 +43,10 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    await adminAuth().verifyIdToken(token);
+    const decoded = await adminAuth().verifyIdToken(token);
     const body = await request.json();
     const input = GenerateSessionInsightsInputSchema.parse(body);
-    const result = await generateSessionInsights(input);
+    const result = await generateSessionInsights(input, { userId: decoded.uid });
     return NextResponse.json(result);
   } catch (e) {
     if (e instanceof ZodError) {

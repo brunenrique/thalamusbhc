@@ -216,6 +216,12 @@ match /auditLogs/{id} {
   allow update, delete: if false;
 }
 
+match /insights_logs/{id} {
+  allow create: if isSignedIn();
+  allow read: if isAdmin();
+  allow update, delete: if false;
+}
+
 match /{document=**} {
   allow read, write: if false;
 }

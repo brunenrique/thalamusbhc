@@ -11,6 +11,8 @@
 import { ai } from '@/ai/genkit';
 import { trackFlow } from '@/ai/logging';
 import { getPrompt } from '@/ai/prompts';
+import logger from '@/lib/logger';
+import { writeInsightsLog } from '@/services/insightsLogService';
 import { z } from 'genkit';
 
 export const GenerateSessionInsightsInputSchema = z.object({
@@ -51,10 +53,34 @@ export type GenerateSessionInsightsOutput = z.infer<typeof GenerateSessionInsigh
 import type { Result } from '@/ai/types';
 
 export async function generateSessionInsights(
-  input: GenerateSessionInsightsInput
+  input: GenerateSessionInsightsInput,
+  options?: { userId?: string },
 ): Promise<Result<GenerateSessionInsightsOutput>> {
   try {
-    const data = await trackFlow('generateSessionInsightsFlow', generateSessionInsightsFlow, input);
+    const start = Date.now();
+    const data = await trackFlow(
+      'generateSessionInsightsFlow',
+      generateSessionInsightsFlow,
+      input,
+    );
+
+    const durationMs = Date.now() - start;
+    const inSize = JSON.stringify(input).length;
+    const outSize = JSON.stringify(data).length;
+    const estimatedTokens = Math.ceil((inSize + outSize) / 4);
+    const estimatedCost = (estimatedTokens / 1000) * 0.002;
+
+    await writeInsightsLog({
+      userId: options?.userId ?? 'unknown',
+      timestamp: new Date().toISOString(),
+      cost: Number(estimatedCost.toFixed(6)),
+    });
+
+    logger.info({
+      action: 'session_insights',
+      meta: { userId: options?.userId, durationMs, estimatedCost },
+    });
+
     return { success: true, data };
   } catch (err) {
     return { success: false, error: 'Erro ao gerar resposta' };

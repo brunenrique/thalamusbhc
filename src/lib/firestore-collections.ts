@@ -16,6 +16,7 @@ export const FIRESTORE_COLLECTIONS = {
   QUICK_NOTES: 'quickNotes',
   SCHEDULES: 'schedules',
   AUDIT_LOGS: 'auditLogs',
+  INSIGHTS_LOGS: 'insights_logs',
   CLINICAL_DATA: 'clinicalTabs',
 } as const;
 

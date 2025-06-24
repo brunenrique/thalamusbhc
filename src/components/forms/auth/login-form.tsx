@@ -30,6 +30,7 @@ import { auth } from '@/lib/firebase';
 import logger, { logAction } from '@/lib/logger';
 import { useToast } from '@/hooks/use-toast';
 import * as Sentry from '@sentry/nextjs';
+import type { FirebaseError } from 'firebase/app';
 
 const loginSchema = z.object({
   email: z.string().email({ message: 'Por favor, insira um endereço de e-mail válido.' }),
@@ -72,26 +73,28 @@ export default function LoginForm() {
     } catch (error) {
       Sentry.captureException(error);
       logger.error({ action: 'login_error', meta: { error } });
-      let errorMessage = 'Erro ao fazer login.';
 
-      if (error instanceof Error && 'code' in error) {
-        const errorCode = (error as { code: string }).code;
-        switch (errorCode) {
+      let description = 'Não foi possível fazer login.';
+
+      if (error instanceof FirebaseError) {
+        switch (error.code) {
+          case 'auth/user-not-found':
+          case 'auth/wrong-password':
           case 'auth/invalid-credential':
-            errorMessage = 'E-mail ou senha incorretos.';
+            description = 'E-mail ou senha inválidos.';
             break;
           case 'auth/user-disabled':
-            errorMessage = 'Usuário desabilitado.';
+            description = 'Usuário desabilitado.';
             break;
           case 'auth/too-many-requests':
-            errorMessage = 'Acesso bloqueado temporariamente.';
+            description = 'Acesso temporariamente bloqueado.';
             break;
         }
       }
 
       toast({
         title: 'Erro ao fazer login',
-        description: errorMessage,
+        description,
         variant: 'destructive',
       });
     } finally {

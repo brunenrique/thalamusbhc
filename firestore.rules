@@ -229,6 +229,16 @@ match /insights_logs/{id} {
   allow update, delete: if false;
 }
 
+match /feedback/{id} {
+  allow create: if isSignedIn() &&
+                   request.resource.data.keys().hasOnly(['uid','text','createdAt']) &&
+                   request.resource.data.uid == request.auth.uid &&
+                   request.resource.data.text is string &&
+                   request.resource.data.createdAt is timestamp;
+  allow read: if isAdmin();
+  allow update, delete: if false;
+}
+
 match /{document=**} {
   allow read, write: if false;
 }

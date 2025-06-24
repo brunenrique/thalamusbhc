@@ -173,4 +173,25 @@ describe('Firestore security rules', () => {
       await assertFails(chatRef.set({ participants: { [user1.sub]: true, missing: true } }));
     });
   });
+
+  describe('Feedback Rules', () => {
+    test('authenticated user can create feedback', async () => {
+      const auth = { sub: 'userFb', role: 'Psychologist' };
+      const db = getAuthedDb(auth);
+      await assertSucceeds(
+        db.collection('feedback').doc('fb1').set({
+          uid: auth.sub,
+          text: 'ok',
+          createdAt: '2024-01-01T00:00:00Z',
+        })
+      );
+    });
+
+    test('unauthenticated user cannot create feedback', async () => {
+      const db = testEnv.unauthenticatedContext().firestore();
+      await assertFails(
+        db.collection('feedback').doc('fb2').set({ uid: 'x', text: 'no' })
+      );
+    });
+  });
 });

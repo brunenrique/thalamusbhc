@@ -1,36 +1,17 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Brain, CheckCircle, ShieldCheck, BarChart3 } from "lucide-react";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { ArrowRight, Brain, CheckCircle } from "lucide-react";
 
-const features = [
-  {
-    icon: <Brain className="w-8 h-8 text-primary" />,
-    title: "IA para Psicólogos",
-    description: "Otimize seu tempo com resumos de sessão, insights e sugestões de plano de tratamento gerados por IA.",
-    dataAiHint: "cérebro tecnologia"
-  },
-  {
-    icon: <CheckCircle className="w-8 h-8 text-green-500" />,
-    title: "Agenda Inteligente",
-    description: "Gerenciamento fácil de consultas, lembretes automáticos e visualização clara da sua semana.",
-    dataAiHint: "calendário organização"
-  },
-  {
-    icon: <ShieldCheck className="w-8 h-8 text-blue-500" />,
-    title: "Prontuários Seguros",
-    description: "Registros criptografados e em conformidade com a LGPD, garantindo a privacidade dos seus pacientes.",
-    dataAiHint: "segurança dados"
-  },
-  {
-    icon: <BarChart3 className="w-8 h-8 text-purple-500" />,
-    title: "Métricas e Relatórios",
-    description: "Acompanhe o progresso dos pacientes e a performance da sua clínica com dados visuais.",
-    dataAiHint: "gráfico análise"
-  },
-];
+const FeaturesSection = dynamic(() => import("@/components/home/FeaturesSection"), {
+  loading: () => <div className="h-32" />,
+});
+
+const CtaSection = dynamic(() => import("@/components/home/CtaSection"), {
+  loading: () => <div className="h-20" />,
+});
 
 
 export default function LandingPage() {
@@ -86,12 +67,15 @@ export default function LandingPage() {
           </div>
           <div className="relative hidden lg:block">
             <Image
-              src="https://placehold.co/600x400.png" 
+              src="https://placehold.co/600x400.png"
               alt="Interface da plataforma Thalamus em um laptop"
               width={600}
               height={400}
               className="rounded-xl shadow-2xl"
               data-ai-hint="software interface"
+              priority
+              placeholder="blur"
+              blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+AMAAwAD/50IHAAAAABJRU5ErkJggg=="
             />
              <div className="absolute -top-8 -right-8 bg-primary/10 p-4 rounded-lg shadow-lg w-48">
                 <Brain className="w-6 h-6 text-primary mb-2" />
@@ -105,49 +89,10 @@ export default function LandingPage() {
         </section>
 
         {/* Features Section */}
-        <section id="features" className="py-16 md:py-24 bg-muted/30">
-          <div className="container">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl font-headline font-bold sm:text-4xl">Tudo que Você Precisa em um Só Lugar</h2>
-              <p className="mt-4 text-lg text-muted-foreground">
-                Funcionalidades pensadas para simplificar seu dia a dia e potencializar seus atendimentos.
-              </p>
-            </div>
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-              {features.map((feature) => (
-                <Card key={feature.title} className="shadow-lg hover:shadow-xl transition-shadow duration-300 bg-card">
-                  <CardHeader className="items-center text-center">
-                    <div className="p-4 bg-primary/10 rounded-full mb-4 inline-block">
-                      {feature.icon}
-                    </div>
-                    <CardTitle className="font-headline text-xl">{feature.title}</CardTitle>
-                  </CardHeader>
-                  <CardContent className="text-center">
-                    <p className="text-sm text-muted-foreground">{feature.description}</p>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </div>
-        </section>
+        <FeaturesSection />
 
         {/* Call to Action Section */}
-        <section className="py-16 md:py-24">
-          <div className="container text-center">
-            <h2 className="text-3xl font-headline font-bold sm:text-4xl">Pronto para Transformar Sua Prática?</h2>
-            <p className="mt-4 mb-8 text-lg text-muted-foreground max-w-2xl mx-auto">
-              Junte-se a centenas de psicólogos que estão usando o Thalamus para focar no que realmente importa: seus pacientes.
-            </p>
-            <Link href="/signup" passHref legacyBehavior>
-              <Button as="a" size="lg" className="bg-accent hover:bg-accent/90 text-accent-foreground text-lg px-8 py-6">
-                <span className="inline-flex items-center gap-2">
-                  Experimente o Thalamus Gratuitamente
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </span>
-              </Button>
-            </Link>
-          </div>
-        </section>
+        <CtaSection />
       </main>
 
       {/* Footer */}

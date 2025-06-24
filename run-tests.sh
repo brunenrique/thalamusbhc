@@ -3,12 +3,15 @@ set -euo pipefail
 
 SCRIPT_DIR="$(dirname "$0")"
 
-export PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
-export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=1
-export PUPPETEER_SKIP_DOWNLOAD=1
+echo "📦 Verificando dependências..."
 
-echo "📦 Instalando dependências via npm..."
-npm ci
+if ! npx --no-install jest --version >/dev/null 2>&1; then
+  echo "📦 Instalando dependências via npm..."
+  export PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
+  export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=1
+  export PUPPETEER_SKIP_DOWNLOAD=1
+  npm ci
+fi
 
 echo "🔍 Verificando instalação do Jest..."
 if ! npx --no-install jest --version >/dev/null 2>&1; then
@@ -17,4 +20,8 @@ if ! npx --no-install jest --version >/dev/null 2>&1; then
 fi
 
 echo "🔥 Iniciando Firebase Emulator e executando testes..."
-npx firebase emulators:exec --project="${FIREBASE_PROJECT:-thalamus-dev}" --only firestore "npm run test:all -- --runInBand"
+PUPPETEER_SKIP_DOWNLOAD=1 PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 \
+npx firebase emulators:exec \
+  --project="${FIREBASE_PROJECT:-thalamus-dev}" \
+  --only firestore,auth \
+  "npm run test:all -- --runInBand"

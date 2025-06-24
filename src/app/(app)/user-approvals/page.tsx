@@ -29,7 +29,7 @@ import {
   onSnapshot,
   Unsubscribe,
 } from 'firebase/firestore';
-import { app } from '@/services/firebase';
+import { app } from '@/lib/firebase';
 import {
   AlertDialog,
   AlertDialogAction,

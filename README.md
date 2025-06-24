@@ -212,4 +212,4 @@ Erros genéricos como **"An unexpected Turbopack error occurred"** costumam esta
 
 - Utilizamos o [Snyk](https://snyk.io/) para inspeções de vulnerabilidades (workflow `security.yml`).
 - O [Dependabot](https://github.com/dependabot) atualiza dependências semanalmente.
-- Há também o workflow `security-scan.yml` que roda `npm audit --audit-level=moderate` todo mês.
+- O workflow `security.yml` também executa varreduras do **Gitleaks** e do **TruffleHog** periodicamente.

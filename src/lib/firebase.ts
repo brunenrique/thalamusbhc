@@ -2,7 +2,7 @@
 import { initializeApp, getApps, getApp, type FirebaseApp } from 'firebase/app';
 import * as Sentry from '@sentry/nextjs';
 import { getAuth, connectAuthEmulator, type Auth } from 'firebase/auth';
-import { getFirestore, connectFirestoreEmulator, type Firestore } from 'firebase/firestore';
+import { getFirestore, connectFirestoreEmulator, enableIndexedDbPersistence, type Firestore } from 'firebase/firestore';
 import { getStorage, connectStorageEmulator, type FirebaseStorage } from 'firebase/storage';
 import { getMessaging, type Messaging } from 'firebase/messaging';
 import logger from '@/lib/logger';
@@ -40,6 +40,11 @@ const app: FirebaseApp = !getApps().length ? initializeApp(firebaseConfig) : get
 
 const auth: Auth = getAuth(app);
 const db: Firestore = getFirestore(app);
+if (typeof window !== 'undefined') {
+  enableIndexedDbPersistence(db).catch((err) => {
+    logger.warn({ action: 'firestore_persistence_error', meta: { error: err } });
+  });
+}
 const storage: FirebaseStorage = getStorage(app);
 let messaging: Messaging | null = null;
 if (typeof window !== 'undefined') {

@@ -1,12 +1,9 @@
 import { render, screen } from '@testing-library/react';
-import ClinicalMapFullscreenPage from '@/app/clinical-map/[patientId]/[tabId]/page';
+import ClinicalMapClient from '@/app/clinical-map/[patientId]/[tabId]/ClinicalMapClient';
 import { useClinicalStore } from '@/stores/clinicalStore';
 
-jest.mock('next/navigation', () => ({
-  useParams: () => ({ patientId: 'p1', tabId: 't1' }),
-}));
 
-describe('ClinicalMap page loading and error states', () => {
+describe('ClinicalMapClient loading and error states', () => {
   beforeEach(() => {
     useClinicalStore.setState({
       fetchClinicalData: jest.fn(),
@@ -14,18 +11,33 @@ describe('ClinicalMap page loading and error states', () => {
       tabs: [{ id: 't1', type: 'formulation', title: 'T1' }],
       isLoadingClinicalData: false,
       clinicalDataError: null,
+      formulationTabData: {},
     });
   });
 
   it('exibe spinner durante carregamento', () => {
     useClinicalStore.setState({ isLoadingClinicalData: true });
-    render(<ClinicalMapFullscreenPage />);
+    render(
+      <ClinicalMapClient
+        patientId="p1"
+        tabId="t1"
+        initialPatient={null}
+        initialMap={null}
+      />
+    );
     expect(screen.getByText(/carregando dados cl.nicos/i)).toBeInTheDocument();
   });
 
   it('exibe mensagem de erro se falhar', () => {
     useClinicalStore.setState({ clinicalDataError: 'Erro X' });
-    render(<ClinicalMapFullscreenPage />);
+    render(
+      <ClinicalMapClient
+        patientId="p1"
+        tabId="t1"
+        initialPatient={null}
+        initialMap={null}
+      />
+    );
     expect(screen.getByText(/erro ao carregar dados cl.nicos/i)).toBeInTheDocument();
     expect(screen.getByText('Erro X')).toBeInTheDocument();
   });

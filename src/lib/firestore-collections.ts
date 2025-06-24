@@ -18,6 +18,7 @@ export const FIRESTORE_COLLECTIONS = {
   AUDIT_LOGS: 'auditLogs',
   INSIGHTS_LOGS: 'insights_logs',
   CLINICAL_DATA: 'clinicalTabs',
+  FEEDBACK: 'feedback',
 } as const;
 
 export type FirestoreCollectionKeys = keyof typeof FIRESTORE_COLLECTIONS;

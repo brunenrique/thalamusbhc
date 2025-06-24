@@ -11,7 +11,7 @@
  *           schema:
  *             type: object
  *             properties:
- *               transcript:
+ *               caseData:
  *                 type: string
  *     responses:
  *       '200':

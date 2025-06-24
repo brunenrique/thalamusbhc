@@ -208,6 +208,11 @@ match /users/{userId} {
                      request.resource.data.date is timestamp;
     allow read, update, delete: if request.auth.uid == userId;
   }
+
+  // Preferências do usuário, como layout do dashboard
+  match /preferences/{docId} {
+    allow read, write: if request.auth.uid == userId;
+  }
 }
 
 match /waitingList/{id} {

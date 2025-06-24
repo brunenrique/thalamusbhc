@@ -99,6 +99,8 @@ Para obter `FIREBASE_CLIENT_EMAIL` e `FIREBASE_PRIVATE_KEY`:
 _No Console do Firebase -> Seu Projeto -> Configurações do Projeto -> Contas de serviço -> Gerar nova chave privada (isso fará o download de um arquivo JSON). O `client_email` e `private_key` estão neste arquivo._
 _Ao adicionar `FIREBASE_PRIVATE_KEY` ao seu arquivo `.env.local` ou variável de ambiente, certifique-se de formatar corretamente as quebras de linha (geralmente substituindo `\n` literais por novas linhas reais, ou envolvendo a chave em aspas duplas se o seu sistema `.env` suportar)._
 
+Para ambientes de produção, é recomendável armazenar `FIREBASE_CLIENT_EMAIL` e `FIREBASE_PRIVATE_KEY` no **Google Secret Manager**. O aplicativo irá buscar esses valores automaticamente na inicialização, facilitando a rotação de chaves e centralizando o controle de acesso.
+
 ### Variáveis de Configuração do Emulador (Desenvolvimento)
 
 - `NEXT_PUBLIC_FIREBASE_EMULATOR_HOST`: Define o host que o SDK do Firebase do lado do cliente usará para se conectar aos emuladores.

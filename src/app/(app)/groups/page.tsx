@@ -2,7 +2,6 @@
 
 import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import PrimaryButton from '@/components/ui/primary-button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import {
   Table,
@@ -66,12 +65,12 @@ export default function TherapeuticGroupsPage() {
           <h1 className="text-3xl font-headline font-bold">Grupos Terapêuticos</h1>
         </div>
         <RequireRole role="Admin">
-          <PrimaryButton asChild>
+          <Button variant="primary" asChild>
             <Link href="/groups/new" className="inline-flex items-center gap-2">
               <PlusCircle className="h-4 w-4" />
               Criar Novo Grupo
             </Link>
-          </PrimaryButton>
+          </Button>
         </RequireRole>
       </div>
 

@@ -77,7 +77,7 @@ export async function createGroup(
   if (!uid) throw new Error('Usuário não autenticado');
   const docRef = await addDoc(
     collection(firestore, FIRESTORE_COLLECTIONS.GROUPS),
-    { ...data, ownerId: uid },
+    { ...data, ownerId: uid, leaderId: uid },
   );
   await writeAuditLog(
     {

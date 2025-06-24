@@ -33,11 +33,12 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    await adminAuth().verifyIdToken(token);
+    const decodedToken = await adminAuth().verifyIdToken(token);
+    await adminAuth().getUser(decodedToken.uid);
     return NextResponse.json({ ok: true });
   } catch (err) {
     Sentry.captureException(err);
     logger.error({ action: 'verify_token_error', meta: { error: err } });
-    return NextResponse.json({ error: 'Token inválido' }, { status: 401 });
+    return NextResponse.json({ valid: false, error: 'Invalid token' }, { status: 401 });
   }
 }

@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react'
+import { render, screen, waitFor } from '@/tests/__mocks__/test-utils'
 import userEvent from '@testing-library/user-event'
 import LoginForm from '@/components/forms/auth/login-form'
 

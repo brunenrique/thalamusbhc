@@ -45,7 +45,7 @@ test('count patients and sessions', async () => {
   const auth = { uid: 'admin', role: USER_ROLES.ADMIN } as const;
   const db = getAuthedDb(auth);
 
-  await setDoc(doc(db, 'patients/p1'), { ownerId: 'admin', name: 'Test', email: 't@e.st' });
+  await setDoc(doc(db, 'patients/p1'), { ownerId: 'admin', psychologistId: 'admin', name: 'Test', email: 't@e.st' });
   await setDoc(doc(db, 'appointments/a1'), {
     startDate: Timestamp.fromDate(new Date()),
     status: 'Scheduled',

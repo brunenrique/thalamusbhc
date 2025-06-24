@@ -39,6 +39,7 @@ describe('Patient Rules Tests', () => {
     await assertSucceeds(
       patientDoc.set({
         ownerId: auth.uid,
+        psychologistId: auth.uid,
         name: 'Test Patient',
         email: 'test@example.com',
         phoneEnc: encrypt('123', key),
@@ -52,7 +53,7 @@ describe('Patient Rules Tests', () => {
     const ownerDb = testEnv.authenticatedContext(ownerAuth.uid).firestore();
     const ownerDoc = ownerDb.collection('patients').doc('patient2');
     await assertSucceeds(
-      ownerDoc.set({ ownerId: ownerAuth.uid, name: 'Test Patient', email: 'a@b.c' })
+      ownerDoc.set({ ownerId: ownerAuth.uid, psychologistId: ownerAuth.uid, name: 'Test Patient', email: 'a@b.c' })
     );
 
     const otherAuth = { uid: 'user2' };
@@ -61,7 +62,7 @@ describe('Patient Rules Tests', () => {
 
     await assertFails(otherDoc.get());
     await assertFails(
-      otherDoc.set({ ownerId: otherAuth.uid, name: 'Should Fail', email: 'x@y.z' })
+      otherDoc.set({ ownerId: otherAuth.uid, psychologistId: otherAuth.uid, name: 'Should Fail', email: 'x@y.z' })
     );
   });
 
@@ -72,6 +73,6 @@ describe('Patient Rules Tests', () => {
       .collection('patients')
       .doc('patient3');
     await assertFails(patientDoc.get());
-    await assertFails(patientDoc.set({ ownerId: 'someone', name: 'Nope', email: 'n@o.pe' }));
+    await assertFails(patientDoc.set({ ownerId: 'someone', psychologistId: 'someone', name: 'Nope', email: 'n@o.pe' }));
   });
 });

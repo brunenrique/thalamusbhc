@@ -38,9 +38,10 @@ function validEncryptedField(field) {
 
 function validPatient() {
   return request.resource.data.keys().hasOnly([
-           'ownerId', 'name', 'birthdate', 'phoneEnc', 'addressEnc', 'identifierEnc', 'email', 'notes'
+           'ownerId', 'psychologistId', 'name', 'birthdate', 'phoneEnc', 'addressEnc', 'identifierEnc', 'email', 'notes'
          ]) &&
          request.resource.data.ownerId is string &&
+         request.resource.data.psychologistId is string &&
          request.resource.data.name is string &&
          request.resource.data.email is string &&
          (!('birthdate' in request.resource.data) || request.resource.data.birthdate is timestamp) &&
@@ -143,8 +144,15 @@ match /chats/{chatId} {
 
   match /patients/{id} {
     // Somente o psicólogo responsável pode criar e gerenciar seus pacientes
-    allow create: if (isPsychologist() && request.resource.data.ownerId == request.auth.uid && validPatient()) || isAdmin();
-    allow read, update, delete: if (isPsychologist() && request.auth.uid == resource.data.ownerId) || isAdmin();
+    allow create: if (isPsychologist() &&
+                     request.resource.data.ownerId == request.auth.uid &&
+                     request.resource.data.psychologistId == request.auth.uid &&
+                     validPatient()) || isAdmin();
+    allow update: if (isPsychologist() &&
+                     request.auth.uid == resource.data.ownerId &&
+                     request.resource.data.psychologistId == request.auth.uid &&
+                     validPatient()) || isAdmin();
+    allow read, delete: if (isPsychologist() && request.auth.uid == resource.data.ownerId) || isAdmin();
     allow list: if isPsychologist() || isAdmin();
   }
 
@@ -175,8 +183,12 @@ match /patients/{patientId}/clinicalTabs/{tabId} {
 
 match /groups/{id} {
   allow read: if isStaff();
-  allow create: if (isPsychologist() && request.auth.uid == request.resource.data.psychologistId) || isAdmin();
-  allow update, delete: if (isPsychologist() && request.auth.uid == resource.data.psychologistId) || isAdmin();
+  allow create: if ((isPsychologist() && request.auth.uid == request.resource.data.psychologistId) || isAdmin()) &&
+                   request.resource.data.leaderId == request.auth.uid &&
+                   request.resource.data.name is string && request.resource.data.name.size() > 0;
+  allow update, delete: if ((isPsychologist() && request.auth.uid == resource.data.psychologistId) || isAdmin()) &&
+                         request.resource.data.leaderId == request.auth.uid &&
+                         request.resource.data.name is string && request.resource.data.name.size() > 0;
 }
 
 match /tasks/{id} {

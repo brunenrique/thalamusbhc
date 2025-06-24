@@ -12,7 +12,7 @@ const key = deriveKeyFromPassword('test-pass');
 let testEnv: Awaited<ReturnType<typeof initializeTestEnvironment>>;
 
 beforeAll(async () => {
-  const hostPort = process.env.FIRESTORE_EMULATOR_HOST || '127.0.0.1:8084';
+  const hostPort = process.env.FIRESTORE_EMULATOR_HOST || '127.0.0.1:8085';
   const [host, portStr] = hostPort.split(':');
   const port = parseInt(portStr, 10);
 

@@ -58,15 +58,15 @@ if (process.env.NODE_ENV === 'development') {
     // Use 'localhost' as a fallback, as '127.0.0.1' can sometimes be tricky in containerized/proxied environments.
     const host = process.env.NEXT_PUBLIC_FIREBASE_EMULATOR_HOST || 'localhost';
     
-    const authPort = 9099;
+    const authPort = 9101;
     connectAuthEmulator(auth, `http://${host}:${authPort}`, { disableWarnings: true });
     logger.info({ action: 'auth_emulator_connected', meta: { host, port: authPort } });
 
-    const firestorePort = 8084;
+    const firestorePort = 8085;
     connectFirestoreEmulator(db, host, firestorePort);
     logger.info({ action: 'firestore_emulator_connected', meta: { host, port: firestorePort } });
 
-    const storagePort = 9200;
+    const storagePort = 9201;
     connectStorageEmulator(storage, host, storagePort);
     logger.info({ action: 'storage_emulator_connected', meta: { host, port: storagePort } });
 

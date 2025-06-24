@@ -42,7 +42,7 @@ Plataforma web para gestão de clínicas de psicologia, com agenda integrada, pr
     - Se esta é a primeira vez, configure os emuladores: `firebase init emulators` (selecione Firestore, Storage, Functions).
     - Inicie os emuladores: `firebase emulators:start --project=demo-project`
     - Certifique-se de que o `firebase.json` possua a entrada `"storage": { "rules": "storage.rules" }` para que o emulador de Storage possa iniciar.
-    - Verifique se os emuladores estão rodando nas portas corretas (Firestore: 8084, Storage: 9200, UI: 4004). O arquivo `firebase.json` está configurado para usar `host: "0.0.0.0"` para os emuladores.
+    - Verifique se os emuladores estão rodando nas portas corretas (Firestore: 8085, Storage: 9201, UI: 4005). O arquivo `firebase.json` está configurado para usar `host: "0.0.0.0"` para os emuladores.
 
 6.  # **Inicie o Servidor de Desenvolvimento Next.js (em outro terminal):**
 7.  **Inicie o Servidor de Desenvolvimento Next.js (em outro terminal):**

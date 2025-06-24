@@ -1,3 +1,6 @@
 {
-  "gemini_api": {}
+  "firebase_hosting": {},
+  "gemini_api": {
+    "api_key": "AIzaSyA6asRssnMvmPv74ZNEajUHdzQLddHxSSE"
+  }
 }

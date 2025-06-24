@@ -1,22 +1,51 @@
+'use client';
 
-"use client"
-
-import { Line, LineChart, ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from "recharts"
-import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
+import React from 'react';
+import dynamic from 'next/dynamic';
+const LineChart = dynamic(
+  () => import('recharts').then((m) => m.LineChart as React.ComponentType<any>),
+  { ssr: false }
+);
+const Line = dynamic(() => import('recharts').then((m) => m.Line as React.ComponentType<any>), {
+  ssr: false,
+});
+const XAxis = dynamic(() => import('recharts').then((m) => m.XAxis as React.ComponentType<any>), {
+  ssr: false,
+});
+const YAxis = dynamic(() => import('recharts').then((m) => m.YAxis as React.ComponentType<any>), {
+  ssr: false,
+});
+const CartesianGrid = dynamic(
+  () => import('recharts').then((m) => m.CartesianGrid as React.ComponentType<any>),
+  { ssr: false }
+);
+const Legend = dynamic(() => import('recharts').then((m) => m.Legend as React.ComponentType<any>), {
+  ssr: false,
+});
+const ResponsiveContainer = dynamic(
+  () => import('recharts').then((m) => m.ResponsiveContainer as React.ComponentType<any>),
+  { ssr: false }
+);
+import {
+  ChartConfig,
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from '@/components/ui/chart';
 
 const chartData = [
-  { month: "Jan", sessions: 186 },
-  { month: "Fev", sessions: 305 },
-  { month: "Mar", sessions: 237 },
-  { month: "Abr", sessions: 273 },
-  { month: "Mai", sessions: 209 },
-  { month: "Jun", sessions: 314 },
+  { month: 'Jan', sessions: 186 },
+  { month: 'Fev', sessions: 305 },
+  { month: 'Mar', sessions: 237 },
+  { month: 'Abr', sessions: 273 },
+  { month: 'Mai', sessions: 209 },
+  { month: 'Jun', sessions: 314 },
 ];
 
 const chartConfig = {
   sessions: {
-    label: "Sessões",
-    color: "hsl(var(--chart-1))",
+    label: 'Sessões',
+    color: 'hsl(var(--chart-1))',
   },
 } satisfies ChartConfig;
 
@@ -56,10 +85,7 @@ export function SessionsTrendChart({ data = chartData }: { data?: typeof chartDa
             tickMargin={8}
             // stroke="hsl(var(--muted-foreground))"
           />
-          <ChartTooltip
-            cursor={true}
-            content={<ChartTooltipContent indicator="line" />}
-          />
+          <ChartTooltip cursor={true} content={<ChartTooltipContent indicator="line" />} />
           <Legend />
           <Line
             dataKey="sessions"
@@ -67,15 +93,15 @@ export function SessionsTrendChart({ data = chartData }: { data?: typeof chartDa
             stroke="var(--color-sessions)"
             strokeWidth={2}
             dot={{
-              fill: "var(--color-sessions)",
+              fill: 'var(--color-sessions)',
               r: 4,
             }}
             activeDot={{
-              r:6,
+              r: 6,
             }}
           />
         </LineChart>
       </ResponsiveContainer>
     </ChartContainer>
-  )
+  );
 }

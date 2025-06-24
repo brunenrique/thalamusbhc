@@ -25,6 +25,7 @@ import ReactFlow, {
 import 'reactflow/dist/style.css';
 
 import { useClinicalStore } from '@/stores/clinicalStore';
+import { useMapInteraction, MapInteractionProvider } from '@/contexts/MapInteractionContext';
 import { clinicalCardColors } from '../../../tailwind.config';
 import ABCCardNode from './ABCCardNode';
 import SchemaNode from './SchemaNode';
@@ -120,6 +121,7 @@ const cardColorDisplayOptions: { label: string; value: ABCCardColor; style: stri
 
 
 const FormulationMap: React.FC = () => {
+  const { openContextMenu, closeContextMenu } = useMapInteraction();
   const {
     formulationTabData,
     activeTabId,
@@ -130,8 +132,6 @@ const FormulationMap: React.FC = () => {
     setViewport: storeSetViewport,
     saveClinicalData,
     setInsights,
-    openContextMenu,
-    isContextMenuOpen,
     openABCForm,
     openSchemaForm,
     openQuickNoteForm,
@@ -234,8 +234,8 @@ const FormulationMap: React.FC = () => {
   );
 
   const onPaneClick = useCallback(() => {
-    useClinicalStore.getState().closeContextMenu();
-  }, []);
+    closeContextMenu();
+  }, [closeContextMenu]);
 
   const onEdgeDoubleClick = useCallback(
     (_event: EdgeMouseEvent, edge: Edge<ConnectionLabel | undefined>) => {
@@ -577,11 +577,36 @@ const FormulationMap: React.FC = () => {
   );
 };
 
-const FormulationMapWrapper: React.FC = () => (
-  <ReactFlowProvider>
-    <FormulationMap />
-  </ReactFlowProvider>
-);
+
+const FormulationMapWrapper: React.FC = () => {
+  const { openABCForm, openSchemaForm } = useClinicalStore();
+
+  const handleEditNode = useCallback(
+    (id: string, type: ClinicalNodeType) => {
+      if (type === 'abcCard') {
+        openABCForm(id);
+      } else {
+        openSchemaForm(id);
+      }
+    },
+    [openABCForm, openSchemaForm]
+  );
+
+  const handleDeleteNode = useCallback(
+    (_id: string, _type: ClinicalNodeType) => {
+      // Implementar deleção específica aqui se necessário
+    },
+    []
+  );
+
+  return (
+    <ReactFlowProvider>
+      <MapInteractionProvider onEditNode={handleEditNode} onDeleteNode={handleDeleteNode}>
+        <FormulationMap />
+      </MapInteractionProvider>
+    </ReactFlowProvider>
+  );
+};
 
 export default FormulationMapWrapper;
 

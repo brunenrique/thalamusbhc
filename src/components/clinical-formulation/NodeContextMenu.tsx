@@ -16,6 +16,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Edit, Trash2, Palette, Link2, Check, Unlink, Users as UsersIcon, Tag } from 'lucide-react';
 import { useClinicalStore } from '@/stores/clinicalStore';
+import { useMapInteraction } from '@/contexts/MapInteractionContext';
 import type { ClinicalNodeType, ABCCardColor, SchemaData, ABCCardData } from '@/types/clinicalTypes';
 import { cn } from '@/shared/utils';
 
@@ -38,15 +39,6 @@ const groupContextColors = [
 
 const NodeContextMenu: React.FC = () => {
   const {
-    isContextMenuOpen,
-    contextMenuPosition,
-    contextMenuNodeId,
-    contextMenuNodeType,
-    closeContextMenu,
-    openABCForm,
-    openSchemaForm,
-    deleteCard,
-    deleteSchema,
     changeCardColor,
     cards,
     schemas,
@@ -56,6 +48,16 @@ const NodeContextMenu: React.FC = () => {
     assignCardToGroup, // Assign card to a group by its info
     removeCardFromItsGroup, // Remove card from its current group
   } = useClinicalStore();
+
+  const {
+    isContextMenuOpen,
+    contextMenuPosition,
+    contextMenuNodeId,
+    contextMenuNodeType,
+    closeContextMenu,
+    onEditNode,
+    onDeleteNode,
+  } = useMapInteraction();
 
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -101,19 +103,15 @@ const NodeContextMenu: React.FC = () => {
   const currentSchema = contextMenuNodeType === 'schemaNode' ? schemas.find(s => s.id === contextMenuNodeId) : null;
 
   const handleEdit = () => {
-    if (contextMenuNodeType === 'abcCard' && contextMenuNodeId) {
-      openABCForm(contextMenuNodeId);
-    } else if (contextMenuNodeType === 'schemaNode' && contextMenuNodeId) {
-      openSchemaForm(contextMenuNodeId);
+    if (contextMenuNodeId && contextMenuNodeType && onEditNode) {
+      onEditNode(contextMenuNodeId, contextMenuNodeType);
     }
     closeContextMenu();
   };
 
   const handleDelete = () => {
-    if (contextMenuNodeType === 'abcCard' && contextMenuNodeId) {
-      deleteCard(contextMenuNodeId);
-    } else if (contextMenuNodeType === 'schemaNode' && contextMenuNodeId) {
-      deleteSchema(contextMenuNodeId);
+    if (contextMenuNodeId && contextMenuNodeType && onDeleteNode) {
+      onDeleteNode(contextMenuNodeId, contextMenuNodeType);
     }
     closeContextMenu();
   };

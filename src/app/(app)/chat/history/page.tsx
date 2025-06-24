@@ -6,7 +6,7 @@ import { MessageCircle, MessagesSquare } from "lucide-react";
 import { collection, query, orderBy, onSnapshot, Timestamp, DocumentData, QueryDocumentSnapshot } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useChatStore } from "@/stores/chatStore";
-import type { Message } from "@/hooks/useChatMessages";
+import type { Message } from "@/hooks/use-chat-messages";
 import MessageItem from "@/components/chat/MessageItem";
 
 export default function ChatHistoryPage() {

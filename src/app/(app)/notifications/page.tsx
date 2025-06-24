@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Bell, CheckCheck, Trash2, Settings } from "lucide-react";
 import Link from "next/link";
 import NotificationItem from "@/components/notifications/notification-item";
-import { useNotifications } from "@/hooks/useNotifications";
+import { useNotifications } from "@/hooks/use-notifications";
 import { registerFcmToken } from "@/services/notificationService";
 import { auth } from "@/lib/firebase"; // Caminho corrigido aqui
 

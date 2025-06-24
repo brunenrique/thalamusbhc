@@ -49,6 +49,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Proibido' }, { status: 403 });
     }
 
+    const requester = await adminAuth().getUser(decoded.uid);
+    if (requester.customClaims?.role !== 'admin') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+    }
+
     await adminAuth().setCustomUserClaims(uid, { role });
     return NextResponse.json({ success: true });
   } catch (e) {

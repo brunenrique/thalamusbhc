@@ -33,7 +33,6 @@
     "start:local": "./scripts/start.sh",
     "dev:clean": "./scripts/clean.sh",
     "prepare:commit": "./scripts/prepare-commit.sh",
-    "prepare": "husky install",
     "backup": "node scripts/backup.js",
     "analyze-costs": "tsx scripts/analyze-costs.ts",
     "emulators": "firebase emulators:start --project=thalamus-dev",
@@ -44,11 +43,13 @@
     "docker:functions:build": "docker build -t meu-app-func functions/ -f functions/Dockerfile.functions",
     "docker:up": "docker-compose up --build",
     "docker:down": "docker-compose down",
-    "sentry:release": "./scripts/sentry-release.sh"
+    "sentry:release": "./scripts/sentry-release.sh",
+    "prepare": "husky install"
   },
   "dependencies": {
     "@genkit-ai/core": "^1.13.0",
     "@genkit-ai/googleai": "^1.13.0",
+    "@google-cloud/secret-manager": "6.0.1",
     "@hookform/resolvers": "^5.1.1",
     "@radix-ui/react-accordion": "^1.2.11",
     "@radix-ui/react-alert-dialog": "^1.1.14",

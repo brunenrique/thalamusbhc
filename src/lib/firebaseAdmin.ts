@@ -1,4 +1,7 @@
 import admin from 'firebase-admin';
+import { loadSecrets } from './secretManager';
+
+await loadSecrets(['FIREBASE_CLIENT_EMAIL', 'FIREBASE_PRIVATE_KEY']);
 
 const app =
   admin.apps[0] ??

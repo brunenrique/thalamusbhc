@@ -2,6 +2,11 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(dirname "$0")"
+
+export PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
+export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=1
+export PUPPETEER_SKIP_DOWNLOAD=1
+
 echo "📦 Instalando dependências via npm..."
 npm ci
 

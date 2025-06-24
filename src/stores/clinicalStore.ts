@@ -8,7 +8,10 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 import {
   fetchClinicalData as fetchClinicalDataSvc,
   saveClinicalData as saveClinicalDataSvc,
+  updateNodes as updateNodesSvc,
+  updateEdges as updateEdgesSvc,
 } from '@/services/clinicalService';
+import { toast } from '@/hooks/use-toast';
 import logger from '@/lib/logger';
 import type {
   BaseCard,
@@ -37,6 +40,7 @@ const defaultTabData: TabSpecificFormulationData = {
 };
 
 interface ClinicalState {
+  patientId?: string;
   tabs: ClinicalTab[];
   activeTabId?: string;
   formulationTabData: Record<string, TabSpecificFormulationData>;
@@ -90,6 +94,14 @@ interface ClinicalState {
   fetchClinicalData: (patientId: string, tabId: string) => void;
   saveClinicalData: (patientId: string, tabId: string) => void;
 
+  setPatientId: (id: string) => void;
+
+  addNode: (node: any) => Promise<void>;
+  updateNode: (id: string, data: any) => Promise<void>;
+  deleteNode: (id: string) => Promise<void>;
+  addEdge: (edge: any) => Promise<void>;
+  deleteEdge: (id: string) => Promise<void>;
+
   setActivePanel: (panel: PanelType) => void;
   setPanelState: (panel: string, state: any) => void;
 }
@@ -98,6 +110,7 @@ export const useClinicalStore = create<ClinicalState>()(
   persist(
     (set, get) => ({
       // ----- Tab Management -----
+      patientId: undefined,
       tabs: [{ id: 'initialTab', type: 'formulation', title: 'Formulação Inicial' }],
       activeTabId: 'initialTab',
       formulationTabData: {},
@@ -120,6 +133,7 @@ export const useClinicalStore = create<ClinicalState>()(
       renameTab: (id, title) =>
         set((state) => ({ tabs: state.tabs.map((t) => (t.id === id ? { ...t, title } : t)) })),
       setActiveTab: (id) => set({ activeTabId: id }),
+      setPatientId: (id) => set({ patientId: id }),
 
       fetchClinicalData: async (patientId, tabId) => {
         set({ isLoadingClinicalData: true, clinicalDataError: null });
@@ -176,6 +190,151 @@ export const useClinicalStore = create<ClinicalState>()(
       addQuickNote: (note) => set((state) => ({ quickNotes: [...state.quickNotes, note] })),
       deleteQuickNote: (id) =>
         set((state) => ({ quickNotes: state.quickNotes.filter((n) => n.id !== id) })),
+
+      addNode: async (newNode) => {
+        const { activeTabId, patientId, formulationTabData } = get();
+        if (!activeTabId || !patientId) return;
+        const previousNodes = formulationTabData[activeTabId]?.nodes || [];
+        const newNodes = [...previousNodes, newNode];
+        set({
+          formulationTabData: {
+            ...formulationTabData,
+            [activeTabId]: { ...formulationTabData[activeTabId], nodes: newNodes },
+          },
+        });
+        try {
+          await updateNodesSvc(patientId, activeTabId, newNodes);
+        } catch (error) {
+          console.error('Falha ao salvar o novo nó:', error);
+          set({
+            formulationTabData: {
+              ...formulationTabData,
+              [activeTabId]: { ...formulationTabData[activeTabId], nodes: previousNodes },
+            },
+          });
+          toast({
+            title: 'Erro de Sincronização',
+            description: 'Sua última alteração não pôde ser salva. Verifique sua conexão e tente novamente.',
+            variant: 'destructive',
+          });
+        }
+      },
+
+      updateNode: async (id, data) => {
+        const { activeTabId, patientId, formulationTabData } = get();
+        if (!activeTabId || !patientId) return;
+        const previousNodes = formulationTabData[activeTabId]?.nodes || [];
+        const newNodes = previousNodes.map((n: any) => (n.id === id ? { ...n, ...data } : n));
+        set({
+          formulationTabData: {
+            ...formulationTabData,
+            [activeTabId]: { ...formulationTabData[activeTabId], nodes: newNodes },
+          },
+        });
+        try {
+          await updateNodesSvc(patientId, activeTabId, newNodes);
+        } catch (error) {
+          console.error('Falha ao atualizar o nó:', error);
+          set({
+            formulationTabData: {
+              ...formulationTabData,
+              [activeTabId]: { ...formulationTabData[activeTabId], nodes: previousNodes },
+            },
+          });
+          toast({
+            title: 'Erro de Sincronização',
+            description: 'Sua última alteração não pôde ser salva. Verifique sua conexão e tente novamente.',
+            variant: 'destructive',
+          });
+        }
+      },
+
+      deleteNode: async (id) => {
+        const { activeTabId, patientId, formulationTabData } = get();
+        if (!activeTabId || !patientId) return;
+        const previousNodes = formulationTabData[activeTabId]?.nodes || [];
+        const newNodes = previousNodes.filter((n: any) => n.id !== id);
+        set({
+          formulationTabData: {
+            ...formulationTabData,
+            [activeTabId]: { ...formulationTabData[activeTabId], nodes: newNodes },
+          },
+        });
+        try {
+          await updateNodesSvc(patientId, activeTabId, newNodes);
+        } catch (error) {
+          console.error('Falha ao remover o nó:', error);
+          set({
+            formulationTabData: {
+              ...formulationTabData,
+              [activeTabId]: { ...formulationTabData[activeTabId], nodes: previousNodes },
+            },
+          });
+          toast({
+            title: 'Erro de Sincronização',
+            description: 'Sua última alteração não pôde ser salva. Verifique sua conexão e tente novamente.',
+            variant: 'destructive',
+          });
+        }
+      },
+
+      addEdge: async (edge) => {
+        const { activeTabId, patientId, formulationTabData } = get();
+        if (!activeTabId || !patientId) return;
+        const previousEdges = formulationTabData[activeTabId]?.edges || [];
+        const newEdges = [...previousEdges, edge];
+        set({
+          formulationTabData: {
+            ...formulationTabData,
+            [activeTabId]: { ...formulationTabData[activeTabId], edges: newEdges },
+          },
+        });
+        try {
+          await updateEdgesSvc(patientId, activeTabId, newEdges);
+        } catch (error) {
+          console.error('Falha ao salvar a nova conexão:', error);
+          set({
+            formulationTabData: {
+              ...formulationTabData,
+              [activeTabId]: { ...formulationTabData[activeTabId], edges: previousEdges },
+            },
+          });
+          toast({
+            title: 'Erro de Sincronização',
+            description: 'Sua última alteração não pôde ser salva. Verifique sua conexão e tente novamente.',
+            variant: 'destructive',
+          });
+        }
+      },
+
+      deleteEdge: async (id) => {
+        const { activeTabId, patientId, formulationTabData } = get();
+        if (!activeTabId || !patientId) return;
+        const previousEdges = formulationTabData[activeTabId]?.edges || [];
+        const newEdges = previousEdges.filter((e: any) => e.id !== id);
+        set({
+          formulationTabData: {
+            ...formulationTabData,
+            [activeTabId]: { ...formulationTabData[activeTabId], edges: newEdges },
+          },
+        });
+        try {
+          await updateEdgesSvc(patientId, activeTabId, newEdges);
+        } catch (error) {
+          console.error('Falha ao remover a conexão:', error);
+          set({
+            formulationTabData: {
+              ...formulationTabData,
+              [activeTabId]: { ...formulationTabData[activeTabId], edges: previousEdges },
+            },
+          });
+          toast({
+            title: 'Erro de Sincronização',
+            description: 'Sua última alteração não pôde ser salva. Verifique sua conexão e tente novamente.',
+            variant: 'destructive',
+          });
+        }
+      },
 
       // ----- Existing card/label management -----
       cards: [],

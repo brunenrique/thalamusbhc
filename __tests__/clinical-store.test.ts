@@ -2,6 +2,7 @@ import { act } from '@testing-library/react';
 import {
   fetchClinicalData as fetchSvc,
   saveClinicalData as saveSvc,
+  updateNodes as updateNodesSvc,
 } from '@/services/clinicalService';
 import { useClinicalStore } from '@/stores/clinicalStore';
 
@@ -46,5 +47,36 @@ describe('useClinicalStore async state', () => {
     });
     expect(useClinicalStore.getState().isLoadingClinicalData).toBe(false);
     expect(useClinicalStore.getState().clinicalDataError).toBe('falhou');
+  });
+
+  it('rollback nodes on addNode failure', async () => {
+    (updateNodesSvc as jest.Mock).mockRejectedValue(new Error('fail'));
+
+    useClinicalStore.setState({
+      patientId: 'p1',
+      activeTabId: 't1',
+      formulationTabData: {
+        t1: {
+          cards: [],
+          schemas: [],
+          nodes: [],
+          edges: [],
+          viewport: { x: 0, y: 0, zoom: 1 },
+          insights: [],
+          formulationGuideAnswers: {},
+          quickNotes: [],
+          cardGroups: [],
+          activeColorFilters: [],
+          showSchemaNodes: true,
+          emotionIntensityFilter: 0,
+        },
+      },
+    });
+
+    await act(async () => {
+      await useClinicalStore.getState().addNode({ id: 'n1' });
+    });
+
+    expect(useClinicalStore.getState().formulationTabData.t1.nodes).toEqual([]);
   });
 });

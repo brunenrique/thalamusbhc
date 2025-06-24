@@ -28,7 +28,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { useRouter } from 'next/navigation';
 import { auth } from '@/lib/firebase';
 import logger, { logAction } from '@/lib/logger';
-import { useToast } from '@/hooks/use-toast';
+import { useApiForm } from '@/hooks/use-api-form';
 import * as Sentry from '@sentry/nextjs';
 
 const loginSchema = z.object({
@@ -41,8 +41,29 @@ type LoginFormValues = z.infer<typeof loginSchema>;
 
 export default function LoginForm() {
   const router = useRouter();
-  const [isLoading, setIsLoading] = React.useState(false);
-  const { toast } = useToast();
+
+  const { isSubmitting, handleSubmit } = useApiForm<LoginFormValues>({
+    apiFunction: async (data) => {
+      await setPersistence(
+        auth,
+        data.rememberMe ? browserLocalPersistence : browserSessionPersistence
+      );
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        data.email,
+        data.password
+      );
+      const idToken = await getIdToken(userCredential.user);
+      await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ idToken }),
+      });
+      logAction(userCredential.user.uid, 'login_success');
+    },
+    successMessage: 'Login realizado com sucesso! Redirecionando...',
+    onSuccess: () => router.push('/dashboard'),
+  });
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -53,51 +74,9 @@ export default function LoginForm() {
     },
   });
 
-  async function onSubmit(data: LoginFormValues) {
-    setIsLoading(true);
-    try {
-      await setPersistence(
-        auth,
-        data.rememberMe ? browserLocalPersistence : browserSessionPersistence
-      );
-      const userCredential = await signInWithEmailAndPassword(auth, data.email, data.password);
-      const idToken = await getIdToken(userCredential.user);
-      await fetch('/api/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ idToken }),
-      });
-      logAction(userCredential.user.uid, 'login_success');
-      router.push('/dashboard');
-    } catch (error) {
-      Sentry.captureException(error);
-      logger.error({ action: 'login_error', meta: { error } });
-      let errorMessage = 'Erro ao fazer login.';
-
-      if (error instanceof Error && 'code' in error) {
-        const errorCode = (error as { code: string }).code;
-        switch (errorCode) {
-          case 'auth/invalid-credential':
-            errorMessage = 'E-mail ou senha incorretos.';
-            break;
-          case 'auth/user-disabled':
-            errorMessage = 'Usuário desabilitado.';
-            break;
-          case 'auth/too-many-requests':
-            errorMessage = 'Acesso bloqueado temporariamente.';
-            break;
-        }
-      }
-
-      toast({
-        title: 'Erro ao fazer login',
-        description: errorMessage,
-        variant: 'destructive',
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  }
+  const onSubmit = (data: LoginFormValues) => {
+    handleSubmit(data);
+  };
 
   return (
     <Card className="shadow-lg">
@@ -151,9 +130,9 @@ export default function LoginForm() {
             <Button
               type="submit"
               className="w-full bg-accent hover:bg-accent/90 text-accent-foreground"
-              disabled={isLoading}
+              disabled={isSubmitting}
             >
-              {isLoading ? 'Entrando...' : 'Entrar'}
+              {isSubmitting ? 'Entrando...' : 'Entrar'}
             </Button>
           </form>
         </Form>

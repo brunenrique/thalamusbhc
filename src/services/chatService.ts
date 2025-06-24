@@ -1,4 +1,15 @@
-import { collection, addDoc, doc, getDoc, type Firestore } from 'firebase/firestore';
+import {
+  collection,
+  addDoc,
+  doc,
+  getDoc,
+  serverTimestamp,
+  query,
+  orderBy,
+  onSnapshot,
+  type Firestore,
+  type Unsubscribe,
+} from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { FIRESTORE_COLLECTIONS } from '@/lib/firestore-collections';
 
@@ -27,4 +38,49 @@ export async function createChat(
     participants,
   });
   return ref.id;
+}
+
+export interface ChatMessage {
+  id: string;
+  text: string;
+  senderId: string;
+  createdAt: unknown;
+}
+
+export async function sendMessage(
+  conversationId: string,
+  messageData: { text: string; senderId: string },
+  firestore: Firestore = db,
+): Promise<void> {
+  const messagesColRef = collection(
+    firestore,
+    'conversations',
+    conversationId,
+    'messages',
+  );
+  await addDoc(messagesColRef, {
+    ...messageData,
+    createdAt: serverTimestamp(),
+  });
+}
+
+export function listenForMessages(
+  conversationId: string,
+  callback: (messages: ChatMessage[]) => void,
+  firestore: Firestore = db,
+): Unsubscribe {
+  const messagesColRef = collection(
+    firestore,
+    'conversations',
+    conversationId,
+    'messages',
+  );
+  const q = query(messagesColRef, orderBy('createdAt', 'asc'));
+  return onSnapshot(q, snap => {
+    const list: ChatMessage[] = snap.docs.map(d => ({
+      id: d.id,
+      ...(d.data() as Omit<ChatMessage, 'id'>),
+    }));
+    callback(list);
+  });
 }

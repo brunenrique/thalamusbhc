@@ -42,7 +42,6 @@ module.exports = [
       'tailwind.config.ts',
       'eslint.config.js',
       'jest.config.ts',
-      'jest.config.js',
     ],
     languageOptions: {
       parser: tsParser,

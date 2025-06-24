@@ -7,6 +7,8 @@ import { checkUserRole } from '@/services/authRole';
 import { USER_ROLES } from '@/constants/roles';
 import { useFirstLoginStatus } from '@/hooks/use-first-login-status';
 import { WelcomeModal } from '@/components/onboarding/welcome-modal';
+import CommandPalette from '@/components/command-palette';
+import { useCommandPalette } from '@/stores/commandPaletteStore';
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -17,6 +19,18 @@ export default function AppLayout({ children }: AppLayoutProps) {
   const pathname = usePathname();
   const [authorized, setAuthorized] = useState(false);
   const { isFirstLogin, markOnboardingAsCompleted } = useFirstLoginStatus();
+  const { toggle } = useCommandPalette();
+
+  useEffect(() => {
+    function handleKey(event: KeyboardEvent) {
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
+        event.preventDefault();
+        toggle();
+      }
+    }
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, [toggle]);
 
   useEffect(() => {
     checkUserRole([USER_ROLES.ADMIN, USER_ROLES.PSYCHOLOGIST, 'Secretary']).then((ok) => {
@@ -39,6 +53,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
         isOpen={isFirstLogin}
         onClose={markOnboardingAsCompleted}
       />
+      <CommandPalette />
     </div>
   );
 }

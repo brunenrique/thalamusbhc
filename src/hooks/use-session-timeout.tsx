@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { useEffect, useRef, useCallback } from "react";
+import { useEffect, useCallback } from 'react';
 
 /**
  * Tempo de inatividade em milissegundos (15 minutos).
@@ -13,42 +13,28 @@ const TIMEOUT = 15 * 60 * 1000;
  * @param onTimeout Função chamada após o tempo de inatividade expirar.
  */
 export default function useSessionTimeout(onTimeout: () => void) {
-  /**
-   * Referência para o ID do timer. É usada para limpar o timeout
-   * sempre que uma nova atividade é detectada.
-   */
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  /**
-   * Reinicia o timer de inatividade. Quando o tempo definido em
-   * `TIMEOUT` se esgota sem detectar eventos de atividade, a função
-   * `onTimeout` é executada.
-   */
-  const resetTimer = useCallback(() => {
-    if (timerRef.current) {
-      clearTimeout(timerRef.current);
-    }
-    timerRef.current = setTimeout(() => {
-      onTimeout();
-    }, TIMEOUT);
+  const handleLogout = useCallback(() => {
+    onTimeout();
   }, [onTimeout]);
 
   useEffect(() => {
+    let activityTimer: NodeJS.Timeout;
+
+    const resetTimer = () => {
+      clearTimeout(activityTimer);
+      activityTimer = setTimeout(handleLogout, TIMEOUT);
+    };
+
     // Inicia o timer na montagem do componente.
     resetTimer();
 
     // Eventos que indicam atividade do usuário.
-    const events = ["mousemove", "keydown", "scroll"] as const;
-
-    // Para cada evento de atividade, o timer é reiniciado.
+    const events = ['mousemove', 'keydown', 'scroll'] as const;
     events.forEach((event) => window.addEventListener(event, resetTimer));
 
     return () => {
-      // Remove os event listeners ao desmontar e limpa o timer.
       events.forEach((event) => window.removeEventListener(event, resetTimer));
-      if (timerRef.current) {
-        clearTimeout(timerRef.current);
-      }
+      clearTimeout(activityTimer);
     };
-  }, [resetTimer]);
+  }, [handleLogout]);
 }

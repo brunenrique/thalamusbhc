@@ -1,5 +1,6 @@
 import './globals.css'; // Manter esta importação
 import ErrorBoundary from '@/components/layout/error-boundary';
+import { ThemeProvider } from '@/components/layout/theme-provider';
 
 // Removido: Toaster, usePageView, headLinks e lógica relacionada.
 

@@ -16,6 +16,9 @@ const customJestConfig = {
       statements: 85,
     },
   },
+  moduleNameMapper: {
+    '^@/(.*)$': '<rootDir>/src/$1',
+  },
 };
 
 export default createJestConfig(customJestConfig);

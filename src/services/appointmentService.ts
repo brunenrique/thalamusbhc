@@ -4,6 +4,8 @@ import { db } from '@/lib/firebase';
 import { FIRESTORE_COLLECTIONS } from '@/lib/firestore-collections';
 import { writeAuditLog } from './auditLogService';
 import { addDays, format, subDays } from 'date-fns';
+import logger from '@/lib/logger';
+import { ServiceError } from '@/lib/errors';
 
 const baseMockAppointments: AppointmentsByDate = {
   '2024-08-15': [
@@ -156,20 +158,25 @@ export async function createAppointment(
   data: AppointmentPayload,
   firestore: Firestore = db
 ): Promise<string> {
-  const docRef = await addDoc(
-    collection(firestore, FIRESTORE_COLLECTIONS.APPOINTMENTS),
-    data
-  );
-  if (data.patientId) {
-    await updateDoc(doc(firestore, FIRESTORE_COLLECTIONS.PATIENTS, data.patientId), {
-      lastAppointmentDate: Timestamp.fromDate(new Date(data.appointmentDate)),
-    });
+  try {
+    const docRef = await addDoc(
+      collection(firestore, FIRESTORE_COLLECTIONS.APPOINTMENTS),
+      data
+    );
+    if (data.patientId) {
+      await updateDoc(doc(firestore, FIRESTORE_COLLECTIONS.PATIENTS, data.patientId), {
+        lastAppointmentDate: Timestamp.fromDate(new Date(data.appointmentDate)),
+      });
+    }
+    await writeAuditLog({
+      userId: data.psychologistId,
+      actionType: 'createAppointment',
+      timestamp: new Date().toISOString(),
+      targetResourceId: docRef.id,
+    }, firestore);
+    return docRef.id;
+  } catch (error) {
+    logger.error({ action: 'create_appointment_error', meta: { error, service: 'appointmentService' } });
+    throw new ServiceError('Não foi possível criar o agendamento. Tente novamente mais tarde.', error);
   }
-  await writeAuditLog({
-    userId: data.psychologistId,
-    actionType: 'createAppointment',
-    timestamp: new Date().toISOString(),
-    targetResourceId: docRef.id,
-  }, firestore);
-  return docRef.id;
 }

@@ -34,6 +34,7 @@ import { ptBR } from 'date-fns/locale';
 import type { GroupRecord } from '@/services/groupService';
 import { fetchGroups } from '@/services/groupService';
 import RequireRole from '@/components/RequireRole';
+import { USER_ROLES } from '@/constants/roles';
 
 export default function TherapeuticGroupsPage() {
   const [groups, setGroups] = useState<GroupRecord[]>([]);
@@ -64,7 +65,7 @@ export default function TherapeuticGroupsPage() {
           <Users className="h-7 w-7 text-primary" />
           <h1 className="text-3xl font-headline font-bold">Grupos Terapêuticos</h1>
         </div>
-        <RequireRole role="Admin">
+        <RequireRole role={USER_ROLES.ADMIN}>
           <Button variant="primary" asChild>
             <Link href="/groups/new" className="inline-flex items-center gap-2">
               <PlusCircle className="h-4 w-4" />
@@ -146,7 +147,7 @@ export default function TherapeuticGroupsPage() {
                                 </span>
                               </Link>
                             </DropdownMenuItem>
-                            <RequireRole role="Admin">
+                            <RequireRole role={USER_ROLES.ADMIN}>
                               <DropdownMenuItem asChild>
                                 <Link href={`/groups/edit/${group.id}`}>
                                   <span className="inline-flex items-center gap-2">
@@ -174,7 +175,7 @@ export default function TherapeuticGroupsPage() {
                 Nenhum grupo terapêutico encontrado
               </h3>
               <p className="mt-1 text-sm text-muted-foreground">Comece criando um novo grupo.</p>
-              <RequireRole role="Admin">
+              <RequireRole role={USER_ROLES.ADMIN}>
                 <Button
                   asChild
                   className="mt-4 bg-accent hover:bg-accent/90 text-accent-foreground"

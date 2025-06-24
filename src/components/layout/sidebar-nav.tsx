@@ -37,7 +37,7 @@ import {
   SidebarGroupContent,
 } from '@/components/ui/sidebar';
 import { useSidebar } from '@/components/ui/sidebar';
-import type { UserRole } from '@/services/authRole';
+import { USER_ROLES, type UserRole } from '@/constants/roles';
 
 interface NavItem {
   href: string;
@@ -135,7 +135,7 @@ interface SidebarNavProps {
   userRole?: UserRole;
 }
 
-export default function SidebarNav({ currentPath, userRole = 'Admin' }: SidebarNavProps) {
+export default function SidebarNav({ currentPath, userRole = USER_ROLES.ADMIN }: SidebarNavProps) {
   const { state } = useSidebar();
 
   const renderNavItem = (
@@ -143,7 +143,7 @@ export default function SidebarNav({ currentPath, userRole = 'Admin' }: SidebarN
     index: number,
     isSubItem: boolean = false
   ): React.ReactElement | null => {
-    if (item.adminOnly && userRole !== 'Admin') return null;
+    if (item.adminOnly && userRole !== USER_ROLES.ADMIN) return null;
 
     const IconComponent = item.icon;
     const isActive =
@@ -165,7 +165,9 @@ export default function SidebarNav({ currentPath, userRole = 'Admin' }: SidebarN
     const ButtonComponent = isSubItem ? SidebarMenuSubButton : SidebarMenuButton;
 
     if (item.subItems?.length && state === 'expanded') {
-      const visibleSubItems = item.subItems.filter((sub) => !sub.adminOnly || userRole === 'Admin');
+      const visibleSubItems = item.subItems.filter(
+        (sub) => !sub.adminOnly || userRole === USER_ROLES.ADMIN
+      );
       if (visibleSubItems.length === 0) return null;
 
       return (
@@ -228,10 +230,10 @@ export default function SidebarNav({ currentPath, userRole = 'Admin' }: SidebarN
       const groupName = item.group || 'Geral';
       if (!acc[groupName]) acc[groupName] = [];
 
-      if (!item.adminOnly || userRole === 'Admin') {
+      if (!item.adminOnly || userRole === USER_ROLES.ADMIN) {
         if (item.subItems?.length) {
           const visibleSubItems = item.subItems.filter(
-            (sub) => !sub.adminOnly || userRole === 'Admin'
+            (sub) => !sub.adminOnly || userRole === USER_ROLES.ADMIN
           );
           if (visibleSubItems.length > 0 || (item.href && item.href !== '#')) {
             acc[groupName].push(item);

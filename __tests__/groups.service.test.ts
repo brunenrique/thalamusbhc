@@ -1,6 +1,7 @@
 import { initializeTestEnvironment } from '@firebase/rules-unit-testing';
 import { readFileSync } from 'fs';
 import { Firestore } from 'firebase/firestore';
+import { USER_ROLES } from '@/constants/roles';
 
 let createGroup: any;
 let fetchGroups: any;
@@ -23,7 +24,7 @@ beforeAll(async () => {
     },
   });
 
-  const auth = { uid: 'therapist1', role: 'Psychologist' };
+  const auth = { uid: 'therapist1', role: USER_ROLES.PSYCHOLOGIST } as const;
   const db = testEnv.authenticatedContext(auth.uid, auth).firestore();
 
   jest.doMock('../src/lib/firebase', () => ({
@@ -46,7 +47,7 @@ function getDb(auth: { uid: string; role: string }): Firestore {
 }
 
 test('create, update and delete group', async () => {
-  const auth = { uid: 'therapist1', role: 'Psychologist' };
+  const auth = { uid: 'therapist1', role: USER_ROLES.PSYCHOLOGIST } as const;
   const db = getDb(auth);
 
   const groupId = await createGroup(

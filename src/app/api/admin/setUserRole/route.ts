@@ -30,6 +30,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth as adminAuth } from 'firebase-admin';
 import * as Sentry from '@sentry/nextjs';
 import logger from '@/lib/logger';
+import { USER_ROLES } from '@/constants/roles';
 
 export async function POST(request: NextRequest) {
   try {
@@ -45,12 +46,12 @@ export async function POST(request: NextRequest) {
     }
 
     const decoded = await adminAuth().verifyIdToken(token);
-    if (decoded.role !== 'Admin') {
+    if (decoded.role !== USER_ROLES.ADMIN) {
       return NextResponse.json({ error: 'Proibido' }, { status: 403 });
     }
 
     const requester = await adminAuth().getUser(decoded.uid);
-    if (requester.customClaims?.role !== 'admin') {
+    if (requester.customClaims?.role !== USER_ROLES.ADMIN) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
 

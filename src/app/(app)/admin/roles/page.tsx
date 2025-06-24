@@ -13,16 +13,17 @@ import {
 } from '@/components/ui/select';
 import { useRouter } from 'next/navigation';
 import { checkUserRole } from '@/services/authRole';
+import { USER_ROLES, type UserRole } from '@/constants/roles';
 import { getAuth } from 'firebase/auth';
 
 export default function ManageRolesPage() {
   const router = useRouter();
   const [uid, setUid] = useState('');
-  const [role, setRole] = useState('Psychologist');
+  const [role, setRole] = useState<UserRole>(USER_ROLES.PSYCHOLOGIST);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    checkUserRole('Admin').then((ok) => {
+    checkUserRole(USER_ROLES.ADMIN).then((ok) => {
       if (!ok) router.replace('/');
     });
   }, [router]);
@@ -70,8 +71,8 @@ export default function ManageRolesPage() {
               <SelectValue placeholder="Papel" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="Admin">Administrador</SelectItem>
-              <SelectItem value="Psychologist">Psicólogo(a)</SelectItem>
+              <SelectItem value={USER_ROLES.ADMIN}>Administrador</SelectItem>
+              <SelectItem value={USER_ROLES.PSYCHOLOGIST}>Psicólogo(a)</SelectItem>
               <SelectItem value="Secretary">Secretário(a)</SelectItem>
             </SelectContent>
           </Select>

@@ -25,6 +25,7 @@ import { ptBR } from 'date-fns/locale';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { checkUserRole } from '@/services/authRole';
+import { USER_ROLES } from '@/constants/roles';
 
 const mockAuditLogs = [
   {
@@ -132,7 +133,7 @@ export default function AuditTrailPage() {
   const router = useRouter();
 
   useEffect(() => {
-    checkUserRole('Admin').then((ok) => {
+    checkUserRole(USER_ROLES.ADMIN).then((ok) => {
       if (!ok) router.replace('/');
     });
   }, [router]);

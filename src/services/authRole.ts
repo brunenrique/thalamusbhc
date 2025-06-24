@@ -1,11 +1,9 @@
-
 'use client';
 
 import { getAuth, getIdTokenResult } from 'firebase/auth';
 import * as Sentry from '@sentry/nextjs';
 import logger from '@/lib/logger';
-
-export type UserRole = 'Admin' | 'Psychologist' | 'Secretary';
+import type { UserRole } from '@/constants/roles';
 
 export async function getCurrentUserRole(): Promise<UserRole | null> {
   const auth = getAuth();
@@ -23,7 +21,7 @@ export async function getCurrentUserRole(): Promise<UserRole | null> {
   }
 }
 
-export async function checkUserRole(required: string | string[]): Promise<boolean> {
+export async function checkUserRole(required: UserRole | UserRole[]): Promise<boolean> {
   const expectedRoles = Array.isArray(required) ? required : [required];
   const currentRole = await getCurrentUserRole();
   if (!currentRole) return false;

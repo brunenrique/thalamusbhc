@@ -26,6 +26,7 @@ import { NextResponse } from 'next/server';
 import { auth as adminAuth } from 'firebase-admin';
 import * as Sentry from '@sentry/nextjs';
 import logger from '@/lib/logger';
+import { USER_ROLES } from '@/constants/roles';
 
 export async function POST(request: Request) {
   try {
@@ -36,9 +37,9 @@ export async function POST(request: Request) {
     }
 
     const user = await adminAuth().createUser({ email, password });
-    await adminAuth().setCustomUserClaims(user.uid, { role: 'psychologist' });
+    await adminAuth().setCustomUserClaims(user.uid, { role: USER_ROLES.PSYCHOLOGIST });
 
-    return NextResponse.json({ uid: user.uid, role: 'psychologist' });
+    return NextResponse.json({ uid: user.uid, role: USER_ROLES.PSYCHOLOGIST });
   } catch (e) {
     Sentry.captureException(e);
     logger.error({ action: 'signup_api_error', meta: { error: e } });

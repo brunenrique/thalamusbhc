@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { checkUserRole } from '@/services/authRole';
+import { USER_ROLES } from '@/constants/roles';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
@@ -88,7 +89,7 @@ export default function BackupPage() {
   const [isManualBackupRunning, setIsManualBackupRunning] = useState(false);
 
   useEffect(() => {
-    checkUserRole('Admin').then((ok) => {
+    checkUserRole(USER_ROLES.ADMIN).then((ok) => {
       if (!ok) router.replace('/');
     });
   }, [router]);

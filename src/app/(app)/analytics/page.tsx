@@ -33,6 +33,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import useAuth from '@/hooks/use-auth';
 import { checkUserRole } from '@/services/authRole';
+import { USER_ROLES, type UserRole } from '@/constants/roles';
 import { getTotalPatients, getSessionsThisMonth } from '@/services/metricsService';
 
 // --- Dynamic Component Imports ---
@@ -131,7 +132,7 @@ const getOccupancyBadgeVariant = (
 export default function AnalyticsHubPage() {
   const router = useRouter();
   const { user } = useAuth();
-  const userRole = user?.role as 'Admin' | 'Psychologist' | undefined;
+  const userRole = user?.role as UserRole | undefined;
 
   const [overallStats, setOverallStats] = useState<OverallStats>({
     activePatients: 0,
@@ -141,7 +142,7 @@ export default function AnalyticsHubPage() {
 
   useEffect(() => {
     // 1. Check user role for route protection
-    checkUserRole(['Admin', 'Psychologist']).then((isAuthorized) => {
+    checkUserRole([USER_ROLES.ADMIN, USER_ROLES.PSYCHOLOGIST]).then((isAuthorized) => {
       if (!isAuthorized) {
         router.replace('/');
       }
@@ -178,8 +179,8 @@ export default function AnalyticsHubPage() {
           <TabsTrigger value="clinicPerformance">Desempenho Clínica</TabsTrigger>
           <TabsTrigger value="clinicalAnalysis">Análise Clínica</TabsTrigger>
           <TabsTrigger value="platformUsage">Uso da Plataforma</TabsTrigger>
-          {userRole === 'Admin' && <TabsTrigger value="financial">Financeiro</TabsTrigger>}
-          {userRole === 'Psychologist' && (
+          {userRole === USER_ROLES.ADMIN && <TabsTrigger value="financial">Financeiro</TabsTrigger>}
+          {userRole === USER_ROLES.PSYCHOLOGIST && (
             <TabsTrigger value="myMetrics">Minhas Métricas</TabsTrigger>
           )}
         </TabsList>
@@ -256,7 +257,7 @@ export default function AnalyticsHubPage() {
 
         {/* Aba: Desempenho da Clínica */}
         <TabsContent value="clinicPerformance" className="mt-6 space-y-6">
-          {userRole === 'Admin' && (
+          {userRole === USER_ROLES.ADMIN && (
             <Card>
               <CardHeader>
                 <CardTitle className="font-headline text-xl flex items-center">
@@ -460,7 +461,7 @@ export default function AnalyticsHubPage() {
         </TabsContent>
 
         {/* Aba: Financeiro (Admin) */}
-        {userRole === 'Admin' && (
+        {userRole === USER_ROLES.ADMIN && (
           <TabsContent value="financial" className="mt-6 space-y-6">
             <Card>
               <CardHeader>
@@ -486,7 +487,7 @@ export default function AnalyticsHubPage() {
         )}
 
         {/* Aba: Minhas Métricas (Psicólogo) */}
-        {userRole === 'Psychologist' && (
+        {userRole === USER_ROLES.PSYCHOLOGIST && (
           <TabsContent value="myMetrics" className="mt-6 space-y-6">
             <Card>
               <CardHeader>

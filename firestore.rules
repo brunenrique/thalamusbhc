@@ -23,6 +23,12 @@ function isPsychologist() { return hasRole('Psychologist'); }
 function isSecretary() { return hasRole('Secretary'); }
 function isStaff() { return isAdmin() || isPsychologist() || isSecretary(); }
 
+// Permissao adicional para leitura agregada de sessoes
+function canReadSessionsAggregate() {
+  return isAdmin() ||
+         (isPsychologist() && request.auth.token.sessionsAggAllowed == true);
+}
+
 function validEncryptedField(field) {
   return field.keys().hasOnly(['ciphertext', 'iv', 'tag']) &&
          field.ciphertext is string &&
@@ -155,6 +161,7 @@ match /chats/{chatId} {
          (request.resource.data.psychologistId == request.auth.uid))) ||
       isAdmin()
     );
+    allow aggregate: if canReadSessionsAggregate();
   }
 
 match /quickNotes/{id} {

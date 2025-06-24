@@ -68,7 +68,9 @@ const prompt = ai.definePrompt({
   name: 'clinicalSupervisionPrompt',
   input: { schema: ClinicalSupervisionInputSchema },
   output: { schema: ClinicalSupervisionOutputSchema },
+
   prompt: `${getPrompt('clinicalSupervisionMaster')}\n\nTexto do Terapeuta para Supervisão:\n<caso>{{{caseData}}}</caso>`,
+
   model: 'googleai/gemini-1.5-flash-latest',
   config: {
     temperature: 0.6,

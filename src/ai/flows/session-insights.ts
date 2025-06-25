@@ -1,5 +1,3 @@
-// 'use server';
-
 /**
  * @fileOverview An AI agent for processing session notes and identifying key themes and insights.
  *

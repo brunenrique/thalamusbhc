@@ -3,13 +3,14 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev -p 9002",
+    "dev": "next dev -p 9003",
     "genkit:dev": "genkit start -- tsx src/genkit.dev.ts",
     "genkit:watch": "genkit start -- tsx --watch src/genkit.dev.ts",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "npx jest --watch"
   },
   "dependencies": {
     "@genkit-ai/googleai": "1.8.0",

@@ -1,1 +1,5 @@
-// Flows will be imported for their side effects in this file.
+import { config } from 'dotenv';
+config();
+
+import '@/ai/flows/session-insights.ts';
+import '@/ai/flows/session-note-template-creation.ts';

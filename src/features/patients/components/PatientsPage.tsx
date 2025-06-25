@@ -26,7 +26,7 @@ const patients = [
     avatar: "https://placehold.co/40x40.png",
     initials: "OM",
     lastVisit: "2023-05-15",
-    status: "Active",
+    status: "Ativo",
   },
   {
     name: "Jackson Lee",
@@ -34,7 +34,7 @@ const patients = [
     avatar: "https://placehold.co/40x40.png",
     initials: "JL",
     lastVisit: "2023-05-22",
-    status: "Active",
+    status: "Ativo",
   },
   {
     name: "Isabella Nguyen",
@@ -42,7 +42,7 @@ const patients = [
     avatar: "https://placehold.co/40x40.png",
     initials: "IN",
     lastVisit: "2023-04-30",
-    status: "On Hold",
+    status: "Em Espera",
   },
   {
     name: "William Kim",
@@ -50,7 +50,7 @@ const patients = [
     avatar: "https://placehold.co/40x40.png",
     initials: "WK",
     lastVisit: "2023-06-01",
-    status: "Active",
+    status: "Ativo",
   },
   {
     name: "Sofia Davis",
@@ -58,36 +58,42 @@ const patients = [
     avatar: "https://placehold.co/40x40.png",
     initials: "SD",
     lastVisit: "2023-05-18",
-    status: "Inactive",
+    status: "Inativo",
   },
 ];
+
+const statusVariantMap: { [key: string]: "success" | "secondary" | "outline" } = {
+    "Ativo": "success",
+    "Em Espera": "secondary",
+    "Inativo": "outline",
+};
 
 export function PatientsPage() {
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
         <div>
-          <CardTitle className="font-headline">Patients</CardTitle>
+          <CardTitle className="font-headline">Pacientes</CardTitle>
           <CardDescription>
-            Manage your patients and view their details.
+            Gerencie seus pacientes e veja seus detalhes.
           </CardDescription>
         </div>
         <Button size="sm" className="gap-1">
           <PlusCircle className="h-4 w-4" />
-          Add Patient
+          Adicionar Paciente
         </Button>
       </CardHeader>
       <CardContent>
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Patient</TableHead>
+              <TableHead>Paciente</TableHead>
               <TableHead>Status</TableHead>
               <TableHead className="hidden md:table-cell">
-                Last Visit
+                Última Visita
               </TableHead>
               <TableHead>
-                <span className="sr-only">Actions</span>
+                <span className="sr-only">Ações</span>
               </TableHead>
             </TableRow>
           </TableHeader>
@@ -107,7 +113,7 @@ export function PatientsPage() {
                   </div>
                 </TableCell>
                 <TableCell>
-                  <Badge variant={patient.status === "Active" ? "success" : "outline"}>
+                  <Badge variant={statusVariantMap[patient.status]}>
                     {patient.status}
                   </Badge>
                 </TableCell>
@@ -119,14 +125,14 @@ export function PatientsPage() {
                     <DropdownMenuTrigger asChild>
                       <Button aria-haspopup="true" size="icon" variant="ghost">
                         <MoreHorizontal className="h-4 w-4" />
-                        <span className="sr-only">Toggle menu</span>
+                        <span className="sr-only">Alternar menu</span>
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                      <DropdownMenuItem>View Details</DropdownMenuItem>
-                      <DropdownMenuItem>Schedule Appointment</DropdownMenuItem>
-                      <DropdownMenuItem>Edit</DropdownMenuItem>
+                      <DropdownMenuLabel>Ações</DropdownMenuLabel>
+                      <DropdownMenuItem>Ver Detalhes</DropdownMenuItem>
+                      <DropdownMenuItem>Agendar Consulta</DropdownMenuItem>
+                      <DropdownMenuItem>Editar</DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </TableCell>

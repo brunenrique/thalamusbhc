@@ -15,7 +15,7 @@ import { Badge } from "@/atoms/badge";
 import { Wand2, Lightbulb, Loader2, Tags, Newspaper } from "lucide-react";
 import { analyzeSessionNotes, SessionInsightsOutput } from "@/features/aiInsights/services/session-insights";
 
-const sampleNotes = `Patient expressed feelings of anxiety related to work deadlines and social situations. Reports difficulty sleeping and concentrating. Mentioned a recurring dream about being unprepared for an exam. We discussed coping mechanisms, including mindfulness exercises and breaking down tasks into smaller steps. Patient seemed receptive but hesitant to practice the exercises regularly. Follow-up next week to review progress.`;
+const sampleNotes = `Paciente expressou sentimentos de ansiedade relacionados a prazos de trabalho e situações sociais. Relata dificuldade para dormir e se concentrar. Mencionou um sonho recorrente sobre estar despreparado para um exame. Discutimos mecanismos de enfrentamento, incluindo exercícios de atenção plena e divisão de tarefas em etapas menores. O paciente pareceu receptivo, mas hesitante em praticar os exercícios regularmente. Acompanhamento na próxima semana para revisar o progresso.`;
 
 export function AIInsightsClient() {
   const [sessionNotes, setSessionNotes] = useState(sampleNotes);
@@ -42,17 +42,17 @@ export function AIInsightsClient() {
         <CardHeader>
           <CardTitle className="font-headline flex items-center gap-2">
             <Wand2 className="size-5" />
-            Session Note Analysis
+            Análise de Anotações da Sessão
           </CardTitle>
           <CardDescription>
-            Enter session notes below to generate AI-powered insights.
+            Insira as anotações da sessão abaixo para gerar insights com IA.
           </CardDescription>
         </CardHeader>
         <CardContent>
           <Textarea
             value={sessionNotes}
             onChange={(e) => setSessionNotes(e.target.value)}
-            placeholder="Paste your session notes here..."
+            placeholder="Cole suas anotações da sessão aqui..."
             className="min-h-[300px] text-base"
           />
         </CardContent>
@@ -63,7 +63,7 @@ export function AIInsightsClient() {
             ) : (
               <Lightbulb className="mr-2 h-4 w-4" />
             )}
-            {isLoading ? "Analyzing..." : "Generate Insights"}
+            {isLoading ? "Analisando..." : "Gerar Insights"}
           </Button>
         </CardFooter>
       </Card>
@@ -74,7 +74,7 @@ export function AIInsightsClient() {
             <div className="text-center">
               <Loader2 className="mx-auto h-12 w-12 animate-spin text-primary" />
               <p className="mt-4 text-lg text-muted-foreground">
-                Analyzing notes...
+                Analisando anotações...
               </p>
             </div>
           </div>
@@ -85,7 +85,7 @@ export function AIInsightsClient() {
               <CardHeader>
                 <CardTitle className="font-headline flex items-center gap-2">
                     <Tags className="size-5" />
-                    Keywords
+                    Palavras-chave
                 </CardTitle>
               </CardHeader>
               <CardContent className="flex flex-wrap gap-2">
@@ -100,7 +100,7 @@ export function AIInsightsClient() {
               <CardHeader>
                 <CardTitle className="font-headline flex items-center gap-2">
                     <Newspaper className="size-5" />
-                    Identified Themes
+                    Temas Identificados
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -115,7 +115,7 @@ export function AIInsightsClient() {
               <CardHeader>
                 <CardTitle className="font-headline flex items-center gap-2">
                     <Lightbulb className="size-5" />
-                    Suggested Insights
+                    Insights Sugeridos
                 </CardTitle>
               </CardHeader>
               <CardContent className="prose prose-sm max-w-none text-foreground">
@@ -129,9 +129,9 @@ export function AIInsightsClient() {
             <div className="flex h-full min-h-[400px] items-center justify-center rounded-lg border border-dashed p-8">
                 <div className="text-center">
                     <Wand2 className="mx-auto h-12 w-12 text-muted-foreground" />
-                    <h3 className="mt-4 text-lg font-semibold">AI Insights Panel</h3>
+                    <h3 className="mt-4 text-lg font-semibold">Painel de Insights de IA</h3>
                     <p className="mt-2 text-sm text-muted-foreground">
-                        Your generated insights will appear here after analysis.
+                        Seus insights gerados aparecerão aqui após a análise.
                     </p>
                 </div>
             </div>

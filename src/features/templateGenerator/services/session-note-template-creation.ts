@@ -12,14 +12,14 @@ import {ai} from '@/lib/genkit';
 import {z} from 'genkit';
 
 const CreateSessionNoteTemplateInputSchema = z.object({
-  templateName: z.string().describe('The name of the session note template.'),
+  templateName: z.string().describe('O nome do modelo de anotação de sessão.'),
   psychologistStyle: z
     .string()
     .describe(
-      'The writing style and preferences of the psychologist creating the template.'
+      'O estilo de escrita e as preferências do psicólogo que está criando o modelo.'
     ),
-  sessionType: z.string().describe('The type of therapy session.'),
-  keywords: z.string().optional().describe('Keywords relevant to the session.'),
+  sessionType: z.string().describe('O tipo de sessão de terapia.'),
+  keywords: z.string().optional().describe('Palavras-chave relevantes para a sessão.'),
 });
 export type CreateSessionNoteTemplateInput = z.infer<
   typeof CreateSessionNoteTemplateInputSchema
@@ -28,7 +28,7 @@ export type CreateSessionNoteTemplateInput = z.infer<
 const CreateSessionNoteTemplateOutputSchema = z.object({
   templateContent: z
     .string()
-    .describe('The content of the session note template.'),
+    .describe('O conteúdo do modelo de anotação de sessão.'),
 });
 export type CreateSessionNoteTemplateOutput = z.infer<
   typeof CreateSessionNoteTemplateOutputSchema
@@ -44,17 +44,17 @@ const prompt = ai.definePrompt({
   name: 'createSessionNoteTemplatePrompt',
   input: {schema: CreateSessionNoteTemplateInputSchema},
   output: {schema: CreateSessionNoteTemplateOutputSchema},
-  prompt: `You are an AI assistant helping psychologists create session note templates.
+  prompt: `Você é um assistente de IA que ajuda psicólogos a criar modelos de anotações de sessão.
 
-  Based on the psychologist's style, session type, and keywords, generate a session note template with intelligent auto-completion suggestions.
+  Com base no estilo do psicólogo, tipo de sessão e palavras-chave, gere um modelo de anotação de sessão com sugestões inteligentes de preenchimento automático.
 
-  Psychologist Style: {{{psychologistStyle}}}
-  Session Type: {{{sessionType}}}
-  Keywords: {{{keywords}}}
+  Estilo do Psicólogo: {{{psychologistStyle}}}
+  Tipo de Sessão: {{{sessionType}}}
+  Palavras-chave: {{{keywords}}}
 
-  Template Name: {{{templateName}}}
+  Nome do Modelo: {{{templateName}}}
 
-  Template Content:`, // Let the LLM generate the template content.
+  Conteúdo do Modelo:`, // Let the LLM generate the template content.
 });
 
 const createSessionNoteTemplateFlow = ai.defineFlow(

@@ -39,12 +39,12 @@ import { ThalamusLogo } from "@/components/atoms/logo";
 import { usePathname } from "next/navigation";
 
 const navItems = [
-  { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
-  { href: "/schedule", icon: Calendar, label: "Schedule" },
-  { href: "/patients", icon: Users, label: "Patients" },
-  { href: "/ai-insights", icon: BrainCircuit, label: "AI Insights" },
-  { href: "/templates", icon: FileText, label: "Templates" },
-  { href: "/settings", icon: Settings, label: "Settings" },
+  { href: "/dashboard", icon: LayoutDashboard, label: "Painel" },
+  { href: "/schedule", icon: Calendar, label: "Agenda" },
+  { href: "/patients", icon: Users, label: "Pacientes" },
+  { href: "/ai-insights", icon: BrainCircuit, label: "Insights de IA" },
+  { href: "/templates", icon: FileText, label: "Modelos" },
+  { href: "/settings", icon: Settings, label: "Configurações" },
 ];
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
@@ -85,12 +85,12 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="w-full justify-start gap-2 p-2">
                   <Avatar className="h-8 w-8">
-                    <AvatarImage src="https://placehold.co/100x100.png" alt="@shadcn" data-ai-hint="person face" />
-                    <AvatarFallback>SP</AvatarFallback>
+                    <AvatarImage src="https://placehold.co/100x100.png" alt="Dr. Silva" data-ai-hint="person face" />
+                    <AvatarFallback>DS</AvatarFallback>
                   </Avatar>
                   <div className="text-left">
-                    <p className="text-sm font-medium">Dr. Smith</p>
-                    <p className="text-xs text-muted-foreground">Psychologist</p>
+                    <p className="text-sm font-medium">Dr. Silva</p>
+                    <p className="text-xs text-muted-foreground">Psicólogo</p>
                   </div>
                    <ChevronDown className="ml-auto size-4" />
                 </Button>
@@ -98,18 +98,18 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
               <DropdownMenuContent className="w-56" align="end" forceMount>
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">Dr. Smith</p>
+                    <p className="text-sm font-medium leading-none">Dr. Silva</p>
                     <p className="text-xs leading-none text-muted-foreground">
-                      s.smith@thalamus.io
+                      d.silva@thalamus.io
                     </p>
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>Profile</DropdownMenuItem>
-                <DropdownMenuItem>Billing</DropdownMenuItem>
-                <DropdownMenuItem>Settings</DropdownMenuItem>
+                <DropdownMenuItem>Perfil</DropdownMenuItem>
+                <DropdownMenuItem>Faturamento</DropdownMenuItem>
+                <DropdownMenuItem>Configurações</DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem asChild><Link href="/">Log out</Link></DropdownMenuItem>
+                <DropdownMenuItem asChild><Link href="/">Sair</Link></DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </SidebarFooter>
@@ -119,12 +119,12 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
             <SidebarTrigger className="md:hidden" />
              <div className="flex-1">
               <h1 className="font-headline text-xl font-semibold capitalize">
-                {pathname.split("/").pop()?.replace(/-/g, " ") || "Dashboard"}
+                {navItems.find(item => item.href === pathname)?.label || "Painel"}
               </h1>
             </div>
             <Button variant="ghost" size="icon" className="rounded-full">
               <Bell className="h-5 w-5" />
-              <span className="sr-only">Toggle notifications</span>
+              <span className="sr-only">Alternar notificações</span>
             </Button>
           </header>
           <main className="flex-1 overflow-auto p-4 sm:p-6">{children}</main>

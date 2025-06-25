@@ -14,17 +14,17 @@ import {z} from 'genkit';
 const SessionInsightsInputSchema = z.object({
   sessionNotes: z
     .string()
-    .describe('The session notes to analyze.'),
+    .describe('As anotações da sessão para analisar.'),
 });
 export type SessionInsightsInput = z.infer<typeof SessionInsightsInputSchema>;
 
 const SessionInsightsOutputSchema = z.object({
-  keywords: z.array(z.string()).describe('The key words identified in the session notes.'),
-  themes: z.array(z.string()).describe('The themes identified in the session notes.'),
-  suggestedInsights: z.string().describe('Suggestive insights based on the session notes.'),
+  keywords: z.array(z.string()).describe('As palavras-chave identificadas nas anotações da sessão.'),
+  themes: z.array(z.string()).describe('Os temas identificados nas anotações da sessão.'),
+  suggestedInsights: z.string().describe('Insights sugestivos baseados nas anotações da sessão.'),
   symptomEvolutionChartDescription: z
     .string()
-    .describe('A description of a chart describing symptom evolution.'),
+    .describe('Uma descrição de um gráfico descrevendo a evolução dos sintomas.'),
 });
 export type SessionInsightsOutput = z.infer<typeof SessionInsightsOutputSchema>;
 
@@ -38,11 +38,11 @@ const prompt = ai.definePrompt({
   name: 'sessionInsightsPrompt',
   input: {schema: SessionInsightsInputSchema},
   output: {schema: SessionInsightsOutputSchema},
-  prompt: `You are an AI assistant designed to help psychologists analyze their session notes.
+  prompt: `Você é um assistente de IA projetado para ajudar psicólogos a analisar suas anotações de sessão.
+  
+  Você receberá anotações de sessão como entrada. Você deve identificar as palavras-chave, temas e sugerir insights com base nas anotações. Você fará uma determinação sobre como os sintomas do paciente estão evoluindo e descreverá a evolução como um gráfico. 
 
-  You will receive session notes as input. You must identify the key words, themes and suggest insights based on the notes. You will make a determination as to how the patient's symptoms are evolving and describe the evolution as a chart. 
-
-  Session Notes: {{{sessionNotes}}}`,
+  Anotações da Sessão: {{{sessionNotes}}}`,
 });
 
 const analyzeSessionNotesFlow = ai.defineFlow(

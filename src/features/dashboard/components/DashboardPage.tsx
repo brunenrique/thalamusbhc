@@ -27,51 +27,51 @@ import {
 import { Users, Calendar, Briefcase, Percent } from "lucide-react";
 
 const chartData = [
-  { month: "January", sessions: 186 },
-  { month: "February", sessions: 305 },
-  { month: "March", sessions: 237 },
-  { month: "April", sessions: 273 },
-  { month: "May", sessions: 209 },
-  { month: "June", sessions: 214 },
+  { month: "Janeiro", sessions: 186 },
+  { month: "Fevereiro", sessions: 305 },
+  { month: "Março", sessions: 237 },
+  { month: "Abril", sessions: 273 },
+  { month: "Maio", sessions: 209 },
+  { month: "Junho", sessions: 214 },
 ];
 
 const chartConfig = {
   sessions: {
-    label: "Sessions",
+    label: "Sessões",
     color: "hsl(var(--chart-1))",
   },
 };
 
 const pieChartData = [
-    { symptom: "Anxiety", value: 275, fill: "var(--color-anxiety)" },
-    { symptom: "Depression", value: 200, fill: "var(--color-depression)" },
-    { symptom: "Stress", value: 187, fill: "var(--color-stress)" },
-    { symptom: "Sleep", value: 173, fill: "var(--color-sleep)" },
-    { symptom: "Other", value: 90, fill: "var(--color-other)" },
+    { symptom: "Ansiedade", value: 275, fill: "var(--color-anxiety)" },
+    { symptom: "Depressão", value: 200, fill: "var(--color-depression)" },
+    { symptom: "Estresse", value: 187, fill: "var(--color-stress)" },
+    { symptom: "Sono", value: 173, fill: "var(--color-sleep)" },
+    { symptom: "Outro", value: 90, fill: "var(--color-other)" },
 ]
 
 const pieChartConfig = {
     value: {
-      label: "Patients",
+      label: "Pacientes",
     },
     anxiety: {
-      label: "Anxiety",
+      label: "Ansiedade",
       color: "hsl(var(--chart-1))",
     },
     depression: {
-      label: "Depression",
+      label: "Depressão",
       color: "hsl(var(--chart-2))",
     },
     stress: {
-      label: "Stress",
+      label: "Estresse",
       color: "hsl(var(--chart-3))",
     },
     sleep: {
-      label: "Sleep",
+      label: "Sono",
       color: "hsl(var(--chart-4))",
     },
     other: {
-      label: "Other",
+      label: "Outro",
       color: "hsl(var(--chart-5))",
     },
 }
@@ -82,49 +82,49 @@ export function DashboardPage() {
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Patients</CardTitle>
+            <CardTitle className="text-sm font-medium">Total de Pacientes</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">1,234</div>
+            <div className="text-2xl font-bold">1.234</div>
             <p className="text-xs text-muted-foreground">
-              +20.1% from last month
+              +20,1% desde o mês passado
             </p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Appointments Today</CardTitle>
+            <CardTitle className="text-sm font-medium">Consultas Hoje</CardTitle>
             <Calendar className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">12</div>
             <p className="text-xs text-muted-foreground">
-              +1 since yesterday
+              +1 desde ontem
             </p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Open Tasks</CardTitle>
+            <CardTitle className="text-sm font-medium">Tarefas Abertas</CardTitle>
             <Briefcase className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">25</div>
             <p className="text-xs text-muted-foreground">
-              3 urgent
+              3 urgentes
             </p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Occupancy Rate</CardTitle>
+            <CardTitle className="text-sm font-medium">Taxa de Ocupação</CardTitle>
             <Percent className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">88%</div>
             <p className="text-xs text-muted-foreground">
-              +2% from last week
+              +2% desde a semana passada
             </p>
           </CardContent>
         </Card>
@@ -133,9 +133,9 @@ export function DashboardPage() {
       <div className="grid gap-6 md:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle className="font-headline">Sessions per Month</CardTitle>
+            <CardTitle className="font-headline">Sessões por Mês</CardTitle>
             <CardDescription>
-              An overview of clinical sessions conducted monthly.
+              Uma visão geral das sessões clínicas realizadas mensalmente.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -161,8 +161,8 @@ export function DashboardPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle className="font-headline">Primary Symptoms Overview</CardTitle>
-             <CardDescription>Distribution of primary symptoms across active patients.</CardDescription>
+            <CardTitle className="font-headline">Visão Geral dos Sintomas Primários</CardTitle>
+             <CardDescription>Distribuição dos sintomas primários entre os pacientes ativos.</CardDescription>
           </CardHeader>
           <CardContent className="flex items-center justify-center pb-0">
              <ChartContainer config={pieChartConfig} className="mx-auto aspect-square max-h-[300px]">

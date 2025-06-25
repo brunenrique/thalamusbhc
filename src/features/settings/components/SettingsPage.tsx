@@ -7,55 +7,55 @@ export function SettingsPage() {
   return (
     <div className="mx-auto max-w-3xl space-y-6">
        <div className="space-y-2">
-        <h2 className="font-headline text-3xl font-bold tracking-tight">Settings</h2>
+        <h2 className="font-headline text-3xl font-bold tracking-tight">Configurações</h2>
         <p className="text-muted-foreground">
-          Manage your account settings and preferences.
+          Gerencie as configurações e preferências da sua conta.
         </p>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle className="font-headline">Profile</CardTitle>
+          <CardTitle className="font-headline">Perfil</CardTitle>
           <CardDescription>
-            Update your personal information.
+            Atualize suas informações pessoais.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="name">Name</Label>
-            <Input id="name" defaultValue="Dr. Smith" />
+            <Label htmlFor="name">Nome</Label>
+            <Input id="name" defaultValue="Dr. Silva" />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input id="email" type="email" defaultValue="s.smith@thalamus.io" />
+            <Label htmlFor="email">E-mail</Label>
+            <Input id="email" type="email" defaultValue="d.silva@thalamus.io" />
           </div>
-           <Button>Save Changes</Button>
+           <Button>Salvar Alterações</Button>
         </CardContent>
       </Card>
       
        <Card>
         <CardHeader>
-          <CardTitle className="font-headline">System Configurations</CardTitle>
+          <CardTitle className="font-headline">Configurações do Sistema</CardTitle>
           <CardDescription>
-            Adjust system-wide settings like work hours and session duration.
+            Ajuste as configurações de todo o sistema, como horário de trabalho e duração da sessão.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-                <Label htmlFor="work-start">Work Hours Start</Label>
+                <Label htmlFor="work-start">Início do Horário de Trabalho</Label>
                 <Input id="work-start" type="time" defaultValue="09:00" />
             </div>
             <div className="space-y-2">
-                <Label htmlFor="work-end">Work Hours End</Label>
+                <Label htmlFor="work-end">Fim do Horário de Trabalho</Label>
                 <Input id="work-end" type="time" defaultValue="17:00" />
             </div>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="duration">Default Session Duration (minutes)</Label>
+            <Label htmlFor="duration">Duração Padrão da Sessão (minutos)</Label>
             <Input id="duration" type="number" defaultValue="50" />
           </div>
-           <Button>Save Configurations</Button>
+           <Button>Salvar Configurações</Button>
         </CardContent>
       </Card>
 

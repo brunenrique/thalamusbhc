@@ -18,10 +18,10 @@ import { createSessionNoteTemplate, CreateSessionNoteTemplateOutput } from "@/fe
 
 export function TemplatesPage() {
   const [formData, setFormData] = useState({
-    templateName: "CBT Session Template",
-    psychologistStyle: "Cognitive Behavioral Therapy (CBT), collaborative, goal-oriented.",
-    sessionType: "Individual Therapy",
-    keywords: "anxiety, negative thought patterns, cognitive restructuring",
+    templateName: "Modelo de Sessão TCC",
+    psychologistStyle: "Terapia Cognitivo-Comportamental (TCC), colaborativa, orientada a objetivos.",
+    sessionType: "Terapia Individual",
+    keywords: "ansiedade, padrões de pensamento negativos, reestruturação cognitiva",
   });
   const [template, setTemplate] = useState<CreateSessionNoteTemplateOutput | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -51,28 +51,28 @@ export function TemplatesPage() {
         <CardHeader>
           <CardTitle className="font-headline flex items-center gap-2">
             <Wand2 className="size-5" />
-            Template Generator
+            Gerador de Modelos
           </CardTitle>
           <CardDescription>
-            Create session note templates with AI assistance.
+            Crie modelos de anotações de sessão com a ajuda da IA.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="templateName">Template Name</Label>
+            <Label htmlFor="templateName">Nome do Modelo</Label>
             <Input id="templateName" value={formData.templateName} onChange={handleInputChange} />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="psychologistStyle">Your Style/Modality</Label>
-            <Textarea id="psychologistStyle" value={formData.psychologistStyle} onChange={handleInputChange} placeholder="e.g., Psychodynamic, solution-focused..." />
+            <Label htmlFor="psychologistStyle">Seu Estilo/Modalidade</Label>
+            <Textarea id="psychologistStyle" value={formData.psychologistStyle} onChange={handleInputChange} placeholder="ex: Psicodinâmico, focado em soluções..." />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="sessionType">Session Type</Label>
-            <Input id="sessionType" value={formData.sessionType} onChange={handleInputChange} placeholder="e.g., Couple's therapy, child assessment..." />
+            <Label htmlFor="sessionType">Tipo de Sessão</Label>
+            <Input id="sessionType" value={formData.sessionType} onChange={handleInputChange} placeholder="ex: Terapia de casal, avaliação infantil..." />
           </div>
            <div className="space-y-2">
-            <Label htmlFor="keywords">Keywords</Label>
-            <Input id="keywords" value={formData.keywords} onChange={handleInputChange} placeholder="e.g., trauma, grief, development" />
+            <Label htmlFor="keywords">Palavras-chave</Label>
+            <Input id="keywords" value={formData.keywords} onChange={handleInputChange} placeholder="ex: trauma, luto, desenvolvimento" />
           </div>
         </CardContent>
         <CardFooter>
@@ -82,7 +82,7 @@ export function TemplatesPage() {
             ) : (
               <Sparkles className="mr-2 h-4 w-4" />
             )}
-            {isLoading ? "Generating..." : "Create Template"}
+            {isLoading ? "Gerando..." : "Criar Modelo"}
           </Button>
         </CardFooter>
       </Card>
@@ -91,10 +91,10 @@ export function TemplatesPage() {
         <CardHeader>
             <CardTitle className="font-headline flex items-center gap-2">
                 <FileText className="size-5" />
-                Generated Template
+                Modelo Gerado
             </CardTitle>
             <CardDescription>
-                Review and edit the AI-generated template below.
+                Revise e edite o modelo gerado por IA abaixo.
             </CardDescription>
         </CardHeader>
         <CardContent>
@@ -103,23 +103,23 @@ export function TemplatesPage() {
                 <div className="text-center">
                 <Loader2 className="mx-auto h-12 w-12 animate-spin text-primary" />
                 <p className="mt-4 text-lg text-muted-foreground">
-                    Building your template...
+                    Construindo seu modelo...
                 </p>
                 </div>
             </div>
             ) : (
             <Textarea
-                value={template ? template.templateContent : "Your generated template will appear here..."}
+                value={template ? template.templateContent : "Seu modelo gerado aparecerá aqui..."}
                 readOnly={!template}
                 className="min-h-[450px] text-base"
-                placeholder="Your generated template will appear here..."
+                placeholder="Seu modelo gerado aparecerá aqui..."
             />
            )}
         </CardContent>
          {template && !isLoading && (
             <CardFooter className="justify-end gap-2">
-                <Button variant="outline">Copy</Button>
-                <Button>Save Template</Button>
+                <Button variant="outline">Copiar</Button>
+                <Button>Salvar Modelo</Button>
             </CardFooter>
          )}
       </Card>

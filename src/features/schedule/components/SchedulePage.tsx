@@ -6,6 +6,7 @@ import {
   CardContent,
 } from "@/atoms/card";
 import { Calendar } from "@/atoms/calendar";
+import { ptBR } from "date-fns/locale";
 
 export function SchedulePage() {
   const [date, setDate] = React.useState<Date | undefined>(new Date());
@@ -15,6 +16,7 @@ export function SchedulePage() {
       <Card className="flex-1">
         <CardContent className="h-full p-2">
           <Calendar
+            locale={ptBR}
             mode="single"
             selected={date}
             onSelect={setDate}

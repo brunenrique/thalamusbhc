@@ -17,7 +17,8 @@ import * as React from "react";
 import {
   Sidebar,
   SidebarContent,
-  // ...outros imports da sidebar
+  SidebarProvider,
+  SidebarInset,
 } from "@/components/atoms/sidebar";
 import { Button } from "@/components/atoms/button";
 import {

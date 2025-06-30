@@ -7,6 +7,7 @@ interface PatientDetailPageProps {
   params: {
     patientId: string;
   };
+  searchParams?: { [key: string]: string | string[] | undefined };
 }
 
 export default function PatientDetailPage({ params }: PatientDetailPageProps) {

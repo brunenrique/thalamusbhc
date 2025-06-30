@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import {
   Table,
   TableBody,
@@ -178,12 +179,12 @@ export function PatientsPage() {
                       />
                       <AvatarFallback>{patient.initials}</AvatarFallback>
                     </Avatar>
-                    <div className="font-medium">
+                    <Link href={`/patients/${patient.id}`} className="font-medium hover:underline">
                       {patient.name}
                       <div className="text-sm text-muted-foreground hidden md:block">
                         {patient.email}
                       </div>
-                    </div>
+                    </Link>
                   </div>
                 </TableCell>
                 <TableCell>{patient.birthDate}</TableCell>
@@ -200,7 +201,9 @@ export function PatientsPage() {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <DropdownMenuLabel>Ações</DropdownMenuLabel>
-                      <DropdownMenuItem>Ver Detalhes</DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link href={`/patients/${patient.id}`}>Ver Detalhes</Link>
+                      </DropdownMenuItem>
                       <DropdownMenuItem>Agendar Consulta</DropdownMenuItem>
                       <DropdownMenuItem>Editar</DropdownMenuItem>
                     </DropdownMenuContent>

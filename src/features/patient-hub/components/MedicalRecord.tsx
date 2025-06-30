@@ -1,11 +1,11 @@
 // src/features/patient-hub/components/MedicalRecord.tsx
 import * as React from "react";
-import { MedicalRecord } from "@/types/patient-hub";
+import { MedicalRecord as MedicalRecordType } from "@/types/patient-hub";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/atoms/card";
 import { Skeleton } from "@/components/atoms/skeleton";
 
 interface MedicalRecordProps {
-  data: MedicalRecord | undefined;
+  data: MedicalRecordType | undefined;
   isLoading: boolean;
   isError: boolean;
 }

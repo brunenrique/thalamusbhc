@@ -72,6 +72,12 @@ const navItems = [
     icon: Settings,
     label: "Configurações",
   },
+  {
+    title: "Lista de Espera",
+    href: "/waiting-list",
+    icon: Users, // Using Users icon for now, consider a more specific icon like 'ListOrdered' or 'ClipboardList' if available in lucide-react
+    label: "Lista de Espera",
+  },
 ];
 
 export function AppLayout({ children }: { children: React.ReactNode }) {

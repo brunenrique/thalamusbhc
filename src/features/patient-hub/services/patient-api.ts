@@ -107,6 +107,17 @@ export const patientApi = {
     });
   },
 
+  addPatient: async (patient: Patient): Promise<Patient> => {
+    console.log(`[INFO] Attempting to add patient: ${patient.name}`);
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        mockPatients[patient.id] = patient;
+        console.log(`[INFO] Successfully added patient: ${patient.name}`);
+        resolve(patient);
+      }, 500);
+    });
+  },
+
   // Adicione outras funções de API conforme necessário para as outras seções
   // Ex: fetchSessionNotes, fetchAssessments, etc.
 };

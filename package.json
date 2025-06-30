@@ -68,6 +68,8 @@
   "devDependencies": {
     "@types/jest": "^30.0.0",
     "@types/testing-library__react": "^10.2.0",
+    "eslint": "^9.30.0",
+    "eslint-config-next": "^15.3.4",
     "jest": "^30.0.3",
     "jest-environment-jsdom": "^30.0.2"
   }

@@ -3,16 +3,9 @@
 
 import { PatientHub } from "@/features/patient-hub";
 
-interface PatientDetailPageProps {
-  params: {
-    patientId: string;
-  };
-  searchParams?: { [key: string]: string | string[] | undefined };
-}
+import React from "react";
 
-export default function PatientDetailPage({ params }: PatientDetailPageProps) {
-  const { patientId } = params;
-
+export default function PatientDetailPage() {
   return (
     <div className="flex-1 p-6">
       <PatientHub />

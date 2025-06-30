@@ -58,7 +58,7 @@ export const PatientHub: React.FC = () => {
     return (
       <div className="p-6 text-secondary-foreground">
         <h1 className="text-2xl font-bold mb-4">Paciente não encontrado.</h1>
-        <p>O paciente com o ID "{patientId}" não foi encontrado.</p>
+        <p>O paciente com o ID &quot;{patientId}&quot; não foi encontrado.</p>
       </div>
     );
   }

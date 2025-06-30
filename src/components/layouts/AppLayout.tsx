@@ -81,7 +81,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
     <QueryProvider> {/* 2. Adicione o provider aqui */}
       <SidebarProvider>
         <div className="flex min-h-screen">
-          <Sidebar collapsible="none">
+          <Sidebar collapsible="none" className="border border-red-500">
             <SidebarHeader>
               <Link href="/">
                 <ThalamusLogo className="size-10" />

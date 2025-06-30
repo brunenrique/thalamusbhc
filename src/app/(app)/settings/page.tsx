@@ -1,5 +1,5 @@
-import { SettingsPage as SettingsPageClient } from "@/features/settings";
+import { SettingsPage } from "@/features/settings/components/SettingsPage";
 
-export default function SettingsPage() {
-  return <SettingsPageClient />;
+export default function Settings() {
+  return <SettingsPage />;
 }

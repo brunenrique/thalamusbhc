@@ -180,11 +180,12 @@ const Sidebar = React.forwardRef<
     if (collapsible === "none") {
       return (
         <div
+          ref={ref}
           className={cn(
-            "flex h-full w-[--sidebar-width] flex-col bg-sidebar text-sidebar-foreground",
+            "fixed inset-y-0 z-10 h-svh w-[var(--sidebar-width)] flex flex-col bg-sidebar text-sidebar-foreground",
+            side === "left" ? "left-0 border-r" : "right-0 border-l",
             className
           )}
-          ref={ref}
           {...props}
         >
           {children}
@@ -224,14 +225,8 @@ const Sidebar = React.forwardRef<
         
         <div
           className={cn(
-            "duration-200 fixed inset-y-0 z-10 h-svh w-[--sidebar-width] transition-[left,right,width] ease-linear md:flex",
-            side === "left"
-              ? "left-0 group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)]"
-              : "right-0 group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)]",
-            // Adjust the padding for floating and inset variants.
-            variant === "floating" || variant === "inset"
-              ? "p-2 group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)_+_theme(spacing.4)_+2px)]"
-              : "group-data-[collapsible=icon]:w-[--sidebar-width-icon] group-data-[side=left]:border-r group-data-[side=right]:border-l",
+            "fixed inset-y-0 z-10 h-svh w-[var(--sidebar-width)] flex",
+            side === "left" ? "left-0 border-r" : "right-0 border-l",
             className
           )}
           {...props}

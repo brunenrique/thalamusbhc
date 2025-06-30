@@ -41,6 +41,7 @@ import { useQuery } from "@tanstack/react-query";
 
 const patients = [
   {
+    id: "patient123",
     name: "Olivia Martin",
     birthDate: "1990-05-21",
     email: "olivia.martin@email.com",
@@ -50,6 +51,7 @@ const patients = [
     status: "Ativo",
   },
   {
+    id: "patient124",
     name: "Jackson Lee",
     birthDate: "1985-10-30",
     email: "jackson.lee@email.com",
@@ -59,6 +61,7 @@ const patients = [
     status: "Ativo",
   },
   {
+    id: "patient125",
     name: "Isabella Nguyen",
     birthDate: "1992-02-14",
     email: "isabella.nguyen@email.com",
@@ -68,6 +71,7 @@ const patients = [
     status: "Em Espera",
   },
   {
+    id: "patient126",
     name: "William Kim",
     birthDate: "1988-12-02",
     email: "will@email.com",
@@ -77,6 +81,7 @@ const patients = [
     status: "Ativo",
   },
   {
+    id: "patient127",
     name: "Sofia Davis",
     birthDate: "1995-08-17",
     email: "sofia.davis@email.com",

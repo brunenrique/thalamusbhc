@@ -19,6 +19,11 @@ import {
   SidebarContent,
   SidebarProvider,
   SidebarInset,
+  SidebarHeader,
+  SidebarFooter,
+  SidebarMenu,
+  SidebarMenuItem,
+  SidebarMenuButton,
 } from "@/components/atoms/sidebar";
 import { Button } from "@/components/atoms/button";
 import {
@@ -31,7 +36,42 @@ import { usePathname } from "next/navigation";
 import { QueryProvider } from "@/providers/QueryProvider"; // 1. Importe o provider
 
 const navItems = [
-  // ...navItems
+  {
+    title: "Dashboard",
+    href: "/dashboard",
+    icon: LayoutDashboard,
+    label: "Dashboard",
+  },
+  {
+    title: "Pacientes",
+    href: "/patients",
+    icon: Users,
+    label: "Pacientes",
+  },
+  {
+    title: "Agenda",
+    href: "/schedule",
+    icon: Calendar,
+    label: "Agenda",
+  },
+  {
+    title: "Insights de IA",
+    href: "/ai-insights",
+    icon: BrainCircuit,
+    label: "Insights de IA",
+  },
+  {
+    title: "Modelos",
+    href: "/templates",
+    icon: FileText,
+    label: "Modelos",
+  },
+  {
+    title: "Configurações",
+    href: "/settings",
+    icon: Settings,
+    label: "Configurações",
+  },
 ];
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
@@ -41,8 +81,38 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
     <QueryProvider> {/* 2. Adicione o provider aqui */}
       <SidebarProvider>
         <div className="flex min-h-screen">
-          <Sidebar collapsible="icon">
-            {/* ... Conteúdo da Sidebar ... */}
+          <Sidebar collapsible="none">
+            <SidebarHeader>
+              <Link href="/">
+                <ThalamusLogo className="size-10" />
+              </Link>
+            </SidebarHeader>
+            <SidebarContent>
+              <SidebarMenu>
+                {navItems.map((item) => {
+                  const Icon = item.icon;
+                  return (
+                    <SidebarMenuItem key={item.href}>
+                      <Link href={item.href} className="w-full">
+                        <SidebarMenuButton
+                          isActive={pathname === item.href}
+                          tooltip={item.label}
+                        >
+                          <Icon />
+                          <span>{item.title}</span>
+                        </SidebarMenuButton>
+                      </Link>
+                    </SidebarMenuItem>
+                  );
+                })}
+              </SidebarMenu>
+            </SidebarContent>
+            <SidebarFooter>
+              <Button variant="ghost" className="w-full">
+                <Bell />
+                <span>Notificações</span>
+              </Button>
+            </SidebarFooter>
           </Sidebar>
           <SidebarInset className="flex flex-col">
             <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-background/80 px-4 backdrop-blur-sm sm:h-16 sm:px-6">

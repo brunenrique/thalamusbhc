@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -101,4 +102,10 @@ export default function PatientsPage() {
       </Card>
     </div>
   );
+=======
+import { PatientsPage as PatientsPageClient } from "@/features/patients";
+
+export default function PatientsPage() {
+  return <PatientsPageClient />;
+>>>>>>> b01b3e35df346770f63206eb2370ec9184a585ef
 }

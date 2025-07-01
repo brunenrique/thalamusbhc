@@ -1,11 +1,17 @@
+<<<<<<< HEAD
 
+=======
+>>>>>>> b01b3e35df346770f63206eb2370ec9184a585ef
 "use client"
 
 import * as React from "react"
 import * as LabelPrimitive from "@radix-ui/react-label"
 import { Slot } from "@radix-ui/react-slot"
+<<<<<<< HEAD
 import * as Sentry from '@sentry/nextjs'
 import logger from '@/lib/logger'
+=======
+>>>>>>> b01b3e35df346770f63206eb2370ec9184a585ef
 import {
   Controller,
   FormProvider,
@@ -15,7 +21,11 @@ import {
   type FieldValues,
 } from "react-hook-form"
 
+<<<<<<< HEAD
 import { cn } from "@/shared/utils"
+=======
+import { cn } from "@/lib/utils"
+>>>>>>> b01b3e35df346770f63206eb2370ec9184a585ef
 import { Label } from "@/components/ui/label"
 
 const Form = FormProvider
@@ -109,6 +119,7 @@ FormLabel.displayName = "FormLabel"
 const FormControl = React.forwardRef<
   React.ElementRef<typeof Slot>,
   React.ComponentPropsWithoutRef<typeof Slot>
+<<<<<<< HEAD
 >(({ children, ...props }, ref) => {
   const { error, formItemId, formDescriptionId, formMessageId } = useFormField()
 
@@ -131,6 +142,14 @@ const FormControl = React.forwardRef<
   return (
     <Comp
       ref={ref as any}
+=======
+>(({ ...props }, ref) => {
+  const { error, formItemId, formDescriptionId, formMessageId } = useFormField()
+
+  return (
+    <Slot
+      ref={ref}
+>>>>>>> b01b3e35df346770f63206eb2370ec9184a585ef
       id={formItemId}
       aria-describedby={
         !error
@@ -139,9 +158,13 @@ const FormControl = React.forwardRef<
       }
       aria-invalid={!!error}
       {...props}
+<<<<<<< HEAD
     >
       {children}
     </Comp>
+=======
+    />
+>>>>>>> b01b3e35df346770f63206eb2370ec9184a585ef
   )
 })
 FormControl.displayName = "FormControl"
@@ -178,8 +201,11 @@ const FormMessage = React.forwardRef<
     <p
       ref={ref}
       id={formMessageId}
+<<<<<<< HEAD
       role="alert"
       aria-live="polite"
+=======
+>>>>>>> b01b3e35df346770f63206eb2370ec9184a585ef
       className={cn("text-sm font-medium text-destructive", className)}
       {...props}
     >

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 'use client';
 
 import React, { useEffect, useState } from 'react';
@@ -207,4 +208,10 @@ export default function WaitingListPage() {
       </Dialog>
     </div>
   );
+=======
+import { WaitingListPage as WaitingListPageClient } from "@/features/waiting-list/components/WaitingListPage";
+
+export default function WaitingListPage() {
+  return <WaitingListPageClient />;
+>>>>>>> b01b3e35df346770f63206eb2370ec9184a585ef
 }

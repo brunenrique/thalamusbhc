@@ -1,4 +1,7 @@
+<<<<<<< HEAD
 
+=======
+>>>>>>> b01b3e35df346770f63206eb2370ec9184a585ef
 {
   "$schema": "https://ui.shadcn.com/schema.json",
   "style": "default",
@@ -13,9 +16,17 @@
   },
   "aliases": {
     "components": "@/components",
+<<<<<<< HEAD
     "utils": "@/shared/utils",
     "ui": "@/components/ui",
     "lib": "@/shared",
+=======
+    "utils": "@/lib/utils",
+    "atoms": "@/components/atoms",
+    "layouts": "@/components/layouts",
+    "features": "@/features",
+    "lib": "@/lib",
+>>>>>>> b01b3e35df346770f63206eb2370ec9184a585ef
     "hooks": "@/hooks"
   },
   "iconLibrary": "lucide"

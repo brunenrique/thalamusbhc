@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -87,4 +88,10 @@ export default function TemplatesPage() {
 
     </div>
   );
+=======
+import { TemplatesPage as TemplatesPageClient } from "@/features/templateGenerator";
+
+export default function TemplatesPage() {
+  return <TemplatesPageClient />;
+>>>>>>> b01b3e35df346770f63206eb2370ec9184a585ef
 }

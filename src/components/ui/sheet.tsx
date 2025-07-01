@@ -1,4 +1,7 @@
+<<<<<<< HEAD
 
+=======
+>>>>>>> b01b3e35df346770f63206eb2370ec9184a585ef
 "use client"
 
 import * as React from "react"
@@ -6,7 +9,11 @@ import * as SheetPrimitive from "@radix-ui/react-dialog"
 import { cva, type VariantProps } from "class-variance-authority"
 import { X } from "lucide-react"
 
+<<<<<<< HEAD
 import { cn } from "@/shared/utils"
+=======
+import { cn } from "@/lib/utils"
+>>>>>>> b01b3e35df346770f63206eb2370ec9184a585ef
 
 const Sheet = SheetPrimitive.Root
 
@@ -68,7 +75,11 @@ const SheetContent = React.forwardRef<
       {children}
       <SheetPrimitive.Close className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-secondary">
         <X className="h-4 w-4" />
+<<<<<<< HEAD
         <span className="sr-only">Close</span>
+=======
+        <span className="sr-only">Fechar</span>
+>>>>>>> b01b3e35df346770f63206eb2370ec9184a585ef
       </SheetPrimitive.Close>
     </SheetPrimitive.Content>
   </SheetPortal>

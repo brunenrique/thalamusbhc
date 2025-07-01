@@ -2,6 +2,10 @@
   "compilerOptions": {
     "target": "ES2017",
     "lib": ["dom", "dom.iterable", "esnext"],
+<<<<<<< HEAD
+=======
+    "typeRoots": ["./node_modules/@types", "./src/types"],
+>>>>>>> b01b3e35df346770f63206eb2370ec9184a585ef
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
@@ -13,16 +17,34 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
+<<<<<<< HEAD
     "types": ["node", "jest"],
+=======
+>>>>>>> b01b3e35df346770f63206eb2370ec9184a585ef
     "plugins": [
       {
         "name": "next"
       }
     ],
     "paths": {
+<<<<<<< HEAD
       "@/*": ["./src/*"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
   "exclude": ["node_modules", "__tests__"]
+=======
+      "@/*": ["./src/*"],
+      "@/components/*": ["./src/components/*"],
+      "@/atoms/*": ["./src/components/atoms/*"],
+      "@/layouts/*": ["./src/components/layouts/*"],
+      "@/features/*": ["./src/features/*"],
+      "@/hooks/*": ["./src/hooks/*"],
+      "@/lib/*": ["./src/lib/*"],
+      "@/providers/*": ["./src/providers/*"]
+    }
+  },
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "jest.setup.ts"],
+  "exclude": ["node_modules"]
+>>>>>>> b01b3e35df346770f63206eb2370ec9184a585ef
 }

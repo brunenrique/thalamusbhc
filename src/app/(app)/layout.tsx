@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 'use client';
 
 import React, { useEffect, useState } from 'react';
@@ -56,4 +57,12 @@ export default function AppLayout({ children }: AppLayoutProps) {
       <CommandPalette />
     </div>
   );
+=======
+"use client";
+
+import { AppLayout } from "@/layouts/AppLayout";
+
+export default function Layout({ children }: { children: React.ReactNode }) {
+  return <AppLayout>{children}</AppLayout>;
+>>>>>>> b01b3e35df346770f63206eb2370ec9184a585ef
 }

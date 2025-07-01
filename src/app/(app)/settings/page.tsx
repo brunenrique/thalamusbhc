@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Settings as SettingsIcon, UserCog, Clock, Palette, BellDot, Briefcase, SlidersHorizontal } from "lucide-react";
@@ -98,3 +99,10 @@ export default function SettingsPage() {
     </div>
   );
 }
+=======
+import { SettingsPage } from "@/features/settings/components/SettingsPage";
+
+export default function Settings() {
+  return <SettingsPage />;
+}
+>>>>>>> b01b3e35df346770f63206eb2370ec9184a585ef

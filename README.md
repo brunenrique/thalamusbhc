@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Thalamus
 
 [![Build Status](https://github.com/seu-usuario/thalamus/actions/workflows/ci.yml/badge.svg)](https://github.com/seu-usuario/thalamus/actions/workflows/ci.yml) [![Release](https://img.shields.io/github/v/release/seu-usuario/thalamus)](https://github.com/seu-usuario/thalamus/releases/latest) [![Dependabot](https://img.shields.io/badge/dependabot-enabled-brightgreen?logo=dependabot)](https://github.com/seu-usuario/thalamus/pulls?q=is%3Apr+label%3Adependencies) [![CodeQL](https://github.com/seu-usuario/thalamus/actions/workflows/codeql.yml/badge.svg)](https://github.com/seu-usuario/thalamus/actions/workflows/codeql.yml) [![Coverage Status](https://coveralls.io/repos/github/seu-usuario/thalamus/badge.svg?branch=main)](https://coveralls.io/github/seu-usuario/thalamus?branch=main)
@@ -213,3 +214,10 @@ Erros genéricos como **"An unexpected Turbopack error occurred"** costumam esta
 - Utilizamos o [Snyk](https://snyk.io/) para inspeções de vulnerabilidades (workflow `security.yml`).
 - O [Dependabot](https://github.com/dependabot) atualiza dependências semanalmente.
 - O workflow `security.yml` também executa varreduras do **Gitleaks** e do **TruffleHog** periodicamente.
+=======
+# Firebase Studio
+
+This is a NextJS starter in Firebase Studio.
+
+To get started, take a look at src/app/page.tsx.
+>>>>>>> b01b3e35df346770f63206eb2370ec9184a585ef

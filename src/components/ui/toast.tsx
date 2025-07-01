@@ -1,4 +1,7 @@
+<<<<<<< HEAD
 
+=======
+>>>>>>> b01b3e35df346770f63206eb2370ec9184a585ef
 "use client"
 
 import * as React from "react"
@@ -6,7 +9,11 @@ import * as ToastPrimitives from "@radix-ui/react-toast"
 import { cva, type VariantProps } from "class-variance-authority"
 import { X } from "lucide-react"
 
+<<<<<<< HEAD
 import { cn } from "@/shared/utils"
+=======
+import { cn } from "@/lib/utils"
+>>>>>>> b01b3e35df346770f63206eb2370ec9184a585ef
 
 const ToastProvider = ToastPrimitives.Provider
 
@@ -33,6 +40,11 @@ const toastVariants = cva(
         default: "border bg-background text-foreground",
         destructive:
           "destructive group border-destructive bg-destructive text-destructive-foreground",
+<<<<<<< HEAD
+=======
+        success:
+          "success group border-green-500 bg-green-500 text-white",
+>>>>>>> b01b3e35df346770f63206eb2370ec9184a585ef
       },
     },
     defaultVariants: {
@@ -113,7 +125,12 @@ const ToastDescription = React.forwardRef<
 ))
 ToastDescription.displayName = ToastPrimitives.Description.displayName
 
+<<<<<<< HEAD
 type ToastProps = React.ComponentPropsWithoutRef<typeof Toast>
+=======
+type ToastProps = React.ComponentPropsWithoutRef<typeof ToastPrimitives.Root> &
+  VariantProps<typeof toastVariants>;
+>>>>>>> b01b3e35df346770f63206eb2370ec9184a585ef
 
 type ToastActionElement = React.ReactElement<typeof ToastAction>
 

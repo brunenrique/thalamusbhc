@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 
 "use client"
 
@@ -12,11 +13,24 @@ import { cn } from "@/shared/utils"
 
 const buttonVariants = cva(
   "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-primary focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+=======
+import * as React from "react"
+import { Slot } from "@radix-ui/react-slot"
+import { cva, type VariantProps } from "class-variance-authority"
+
+import { cn } from "@/lib/utils"
+
+const buttonVariants = cva(
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+>>>>>>> b01b3e35df346770f63206eb2370ec9184a585ef
   {
     variants: {
       variant: {
         default: "bg-primary text-primary-foreground hover:bg-primary/90",
+<<<<<<< HEAD
         primary: "bg-primary text-white hover:bg-primary/90",
+=======
+>>>>>>> b01b3e35df346770f63206eb2370ec9184a585ef
         destructive:
           "bg-destructive text-destructive-foreground hover:bg-destructive/90",
         outline:
@@ -44,6 +58,7 @@ export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {
   asChild?: boolean
+<<<<<<< HEAD
   loading?: boolean
   quick?: boolean
 }
@@ -91,6 +106,19 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         {/* Render the Check icon only if Comp is 'button' (i.e., not asChild) and checked is true */}
         {Comp === "button" && checked && <Check className="h-4 w-4 text-green-600" />}
       </Comp>
+=======
+}
+
+const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
+  ({ className, variant, size, asChild = false, ...props }, ref) => {
+    const Comp = asChild ? Slot : "button"
+    return (
+      <Comp
+        className={cn(buttonVariants({ variant, size, className }))}
+        ref={ref}
+        {...props}
+      />
+>>>>>>> b01b3e35df346770f63206eb2370ec9184a585ef
     )
   }
 )

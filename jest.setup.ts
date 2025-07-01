@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import '@testing-library/jest-dom';
 import { toHaveNoViolations } from 'jest-axe';
 
@@ -14,3 +15,7 @@ afterAll(() => {
   (console.warn as jest.Mock).mockRestore();
   (console.error as jest.Mock).mockRestore();
 });
+=======
+// jest.setup.ts
+import '@testing-library/jest-dom';
+>>>>>>> b01b3e35df346770f63206eb2370ec9184a585ef

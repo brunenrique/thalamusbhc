@@ -1,9 +1,13 @@
 {
     "IDX.aI.enableInlineCompletion": true,
+<<<<<<< HEAD
     "IDX.aI.enableCodebaseIndexing": true,
     "workbench.editor.autoLockGroups": {
         "imagePreview.previewEditor": true,
         "mainThreadWebview-markdown.preview": true,
         "default": true
     }
+=======
+    "IDX.aI.enableCodebaseIndexing": true
+>>>>>>> b01b3e35df346770f63206eb2370ec9184a585ef
 }

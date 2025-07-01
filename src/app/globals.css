@@ -1,10 +1,14 @@
+<<<<<<< HEAD
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
 @import url('https://api.fontshare.com/v2/css?f[]=clash-display@600&display=swap');
 
+=======
+>>>>>>> b01b3e35df346770f63206eb2370ec9184a585ef
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+<<<<<<< HEAD
 @layer components {
   .card-base {
     @apply rounded-lg border bg-card text-card-foreground shadow;
@@ -58,12 +62,124 @@
   }
 }
 
+=======
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
+
+@layer base {
+  :root {
+    --background: 0 0% 100%; /* #ffffff */
+    --foreground: 216 13% 8%; /* #121417 */
+
+    --card: 0 0% 100%; /* #ffffff */
+    --card-foreground: 216 13% 8%; /* #121417 */
+
+    --popover: 0 0% 100%; /* #ffffff */
+    --popover-foreground: 216 13% 8%; /* #121417 */
+
+    --primary: 216 13% 8%; /* Using foreground for primary as per design focus on neutrals */
+    --primary-foreground: 0 0% 100%; /* White for contrast */
+
+    --secondary: 216 13% 95%; /* #f1f2f4 */
+    --secondary-foreground: 210 12% 46%; /* #687582 */
+
+    --muted: 216 13% 95%; /* #f1f2f4 */
+    --muted-foreground: 210 12% 46%; /* #687582 */
+
+    --accent: 216 13% 95%; /* #f1f2f4 */
+    --accent-foreground: 216 13% 8%; /* #121417 */
+
+    --destructive: 0 84.2% 60.2%; /* Keep existing red for destructive */
+    --destructive-foreground: 0 0% 98%; /* Keep existing white for destructive foreground */
+
+    --success: 150 50% 45%; /* Keep existing green for success */
+    --success-foreground: 0 0% 100%; /* Keep existing white for success foreground */
+
+    --border: 216 13% 90%; /* #dde0e4 */
+    --input: 216 13% 90%; /* Using border for input */
+    --ring: 216 13% 8%; /* Using foreground for ring */
+    --radius: 0.75rem; /* For rounded corners as per design */
+
+    /* Sidebar specific colors - adapting to new palette */
+    --sidebar-background: 0 0% 100%; /* White */
+    --sidebar-foreground: 216 13% 8%; /* Dark gray */
+    --sidebar-primary: 216 13% 8%; /* Dark gray */
+    --sidebar-primary-foreground: 0 0% 100%; /* White */
+    --sidebar-accent: 216 13% 95%; /* Light gray for active/hover */
+    --sidebar-accent-foreground: 216 13% 8%; /* Dark gray */
+    --sidebar-border: 216 13% 90%; /* Very light gray */
+    --sidebar-ring: 216 13% 8%; /* Dark gray */
+
+    /* Chart colors - can be adjusted later if specific chart colors are needed */
+    --chart-1: 216 13% 8%;
+    --chart-2: 210 12% 46%;
+    --chart-3: 216 13% 95%;
+    --chart-4: 216 13% 90%;
+    --chart-5: 0 0% 100%;
+  }
+
+  .dark {
+    /* For dark mode, we can invert or define a separate dark palette if needed.
+       For now, I'll keep the existing dark mode values or simplify them to match the new neutral theme.
+       Given the request is for a clean, modern, professional look with neutral colors,
+       a simple inversion or a slightly darker neutral palette would work.
+       Let's simplify to a darker neutral theme for dark mode.
+    */
+    --background: 216 13% 5%; /* Very dark gray */
+    --foreground: 0 0% 98%; /* Near white */
+
+    --card: 216 13% 8%;
+    --card-foreground: 0 0% 98%;
+
+    --popover: 216 13% 8%;
+    --popover-foreground: 0 0% 98%;
+
+    --primary: 0 0% 98%;
+    --primary-foreground: 216 13% 5%;
+
+    --secondary: 216 13% 15%;
+    --secondary-foreground: 0 0% 90%;
+
+    --muted: 216 13% 15%;
+    --muted-foreground: 0 0% 70%;
+
+    --accent: 216 13% 15%;
+    --accent-foreground: 0 0% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+
+    --success: 150 50% 35%;
+    --success-foreground: 0 0% 100%;
+
+    --border: 216 13% 20%;
+    --input: 216 13% 20%;
+    --ring: 0 0% 98%;
+
+    --sidebar-background: 216 13% 8%;
+    --sidebar-foreground: 0 0% 98%;
+    --sidebar-primary: 0 0% 98%;
+    --sidebar-primary-foreground: 216 13% 8%;
+    --sidebar-accent: 216 13% 15%;
+    --sidebar-accent-foreground: 0 0% 98%;
+    --sidebar-border: 216 13% 20%;
+    --sidebar-ring: 0 0% 98%;
+
+    --chart-1: 0 0% 98%;
+    --chart-2: 0 0% 70%;
+    --chart-3: 216 13% 15%;
+    --chart-4: 216 13% 20%;
+    --chart-5: 216 13% 5%;
+  }
+}
+ 
+>>>>>>> b01b3e35df346770f63206eb2370ec9184a585ef
 @layer base {
   * {
     @apply border-border;
   }
   body {
     @apply bg-background text-foreground;
+<<<<<<< HEAD
     font-feature-settings:
       'rlig' 1,
       'calt' 1;
@@ -105,3 +221,7 @@
   text-decoration: none !important;
   color: hsl(var(--foreground)) !important;
 }
+=======
+  }
+}
+>>>>>>> b01b3e35df346770f63206eb2370ec9184a585ef

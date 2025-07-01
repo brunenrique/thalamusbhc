@@ -1,10 +1,17 @@
+<<<<<<< HEAD
 
+=======
+>>>>>>> b01b3e35df346770f63206eb2370ec9184a585ef
 "use client"
 
 import * as React from "react"
 import * as AlertDialogPrimitive from "@radix-ui/react-alert-dialog"
 
+<<<<<<< HEAD
 import { cn } from "@/shared/utils"
+=======
+import { cn } from "@/lib/utils"
+>>>>>>> b01b3e35df346770f63206eb2370ec9184a585ef
 import { buttonVariants } from "@/components/ui/button"
 
 const AlertDialog = AlertDialogPrimitive.Root

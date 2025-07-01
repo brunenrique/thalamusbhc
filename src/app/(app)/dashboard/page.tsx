@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import DashboardGrid from '@/components/dashboard/DashboardGrid';
 import { LayoutDashboard } from 'lucide-react';
 
@@ -11,4 +12,10 @@ export default function DashboardPage() {
       <DashboardGrid />
     </div>
   );
+=======
+import { DashboardPage as DashboardPageClient } from "@/features/dashboard";
+
+export default function DashboardPage() {
+  return <DashboardPageClient />;
+>>>>>>> b01b3e35df346770f63206eb2370ec9184a585ef
 }

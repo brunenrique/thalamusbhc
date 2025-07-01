@@ -1,4 +1,5 @@
 {
+<<<<<<< HEAD
   "extends": [
     "next/core-web-vitals",
     "eslint:recommended",
@@ -12,4 +13,7 @@
     "no-console": ["warn", { "allow": ["warn", "error"] }],
     "prettier/prettier": "error"
   }
+=======
+  "extends": "next/core-web-vitals"
+>>>>>>> b01b3e35df346770f63206eb2370ec9184a585ef
 }

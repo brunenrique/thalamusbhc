@@ -19,8 +19,11 @@
 
 # production
 /build
+<<<<<<< HEAD
 /functions/node_modules
 /functions/lib
+=======
+>>>>>>> b01b3e35df346770f63206eb2370ec9184a585ef
 
 # misc
 .DS_Store
@@ -41,8 +44,15 @@ next-env.d.ts
 
 .genkit/*
 .env*
+<<<<<<< HEAD
 !.env.staging
 
 # firebase
 firebase-debug.log
 firestore-debug.log
+=======
+
+# firebase
+firebase-debug.log
+firestore-debug.log
+>>>>>>> b01b3e35df346770f63206eb2370ec9184a585ef

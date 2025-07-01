@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 # **App Name**: PsiGuard
+=======
+# **App Name**: Thalamus
+>>>>>>> b01b3e35df346770f63206eb2370ec9184a585ef
 
 ## Core Features:
 
@@ -20,6 +24,7 @@
 
 ## Style Guidelines:
 
+<<<<<<< HEAD
 - Primary color: Soft Lavender (#D0BFFF) for a calming and professional feel.
 - Background color: Light gray (#F5F5F5) to ensure readability and a clean interface.
 - Accent color: Gentle Teal (#70C1B3) for key actions and highlights, promoting trust.
@@ -32,3 +37,12 @@
 ## Fase 4: Confiabilidade e Desenvolvimento
 
 Diretrizes sobre segurança de prompts de IA, controle de custos e padronização do ambiente estão detalhadas em [phase4-reliability.md](./phase4-reliability.md).
+=======
+- Primary color: Muted violet (#9B7BBE) for a calm and contemplative mood.
+- Background color: Very light lavender (#F5F0FF).
+- Accent color: Soft blue (#7B8DBE), analogous to the primary violet, but desaturated, to indicate actionable elements.
+- Body and headline font: 'Alegreya', serif, providing an elegant and intellectual feel.
+- Use minimalist, line-style icons throughout the app for a clean and ultra modern aesthetic.
+- Clean and spacious layouts to reduce visual clutter and promote a sense of calm and focus.
+- Subtle transitions and animations for a smooth and engaging user experience.
+>>>>>>> b01b3e35df346770f63206eb2370ec9184a585ef

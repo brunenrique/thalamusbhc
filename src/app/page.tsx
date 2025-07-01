@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 
 import Image from "next/image";
 import Link from "next/link";
@@ -107,4 +108,10 @@ export default function LandingPage() {
       </footer>
     </div>
   );
+=======
+import { LoginForm } from "@/features/authentication";
+
+export default function LoginPage() {
+  return <LoginForm />;
+>>>>>>> b01b3e35df346770f63206eb2370ec9184a585ef
 }

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 'use client';
 import React, { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
@@ -646,4 +647,10 @@ export default function SchedulePage() {
       )}
     </div>
   );
+=======
+import { SchedulePage as SchedulePageClient } from "@/features/schedule";
+
+export default function SchedulePage() {
+  return <SchedulePageClient />;
+>>>>>>> b01b3e35df346770f63206eb2370ec9184a585ef
 }

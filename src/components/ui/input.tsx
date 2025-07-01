@@ -1,7 +1,13 @@
+<<<<<<< HEAD
 
 import * as React from "react"
 
 import { cn } from "@/shared/utils"
+=======
+import * as React from "react"
+
+import { cn } from "@/lib/utils"
+>>>>>>> b01b3e35df346770f63206eb2370ec9184a585ef
 
 const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<"input">>(
   ({ className, type, ...props }, ref) => {
